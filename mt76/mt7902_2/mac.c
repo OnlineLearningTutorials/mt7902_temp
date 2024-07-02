@@ -4,7 +4,7 @@
 #include <linux/devcoredump.h>
 #include <linux/etherdevice.h>
 #include <linux/timekeeping.h>
-#include "mt7921.h"
+#include "mt7902.h"
 #include "../dma.h"
 #include "../mt76_connac2_mac.h"
 #include "mcu.h"

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: ISC
 /* Copyright (C) 2021 MediaTek Inc. */
 
-#include "mt7921.h"
+#include "mt7902.h"
 #include "mcu.h"
 
 int mt7921e_driver_own(struct mt792x_dev *dev)

@@ -6,7 +6,7 @@
 #include <linux/pci.h>
 #include <linux/module.h>
 #include <net/ipv6.h>
-#include "mt7921.h"
+#include "mt7902.h"
 #include "mcu.h"
 
 static int

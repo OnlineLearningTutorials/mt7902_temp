@@ -6,7 +6,7 @@
 #include <linux/hwmon-sysfs.h>
 #include <linux/thermal.h>
 #include <linux/firmware.h>
-#include "mt7921.h"
+#include "mt7902.h"
 #include "../mt76_connac2_mac.h"
 #include "mcu.h"
 

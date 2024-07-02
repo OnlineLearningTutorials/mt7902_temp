@@ -3,7 +3,7 @@
 
 #include <linux/fs.h>
 #include <linux/firmware.h>
-#include "mt7921.h"
+#include "mt7902.h"
 #include "mcu.h"
 #include "../mt76_connac2_mac.h"
 #include "../mt792x_trace.h"
