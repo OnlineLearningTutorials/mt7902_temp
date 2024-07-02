@@ -21,8 +21,8 @@
 #define MT7902_EEPROM_BLOCK_SIZE	16
 
 #define MT7902_SKU_RATE_NUM		161
-#define MT7902_SKU_MAX_DELTA_IDX	MT7921_SKU_RATE_NUM
-#define MT7902_SKU_TABLE_SIZE		(MT7921_SKU_RATE_NUM + 1)
+#define MT7902_SKU_MAX_DELTA_IDX	MT7902_SKU_RATE_NUM
+#define MT7902_SKU_TABLE_SIZE		(MT7902_SKU_RATE_NUM + 1)
 
 #define MCU_UNI_EVENT_ROC  0x27
 #define MCU_UNI_EVENT_CLC  0x80
@@ -34,9 +34,9 @@ enum {
 };
 
 enum mt7902_roc_req {
-	MT7921_ROC_REQ_JOIN,
-	MT7921_ROC_REQ_ROC,
-	MT7921_ROC_REQ_NUM
+	MT7902_ROC_REQ_JOIN,
+	MT7902_ROC_REQ_ROC,
+	MT7902_ROC_REQ_NUM
 };
 
 enum {
@@ -98,10 +98,10 @@ struct mt7902_sdio_intr {
 #define to_rcpi(rssi)			(2 * (rssi) + 220)
 
 enum mt7902_txq_id {
-	MT7921_TXQ_BAND0,
-	MT7921_TXQ_BAND1,
-	MT7921_TXQ_FWDL = 16,
-	MT7921_TXQ_MCU_WM,
+	MT7902_TXQ_BAND0,
+	MT7902_TXQ_BAND1,
+	MT7902_TXQ_FWDL = 16,
+	MT7902_TXQ_MCU_WM,
 };
 
 enum mt7902_rxq_id {
@@ -213,20 +213,20 @@ mt7902_reg_map_l1(struct mt792x_dev *dev, u32 addr)
 static inline u32
 mt7902_l1_rr(struct mt792x_dev *dev, u32 addr)
 {
-	return mt76_rr(dev, mt7921_reg_map_l1(dev, addr));
+	return mt76_rr(dev, mt7902_reg_map_l1(dev, addr));
 }
 
 static inline void
 mt7902_l1_wr(struct mt792x_dev *dev, u32 addr, u32 val)
 {
-	mt76_wr(dev, mt7921_reg_map_l1(dev, addr), val);
+	mt76_wr(dev, mt7902_reg_map_l1(dev, addr), val);
 }
 
 static inline u32
 mt7902_l1_rmw(struct mt792x_dev *dev, u32 addr, u32 mask, u32 val)
 {
-	val |= mt7921_l1_rr(dev, addr) & ~mask;
-	mt7921_l1_wr(dev, addr, val);
+	val |= mt7902_l1_rr(dev, addr) & ~mask;
+	mt7902_l1_wr(dev, addr, val);
 
 	return val;
 }
@@ -269,7 +269,7 @@ void mt7902_scan_work(struct work_struct *work);
 void mt7902_roc_work(struct work_struct *work);
 int mt7902_mcu_uni_bss_ps(struct mt792x_dev *dev, struct ieee80211_vif *vif);
 void mt7902_coredump_work(struct work_struct *work);
-int mt7902_get_txpwr_info(struct mt792x_dev *dev, struct mt7921_txpwr *txpwr);
+int mt7902_get_txpwr_info(struct mt792x_dev *dev, struct mt7902_txpwr *txpwr);
 int mt7902_testmode_cmd(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
 			void *data, int len);
 int mt7902_testmode_dump(struct ieee80211_hw *hw, struct sk_buff *msg,
@@ -319,7 +319,7 @@ int mt7902_mcu_set_clc(struct mt792x_dev *dev, u8 *alpha2,
 		       enum environment_cap env_cap);
 int mt7902_mcu_set_roc(struct mt792x_phy *phy, struct mt792x_vif *vif,
 		       struct ieee80211_channel *chan, int duration,
-		       enum mt7921_roc_req type, u8 token_id);
+		       enum mt7902_roc_req type, u8 token_id);
 int mt7902_mcu_abort_roc(struct mt792x_phy *phy, struct mt792x_vif *vif,
 			 u8 token_id);
 #endif
