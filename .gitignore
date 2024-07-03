@@ -1,0 +1,13 @@
+*.tar.xz
+*.tgz
+*.bz
+*.zip
+
+*.o
+*.mod
+*.cmd
+*.ko
+*.rej
+
+firmware/
+.backup/

@@ -42,6 +42,7 @@ obj-m += mt76x2/
 obj-m += mt7603/
 obj-m += mt7615/
 obj-m += mt7902/
+obj-m += mt7902_2/
 obj-m += mt7915/
 obj-m += mt7921/
 obj-m += mt7996/
