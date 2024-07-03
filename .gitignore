@@ -4,7 +4,9 @@
 *.zip
 
 *.o
+*.o.d
 *.mod
+*.mod.c
 *.cmd
 *.ko
 *.rej
