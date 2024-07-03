@@ -10,6 +10,9 @@
 *.cmd
 *.ko
 *.rej
+*.order
+*.symvers
+
 
 firmware/
 .backup/
