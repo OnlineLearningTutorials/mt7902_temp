@@ -1,0 +1,1 @@
+savedcmd_/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt7601u/mt7601u.o := ld -m elf_x86_64 -z noexecstack --no-warn-rwx-segments   -r -o /mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt7601u/mt7601u.o @/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt7601u/mt7601u.mod 

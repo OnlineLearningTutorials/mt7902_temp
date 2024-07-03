@@ -1,0 +1,13 @@
+/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt7601u/usb.o
+/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt7601u/init.o
+/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt7601u/main.o
+/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt7601u/mcu.o
+/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt7601u/trace.o
+/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt7601u/dma.o
+/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt7601u/core.o
+/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt7601u/eeprom.o
+/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt7601u/phy.o
+/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt7601u/mac.o
+/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt7601u/util.o
+/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt7601u/debugfs.o
+/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt7601u/tx.o
