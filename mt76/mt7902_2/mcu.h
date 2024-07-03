@@ -1,12 +1,12 @@
 /* SPDX-License-Identifier: ISC */
 /* Copyright (C) 2020 MediaTek Inc. */
 
-#ifndef __MT7921_MCU_H
-#define __MT7921_MCU_H
+#ifndef __MT7902_MCU_H
+#define __MT7902_MCU_H
 
 #include "../mt76_connac_mcu.h"
 
-struct mt7921_mcu_tx_done_event {
+struct mt7902_mcu_tx_done_event {
 	u8 pid;
 	u8 status;
 	__le16 seq;
@@ -38,10 +38,10 @@ enum {
 	MCU_EXT_EVENT_RATE_REPORT = 0x87,
 };
 
-struct mt7921_mcu_eeprom_info {
+struct mt7902_mcu_eeprom_info {
 	__le32 addr;
 	__le32 valid;
-	u8 data[MT7921_EEPROM_BLOCK_SIZE];
+	u8 data[MT7902_EEPROM_BLOCK_SIZE];
 } __packed;
 
 #define MT_RA_RATE_NSS			GENMASK(8, 6)
@@ -55,11 +55,11 @@ enum {
 	MT_IBF = BIT(1)		/* implicit beamforming */
 };
 
-struct mt7921_mcu_ant_id_config {
+struct mt7902_mcu_ant_id_config {
 	u8 ant_id[4];
 } __packed;
 
-struct mt7921_txpwr_req {
+struct mt7902_txpwr_req {
 	u8 ver;
 	u8 action;
 	__le16 len;
@@ -67,11 +67,11 @@ struct mt7921_txpwr_req {
 	u8 rsv[3];
 } __packed;
 
-struct mt7921_txpwr_event {
+struct mt7902_txpwr_event {
 	u8 ver;
 	u8 action;
 	__le16 len;
-	struct mt7921_txpwr txpwr;
+	struct mt7902_txpwr txpwr;
 } __packed;
 
 enum {
@@ -81,26 +81,26 @@ enum {
 };
 
 enum {
-	MT7921_TM_NORMAL,
-	MT7921_TM_TESTMODE,
-	MT7921_TM_ICAP,
-	MT7921_TM_ICAP_OVERLAP,
-	MT7921_TM_WIFISPECTRUM,
+	MT7902_TM_NORMAL,
+	MT7902_TM_TESTMODE,
+	MT7902_TM_ICAP,
+	MT7902_TM_ICAP_OVERLAP,
+	MT7902_TM_WIFISPECTRUM,
 };
 
-struct mt7921_rftest_cmd {
+struct mt7902_rftest_cmd {
 	u8 action;
 	u8 rsv[3];
 	__le32 param0;
 	__le32 param1;
 } __packed;
 
-struct mt7921_rftest_evt {
+struct mt7902_rftest_evt {
 	__le32 param0;
 	__le32 param1;
 } __packed;
 
-struct mt7921_clc_info_tlv {
+struct mt7902_clc_info_tlv {
 	__le16 tag;
 	__le16 len;
 

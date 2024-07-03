@@ -10,7 +10,7 @@
 #include "../mt76_connac2_mac.h"
 #include "mcu.h"
 
-static ssize_t mt7921_thermal_temp_show(struct device *dev,
+static ssize_t mt7902_thermal_temp_show(struct device *dev,
 					struct device_attribute *attr,
 					char *buf)
 {
@@ -21,7 +21,7 @@ static ssize_t mt7921_thermal_temp_show(struct device *dev,
 		int temperature;
 
 		mt792x_mutex_acquire(mdev);
-		temperature = mt7921_mcu_get_temperature(phy);
+		temperature = mt7902_mcu_get_temperature(phy);
 		mt792x_mutex_release(mdev);
 
 		if (temperature < 0)
@@ -33,15 +33,15 @@ static ssize_t mt7921_thermal_temp_show(struct device *dev,
 		return -EINVAL;
 	}
 }
-static SENSOR_DEVICE_ATTR_RO(temp1_input, mt7921_thermal_temp, 0);
+static SENSOR_DEVICE_ATTR_RO(temp1_input, mt7902_thermal_temp, 0);
 
-static struct attribute *mt7921_hwmon_attrs[] = {
+static struct attribute *mt7902_hwmon_attrs[] = {
 	&sensor_dev_attr_temp1_input.dev_attr.attr,
 	NULL,
 };
-ATTRIBUTE_GROUPS(mt7921_hwmon);
+ATTRIBUTE_GROUPS(mt7902_hwmon);
 
-static int mt7921_thermal_init(struct mt792x_phy *phy)
+static int mt7902_thermal_init(struct mt792x_phy *phy)
 {
 	struct wiphy *wiphy = phy->mt76->hw->wiphy;
 	struct device *hwmon;
@@ -50,16 +50,16 @@ static int mt7921_thermal_init(struct mt792x_phy *phy)
 	if (!IS_REACHABLE(CONFIG_HWMON))
 		return 0;
 
-	name = devm_kasprintf(&wiphy->dev, GFP_KERNEL, "mt7921_%s",
+	name = devm_kasprintf(&wiphy->dev, GFP_KERNEL, "mt7902_%s",
 			      wiphy_name(wiphy));
 
 	hwmon = devm_hwmon_device_register_with_groups(&wiphy->dev, name, phy,
-						       mt7921_hwmon_groups);
+						       mt7902_hwmon_groups);
 	return PTR_ERR_OR_ZERO(hwmon);
 }
 
 static void
-mt7921_regd_channel_update(struct wiphy *wiphy, struct mt792x_dev *dev)
+mt7902_regd_channel_update(struct wiphy *wiphy, struct mt792x_dev *dev)
 {
 #define IS_UNII_INVALID(idx, sfreq, efreq) \
 	(!(dev->phy.clc_chan_conf & BIT(idx)) && (cfreq) >= (sfreq) && (cfreq) <= (efreq))
@@ -110,21 +110,21 @@ mt7921_regd_channel_update(struct wiphy *wiphy, struct mt792x_dev *dev)
 	}
 }
 
-void mt7921_regd_update(struct mt792x_dev *dev)
+void mt7902_regd_update(struct mt792x_dev *dev)
 {
 	struct mt76_dev *mdev = &dev->mt76;
 	struct ieee80211_hw *hw = mdev->hw;
 	struct wiphy *wiphy = hw->wiphy;
 
-	mt7921_mcu_set_clc(dev, mdev->alpha2, dev->country_ie_env);
-	mt7921_regd_channel_update(wiphy, dev);
+	mt7902_mcu_set_clc(dev, mdev->alpha2, dev->country_ie_env);
+	mt7902_regd_channel_update(wiphy, dev);
 	mt76_connac_mcu_set_channel_domain(hw->priv);
-	mt7921_set_tx_sar_pwr(hw, NULL);
+	mt7902_set_tx_sar_pwr(hw, NULL);
 }
-EXPORT_SYMBOL_GPL(mt7921_regd_update);
+EXPORT_SYMBOL_GPL(mt7902_regd_update);
 
 static void
-mt7921_regd_notifier(struct wiphy *wiphy,
+mt7902_regd_notifier(struct wiphy *wiphy,
 		     struct regulatory_request *request)
 {
 	struct ieee80211_hw *hw = wiphy_to_ieee80211_hw(wiphy);
@@ -139,11 +139,11 @@ mt7921_regd_notifier(struct wiphy *wiphy,
 		return;
 
 	mt792x_mutex_acquire(dev);
-	mt7921_regd_update(dev);
+	mt7902_regd_update(dev);
 	mt792x_mutex_release(dev);
 }
 
-int mt7921_mac_init(struct mt792x_dev *dev)
+int mt7902_mac_init(struct mt792x_dev *dev)
 {
 	int i;
 
@@ -154,16 +154,16 @@ int mt7921_mac_init(struct mt792x_dev *dev)
 	mt76_set(dev, MT_MDP_DCR0, MT_MDP_DCR0_RX_HDR_TRANS_EN);
 
 	for (i = 0; i < MT792x_WTBL_SIZE; i++)
-		mt7921_mac_wtbl_update(dev, i,
+		mt7902_mac_wtbl_update(dev, i,
 				       MT_WTBL_UPDATE_ADM_COUNT_CLEAR);
 	for (i = 0; i < 2; i++)
 		mt792x_mac_init_band(dev, i);
 
 	return mt76_connac_mcu_set_rts_thresh(&dev->mt76, 0x92b, 0);
 }
-EXPORT_SYMBOL_GPL(mt7921_mac_init);
+EXPORT_SYMBOL_GPL(mt7902_mac_init);
 
-static int __mt7921_init_hardware(struct mt792x_dev *dev)
+static int __mt7902_init_hardware(struct mt792x_dev *dev)
 {
 	int ret;
 
@@ -177,23 +177,23 @@ static int __mt7921_init_hardware(struct mt792x_dev *dev)
 
 	mt76_eeprom_override(&dev->mphy);
 
-	ret = mt7921_mcu_set_eeprom(dev);
+	ret = mt7902_mcu_set_eeprom(dev);
 	if (ret)
 		goto out;
 
-	ret = mt7921_mac_init(dev);
+	ret = mt7902_mac_init(dev);
 out:
 	return ret;
 }
 
-static int mt7921_init_hardware(struct mt792x_dev *dev)
+static int mt7902_init_hardware(struct mt792x_dev *dev)
 {
 	int ret, i;
 
 	set_bit(MT76_STATE_INITIALIZED, &dev->mphy.state);
 
 	for (i = 0; i < MT792x_MCU_INIT_RETRY_COUNT; i++) {
-		ret = __mt7921_init_hardware(dev);
+		ret = __mt7902_init_hardware(dev);
 		if (!ret)
 			break;
 
@@ -208,18 +208,18 @@ static int mt7921_init_hardware(struct mt792x_dev *dev)
 	return 0;
 }
 
-static void mt7921_init_work(struct work_struct *work)
+static void mt7902_init_work(struct work_struct *work)
 {
 	struct mt792x_dev *dev = container_of(work, struct mt792x_dev,
 					      init_work);
 	int ret;
 
-	ret = mt7921_init_hardware(dev);
+	ret = mt7902_init_hardware(dev);
 	if (ret)
 		return;
 
 	mt76_set_stream_caps(&dev->mphy, true);
-	mt7921_set_stream_he_caps(&dev->phy);
+	mt7902_set_stream_he_caps(&dev->phy);
 
 	ret = mt76_register_device(&dev->mt76, true, mt76_rates,
 				   ARRAY_SIZE(mt76_rates));
@@ -228,13 +228,13 @@ static void mt7921_init_work(struct work_struct *work)
 		return;
 	}
 
-	ret = mt7921_init_debugfs(dev);
+	ret = mt7902_init_debugfs(dev);
 	if (ret) {
 		dev_err(dev->mt76.dev, "register debugfs failed\n");
 		return;
 	}
 
-	ret = mt7921_thermal_init(&dev->phy);
+	ret = mt7902_thermal_init(&dev->phy);
 	if (ret) {
 		dev_err(dev->mt76.dev, "thermal init failed\n");
 		return;
@@ -246,7 +246,7 @@ static void mt7921_init_work(struct work_struct *work)
 	mt76_connac_mcu_set_deep_sleep(&dev->mt76, dev->pm.ds_enable);
 }
 
-int mt7921_register_device(struct mt792x_dev *dev)
+int mt7902_register_device(struct mt792x_dev *dev)
 {
 	struct ieee80211_hw *hw = mt76_hw(dev);
 	int ret;
@@ -265,19 +265,19 @@ int mt7921_register_device(struct mt792x_dev *dev)
 		init_waitqueue_head(&dev->mt76.sdio.wait);
 	spin_lock_init(&dev->pm.txq_lock);
 	INIT_DELAYED_WORK(&dev->mphy.mac_work, mt792x_mac_work);
-	INIT_DELAYED_WORK(&dev->phy.scan_work, mt7921_scan_work);
-	INIT_DELAYED_WORK(&dev->coredump.work, mt7921_coredump_work);
+	INIT_DELAYED_WORK(&dev->phy.scan_work, mt7902_scan_work);
+	INIT_DELAYED_WORK(&dev->coredump.work, mt7902_coredump_work);
 #if IS_ENABLED(CONFIG_IPV6)
-	INIT_WORK(&dev->ipv6_ns_work, mt7921_set_ipv6_ns_work);
+	INIT_WORK(&dev->ipv6_ns_work, mt7902_set_ipv6_ns_work);
 	skb_queue_head_init(&dev->ipv6_ns_list);
 #endif
 	skb_queue_head_init(&dev->phy.scan_event_list);
 	skb_queue_head_init(&dev->coredump.msg_list);
 
-	INIT_WORK(&dev->reset_work, mt7921_mac_reset_work);
-	INIT_WORK(&dev->init_work, mt7921_init_work);
+	INIT_WORK(&dev->reset_work, mt7902_mac_reset_work);
+	INIT_WORK(&dev->init_work, mt7902_init_work);
 
-	INIT_WORK(&dev->phy.roc_work, mt7921_roc_work);
+	INIT_WORK(&dev->phy.roc_work, mt7902_roc_work);
 	timer_setup(&dev->phy.roc_timer, mt792x_roc_timer, 0);
 	init_waitqueue_head(&dev->phy.roc_wait);
 
@@ -304,7 +304,7 @@ int mt7921_register_device(struct mt792x_dev *dev)
 	if (ret)
 		return ret;
 
-	hw->wiphy->reg_notifier = mt7921_regd_notifier;
+	hw->wiphy->reg_notifier = mt7902_regd_notifier;
 	dev->mphy.sband_2g.sband.ht_cap.cap |=
 			IEEE80211_HT_CAP_LDPC_CODING |
 			IEEE80211_HT_CAP_MAX_AMSDU;
@@ -329,4 +329,4 @@ int mt7921_register_device(struct mt792x_dev *dev)
 
 	return 0;
 }
-EXPORT_SYMBOL_GPL(mt7921_register_device);
+EXPORT_SYMBOL_GPL(mt7902_register_device);

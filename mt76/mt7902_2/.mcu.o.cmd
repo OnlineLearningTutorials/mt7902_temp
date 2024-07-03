@@ -1564,6 +1564,6 @@ deps_/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt7902_2/
 $(deps_/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt7902_2/mcu.o):
 
 /mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt7902_2/mcu.o: $(wildcard ./tools/objtool/objtool)
-#SYMVER mt7921_mcu_parse_response 0x3d1e494a
-#SYMVER mt7921_run_firmware 0x4967e27d
-#SYMVER mt7921_mcu_set_eeprom 0x56f6b758
+#SYMVER mt7902_mcu_parse_response 0x12af6397
+#SYMVER mt7902_run_firmware 0x45666141
+#SYMVER mt7902_mcu_set_eeprom 0x51b4103c

@@ -1546,8 +1546,8 @@ deps_/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt7902_2/
 $(deps_/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt7902_2/mac.o):
 
 /mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt7902_2/mac.o: $(wildcard ./tools/objtool/objtool)
-#SYMVER mt7921_rx_check 0xc0a66982
-#SYMVER mt7921_queue_rx_skb 0x219f8c65
-#SYMVER mt7921_usb_sdio_tx_prepare_skb 0x84307e08
-#SYMVER mt7921_usb_sdio_tx_complete_skb 0xc80bacff
-#SYMVER mt7921_usb_sdio_tx_status_data 0x610ca4b4
+#SYMVER mt7902_rx_check 0x761ecc27
+#SYMVER mt7902_queue_rx_skb 0x6de9c9fa
+#SYMVER mt7902_usb_sdio_tx_prepare_skb 0xb489492f
+#SYMVER mt7902_usb_sdio_tx_complete_skb 0x41c6c84a
+#SYMVER mt7902_usb_sdio_tx_status_data 0x25e08ab3

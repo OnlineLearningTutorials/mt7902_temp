@@ -1563,6 +1563,6 @@ deps_/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt7902_2/
 $(deps_/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt7902_2/init.o):
 
 /mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt7902_2/init.o: $(wildcard ./tools/objtool/objtool)
-#SYMVER mt7921_regd_update 0xf84b8192
-#SYMVER mt7921_mac_init 0xbd45ce6f
-#SYMVER mt7921_register_device 0xa72dbcb0
+#SYMVER mt7902_regd_update 0x57c7a292
+#SYMVER mt7902_mac_init 0x2d0e21aa
+#SYMVER mt7902_register_device 0x4c792d37

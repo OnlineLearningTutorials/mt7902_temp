@@ -1613,8 +1613,8 @@ deps_/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt7902_2/
 $(deps_/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt7902_2/main.o):
 
 /mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt7902_2/main.o: $(wildcard ./tools/objtool/objtool)
-#SYMVER __mt7921_start 0xe3c774b2
-#SYMVER mt7921_mac_sta_add 0xc6511c02
-#SYMVER mt7921_mac_sta_assoc 0x16f0dfa0
-#SYMVER mt7921_mac_sta_remove 0x64e321e8
-#SYMVER mt7921_ops 0xc5b8a821
+#SYMVER __mt7902_start 0x809fc5cb
+#SYMVER mt7902_mac_sta_add 0xfd0010cf
+#SYMVER mt7902_mac_sta_assoc 0x611201d9
+#SYMVER mt7902_mac_sta_remove 0x4d4d0aae
+#SYMVER mt7902_ops 0xd4b3cba6

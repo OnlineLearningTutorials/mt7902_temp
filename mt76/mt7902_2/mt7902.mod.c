@@ -31,39 +31,39 @@ __section(".gnu.linkonce.this_module") = {
 MODULE_INFO(retpoline, "Y");
 #endif
 
-KSYMTAB_FUNC(mt7921_rx_check, "_gpl", "");
-KSYMTAB_FUNC(mt7921_queue_rx_skb, "_gpl", "");
-KSYMTAB_FUNC(mt7921_usb_sdio_tx_prepare_skb, "_gpl", "");
-KSYMTAB_FUNC(mt7921_usb_sdio_tx_complete_skb, "_gpl", "");
-KSYMTAB_FUNC(mt7921_usb_sdio_tx_status_data, "_gpl", "");
-KSYMTAB_FUNC(mt7921_mcu_parse_response, "_gpl", "");
-KSYMTAB_FUNC(mt7921_run_firmware, "_gpl", "");
-KSYMTAB_FUNC(mt7921_mcu_set_eeprom, "_gpl", "");
-KSYMTAB_FUNC(__mt7921_start, "_gpl", "");
-KSYMTAB_FUNC(mt7921_mac_sta_add, "_gpl", "");
-KSYMTAB_FUNC(mt7921_mac_sta_assoc, "_gpl", "");
-KSYMTAB_FUNC(mt7921_mac_sta_remove, "_gpl", "");
-KSYMTAB_DATA(mt7921_ops, "_gpl", "");
-KSYMTAB_FUNC(mt7921_regd_update, "_gpl", "");
-KSYMTAB_FUNC(mt7921_mac_init, "_gpl", "");
-KSYMTAB_FUNC(mt7921_register_device, "_gpl", "");
+KSYMTAB_FUNC(mt7902_rx_check, "_gpl", "");
+KSYMTAB_FUNC(mt7902_queue_rx_skb, "_gpl", "");
+KSYMTAB_FUNC(mt7902_usb_sdio_tx_prepare_skb, "_gpl", "");
+KSYMTAB_FUNC(mt7902_usb_sdio_tx_complete_skb, "_gpl", "");
+KSYMTAB_FUNC(mt7902_usb_sdio_tx_status_data, "_gpl", "");
+KSYMTAB_FUNC(mt7902_mcu_parse_response, "_gpl", "");
+KSYMTAB_FUNC(mt7902_run_firmware, "_gpl", "");
+KSYMTAB_FUNC(mt7902_mcu_set_eeprom, "_gpl", "");
+KSYMTAB_FUNC(__mt7902_start, "_gpl", "");
+KSYMTAB_FUNC(mt7902_mac_sta_add, "_gpl", "");
+KSYMTAB_FUNC(mt7902_mac_sta_assoc, "_gpl", "");
+KSYMTAB_FUNC(mt7902_mac_sta_remove, "_gpl", "");
+KSYMTAB_DATA(mt7902_ops, "_gpl", "");
+KSYMTAB_FUNC(mt7902_regd_update, "_gpl", "");
+KSYMTAB_FUNC(mt7902_mac_init, "_gpl", "");
+KSYMTAB_FUNC(mt7902_register_device, "_gpl", "");
 
-SYMBOL_CRC(mt7921_rx_check, 0xc0a66982, "_gpl");
-SYMBOL_CRC(mt7921_queue_rx_skb, 0x219f8c65, "_gpl");
-SYMBOL_CRC(mt7921_usb_sdio_tx_prepare_skb, 0x84307e08, "_gpl");
-SYMBOL_CRC(mt7921_usb_sdio_tx_complete_skb, 0xc80bacff, "_gpl");
-SYMBOL_CRC(mt7921_usb_sdio_tx_status_data, 0x610ca4b4, "_gpl");
-SYMBOL_CRC(mt7921_mcu_parse_response, 0x3d1e494a, "_gpl");
-SYMBOL_CRC(mt7921_run_firmware, 0x4967e27d, "_gpl");
-SYMBOL_CRC(mt7921_mcu_set_eeprom, 0x56f6b758, "_gpl");
-SYMBOL_CRC(__mt7921_start, 0xe3c774b2, "_gpl");
-SYMBOL_CRC(mt7921_mac_sta_add, 0xc6511c02, "_gpl");
-SYMBOL_CRC(mt7921_mac_sta_assoc, 0x16f0dfa0, "_gpl");
-SYMBOL_CRC(mt7921_mac_sta_remove, 0x64e321e8, "_gpl");
-SYMBOL_CRC(mt7921_ops, 0xc5b8a821, "_gpl");
-SYMBOL_CRC(mt7921_regd_update, 0xf84b8192, "_gpl");
-SYMBOL_CRC(mt7921_mac_init, 0xbd45ce6f, "_gpl");
-SYMBOL_CRC(mt7921_register_device, 0xa72dbcb0, "_gpl");
+SYMBOL_CRC(mt7902_rx_check, 0x761ecc27, "_gpl");
+SYMBOL_CRC(mt7902_queue_rx_skb, 0x6de9c9fa, "_gpl");
+SYMBOL_CRC(mt7902_usb_sdio_tx_prepare_skb, 0xb489492f, "_gpl");
+SYMBOL_CRC(mt7902_usb_sdio_tx_complete_skb, 0x41c6c84a, "_gpl");
+SYMBOL_CRC(mt7902_usb_sdio_tx_status_data, 0x25e08ab3, "_gpl");
+SYMBOL_CRC(mt7902_mcu_parse_response, 0x12af6397, "_gpl");
+SYMBOL_CRC(mt7902_run_firmware, 0x45666141, "_gpl");
+SYMBOL_CRC(mt7902_mcu_set_eeprom, 0x51b4103c, "_gpl");
+SYMBOL_CRC(__mt7902_start, 0x809fc5cb, "_gpl");
+SYMBOL_CRC(mt7902_mac_sta_add, 0xfd0010cf, "_gpl");
+SYMBOL_CRC(mt7902_mac_sta_assoc, 0x611201d9, "_gpl");
+SYMBOL_CRC(mt7902_mac_sta_remove, 0x4d4d0aae, "_gpl");
+SYMBOL_CRC(mt7902_ops, 0xd4b3cba6, "_gpl");
+SYMBOL_CRC(mt7902_regd_update, 0x57c7a292, "_gpl");
+SYMBOL_CRC(mt7902_mac_init, 0x2d0e21aa, "_gpl");
+SYMBOL_CRC(mt7902_register_device, 0x4c792d37, "_gpl");
 
 static const char ____versions[]
 __used __section("__versions") =
@@ -625,4 +625,4 @@ MODULE_ALIAS("pci:v00000B48d00007922sv*sd*bc*sc*i*");
 MODULE_ALIAS("pci:v000014C3d00000608sv*sd*bc*sc*i*");
 MODULE_ALIAS("pci:v000014C3d00000616sv*sd*bc*sc*i*");
 
-MODULE_INFO(srcversion, "C6BB19057D3492F3680520C");
+MODULE_INFO(srcversion, "CD419B8D6B6C1BE1C303013");
