@@ -1,0 +1,10 @@
+/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt7996/pci.o
+/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt7996/init.o
+/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt7996/dma.o
+/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt7996/eeprom.o
+/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt7996/main.o
+/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt7996/mcu.o
+/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt7996/mac.o
+/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt7996/debugfs.o
+/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt7996/mmio.o
+/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt7996/coredump.o

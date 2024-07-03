@@ -1,0 +1,11 @@
+/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mmio.o
+/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/util.o
+/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/trace.o
+/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/dma.o
+/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mac80211.o
+/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/debugfs.o
+/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/eeprom.o
+/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/tx.o
+/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/agg-rx.o
+/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mcu.o
+/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/pci.o

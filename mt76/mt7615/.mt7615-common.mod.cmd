@@ -1,0 +1,1 @@
+savedcmd_/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt7615/mt7615-common.mod := printf '%s\n'   main.o init.o mcu.o eeprom.o mac.o debugfs.o trace.o | awk '!x[$$0]++ { print("/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt7615/"$$0) }' > /mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt7615/mt7615-common.mod

@@ -1,0 +1,1 @@
+savedcmd_/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt7996/modules.order := {   echo /mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt7996/mt7996e.o; :; } > /mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt7996/modules.order

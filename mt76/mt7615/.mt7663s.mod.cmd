@@ -1,0 +1,1 @@
+savedcmd_/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt7615/mt7663s.mod := printf '%s\n'   sdio.o sdio_mcu.o | awk '!x[$$0]++ { print("/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt7615/"$$0) }' > /mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt7615/mt7663s.mod

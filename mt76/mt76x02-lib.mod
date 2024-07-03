@@ -1,0 +1,11 @@
+/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt76x02_util.o
+/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt76x02_mac.o
+/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt76x02_mcu.o
+/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt76x02_eeprom.o
+/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt76x02_phy.o
+/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt76x02_mmio.o
+/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt76x02_txrx.o
+/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt76x02_trace.o
+/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt76x02_debugfs.o
+/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt76x02_dfs.o
+/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt76x02_beacon.o

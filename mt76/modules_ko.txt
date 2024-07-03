@@ -1,0 +1,8 @@
+mt76-connac-lib.ko
+mt76.ko
+mt76-sdio.ko
+mt76-usb.ko
+mt76x02-lib.ko
+mt76x02-usb.ko
+mt792x-lib.ko
+mt792x-usb.ko

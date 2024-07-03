@@ -1,15 +1,25 @@
 # SPDX-License-Identifier: ISC
 
-mt7902e := mt7902.o pci.o init.o dma.o eeprom.o main.o mcu.o mac.o \
-        debugfs.o mmio.o
+obj-m += mt7902-common.o
+obj-m += mt7902e.o
+obj-m += mt7902s.o
+obj-m += mt7902u.o
+
+mt7902-common-y := mac.o mcu.o main.o init.o debugfs.o
+# mt7902-common-$(CONFIG_NL80211_TESTMODE) += testmode.o
+mt7902e-y := pci.o pci_mac.o pci_mcu.o
+mt7902s-y := sdio.o sdio_mac.o sdio_mcu.o
+mt7902u-y := usb.o
 
 
 
-# obj-$(CONFIG_MT7915E) += mt7915e.o
 
-# mt7915e-y := pci.o init.o dma.o eeprom.o main.o mcu.o mac.o \
-# 	     debugfs.o mmio.o
 
-# mt7915e-$(CONFIG_NL80211_TESTMODE) += testmode.o
-# mt7915e-$(CONFIG_MT798X_WMAC) += soc.o
-# mt7915e-$(CONFIG_DEV_COREDUMP) += coredump.o
+all: 
+	$(MAKE) -C /lib/modules/`uname -r`/build/ M=`pwd` modules
+
+
+clean: 
+	$(MAKE) -C /lib/modules/`uname -r`/build/ M=`pwd` clean
+	
+	

@@ -1,0 +1,1 @@
+savedcmd_/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt792x-usb.mod := printf '%s\n'   mt792x_usb.o | awk '!x[$$0]++ { print("/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/"$$0) }' > /mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt792x-usb.mod
