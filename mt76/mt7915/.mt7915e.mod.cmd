@@ -1,1 +1,0 @@
-savedcmd_/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt7915/mt7915e.mod := printf '%s\n'   pci.o init.o dma.o eeprom.o main.o mcu.o mac.o debugfs.o mmio.o coredump.o | awk '!x[$$0]++ { print("/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt7915/"$$0) }' > /mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt7915/mt7915e.mod

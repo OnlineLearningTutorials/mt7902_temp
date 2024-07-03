@@ -1,1 +1,0 @@
-savedcmd_/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt76x2/mt76x2-common.mod := printf '%s\n'   eeprom.o mac.o init.o phy.o mcu.o | awk '!x[$$0]++ { print("/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt76x2/"$$0) }' > /mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt76x2/mt76x2-common.mod

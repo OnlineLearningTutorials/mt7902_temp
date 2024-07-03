@@ -1,1 +1,0 @@
-savedcmd_/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt76x0/mt76x0e.mod := printf '%s\n'   pci.o pci_mcu.o | awk '!x[$$0]++ { print("/mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt76x0/"$$0) }' > /mnt/store/coding/github/OnlineLearningTutorials/mt7902_temp/mt76/mt76x0/mt76x0e.mod
