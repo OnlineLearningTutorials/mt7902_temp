@@ -1,8 +1,8 @@
 /* SPDX-License-Identifier: ISC */
 /* Copyright (C) 2020 MediaTek Inc. */
 
-#ifndef __MT7915_MAC_H
-#define __MT7915_MAC_H
+#ifndef __MT7902_MAC_H
+#define __MT7902_MAC_H
 
 #include "../mt76_connac2_mac.h"
 
@@ -38,7 +38,7 @@
 #define MT_TXS7_F1_MPDU_RETRY_COUNT	GENMASK(31, 24)
 #define MT_TXS7_F1_MPDU_RETRY_BYTES	GENMASK(23, 0)
 
-struct mt7915_dfs_pulse {
+struct mt7902_dfs_pulse {
 	u32 max_width;		/* us */
 	int max_pwr;		/* dbm */
 	int min_pwr;		/* dbm */
@@ -48,7 +48,7 @@ struct mt7915_dfs_pulse {
 	u32 max_cr_pri;		/* us */
 };
 
-struct mt7915_dfs_pattern {
+struct mt7902_dfs_pattern {
 	u8 enb;
 	u8 stgr;
 	u8 min_crpn;
@@ -67,9 +67,9 @@ struct mt7915_dfs_pattern {
 	u32 min_stgpr_diff;
 } __packed;
 
-struct mt7915_dfs_radar_spec {
-	struct mt7915_dfs_pulse pulse_th;
-	struct mt7915_dfs_pattern radar_pattern[16];
+struct mt7902_dfs_radar_spec {
+	struct mt7902_dfs_pulse pulse_th;
+	struct mt7902_dfs_pattern radar_pattern[16];
 };
 
 #endif

@@ -11,7 +11,7 @@ static bool coredump_memdump;
 module_param(coredump_memdump, bool, 0644);
 MODULE_PARM_DESC(coredump_memdump, "Optional ability to dump firmware memory");
 
-static const struct mt7915_mem_region mt7915_mem_regions[] = {
+static const struct mt7902_mem_region mt7902_mem_regions[] = {
 	{
 		.start = 0xe003b400,
 		.len = 0x00003bff,
@@ -19,7 +19,7 @@ static const struct mt7915_mem_region mt7915_mem_regions[] = {
 	},
 };
 
-static const struct mt7915_mem_region mt7916_mem_regions[] = {
+static const struct mt7902_mem_region mt7916_mem_regions[] = {
 	{
 		.start = 0x00800000,
 		.len = 0x0005ffff,
@@ -52,7 +52,7 @@ static const struct mt7915_mem_region mt7916_mem_regions[] = {
 	},
 };
 
-static const struct mt7915_mem_region mt798x_mem_regions[] = {
+static const struct mt7902_mem_region mt798x_mem_regions[] = {
 	{
 		.start = 0x00800000,
 		.len = 0x0005ffff,
@@ -85,13 +85,13 @@ static const struct mt7915_mem_region mt798x_mem_regions[] = {
 	},
 };
 
-const struct mt7915_mem_region*
-mt7915_coredump_get_mem_layout(struct mt7915_dev *dev, u32 *num)
+const struct mt7902_mem_region*
+mt7902_coredump_get_mem_layout(struct mt7902_dev *dev, u32 *num)
 {
 	switch (mt76_chip(&dev->mt76)) {
-	case 0x7915:
-		*num = ARRAY_SIZE(mt7915_mem_regions);
-		return &mt7915_mem_regions[0];
+	case 0x7902:
+		*num = ARRAY_SIZE(mt7902_mem_regions);
+		return &mt7902_mem_regions[0];
 	case 0x7981:
 	case 0x7986:
 		*num = ARRAY_SIZE(mt798x_mem_regions);
@@ -104,14 +104,14 @@ mt7915_coredump_get_mem_layout(struct mt7915_dev *dev, u32 *num)
 	}
 }
 
-static int mt7915_coredump_get_mem_size(struct mt7915_dev *dev)
+static int mt7902_coredump_get_mem_size(struct mt7902_dev *dev)
 {
-	const struct mt7915_mem_region *mem_region;
+	const struct mt7902_mem_region *mem_region;
 	size_t size = 0;
 	u32 num;
 	int i;
 
-	mem_region = mt7915_coredump_get_mem_layout(dev, &num);
+	mem_region = mt7902_coredump_get_mem_layout(dev, &num);
 	if (!mem_region)
 		return 0;
 
@@ -121,16 +121,16 @@ static int mt7915_coredump_get_mem_size(struct mt7915_dev *dev)
 	}
 
 	/* reserve space for the headers */
-	size += num * sizeof(struct mt7915_mem_hdr);
+	size += num * sizeof(struct mt7902_mem_hdr);
 	/* make sure it is aligned 4 bytes for debug message print out */
 	size = ALIGN(size, 4);
 
 	return size;
 }
 
-struct mt7915_crash_data *mt7915_coredump_new(struct mt7915_dev *dev)
+struct mt7902_crash_data *mt7902_coredump_new(struct mt7902_dev *dev)
 {
-	struct mt7915_crash_data *crash_data = dev->coredump.crash_data;
+	struct mt7902_crash_data *crash_data = dev->coredump.crash_data;
 
 	lockdep_assert_held(&dev->dump_mutex);
 
@@ -141,14 +141,14 @@ struct mt7915_crash_data *mt7915_coredump_new(struct mt7915_dev *dev)
 }
 
 static void
-mt7915_coredump_fw_state(struct mt7915_dev *dev, struct mt7915_coredump *dump,
+mt7902_coredump_fw_state(struct mt7902_dev *dev, struct mt7902_coredump *dump,
 			 bool *exception)
 {
 	u32 state, count, type;
 
 	type = (u32)mt76_get_field(dev, MT_FW_EXCEPT_TYPE, GENMASK(7, 0));
 	state = (u32)mt76_get_field(dev, MT_FW_ASSERT_STAT, GENMASK(7, 0));
-	count = is_mt7915(&dev->mt76) ?
+	count = is_mt7902(&dev->mt76) ?
 		(u32)mt76_get_field(dev, MT_FW_EXCEPT_COUNT, GENMASK(15, 8)) :
 		(u32)mt76_get_field(dev, MT_FW_EXCEPT_COUNT, GENMASK(7, 0));
 
@@ -164,7 +164,7 @@ mt7915_coredump_fw_state(struct mt7915_dev *dev, struct mt7915_coredump *dump,
 }
 
 static void
-mt7915_coredump_fw_trace(struct mt7915_dev *dev, struct mt7915_coredump *dump,
+mt7902_coredump_fw_trace(struct mt7902_dev *dev, struct mt7902_coredump *dump,
 			 bool exception)
 {
 	u32 n, irq, sch, base = MT_FW_EINT_INFO;
@@ -172,18 +172,18 @@ mt7915_coredump_fw_trace(struct mt7915_dev *dev, struct mt7915_coredump *dump,
 	/* trap or run? */
 	dump->last_msg_id = mt76_rr(dev, MT_FW_LAST_MSG_ID);
 
-	n = is_mt7915(&dev->mt76) ?
+	n = is_mt7902(&dev->mt76) ?
 	    (u32)mt76_get_field(dev, base, GENMASK(7, 0)) :
 	    (u32)mt76_get_field(dev, base, GENMASK(15, 8));
 	dump->eint_info_idx = n;
 
 	irq = mt76_rr(dev, base + 0x8);
-	n = is_mt7915(&dev->mt76) ?
+	n = is_mt7902(&dev->mt76) ?
 	    FIELD_GET(GENMASK(7, 0), irq) : FIELD_GET(GENMASK(23, 16), irq);
 	dump->irq_info_idx = n;
 
 	sch = mt76_rr(dev, MT_FW_SCHED_INFO);
-	n = is_mt7915(&dev->mt76) ?
+	n = is_mt7902(&dev->mt76) ?
 	    FIELD_GET(GENMASK(7, 0), sch) : FIELD_GET(GENMASK(15, 8), sch);
 	dump->sched_info_idx = n;
 
@@ -191,7 +191,7 @@ mt7915_coredump_fw_trace(struct mt7915_dev *dev, struct mt7915_coredump *dump,
 		u32 i, y;
 
 		/* sched trace */
-		n = is_mt7915(&dev->mt76) ?
+		n = is_mt7902(&dev->mt76) ?
 		    FIELD_GET(GENMASK(15, 8), sch) : FIELD_GET(GENMASK(7, 0), sch);
 		n = n > 60 ? 60 : n;
 
@@ -199,13 +199,13 @@ mt7915_coredump_fw_trace(struct mt7915_dev *dev, struct mt7915_coredump *dump,
 			sizeof(dump->trace_sched));
 
 		for (y = dump->sched_info_idx, i = 0; i < n; i++, y++) {
-			mt7915_memcpy_fromio(dev, dump->sched, base + 0xc + y * 12,
+			mt7902_memcpy_fromio(dev, dump->sched, base + 0xc + y * 12,
 					     sizeof(dump->sched));
 			y = y >= n ? 0 : y;
 		}
 
 		/* irq trace */
-		n = is_mt7915(&dev->mt76) ?
+		n = is_mt7902(&dev->mt76) ?
 		    FIELD_GET(GENMASK(15, 8), irq) : FIELD_GET(GENMASK(7, 0), irq);
 		n = n > 60 ? 60 : n;
 
@@ -213,7 +213,7 @@ mt7915_coredump_fw_trace(struct mt7915_dev *dev, struct mt7915_coredump *dump,
 			sizeof(dump->trace_irq));
 
 		for (y = dump->irq_info_idx, i = 0; i < n; i++, y++) {
-			mt7915_memcpy_fromio(dev, dump->irq, base + 0x4 + y * 16,
+			mt7902_memcpy_fromio(dev, dump->irq, base + 0x4 + y * 16,
 					     sizeof(dump->irq));
 			y = y >= n ? 0 : y;
 		}
@@ -221,7 +221,7 @@ mt7915_coredump_fw_trace(struct mt7915_dev *dev, struct mt7915_coredump *dump,
 }
 
 static void
-mt7915_coredump_fw_stack(struct mt7915_dev *dev, struct mt7915_coredump *dump,
+mt7902_coredump_fw_stack(struct mt7902_dev *dev, struct mt7902_coredump *dump,
 			 bool exception)
 {
 	u32 oldest, i, idx;
@@ -242,9 +242,9 @@ mt7915_coredump_fw_stack(struct mt7915_dev *dev, struct mt7915_coredump *dump,
 }
 
 static void
-mt7915_coredump_fw_task(struct mt7915_dev *dev, struct mt7915_coredump *dump)
+mt7902_coredump_fw_task(struct mt7902_dev *dev, struct mt7902_coredump *dump)
 {
-	u32 offs = is_mt7915(&dev->mt76) ? 0xe0 : 0x170;
+	u32 offs = is_mt7902(&dev->mt76) ? 0xe0 : 0x170;
 
 	strscpy(dump->task_qid, "(task queue id) read, write",
 		sizeof(dump->task_qid));
@@ -266,7 +266,7 @@ mt7915_coredump_fw_task(struct mt7915_dev *dev, struct mt7915_coredump *dump)
 }
 
 static void
-mt7915_coredump_fw_context(struct mt7915_dev *dev, struct mt7915_coredump *dump)
+mt7902_coredump_fw_context(struct mt7902_dev *dev, struct mt7902_coredump *dump)
 {
 	u32 count, idx, id;
 
@@ -277,7 +277,7 @@ mt7915_coredump_fw_context(struct mt7915_dev *dev, struct mt7915_coredump *dump)
 		strscpy(dump->fw_context, "(context) interrupt",
 			sizeof(dump->fw_context));
 
-		idx = is_mt7915(&dev->mt76) ?
+		idx = is_mt7902(&dev->mt76) ?
 		      (u32)mt76_get_field(dev, MT_FW_CIRQ_IDX, GENMASK(31, 16)) :
 		      (u32)mt76_get_field(dev, MT_FW_CIRQ_IDX, GENMASK(15, 0));
 		dump->context.idx = idx;
@@ -299,11 +299,11 @@ mt7915_coredump_fw_context(struct mt7915_dev *dev, struct mt7915_coredump *dump)
 	}
 }
 
-static struct mt7915_coredump *mt7915_coredump_build(struct mt7915_dev *dev)
+static struct mt7902_coredump *mt7902_coredump_build(struct mt7902_dev *dev)
 {
-	struct mt7915_crash_data *crash_data = dev->coredump.crash_data;
-	struct mt7915_coredump *dump;
-	struct mt7915_coredump_mem *dump_mem;
+	struct mt7902_crash_data *crash_data = dev->coredump.crash_data;
+	struct mt7902_coredump *dump;
+	struct mt7902_coredump_mem *dump_mem;
 	size_t len, sofar = 0, hdr_len = sizeof(*dump);
 	unsigned char *buf;
 	bool exception;
@@ -324,7 +324,7 @@ static struct mt7915_coredump *mt7915_coredump_build(struct mt7915_dev *dev)
 
 	mutex_lock(&dev->dump_mutex);
 
-	dump = (struct mt7915_coredump *)(buf);
+	dump = (struct mt7902_coredump *)(buf);
 	dump->len = len;
 
 	/* plain text */
@@ -338,14 +338,14 @@ static struct mt7915_coredump *mt7915_coredump_build(struct mt7915_dev *dev)
 	dump->tv_nsec = crash_data->timestamp.tv_nsec;
 	dump->device_id = mt76_chip(&dev->mt76);
 
-	mt7915_coredump_fw_state(dev, dump, &exception);
-	mt7915_coredump_fw_trace(dev, dump, exception);
-	mt7915_coredump_fw_task(dev, dump);
-	mt7915_coredump_fw_context(dev, dump);
-	mt7915_coredump_fw_stack(dev, dump, exception);
+	mt7902_coredump_fw_state(dev, dump, &exception);
+	mt7902_coredump_fw_trace(dev, dump, exception);
+	mt7902_coredump_fw_task(dev, dump);
+	mt7902_coredump_fw_context(dev, dump);
+	mt7902_coredump_fw_stack(dev, dump, exception);
 
 	/* gather memory content */
-	dump_mem = (struct mt7915_coredump_mem *)(buf + sofar);
+	dump_mem = (struct mt7902_coredump_mem *)(buf + sofar);
 	dump_mem->len = crash_data->memdump_buf_len;
 	if (coredump_memdump && crash_data->memdump_buf_len)
 		memcpy(dump_mem->data, crash_data->memdump_buf,
@@ -356,11 +356,11 @@ static struct mt7915_coredump *mt7915_coredump_build(struct mt7915_dev *dev)
 	return dump;
 }
 
-int mt7915_coredump_submit(struct mt7915_dev *dev)
+int mt7902_coredump_submit(struct mt7902_dev *dev)
 {
-	struct mt7915_coredump *dump;
+	struct mt7902_coredump *dump;
 
-	dump = mt7915_coredump_build(dev);
+	dump = mt7902_coredump_build(dev);
 	if (!dump) {
 		dev_warn(dev->mt76.dev, "no crash dump data found\n");
 		return -ENODATA;
@@ -371,9 +371,9 @@ int mt7915_coredump_submit(struct mt7915_dev *dev)
 	return 0;
 }
 
-int mt7915_coredump_register(struct mt7915_dev *dev)
+int mt7902_coredump_register(struct mt7902_dev *dev)
 {
-	struct mt7915_crash_data *crash_data;
+	struct mt7902_crash_data *crash_data;
 
 	crash_data = vzalloc(sizeof(*dev->coredump.crash_data));
 	if (!crash_data)
@@ -382,7 +382,7 @@ int mt7915_coredump_register(struct mt7915_dev *dev)
 	dev->coredump.crash_data = crash_data;
 
 	if (coredump_memdump) {
-		crash_data->memdump_buf_len = mt7915_coredump_get_mem_size(dev);
+		crash_data->memdump_buf_len = mt7902_coredump_get_mem_size(dev);
 		if (!crash_data->memdump_buf_len)
 			/* no memory content */
 			return 0;
@@ -397,7 +397,7 @@ int mt7915_coredump_register(struct mt7915_dev *dev)
 	return 0;
 }
 
-void mt7915_coredump_unregister(struct mt7915_dev *dev)
+void mt7902_coredump_unregister(struct mt7902_dev *dev)
 {
 	if (dev->coredump.crash_data->memdump_buf) {
 		vfree(dev->coredump.crash_data->memdump_buf);

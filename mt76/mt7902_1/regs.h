@@ -1,11 +1,11 @@
 /* SPDX-License-Identifier: ISC */
 /* Copyright (C) 2020 MediaTek Inc. */
 
-#ifndef __MT7915_REGS_H
-#define __MT7915_REGS_H
+#ifndef __MT7902_REGS_H
+#define __MT7902_REGS_H
 
 /* used to differentiate between generations */
-struct mt7915_reg_desc {
+struct mt7902_reg_desc {
 	const u32 *reg_rev;
 	const u32 *offs_rev;
 	const struct mt76_connac_reg_map *map;

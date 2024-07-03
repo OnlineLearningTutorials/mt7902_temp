@@ -13,7 +13,7 @@
 #include <linux/of_net.h>
 #include <linux/clk.h>
 
-#include "mt7915.h"
+#include "mt7902.h"
 
 #define MT7981_CON_INFRA_VERSION 0x02090000
 #define MT7986_CON_INFRA_VERSION 0x02070000
@@ -40,7 +40,7 @@ enum {
 };
 
 static int
-mt76_wmac_spi_read(struct mt7915_dev *dev, u8 adie, u32 addr, u32 *val)
+mt76_wmac_spi_read(struct mt7902_dev *dev, u8 adie, u32 addr, u32 *val)
 {
 	int ret;
 	u32 cur;
@@ -67,7 +67,7 @@ mt76_wmac_spi_read(struct mt7915_dev *dev, u8 adie, u32 addr, u32 *val)
 }
 
 static int
-mt76_wmac_spi_write(struct mt7915_dev *dev, u8 adie, u32 addr, u32 val)
+mt76_wmac_spi_write(struct mt7902_dev *dev, u8 adie, u32 addr, u32 val)
 {
 	int ret;
 	u32 cur;
@@ -88,7 +88,7 @@ mt76_wmac_spi_write(struct mt7915_dev *dev, u8 adie, u32 addr, u32 val)
 }
 
 static int
-mt76_wmac_spi_rmw(struct mt7915_dev *dev, u8 adie,
+mt76_wmac_spi_rmw(struct mt7902_dev *dev, u8 adie,
 		  u32 addr, u32 mask, u32 val)
 {
 	u32 cur, ret;
@@ -104,7 +104,7 @@ mt76_wmac_spi_rmw(struct mt7915_dev *dev, u8 adie,
 }
 
 static int
-mt7986_wmac_adie_efuse_read(struct mt7915_dev *dev, u8 adie,
+mt7986_wmac_adie_efuse_read(struct mt7902_dev *dev, u8 adie,
 			    u32 addr, u32 *data)
 {
 	int ret, temp;
@@ -146,7 +146,7 @@ mt7986_wmac_adie_efuse_read(struct mt7915_dev *dev, u8 adie,
 	return ret;
 }
 
-static inline void mt76_wmac_spi_lock(struct mt7915_dev *dev)
+static inline void mt76_wmac_spi_lock(struct mt7902_dev *dev)
 {
 	u32 cur;
 
@@ -156,7 +156,7 @@ static inline void mt76_wmac_spi_lock(struct mt7915_dev *dev)
 			  MT_SEMA_RFSPI_STATUS);
 }
 
-static inline void mt76_wmac_spi_unlock(struct mt7915_dev *dev)
+static inline void mt76_wmac_spi_unlock(struct mt7902_dev *dev)
 {
 	mt76_wr(dev, MT_SEMA_RFSPI_RELEASE, 1);
 }
@@ -169,7 +169,7 @@ static u32 mt76_wmac_rmw(void __iomem *base, u32 offset, u32 mask, u32 val)
 	return val;
 }
 
-static u8 mt798x_wmac_check_adie_type(struct mt7915_dev *dev)
+static u8 mt798x_wmac_check_adie_type(struct mt7902_dev *dev)
 {
 	u32 val;
 
@@ -182,7 +182,7 @@ static u8 mt798x_wmac_check_adie_type(struct mt7915_dev *dev)
 	return FIELD_GET(MT_TOP_POS_SKU_ADIE_DBDC_MASK, val);
 }
 
-static int mt7986_wmac_consys_reset(struct mt7915_dev *dev, bool enable)
+static int mt7986_wmac_consys_reset(struct mt7902_dev *dev, bool enable)
 {
 	if (!enable)
 		return reset_control_assert(dev->rstc);
@@ -194,7 +194,7 @@ static int mt7986_wmac_consys_reset(struct mt7915_dev *dev, bool enable)
 	return reset_control_deassert(dev->rstc);
 }
 
-static int mt7986_wmac_gpio_setup(struct mt7915_dev *dev)
+static int mt7986_wmac_gpio_setup(struct mt7902_dev *dev)
 {
 	struct pinctrl_state *state;
 	struct pinctrl *pinctrl;
@@ -230,7 +230,7 @@ static int mt7986_wmac_gpio_setup(struct mt7915_dev *dev)
 	return 0;
 }
 
-static int mt7986_wmac_consys_lockup(struct mt7915_dev *dev, bool enable)
+static int mt7986_wmac_consys_lockup(struct mt7902_dev *dev, bool enable)
 {
 	int ret;
 	u32 cur;
@@ -263,7 +263,7 @@ static int mt7986_wmac_consys_lockup(struct mt7915_dev *dev, bool enable)
 	return 0;
 }
 
-static int mt798x_wmac_coninfra_check(struct mt7915_dev *dev)
+static int mt798x_wmac_coninfra_check(struct mt7902_dev *dev)
 {
 	u32 cur;
 	u32 con_infra_version;
@@ -282,7 +282,7 @@ static int mt798x_wmac_coninfra_check(struct mt7915_dev *dev)
 				 false, dev, MT_CONN_INFRA_BASE);
 }
 
-static int mt798x_wmac_coninfra_setup(struct mt7915_dev *dev)
+static int mt798x_wmac_coninfra_setup(struct mt7902_dev *dev)
 {
 	struct device *pdev = dev->mt76.dev;
 	struct reserved_mem *rmem;
@@ -331,7 +331,7 @@ static int mt798x_wmac_coninfra_setup(struct mt7915_dev *dev)
 	return 0;
 }
 
-static int mt798x_wmac_sku_setup(struct mt7915_dev *dev, u32 *adie_type)
+static int mt798x_wmac_sku_setup(struct mt7902_dev *dev, u32 *adie_type)
 {
 	int ret;
 	u32 adie_main = 0, adie_ext = 0;
@@ -373,17 +373,17 @@ static inline u16 mt7986_adie_idx(u8 adie, u32 adie_type)
 		return u32_get_bits(adie_type, MT_ADIE_IDX1);
 }
 
-static inline bool is_7975(struct mt7915_dev *dev, u8 adie, u32 adie_type)
+static inline bool is_7975(struct mt7902_dev *dev, u8 adie, u32 adie_type)
 {
 	return mt7986_adie_idx(adie, adie_type) == 0x7975;
 }
 
-static inline bool is_7976(struct mt7915_dev *dev, u8 adie, u32 adie_type)
+static inline bool is_7976(struct mt7902_dev *dev, u8 adie, u32 adie_type)
 {
 	return mt7986_adie_idx(adie, adie_type) == 0x7976;
 }
 
-static int mt7986_wmac_adie_thermal_cal(struct mt7915_dev *dev, u8 adie)
+static int mt7986_wmac_adie_thermal_cal(struct mt7902_dev *dev, u8 adie)
 {
 	int ret;
 	u32 data, val;
@@ -420,7 +420,7 @@ static int mt7986_wmac_adie_thermal_cal(struct mt7915_dev *dev, u8 adie)
 }
 
 static int
-mt7986_read_efuse_xo_trim_7976(struct mt7915_dev *dev, u8 adie,
+mt7986_read_efuse_xo_trim_7976(struct mt7902_dev *dev, u8 adie,
 			       bool is_40m, int *result)
 {
 	int ret;
@@ -453,7 +453,7 @@ mt7986_read_efuse_xo_trim_7976(struct mt7915_dev *dev, u8 adie,
 	return 0;
 }
 
-static int mt7986_wmac_adie_xtal_trim_7976(struct mt7915_dev *dev, u8 adie)
+static int mt7986_wmac_adie_xtal_trim_7976(struct mt7902_dev *dev, u8 adie)
 {
 	int ret, trim_80m, trim_40m;
 	u32 data, val, mode;
@@ -501,7 +501,7 @@ static int mt7986_wmac_adie_xtal_trim_7976(struct mt7915_dev *dev, u8 adie)
 	return ret;
 }
 
-static int mt798x_wmac_adie_patch_7976(struct mt7915_dev *dev, u8 adie)
+static int mt798x_wmac_adie_patch_7976(struct mt7902_dev *dev, u8 adie)
 {
 	u32 id, version, rg_xo_01, rg_xo_03;
 	int ret;
@@ -539,7 +539,7 @@ static int mt798x_wmac_adie_patch_7976(struct mt7915_dev *dev, u8 adie)
 }
 
 static int
-mt7986_read_efuse_xo_trim_7975(struct mt7915_dev *dev, u8 adie,
+mt7986_read_efuse_xo_trim_7975(struct mt7902_dev *dev, u8 adie,
 			       u32 addr, u32 *result)
 {
 	int ret;
@@ -561,7 +561,7 @@ mt7986_read_efuse_xo_trim_7975(struct mt7915_dev *dev, u8 adie,
 	return 0;
 }
 
-static int mt7986_wmac_adie_xtal_trim_7975(struct mt7915_dev *dev, u8 adie)
+static int mt7986_wmac_adie_xtal_trim_7975(struct mt7902_dev *dev, u8 adie)
 {
 	int ret;
 	u32 data, result = 0, value;
@@ -617,7 +617,7 @@ static int mt7986_wmac_adie_xtal_trim_7975(struct mt7915_dev *dev, u8 adie)
 				 MT_ADIE_7975_XO_CTRL6_MASK, 0x1);
 }
 
-static int mt7986_wmac_adie_patch_7975(struct mt7915_dev *dev, u8 adie)
+static int mt7986_wmac_adie_patch_7975(struct mt7902_dev *dev, u8 adie)
 {
 	int ret;
 
@@ -710,7 +710,7 @@ static int mt7986_wmac_adie_patch_7975(struct mt7915_dev *dev, u8 adie)
 	return ret;
 }
 
-static int mt7986_wmac_adie_cfg(struct mt7915_dev *dev, u8 adie, u32 adie_type)
+static int mt7986_wmac_adie_cfg(struct mt7902_dev *dev, u8 adie, u32 adie_type)
 {
 	int ret;
 
@@ -759,7 +759,7 @@ out:
 }
 
 static int
-mt7986_wmac_afe_cal(struct mt7915_dev *dev, u8 adie, bool dbdc, u32 adie_type)
+mt7986_wmac_afe_cal(struct mt7902_dev *dev, u8 adie, bool dbdc, u32 adie_type)
 {
 	int ret;
 	u8 idx;
@@ -818,7 +818,7 @@ out:
 	return ret;
 }
 
-static void mt7986_wmac_subsys_pll_initial(struct mt7915_dev *dev, u8 band)
+static void mt7986_wmac_subsys_pll_initial(struct mt7902_dev *dev, u8 band)
 {
 	mt76_rmw(dev, MT_AFE_PLL_STB_TIME(band),
 		 MT_AFE_PLL_STB_TIME_MASK, MT_AFE_PLL_STB_TIME_VAL);
@@ -830,7 +830,7 @@ static void mt7986_wmac_subsys_pll_initial(struct mt7915_dev *dev, u8 band)
 		 MT_AFE_DIG_TOP_01_MASK, MT_AFE_DIG_TOP_01_VAL);
 }
 
-static void mt7986_wmac_subsys_setting(struct mt7915_dev *dev)
+static void mt7986_wmac_subsys_setting(struct mt7902_dev *dev)
 {
 	/* Subsys pll init */
 	mt7986_wmac_subsys_pll_initial(dev, 0);
@@ -848,7 +848,7 @@ static void mt7986_wmac_subsys_setting(struct mt7915_dev *dev)
 		 MT_TOP_PWR_KEY);
 }
 
-static int mt7986_wmac_bus_timeout(struct mt7915_dev *dev)
+static int mt7986_wmac_bus_timeout(struct mt7902_dev *dev)
 {
 	mt76_rmw_field(dev, MT_INFRA_BUS_OFF_TIMEOUT,
 		       MT_INFRA_BUS_TIMEOUT_LIMIT_MASK, 0x2);
@@ -865,7 +865,7 @@ static int mt7986_wmac_bus_timeout(struct mt7915_dev *dev)
 	return mt798x_wmac_coninfra_check(dev);
 }
 
-static void mt7986_wmac_clock_enable(struct mt7915_dev *dev, u32 adie_type)
+static void mt7986_wmac_clock_enable(struct mt7902_dev *dev, u32 adie_type)
 {
 	u32 cur;
 
@@ -922,7 +922,7 @@ static void mt7986_wmac_clock_enable(struct mt7915_dev *dev, u32 adie_type)
 	usleep_range(900, 1000);
 }
 
-static int mt7986_wmac_top_wfsys_wakeup(struct mt7915_dev *dev, bool enable)
+static int mt7986_wmac_top_wfsys_wakeup(struct mt7902_dev *dev, bool enable)
 {
 	mt76_rmw_field(dev, MT_TOP_WFSYS_WAKEUP,
 		       MT_TOP_WFSYS_WAKEUP_MASK, enable);
@@ -935,7 +935,7 @@ static int mt7986_wmac_top_wfsys_wakeup(struct mt7915_dev *dev, bool enable)
 	return mt798x_wmac_coninfra_check(dev);
 }
 
-static int mt7986_wmac_wm_enable(struct mt7915_dev *dev, bool enable)
+static int mt7986_wmac_wm_enable(struct mt7902_dev *dev, bool enable)
 {
 	u32 cur;
 
@@ -952,7 +952,7 @@ static int mt7986_wmac_wm_enable(struct mt7915_dev *dev, bool enable)
 				 dev, MT_TOP_CFG_ON_ROM_IDX);
 }
 
-static int mt7986_wmac_wfsys_poweron(struct mt7915_dev *dev, bool enable)
+static int mt7986_wmac_wfsys_poweron(struct mt7902_dev *dev, bool enable)
 {
 	u32 mask = MT_TOP_PWR_EN_MASK | MT_TOP_PWR_KEY_MASK;
 	u32 cur;
@@ -966,7 +966,7 @@ static int mt7986_wmac_wfsys_poweron(struct mt7915_dev *dev, bool enable)
 		dev, MT_TOP_WFSYS_RESET_STATUS);
 }
 
-static int mt7986_wmac_wfsys_setting(struct mt7915_dev *dev)
+static int mt7986_wmac_wfsys_setting(struct mt7902_dev *dev)
 {
 	int ret;
 	u32 cur;
@@ -999,7 +999,7 @@ static int mt7986_wmac_wfsys_setting(struct mt7915_dev *dev)
 				 dev, MT_TOP_CFG_IP_VERSION_ADDR);
 }
 
-static void mt7986_wmac_wfsys_set_timeout(struct mt7915_dev *dev)
+static void mt7986_wmac_wfsys_set_timeout(struct mt7902_dev *dev)
 {
 	u32 mask = MT_MCU_BUS_TIMEOUT_SET_MASK |
 		   MT_MCU_BUS_TIMEOUT_CG_EN_MASK |
@@ -1022,7 +1022,7 @@ static void mt7986_wmac_wfsys_set_timeout(struct mt7915_dev *dev)
 	mt76_rmw(dev, MT_MCU_BUS_DBG_TIMEOUT, mask, val);
 }
 
-static int mt7986_wmac_sku_update(struct mt7915_dev *dev, u32 adie_type)
+static int mt7986_wmac_sku_update(struct mt7902_dev *dev, u32 adie_type)
 {
 	u32 val;
 
@@ -1048,7 +1048,7 @@ static int mt7986_wmac_sku_update(struct mt7915_dev *dev, u32 adie_type)
 }
 
 static int
-mt7986_wmac_adie_setup(struct mt7915_dev *dev, u8 adie, u32 adie_type)
+mt7986_wmac_adie_setup(struct mt7902_dev *dev, u8 adie, u32 adie_type)
 {
 	int ret;
 
@@ -1069,7 +1069,7 @@ mt7986_wmac_adie_setup(struct mt7915_dev *dev, u8 adie, u32 adie_type)
 	return ret;
 }
 
-static int mt7986_wmac_subsys_powerup(struct mt7915_dev *dev, u32 adie_type)
+static int mt7986_wmac_subsys_powerup(struct mt7902_dev *dev, u32 adie_type)
 {
 	int ret;
 
@@ -1084,7 +1084,7 @@ static int mt7986_wmac_subsys_powerup(struct mt7915_dev *dev, u32 adie_type)
 	return 0;
 }
 
-static int mt7986_wmac_wfsys_powerup(struct mt7915_dev *dev)
+static int mt7986_wmac_wfsys_powerup(struct mt7902_dev *dev)
 {
 	int ret;
 
@@ -1101,7 +1101,7 @@ static int mt7986_wmac_wfsys_powerup(struct mt7915_dev *dev)
 	return mt7986_wmac_wm_enable(dev, true);
 }
 
-int mt7986_wmac_enable(struct mt7915_dev *dev)
+int mt7986_wmac_enable(struct mt7902_dev *dev)
 {
 	int ret;
 	u32 adie_type;
@@ -1156,7 +1156,7 @@ int mt7986_wmac_enable(struct mt7915_dev *dev)
 	return mt7986_wmac_sku_update(dev, adie_type);
 }
 
-void mt7986_wmac_disable(struct mt7915_dev *dev)
+void mt7986_wmac_disable(struct mt7902_dev *dev)
 {
 	u32 cur;
 
@@ -1192,7 +1192,7 @@ void mt7986_wmac_disable(struct mt7915_dev *dev)
 	mt7986_wmac_consys_reset(dev, false);
 }
 
-static int mt798x_wmac_init(struct mt7915_dev *dev)
+static int mt798x_wmac_init(struct mt7902_dev *dev)
 {
 	struct device *pdev = dev->mt76.dev;
 	struct platform_device *pfdev = to_platform_device(pdev);
@@ -1225,7 +1225,7 @@ static int mt798x_wmac_init(struct mt7915_dev *dev)
 static int mt798x_wmac_probe(struct platform_device *pdev)
 {
 	void __iomem *mem_base;
-	struct mt7915_dev *dev;
+	struct mt7902_dev *dev;
 	struct mt76_dev *mdev;
 	int irq, ret;
 	u32 chip_id;
@@ -1238,12 +1238,12 @@ static int mt798x_wmac_probe(struct platform_device *pdev)
 		return PTR_ERR(mem_base);
 	}
 
-	dev = mt7915_mmio_probe(&pdev->dev, mem_base, chip_id);
+	dev = mt7902_mmio_probe(&pdev->dev, mem_base, chip_id);
 	if (IS_ERR(dev))
 		return PTR_ERR(dev);
 
 	mdev = &dev->mt76;
-	ret = mt7915_mmio_wed_init(dev, pdev, false, &irq);
+	ret = mt7902_mmio_wed_init(dev, pdev, false, &irq);
 	if (ret < 0)
 		goto free_device;
 
@@ -1255,7 +1255,7 @@ static int mt798x_wmac_probe(struct platform_device *pdev)
 		}
 	}
 
-	ret = devm_request_irq(mdev->dev, irq, mt7915_irq_handler,
+	ret = devm_request_irq(mdev->dev, irq, mt7902_irq_handler,
 			       IRQF_SHARED, KBUILD_MODNAME, dev);
 	if (ret)
 		goto free_device;
@@ -1264,9 +1264,9 @@ static int mt798x_wmac_probe(struct platform_device *pdev)
 	if (ret)
 		goto free_irq;
 
-	mt7915_wfsys_reset(dev);
+	mt7902_wfsys_reset(dev);
 
-	ret = mt7915_register_device(dev);
+	ret = mt7902_register_device(dev);
 	if (ret)
 		goto free_irq;
 
@@ -1284,9 +1284,9 @@ free_device:
 
 static void mt798x_wmac_remove(struct platform_device *pdev)
 {
-	struct mt7915_dev *dev = platform_get_drvdata(pdev);
+	struct mt7902_dev *dev = platform_get_drvdata(pdev);
 
-	mt7915_unregister_device(dev);
+	mt7902_unregister_device(dev);
 }
 
 static const struct of_device_id mt798x_wmac_of_match[] = {

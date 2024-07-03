@@ -1,22 +1,22 @@
 /* SPDX-License-Identifier: ISC */
 /* Copyright (C) 2020 MediaTek Inc. */
 
-#ifndef __MT7915_TESTMODE_H
-#define __MT7915_TESTMODE_H
+#ifndef __MT7902_TESTMODE_H
+#define __MT7902_TESTMODE_H
 
-struct mt7915_tm_trx {
+struct mt7902_tm_trx {
 	u8 type;
 	u8 enable;
 	u8 band;
 	u8 rsv;
 };
 
-struct mt7915_tm_freq_offset {
+struct mt7902_tm_freq_offset {
 	u8 band;
 	__le32 freq_offset;
 };
 
-struct mt7915_tm_slot_time {
+struct mt7902_tm_slot_time {
 	u8 slot_time;
 	u8 sifs;
 	u8 rifs;
@@ -26,23 +26,23 @@ struct mt7915_tm_slot_time {
 	u8 _rsv1[5];
 };
 
-struct mt7915_tm_clean_txq {
+struct mt7902_tm_clean_txq {
 	bool sta_pause;
 	u8 wcid;	/* 256 sta */
 	u8 band;
 	u8 rsv;
 };
 
-struct mt7915_tm_cmd {
+struct mt7902_tm_cmd {
 	u8 testmode_en;
 	u8 param_idx;
 	u8 _rsv[2];
 	union {
 		__le32 data;
-		struct mt7915_tm_trx trx;
-		struct mt7915_tm_freq_offset freq;
-		struct mt7915_tm_slot_time slot;
-		struct mt7915_tm_clean_txq clean;
+		struct mt7902_tm_trx trx;
+		struct mt7902_tm_freq_offset freq;
+		struct mt7902_tm_slot_time slot;
+		struct mt7902_tm_clean_txq clean;
 		u8 test[72];
 	} param;
 } __packed;
@@ -66,7 +66,7 @@ struct tm_tx_cont {
 	u8 txfd_mode;
 };
 
-struct mt7915_tm_rf_test {
+struct mt7902_tm_rf_test {
 	u8 action;
 	u8 icap_len;
 	u8 _rsv[2];

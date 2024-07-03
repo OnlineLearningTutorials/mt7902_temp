@@ -7,7 +7,7 @@
 #include <linux/rtnetlink.h>
 #include <linux/pci.h>
 
-#include "mt7915.h"
+#include "mt7902.h"
 #include "mac.h"
 #include "mcu.h"
 #include "../trace.h"
@@ -17,7 +17,7 @@ static bool wed_enable;
 module_param(wed_enable, bool, 0644);
 MODULE_PARM_DESC(wed_enable, "Enable Wireless Ethernet Dispatch support");
 
-static const u32 mt7915_reg[] = {
+static const u32 mt7902_reg[] = {
 	[INT_SOURCE_CSR]		= 0xd7010,
 	[INT_MASK_CSR]			= 0xd7014,
 	[INT1_SOURCE_CSR]		= 0xd7088,
@@ -119,7 +119,7 @@ static const u32 mt7986_reg[] = {
 	[RXQ_WED_DATA_RING_BASE]	= 0x24540,
 };
 
-static const u32 mt7915_offs[] = {
+static const u32 mt7902_offs[] = {
 	[TMAC_CDTR]		= 0x090,
 	[TMAC_ODTR]		= 0x094,
 	[TMAC_ATCR]		= 0x098,
@@ -267,7 +267,7 @@ static const u32 mt7916_offs[] = {
 	[ETBF_PAR_RPT0]		= 0x100,
 };
 
-static const struct mt76_connac_reg_map mt7915_reg_map[] = {
+static const struct mt76_connac_reg_map mt7902_reg_map[] = {
 	{ 0x00400000, 0x80000, 0x10000 }, /* WF_MCU_SYSRAM */
 	{ 0x00410000, 0x90000, 0x10000 }, /* WF_MCU_SYSRAM (configure regs) */
 	{ 0x40000000, 0x70000, 0x10000 }, /* WF_UMAC_SYSRAM */
@@ -411,7 +411,7 @@ static const struct mt76_connac_reg_map mt7986_reg_map[] = {
 	{ 0x0, 0x0, 0x0 }, /* imply end of search */
 };
 
-static u32 mt7915_reg_map_l1(struct mt7915_dev *dev, u32 addr)
+static u32 mt7902_reg_map_l1(struct mt7902_dev *dev, u32 addr)
 {
 	u32 offset = FIELD_GET(MT_HIF_REMAP_L1_OFFSET, addr);
 	u32 base = FIELD_GET(MT_HIF_REMAP_L1_BASE, addr);
@@ -420,7 +420,7 @@ static u32 mt7915_reg_map_l1(struct mt7915_dev *dev, u32 addr)
 	if (is_mt798x(&dev->mt76))
 		return MT_CONN_INFRA_OFFSET(addr);
 
-	l1_remap = is_mt7915(&dev->mt76) ?
+	l1_remap = is_mt7992(&dev->mt76) ?
 		   MT_HIF_REMAP_L1 : MT_HIF_REMAP_L1_MT7916;
 
 	dev->bus_ops->rmw(&dev->mt76, l1_remap,
@@ -432,11 +432,11 @@ static u32 mt7915_reg_map_l1(struct mt7915_dev *dev, u32 addr)
 	return MT_HIF_REMAP_BASE_L1 + offset;
 }
 
-static u32 mt7915_reg_map_l2(struct mt7915_dev *dev, u32 addr)
+static u32 mt7902_reg_map_l2(struct mt7902_dev *dev, u32 addr)
 {
 	u32 offset, base;
 
-	if (is_mt7915(&dev->mt76)) {
+	if (is_mt7992(&dev->mt76)) {
 		offset = FIELD_GET(MT_HIF_REMAP_L2_OFFSET, addr);
 		base = FIELD_GET(MT_HIF_REMAP_L2_BASE, addr);
 
@@ -465,7 +465,7 @@ static u32 mt7915_reg_map_l2(struct mt7915_dev *dev, u32 addr)
 	return offset;
 }
 
-static u32 __mt7915_reg_addr(struct mt7915_dev *dev, u32 addr)
+static u32 __mt7902_reg_addr(struct mt7902_dev *dev, u32 addr)
 {
 	int i;
 
@@ -493,31 +493,31 @@ static u32 __mt7915_reg_addr(struct mt7915_dev *dev, u32 addr)
 	return 0;
 }
 
-static u32 __mt7915_reg_remap_addr(struct mt7915_dev *dev, u32 addr)
+static u32 __mt7902_reg_remap_addr(struct mt7902_dev *dev, u32 addr)
 {
 	if ((addr >= MT_INFRA_BASE && addr < MT_WFSYS0_PHY_START) ||
 	    (addr >= MT_WFSYS0_PHY_START && addr < MT_WFSYS1_PHY_START) ||
 	    (addr >= MT_WFSYS1_PHY_START && addr <= MT_WFSYS1_PHY_END))
-		return mt7915_reg_map_l1(dev, addr);
+		return mt7902_reg_map_l1(dev, addr);
 
 	if (dev_is_pci(dev->mt76.dev) &&
 	    ((addr >= MT_CBTOP1_PHY_START && addr <= MT_CBTOP1_PHY_END) ||
 	    addr >= MT_CBTOP2_PHY_START))
-		return mt7915_reg_map_l1(dev, addr);
+		return mt7902_reg_map_l1(dev, addr);
 
 	/* CONN_INFRA: covert to phyiscal addr and use layer 1 remap */
 	if (addr >= MT_INFRA_MCU_START && addr <= MT_INFRA_MCU_END) {
 		addr = addr - MT_INFRA_MCU_START + MT_INFRA_BASE;
-		return mt7915_reg_map_l1(dev, addr);
+		return mt7902_reg_map_l1(dev, addr);
 	}
 
-	return mt7915_reg_map_l2(dev, addr);
+	return mt7902_reg_map_l2(dev, addr);
 }
 
-void mt7915_memcpy_fromio(struct mt7915_dev *dev, void *buf, u32 offset,
+void mt7902_memcpy_fromio(struct mt7902_dev *dev, void *buf, u32 offset,
 			  size_t len)
 {
-	u32 addr = __mt7915_reg_addr(dev, offset);
+	u32 addr = __mt7902_reg_addr(dev, offset);
 
 	if (addr) {
 		memcpy_fromio(buf, dev->mt76.mmio.regs + addr, len);
@@ -526,29 +526,29 @@ void mt7915_memcpy_fromio(struct mt7915_dev *dev, void *buf, u32 offset,
 
 	spin_lock_bh(&dev->reg_lock);
 	memcpy_fromio(buf, dev->mt76.mmio.regs +
-			   __mt7915_reg_remap_addr(dev, offset), len);
+			   __mt7902_reg_remap_addr(dev, offset), len);
 	spin_unlock_bh(&dev->reg_lock);
 }
 
-static u32 mt7915_rr(struct mt76_dev *mdev, u32 offset)
+static u32 mt7902_rr(struct mt76_dev *mdev, u32 offset)
 {
-	struct mt7915_dev *dev = container_of(mdev, struct mt7915_dev, mt76);
-	u32 addr = __mt7915_reg_addr(dev, offset), val;
+	struct mt7902_dev *dev = container_of(mdev, struct mt7902_dev, mt76);
+	u32 addr = __mt7902_reg_addr(dev, offset), val;
 
 	if (addr)
 		return dev->bus_ops->rr(mdev, addr);
 
 	spin_lock_bh(&dev->reg_lock);
-	val = dev->bus_ops->rr(mdev, __mt7915_reg_remap_addr(dev, offset));
+	val = dev->bus_ops->rr(mdev, __mt7902_reg_remap_addr(dev, offset));
 	spin_unlock_bh(&dev->reg_lock);
 
 	return val;
 }
 
-static void mt7915_wr(struct mt76_dev *mdev, u32 offset, u32 val)
+static void mt7902_wr(struct mt76_dev *mdev, u32 offset, u32 val)
 {
-	struct mt7915_dev *dev = container_of(mdev, struct mt7915_dev, mt76);
-	u32 addr = __mt7915_reg_addr(dev, offset);
+	struct mt7902_dev *dev = container_of(mdev, struct mt7902_dev, mt76);
+	u32 addr = __mt7902_reg_addr(dev, offset);
 
 	if (addr) {
 		dev->bus_ops->wr(mdev, addr, val);
@@ -556,36 +556,36 @@ static void mt7915_wr(struct mt76_dev *mdev, u32 offset, u32 val)
 	}
 
 	spin_lock_bh(&dev->reg_lock);
-	dev->bus_ops->wr(mdev, __mt7915_reg_remap_addr(dev, offset), val);
+	dev->bus_ops->wr(mdev, __mt7902_reg_remap_addr(dev, offset), val);
 	spin_unlock_bh(&dev->reg_lock);
 }
 
-static u32 mt7915_rmw(struct mt76_dev *mdev, u32 offset, u32 mask, u32 val)
+static u32 mt7902_rmw(struct mt76_dev *mdev, u32 offset, u32 mask, u32 val)
 {
-	struct mt7915_dev *dev = container_of(mdev, struct mt7915_dev, mt76);
-	u32 addr = __mt7915_reg_addr(dev, offset);
+	struct mt7902_dev *dev = container_of(mdev, struct mt7902_dev, mt76);
+	u32 addr = __mt7902_reg_addr(dev, offset);
 
 	if (addr)
 		return dev->bus_ops->rmw(mdev, addr, mask, val);
 
 	spin_lock_bh(&dev->reg_lock);
-	val = dev->bus_ops->rmw(mdev, __mt7915_reg_remap_addr(dev, offset), mask, val);
+	val = dev->bus_ops->rmw(mdev, __mt7902_reg_remap_addr(dev, offset), mask, val);
 	spin_unlock_bh(&dev->reg_lock);
 
 	return val;
 }
 
 #ifdef CONFIG_NET_MEDIATEK_SOC_WED
-static void mt7915_mmio_wed_update_rx_stats(struct mtk_wed_device *wed,
+static void mt7902_mmio_wed_update_rx_stats(struct mtk_wed_device *wed,
 					    struct mtk_wed_wo_rx_stats *stats)
 {
 	int idx = le16_to_cpu(stats->wlan_idx);
-	struct mt7915_dev *dev;
+	struct mt7902_dev *dev;
 	struct mt76_wcid *wcid;
 
-	dev = container_of(wed, struct mt7915_dev, mt76.mmio.wed);
+	dev = container_of(wed, struct mt7902_dev, mt76.mmio.wed);
 
-	if (idx >= mt7915_wtbl_size(dev))
+	if (idx >= mt7902_wtbl_size(dev))
 		return;
 
 	rcu_read_lock();
@@ -601,10 +601,10 @@ static void mt7915_mmio_wed_update_rx_stats(struct mtk_wed_device *wed,
 	rcu_read_unlock();
 }
 
-static int mt7915_mmio_wed_reset(struct mtk_wed_device *wed)
+static int mt7902_mmio_wed_reset(struct mtk_wed_device *wed)
 {
 	struct mt76_dev *mdev = container_of(wed, struct mt76_dev, mmio.wed);
-	struct mt7915_dev *dev = container_of(mdev, struct mt7915_dev, mt76);
+	struct mt7902_dev *dev = container_of(mdev, struct mt7902_dev, mt76);
 	struct mt76_phy *mphy = &dev->mphy;
 	int ret;
 
@@ -613,7 +613,7 @@ static int mt7915_mmio_wed_reset(struct mtk_wed_device *wed)
 	if (test_and_set_bit(MT76_STATE_WED_RESET, &mphy->state))
 		return -EBUSY;
 
-	ret = mt7915_mcu_set_ser(dev, SER_RECOVER, SER_SET_RECOVER_L1,
+	ret = mt7902_mcu_set_ser(dev, SER_RECOVER, SER_SET_RECOVER_L1,
 				 mphy->band_idx);
 	if (ret)
 		goto out;
@@ -631,7 +631,7 @@ out:
 }
 #endif
 
-int mt7915_mmio_wed_init(struct mt7915_dev *dev, void *pdev_ptr,
+int mt7902_mmio_wed_init(struct mt7902_dev *dev, void *pdev_ptr,
 			 bool pci, int *irq)
 {
 #ifdef CONFIG_NET_MEDIATEK_SOC_WED
@@ -684,17 +684,17 @@ int mt7915_mmio_wed_init(struct mt7915_dev *dev, void *pdev_ptr,
 		wed->wlan.wpdma_rx_glo = res->start + MT_WPDMA_GLO_CFG;
 		wed->wlan.wpdma_rx = res->start + MT_RXQ_WED_DATA_RING_BASE;
 	}
-	wed->wlan.nbuf = MT7915_HW_TOKEN_SIZE;
-	wed->wlan.tx_tbit[0] = is_mt7915(&dev->mt76) ? 4 : 30;
-	wed->wlan.tx_tbit[1] = is_mt7915(&dev->mt76) ? 5 : 31;
+	wed->wlan.nbuf = MT7902_HW_TOKEN_SIZE;
+	wed->wlan.tx_tbit[0] = is_mt7992(&dev->mt76) ? 4 : 30;
+	wed->wlan.tx_tbit[1] = is_mt7992(&dev->mt76) ? 5 : 31;
 	wed->wlan.txfree_tbit = is_mt798x(&dev->mt76) ? 2 : 1;
-	wed->wlan.token_start = MT7915_TOKEN_SIZE - wed->wlan.nbuf;
-	wed->wlan.wcid_512 = !is_mt7915(&dev->mt76);
+	wed->wlan.token_start = MT7902_TOKEN_SIZE - wed->wlan.nbuf;
+	wed->wlan.wcid_512 = !is_mt7992(&dev->mt76);
 
 	wed->wlan.rx_nbuf = 65536;
-	wed->wlan.rx_npkt = MT7915_WED_RX_TOKEN_SIZE;
+	wed->wlan.rx_npkt = MT7902_WED_RX_TOKEN_SIZE;
 	wed->wlan.rx_size = SKB_WITH_OVERHEAD(MT_RX_BUF_SIZE);
-	if (is_mt7915(&dev->mt76)) {
+	if (is_mt7992(&dev->mt76)) {
 		wed->wlan.rx_tbit[0] = 16;
 		wed->wlan.rx_tbit[1] = 17;
 	} else if (is_mt798x(&dev->mt76)) {
@@ -705,13 +705,13 @@ int mt7915_mmio_wed_init(struct mt7915_dev *dev, void *pdev_ptr,
 		wed->wlan.rx_tbit[1] = 19;
 	}
 
-	wed->wlan.init_buf = mt7915_wed_init_buf;
+	wed->wlan.init_buf = mt7902_wed_init_buf;
 	wed->wlan.offload_enable = mt76_mmio_wed_offload_enable;
 	wed->wlan.offload_disable = mt76_mmio_wed_offload_disable;
 	wed->wlan.init_rx_buf = mt76_mmio_wed_init_rx_buf;
 	wed->wlan.release_rx_buf = mt76_mmio_wed_release_rx_buf;
-	wed->wlan.update_wo_rx_stats = mt7915_mmio_wed_update_rx_stats;
-	wed->wlan.reset = mt7915_mmio_wed_reset;
+	wed->wlan.update_wo_rx_stats = mt7902_mmio_wed_update_rx_stats;
+	wed->wlan.reset = mt7902_mmio_wed_reset;
 	wed->wlan.reset_complete = mt76_mmio_wed_reset_complete;
 
 	dev->mt76.rx_token_size = wed->wlan.rx_npkt;
@@ -732,23 +732,23 @@ int mt7915_mmio_wed_init(struct mt7915_dev *dev, void *pdev_ptr,
 #endif
 }
 
-static int mt7915_mmio_init(struct mt76_dev *mdev,
+static int mt7902_mmio_init(struct mt76_dev *mdev,
 			    void __iomem *mem_base,
 			    u32 device_id)
 {
 	struct mt76_bus_ops *bus_ops;
-	struct mt7915_dev *dev;
+	struct mt7902_dev *dev;
 
-	dev = container_of(mdev, struct mt7915_dev, mt76);
+	dev = container_of(mdev, struct mt7902_dev, mt76);
 	mt76_mmio_init(&dev->mt76, mem_base);
 	spin_lock_init(&dev->reg_lock);
 
 	switch (device_id) {
-	case 0x7915:
-		dev->reg.reg_rev = mt7915_reg;
-		dev->reg.offs_rev = mt7915_offs;
-		dev->reg.map = mt7915_reg_map;
-		dev->reg.map_size = ARRAY_SIZE(mt7915_reg_map);
+	case 0x7902:
+		dev->reg.reg_rev = mt7902_reg;
+		dev->reg.offs_rev = mt7902_offs;
+		dev->reg.map = mt7902_reg_map;
+		dev->reg.map_size = ARRAY_SIZE(mt7902_reg_map);
 		break;
 	case 0x7906:
 		dev->reg.reg_rev = mt7916_reg;
@@ -773,9 +773,9 @@ static int mt7915_mmio_init(struct mt76_dev *mdev,
 	if (!bus_ops)
 		return -ENOMEM;
 
-	bus_ops->rr = mt7915_rr;
-	bus_ops->wr = mt7915_wr;
-	bus_ops->rmw = mt7915_rmw;
+	bus_ops->rr = mt7902_rr;
+	bus_ops->wr = mt7902_wr;
+	bus_ops->rmw = mt7902_rmw;
 	dev->mt76.bus = bus_ops;
 
 	mdev->rev = (device_id << 16) |
@@ -785,7 +785,7 @@ static int mt7915_mmio_init(struct mt76_dev *mdev,
 	return 0;
 }
 
-void mt7915_dual_hif_set_irq_mask(struct mt7915_dev *dev,
+void mt7902_dual_hif_set_irq_mask(struct mt7902_dev *dev,
 				  bool write_reg,
 				  u32 clear, u32 set)
 {
@@ -809,18 +809,18 @@ void mt7915_dual_hif_set_irq_mask(struct mt7915_dev *dev,
 	spin_unlock_irqrestore(&mdev->mmio.irq_lock, flags);
 }
 
-static void mt7915_rx_poll_complete(struct mt76_dev *mdev,
+static void mt7902_rx_poll_complete(struct mt76_dev *mdev,
 				    enum mt76_rxq_id q)
 {
-	struct mt7915_dev *dev = container_of(mdev, struct mt7915_dev, mt76);
+	struct mt7902_dev *dev = container_of(mdev, struct mt7902_dev, mt76);
 
-	mt7915_irq_enable(dev, MT_INT_RX(q));
+	mt7902_irq_enable(dev, MT_INT_RX(q));
 }
 
 /* TODO: support 2/4/6/8 MSI-X vectors */
-static void mt7915_irq_tasklet(struct tasklet_struct *t)
+static void mt7902_irq_tasklet(struct tasklet_struct *t)
 {
-	struct mt7915_dev *dev = from_tasklet(dev, t, mt76.irq_tasklet);
+	struct mt7902_dev *dev = from_tasklet(dev, t, mt76.irq_tasklet);
 	struct mtk_wed_device *wed = &dev->mt76.mmio.wed;
 	u32 intr, intr1, mask;
 
@@ -853,7 +853,7 @@ static void mt7915_irq_tasklet(struct tasklet_struct *t)
 	if (intr & MT_INT_TX_DONE_MCU)
 		mask |= MT_INT_TX_DONE_MCU;
 
-	mt7915_irq_disable(dev, mask);
+	mt7902_irq_disable(dev, mask);
 
 	if (intr & MT_INT_TX_DONE_MCU)
 		napi_schedule(&dev->mt76.tx_napi);
@@ -870,7 +870,7 @@ static void mt7915_irq_tasklet(struct tasklet_struct *t)
 	if (intr & MT_INT_RX(MT_RXQ_MCU_WA))
 		napi_schedule(&dev->mt76.napi[MT_RXQ_MCU_WA]);
 
-	if (!is_mt7915(&dev->mt76) &&
+	if (!is_mt7992(&dev->mt76) &&
 	    (intr & MT_INT_RX(MT_RXQ_MAIN_WA)))
 		napi_schedule(&dev->mt76.napi[MT_RXQ_MAIN_WA]);
 
@@ -883,14 +883,14 @@ static void mt7915_irq_tasklet(struct tasklet_struct *t)
 		mt76_wr(dev, MT_MCU_CMD, val);
 		if (val & (MT_MCU_CMD_ERROR_MASK | MT_MCU_CMD_WDT_MASK)) {
 			dev->recovery.state = val;
-			mt7915_reset(dev);
+			mt7902_reset(dev);
 		}
 	}
 }
 
-irqreturn_t mt7915_irq_handler(int irq, void *dev_instance)
+irqreturn_t mt7902_irq_handler(int irq, void *dev_instance)
 {
-	struct mt7915_dev *dev = dev_instance;
+	struct mt7902_dev *dev = dev_instance;
 	struct mtk_wed_device *wed = &dev->mt76.mmio.wed;
 
 	if (mtk_wed_device_active(wed))
@@ -909,7 +909,7 @@ irqreturn_t mt7915_irq_handler(int irq, void *dev_instance)
 	return IRQ_HANDLED;
 }
 
-struct mt7915_dev *mt7915_mmio_probe(struct device *pdev,
+struct mt7902_dev *mt7902_mmio_probe(struct device *pdev,
 				     void __iomem *mem_base, u32 device_id)
 {
 	static const struct mt76_driver_ops drv_ops = {
@@ -920,31 +920,31 @@ struct mt7915_dev *mt7915_mmio_probe(struct device *pdev,
 		.survey_flags = SURVEY_INFO_TIME_TX |
 				SURVEY_INFO_TIME_RX |
 				SURVEY_INFO_TIME_BSS_RX,
-		.token_size = MT7915_TOKEN_SIZE,
-		.tx_prepare_skb = mt7915_tx_prepare_skb,
+		.token_size = MT7902_TOKEN_SIZE,
+		.tx_prepare_skb = mt7902_tx_prepare_skb,
 		.tx_complete_skb = mt76_connac_tx_complete_skb,
-		.rx_skb = mt7915_queue_rx_skb,
-		.rx_check = mt7915_rx_check,
-		.rx_poll_complete = mt7915_rx_poll_complete,
-		.sta_add = mt7915_mac_sta_add,
-		.sta_remove = mt7915_mac_sta_remove,
-		.update_survey = mt7915_update_channel,
+		.rx_skb = mt7902_queue_rx_skb,
+		.rx_check = mt7902_rx_check,
+		.rx_poll_complete = mt7902_rx_poll_complete,
+		.sta_add = mt7902_mac_sta_add,
+		.sta_remove = mt7902_mac_sta_remove,
+		.update_survey = mt7902_update_channel,
 	};
-	struct mt7915_dev *dev;
+	struct mt7902_dev *dev;
 	struct mt76_dev *mdev;
 	int ret;
 
-	mdev = mt76_alloc_device(pdev, sizeof(*dev), &mt7915_ops, &drv_ops);
+	mdev = mt76_alloc_device(pdev, sizeof(*dev), &mt7902_ops, &drv_ops);
 	if (!mdev)
 		return ERR_PTR(-ENOMEM);
 
-	dev = container_of(mdev, struct mt7915_dev, mt76);
+	dev = container_of(mdev, struct mt7902_dev, mt76);
 
-	ret = mt7915_mmio_init(mdev, mem_base, device_id);
+	ret = mt7902_mmio_init(mdev, mem_base, device_id);
 	if (ret)
 		goto error;
 
-	tasklet_setup(&mdev->irq_tasklet, mt7915_irq_tasklet);
+	tasklet_setup(&mdev->irq_tasklet, mt7902_irq_tasklet);
 
 	return dev;
 
@@ -954,15 +954,15 @@ error:
 	return ERR_PTR(ret);
 }
 
-static int __init mt7915_init(void)
+static int __init mt7902_init(void)
 {
 	int ret;
 
-	ret = pci_register_driver(&mt7915_hif_driver);
+	ret = pci_register_driver(&mt7902_hif_driver);
 	if (ret)
 		return ret;
 
-	ret = pci_register_driver(&mt7915_pci_driver);
+	ret = pci_register_driver(&mt7902_pci_driver);
 	if (ret)
 		goto error_pci;
 
@@ -975,23 +975,23 @@ static int __init mt7915_init(void)
 	return 0;
 
 error_wmac:
-	pci_unregister_driver(&mt7915_pci_driver);
+	pci_unregister_driver(&mt7902_pci_driver);
 error_pci:
-	pci_unregister_driver(&mt7915_hif_driver);
+	pci_unregister_driver(&mt7902_hif_driver);
 
 	return ret;
 }
 
-static void __exit mt7915_exit(void)
+static void __exit mt7902_exit(void)
 {
 	if (IS_ENABLED(CONFIG_MT798X_WMAC))
 		platform_driver_unregister(&mt798x_wmac_driver);
 
-	pci_unregister_driver(&mt7915_pci_driver);
-	pci_unregister_driver(&mt7915_hif_driver);
+	pci_unregister_driver(&mt7902_pci_driver);
+	pci_unregister_driver(&mt7902_hif_driver);
 }
 
-module_init(mt7915_init);
-module_exit(mt7915_exit);
-MODULE_DESCRIPTION("MediaTek MT7915E MMIO helpers");
+module_init(mt7902_init);
+module_exit(mt7902_exit);
+MODULE_DESCRIPTION("MediaTek MT7902E MMIO helpers");
 MODULE_LICENSE("Dual BSD/GPL");

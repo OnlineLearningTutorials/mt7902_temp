@@ -4,14 +4,14 @@
 #ifndef _COREDUMP_H_
 #define _COREDUMP_H_
 
-#include "mt7915.h"
+#include "mt7902.h"
 
 struct trace {
 	u32 id;
 	u32 timestamp;
 };
 
-struct mt7915_coredump {
+struct mt7902_coredump {
 	char magic[16];
 
 	u32 len;
@@ -77,18 +77,18 @@ struct mt7915_coredump {
 	u8 data[];
 } __packed;
 
-struct mt7915_coredump_mem {
+struct mt7902_coredump_mem {
 	u32 len;
 	u8 data[];
 } __packed;
 
-struct mt7915_mem_hdr {
+struct mt7902_mem_hdr {
 	u32 start;
 	u32 len;
 	u8 data[];
 };
 
-struct mt7915_mem_region {
+struct mt7902_mem_region {
 	u32 start;
 	size_t len;
 
@@ -97,37 +97,37 @@ struct mt7915_mem_region {
 
 #ifdef CONFIG_DEV_COREDUMP
 
-const struct mt7915_mem_region *
-mt7915_coredump_get_mem_layout(struct mt7915_dev *dev, u32 *num);
-struct mt7915_crash_data *mt7915_coredump_new(struct mt7915_dev *dev);
-int mt7915_coredump_submit(struct mt7915_dev *dev);
-int mt7915_coredump_register(struct mt7915_dev *dev);
-void mt7915_coredump_unregister(struct mt7915_dev *dev);
+const struct mt7902_mem_region *
+mt7902_coredump_get_mem_layout(struct mt7902_dev *dev, u32 *num);
+struct mt7902_crash_data *mt7902_coredump_new(struct mt7902_dev *dev);
+int mt7902_coredump_submit(struct mt7902_dev *dev);
+int mt7902_coredump_register(struct mt7902_dev *dev);
+void mt7902_coredump_unregister(struct mt7902_dev *dev);
 
 #else /* CONFIG_DEV_COREDUMP */
 
-static inline const struct mt7915_mem_region *
-mt7915_coredump_get_mem_layout(struct mt7915_dev *dev, u32 *num)
+static inline const struct mt7902_mem_region *
+mt7902_coredump_get_mem_layout(struct mt7902_dev *dev, u32 *num)
 {
 	return NULL;
 }
 
-static inline int mt7915_coredump_submit(struct mt7915_dev *dev)
+static inline int mt7902_coredump_submit(struct mt7902_dev *dev)
 {
 	return 0;
 }
 
-static inline struct mt7915_crash_data *mt7915_coredump_new(struct mt7915_dev *dev)
+static inline struct mt7902_crash_data *mt7902_coredump_new(struct mt7902_dev *dev)
 {
 	return NULL;
 }
 
-static inline int mt7915_coredump_register(struct mt7915_dev *dev)
+static inline int mt7902_coredump_register(struct mt7902_dev *dev)
 {
 	return 0;
 }
 
-static inline void mt7915_coredump_unregister(struct mt7915_dev *dev)
+static inline void mt7902_coredump_unregister(struct mt7902_dev *dev)
 {
 }
 

@@ -2,7 +2,7 @@
 /* Copyright (C) 2020 MediaTek Inc. */
 
 #include <linux/relay.h>
-#include "mt7915.h"
+#include "mt7902.h"
 #include "eeprom.h"
 #include "mcu.h"
 #include "mac.h"
@@ -19,38 +19,38 @@ struct hw_queue_map {
 };
 
 static int
-mt7915_implicit_txbf_set(void *data, u64 val)
+mt7902_implicit_txbf_set(void *data, u64 val)
 {
-	struct mt7915_dev *dev = data;
+	struct mt7902_dev *dev = data;
 
 	/* The existing connected stations shall reconnect to apply
 	 * new implicit txbf configuration.
 	 */
 	dev->ibf = !!val;
 
-	return mt7915_mcu_set_txbf(dev, MT_BF_TYPE_UPDATE);
+	return mt7902_mcu_set_txbf(dev, MT_BF_TYPE_UPDATE);
 }
 
 static int
-mt7915_implicit_txbf_get(void *data, u64 *val)
+mt7902_implicit_txbf_get(void *data, u64 *val)
 {
-	struct mt7915_dev *dev = data;
+	struct mt7902_dev *dev = data;
 
 	*val = dev->ibf;
 
 	return 0;
 }
 
-DEFINE_DEBUGFS_ATTRIBUTE(fops_implicit_txbf, mt7915_implicit_txbf_get,
-			 mt7915_implicit_txbf_set, "%lld\n");
+DEFINE_DEBUGFS_ATTRIBUTE(fops_implicit_txbf, mt7902_implicit_txbf_get,
+			 mt7902_implicit_txbf_set, "%lld\n");
 
 /* test knob of system error recovery */
 static ssize_t
-mt7915_sys_recovery_set(struct file *file, const char __user *user_buf,
+mt7902_sys_recovery_set(struct file *file, const char __user *user_buf,
 			size_t count, loff_t *ppos)
 {
-	struct mt7915_phy *phy = file->private_data;
-	struct mt7915_dev *dev = phy->dev;
+	struct mt7902_phy *phy = file->private_data;
+	struct mt7902_dev *dev = phy->dev;
 	bool band = phy->mt76->band_idx;
 	char buf[16];
 	int ret = 0;
@@ -83,7 +83,7 @@ mt7915_sys_recovery_set(struct file *file, const char __user *user_buf,
 	 * 8: trigger firmware crash.
 	 */
 	case SER_QUERY:
-		ret = mt7915_mcu_set_ser(dev, 0, 0, band);
+		ret = mt7902_mcu_set_ser(dev, 0, 0, band);
 		break;
 	case SER_SET_RECOVER_L1:
 	case SER_SET_RECOVER_L2:
@@ -91,22 +91,22 @@ mt7915_sys_recovery_set(struct file *file, const char __user *user_buf,
 	case SER_SET_RECOVER_L3_TX_ABORT:
 	case SER_SET_RECOVER_L3_TX_DISABLE:
 	case SER_SET_RECOVER_L3_BF:
-		ret = mt7915_mcu_set_ser(dev, SER_ENABLE, BIT(val), band);
+		ret = mt7902_mcu_set_ser(dev, SER_ENABLE, BIT(val), band);
 		if (ret)
 			return ret;
 
-		ret = mt7915_mcu_set_ser(dev, SER_RECOVER, val, band);
+		ret = mt7902_mcu_set_ser(dev, SER_RECOVER, val, band);
 		break;
 
 	/* enable full chip reset */
 	case SER_SET_RECOVER_FULL:
 		mt76_set(dev, MT_WFDMA0_MCU_HOST_INT_ENA, MT_MCU_CMD_WDT_MASK);
-		ret = mt7915_mcu_set_ser(dev, 1, 3, band);
+		ret = mt7902_mcu_set_ser(dev, 1, 3, band);
 		if (ret)
 			return ret;
 
 		dev->recovery.state |= MT_MCU_CMD_WDT_MASK;
-		mt7915_reset(dev);
+		mt7902_reset(dev);
 		break;
 
 	/* WARNING: trigger firmware crash */
@@ -122,11 +122,11 @@ mt7915_sys_recovery_set(struct file *file, const char __user *user_buf,
 }
 
 static ssize_t
-mt7915_sys_recovery_get(struct file *file, char __user *user_buf,
+mt7902_sys_recovery_get(struct file *file, char __user *user_buf,
 			size_t count, loff_t *ppos)
 {
-	struct mt7915_phy *phy = file->private_data;
-	struct mt7915_dev *dev = phy->dev;
+	struct mt7902_phy *phy = file->private_data;
+	struct mt7902_dev *dev = phy->dev;
 	char *buff;
 	int desc = 0;
 	ssize_t ret;
@@ -201,17 +201,17 @@ mt7915_sys_recovery_get(struct file *file, char __user *user_buf,
 	return ret;
 }
 
-static const struct file_operations mt7915_sys_recovery_ops = {
-	.write = mt7915_sys_recovery_set,
-	.read = mt7915_sys_recovery_get,
+static const struct file_operations mt7902_sys_recovery_ops = {
+	.write = mt7902_sys_recovery_set,
+	.read = mt7902_sys_recovery_get,
 	.open = simple_open,
 	.llseek = default_llseek,
 };
 
 static int
-mt7915_radar_trigger(void *data, u64 val)
+mt7902_radar_trigger(void *data, u64 val)
 {
-	struct mt7915_dev *dev = data;
+	struct mt7902_dev *dev = data;
 
 	if (val > MT_RX_SEL2)
 		return -EINVAL;
@@ -221,36 +221,36 @@ mt7915_radar_trigger(void *data, u64 val)
 }
 
 DEFINE_DEBUGFS_ATTRIBUTE(fops_radar_trigger, NULL,
-			 mt7915_radar_trigger, "%lld\n");
+			 mt7902_radar_trigger, "%lld\n");
 
 static int
-mt7915_muru_debug_set(void *data, u64 val)
+mt7902_muru_debug_set(void *data, u64 val)
 {
-	struct mt7915_dev *dev = data;
+	struct mt7902_dev *dev = data;
 
 	dev->muru_debug = val;
-	mt7915_mcu_muru_debug_set(dev, dev->muru_debug);
+	mt7902_mcu_muru_debug_set(dev, dev->muru_debug);
 
 	return 0;
 }
 
 static int
-mt7915_muru_debug_get(void *data, u64 *val)
+mt7902_muru_debug_get(void *data, u64 *val)
 {
-	struct mt7915_dev *dev = data;
+	struct mt7902_dev *dev = data;
 
 	*val = dev->muru_debug;
 
 	return 0;
 }
 
-DEFINE_DEBUGFS_ATTRIBUTE(fops_muru_debug, mt7915_muru_debug_get,
-			 mt7915_muru_debug_set, "%lld\n");
+DEFINE_DEBUGFS_ATTRIBUTE(fops_muru_debug, mt7902_muru_debug_get,
+			 mt7902_muru_debug_set, "%lld\n");
 
-static int mt7915_muru_stats_show(struct seq_file *file, void *data)
+static int mt7902_muru_stats_show(struct seq_file *file, void *data)
 {
-	struct mt7915_phy *phy = file->private;
-	struct mt7915_dev *dev = phy->dev;
+	struct mt7902_phy *phy = file->private;
+	struct mt7902_dev *dev = phy->dev;
 	static const char * const dl_non_he_type[] = {
 		"CCK", "OFDM", "HT MIX", "HT GF",
 		"VHT SU", "VHT 2MU", "VHT 3MU", "VHT 4MU"
@@ -274,7 +274,7 @@ static int mt7915_muru_stats_show(struct seq_file *file, void *data)
 
 	mutex_lock(&dev->mt76.mutex);
 
-	ret = mt7915_mcu_muru_debug_get(phy);
+	ret = mt7902_mcu_muru_debug_get(phy);
 	if (ret)
 		goto exit;
 
@@ -432,12 +432,12 @@ exit:
 
 	return ret;
 }
-DEFINE_SHOW_ATTRIBUTE(mt7915_muru_stats);
+DEFINE_SHOW_ATTRIBUTE(mt7902_muru_stats);
 
 static int
-mt7915_rdd_monitor(struct seq_file *s, void *data)
+mt7902_rdd_monitor(struct seq_file *s, void *data)
 {
-	struct mt7915_dev *dev = dev_get_drvdata(s->private);
+	struct mt7902_dev *dev = dev_get_drvdata(s->private);
 	struct cfg80211_chan_def *chandef = &dev->rdd2_chandef;
 	const char *bw;
 	int ret = 0;
@@ -482,9 +482,9 @@ out:
 }
 
 static int
-mt7915_fw_debug_wm_set(void *data, u64 val)
+mt7902_fw_debug_wm_set(void *data, u64 val)
 {
-	struct mt7915_dev *dev = data;
+	struct mt7902_dev *dev = data;
 	enum {
 		DEBUG_TXCMD = 62,
 		DEBUG_CMD_RPT_TX,
@@ -506,7 +506,7 @@ mt7915_fw_debug_wm_set(void *data, u64 val)
 	rx = dev->fw.debug_wm || (dev->fw.debug_bin & BIT(2));
 	en = dev->fw.debug_wm || (dev->fw.debug_bin & BIT(0));
 
-	ret = mt7915_mcu_fw_log_2_host(dev, MCU_FW_LOG_WM, val);
+	ret = mt7902_mcu_fw_log_2_host(dev, MCU_FW_LOG_WM, val);
 	if (ret)
 		goto out;
 
@@ -516,7 +516,7 @@ mt7915_fw_debug_wm_set(void *data, u64 val)
 		else
 			val = en && tx;
 
-		ret = mt7915_mcu_fw_dbg_ctrl(dev, debug, val);
+		ret = mt7902_mcu_fw_dbg_ctrl(dev, debug, val);
 		if (ret)
 			goto out;
 	}
@@ -535,31 +535,31 @@ out:
 }
 
 static int
-mt7915_fw_debug_wm_get(void *data, u64 *val)
+mt7902_fw_debug_wm_get(void *data, u64 *val)
 {
-	struct mt7915_dev *dev = data;
+	struct mt7902_dev *dev = data;
 
 	*val = dev->fw.debug_wm;
 
 	return 0;
 }
 
-DEFINE_DEBUGFS_ATTRIBUTE(fops_fw_debug_wm, mt7915_fw_debug_wm_get,
-			 mt7915_fw_debug_wm_set, "%lld\n");
+DEFINE_DEBUGFS_ATTRIBUTE(fops_fw_debug_wm, mt7902_fw_debug_wm_get,
+			 mt7902_fw_debug_wm_set, "%lld\n");
 
 static int
-mt7915_fw_debug_wa_set(void *data, u64 val)
+mt7902_fw_debug_wa_set(void *data, u64 val)
 {
-	struct mt7915_dev *dev = data;
+	struct mt7902_dev *dev = data;
 	int ret;
 
 	dev->fw.debug_wa = val ? MCU_FW_LOG_TO_HOST : 0;
 
-	ret = mt7915_mcu_fw_log_2_host(dev, MCU_FW_LOG_WA, dev->fw.debug_wa);
+	ret = mt7902_mcu_fw_log_2_host(dev, MCU_FW_LOG_WA, dev->fw.debug_wa);
 	if (ret)
 		goto out;
 
-	ret = mt7915_mcu_wa_cmd(dev, MCU_WA_PARAM_CMD(SET),
+	ret = mt7902_mcu_wa_cmd(dev, MCU_WA_PARAM_CMD(SET),
 				MCU_WA_PARAM_PDMA_RX, !!dev->fw.debug_wa, 0);
 out:
 	if (ret)
@@ -569,17 +569,17 @@ out:
 }
 
 static int
-mt7915_fw_debug_wa_get(void *data, u64 *val)
+mt7902_fw_debug_wa_get(void *data, u64 *val)
 {
-	struct mt7915_dev *dev = data;
+	struct mt7902_dev *dev = data;
 
 	*val = dev->fw.debug_wa;
 
 	return 0;
 }
 
-DEFINE_DEBUGFS_ATTRIBUTE(fops_fw_debug_wa, mt7915_fw_debug_wa_get,
-			 mt7915_fw_debug_wa_set, "%lld\n");
+DEFINE_DEBUGFS_ATTRIBUTE(fops_fw_debug_wa, mt7902_fw_debug_wa_get,
+			 mt7902_fw_debug_wa_set, "%lld\n");
 
 static struct dentry *
 create_buf_file_cb(const char *filename, struct dentry *parent, umode_t mode,
@@ -606,13 +606,13 @@ remove_buf_file_cb(struct dentry *f)
 }
 
 static int
-mt7915_fw_debug_bin_set(void *data, u64 val)
+mt7902_fw_debug_bin_set(void *data, u64 val)
 {
 	static struct rchan_callbacks relay_cb = {
 		.create_buf_file = create_buf_file_cb,
 		.remove_buf_file = remove_buf_file_cb,
 	};
-	struct mt7915_dev *dev = data;
+	struct mt7902_dev *dev = data;
 
 	if (!dev->relay_fwlog)
 		dev->relay_fwlog = relay_open("fwlog_data", dev->debugfs_dir,
@@ -624,26 +624,26 @@ mt7915_fw_debug_bin_set(void *data, u64 val)
 
 	relay_reset(dev->relay_fwlog);
 
-	return mt7915_fw_debug_wm_set(dev, dev->fw.debug_wm);
+	return mt7902_fw_debug_wm_set(dev, dev->fw.debug_wm);
 }
 
 static int
-mt7915_fw_debug_bin_get(void *data, u64 *val)
+mt7902_fw_debug_bin_get(void *data, u64 *val)
 {
-	struct mt7915_dev *dev = data;
+	struct mt7902_dev *dev = data;
 
 	*val = dev->fw.debug_bin;
 
 	return 0;
 }
 
-DEFINE_DEBUGFS_ATTRIBUTE(fops_fw_debug_bin, mt7915_fw_debug_bin_get,
-			 mt7915_fw_debug_bin_set, "%lld\n");
+DEFINE_DEBUGFS_ATTRIBUTE(fops_fw_debug_bin, mt7902_fw_debug_bin_get,
+			 mt7902_fw_debug_bin_set, "%lld\n");
 
 static int
-mt7915_fw_util_wm_show(struct seq_file *file, void *data)
+mt7902_fw_util_wm_show(struct seq_file *file, void *data)
 {
-	struct mt7915_dev *dev = file->private;
+	struct mt7902_dev *dev = file->private;
 
 	seq_printf(file, "Program counter: 0x%x\n", mt76_rr(dev, MT_WM_MCU_PC));
 
@@ -659,29 +659,29 @@ mt7915_fw_util_wm_show(struct seq_file *file, void *data)
 	return 0;
 }
 
-DEFINE_SHOW_ATTRIBUTE(mt7915_fw_util_wm);
+DEFINE_SHOW_ATTRIBUTE(mt7902_fw_util_wm);
 
 static int
-mt7915_fw_util_wa_show(struct seq_file *file, void *data)
+mt7902_fw_util_wa_show(struct seq_file *file, void *data)
 {
-	struct mt7915_dev *dev = file->private;
+	struct mt7902_dev *dev = file->private;
 
 	seq_printf(file, "Program counter: 0x%x\n", mt76_rr(dev, MT_WA_MCU_PC));
 
 	if (dev->fw.debug_wa)
-		return mt7915_mcu_wa_cmd(dev, MCU_WA_PARAM_CMD(QUERY),
+		return mt7902_mcu_wa_cmd(dev, MCU_WA_PARAM_CMD(QUERY),
 					 MCU_WA_PARAM_CPU_UTIL, 0, 0);
 
 	return 0;
 }
 
-DEFINE_SHOW_ATTRIBUTE(mt7915_fw_util_wa);
+DEFINE_SHOW_ATTRIBUTE(mt7902_fw_util_wa);
 
 static void
-mt7915_ampdu_stat_read_phy(struct mt7915_phy *phy,
+mt7902_ampdu_stat_read_phy(struct mt7902_phy *phy,
 			   struct seq_file *file)
 {
-	struct mt7915_dev *dev = phy->dev;
+	struct mt7902_dev *dev = phy->dev;
 	bool ext_phy = phy != &dev->phy;
 	int bound[15], range[4], i;
 	u8 band = phy->mt76->band_idx;
@@ -709,7 +709,7 @@ mt7915_ampdu_stat_read_phy(struct mt7915_phy *phy,
 }
 
 static void
-mt7915_txbf_stat_read_phy(struct mt7915_phy *phy, struct seq_file *s)
+mt7902_txbf_stat_read_phy(struct mt7902_phy *phy, struct seq_file *s)
 {
 	struct mt76_mib_stats *mib = &phy->mib;
 	static const char * const bw[] = {
@@ -756,18 +756,18 @@ mt7915_txbf_stat_read_phy(struct mt7915_phy *phy, struct seq_file *s)
 }
 
 static int
-mt7915_tx_stats_show(struct seq_file *file, void *data)
+mt7902_tx_stats_show(struct seq_file *file, void *data)
 {
-	struct mt7915_phy *phy = file->private;
-	struct mt7915_dev *dev = phy->dev;
+	struct mt7902_phy *phy = file->private;
+	struct mt7902_dev *dev = phy->dev;
 	struct mt76_mib_stats *mib = &phy->mib;
 	int i;
 
 	mutex_lock(&dev->mt76.mutex);
 
-	mt7915_ampdu_stat_read_phy(phy, file);
-	mt7915_mac_update_stats(phy);
-	mt7915_txbf_stat_read_phy(phy, file);
+	mt7902_ampdu_stat_read_phy(phy, file);
+	mt7902_mac_update_stats(phy);
+	mt7902_txbf_stat_read_phy(phy, file);
 
 	/* Tx amsdu info */
 	seq_puts(file, "Tx MSDU statistics:\n");
@@ -786,14 +786,14 @@ mt7915_tx_stats_show(struct seq_file *file, void *data)
 	return 0;
 }
 
-DEFINE_SHOW_ATTRIBUTE(mt7915_tx_stats);
+DEFINE_SHOW_ATTRIBUTE(mt7902_tx_stats);
 
 static void
-mt7915_hw_queue_read(struct seq_file *s, u32 size,
+mt7902_hw_queue_read(struct seq_file *s, u32 size,
 		     const struct hw_queue_map *map)
 {
-	struct mt7915_phy *phy = s->private;
-	struct mt7915_dev *dev = phy->dev;
+	struct mt7902_phy *phy = s->private;
+	struct mt7902_dev *dev = phy->dev;
 	u32 i, val;
 
 	val = mt76_rr(dev, MT_FL_Q_EMPTY);
@@ -820,10 +820,10 @@ mt7915_hw_queue_read(struct seq_file *s, u32 size,
 }
 
 static void
-mt7915_sta_hw_queue_read(void *data, struct ieee80211_sta *sta)
+mt7902_sta_hw_queue_read(void *data, struct ieee80211_sta *sta)
 {
-	struct mt7915_sta *msta = (struct mt7915_sta *)sta->drv_priv;
-	struct mt7915_dev *dev = msta->vif->phy->dev;
+	struct mt7902_sta *msta = (struct mt7902_sta *)sta->drv_priv;
+	struct mt7902_dev *dev = msta->vif->phy->dev;
 	struct seq_file *s = data;
 	u8 ac;
 
@@ -848,10 +848,10 @@ mt7915_sta_hw_queue_read(void *data, struct ieee80211_sta *sta)
 }
 
 static int
-mt7915_hw_queues_show(struct seq_file *file, void *data)
+mt7902_hw_queues_show(struct seq_file *file, void *data)
 {
-	struct mt7915_phy *phy = file->private;
-	struct mt7915_dev *dev = phy->dev;
+	struct mt7902_phy *phy = file->private;
+	struct mt7902_dev *dev = phy->dev;
 	static const struct hw_queue_map ple_queue_map[] = {
 		{ "CPU_Q0",  0,  1, MT_CTX0	      },
 		{ "CPU_Q1",  1,  1, MT_CTX0 + 1	      },
@@ -901,27 +901,27 @@ mt7915_hw_queues_show(struct seq_file *file, void *data)
 		   val, head, tail);
 
 	seq_puts(file, "PLE non-empty queue info:\n");
-	mt7915_hw_queue_read(file, ARRAY_SIZE(ple_queue_map),
+	mt7902_hw_queue_read(file, ARRAY_SIZE(ple_queue_map),
 			     &ple_queue_map[0]);
 
 	/* iterate per-sta ple queue */
 	ieee80211_iterate_stations_atomic(phy->mt76->hw,
-					  mt7915_sta_hw_queue_read, file);
+					  mt7902_sta_hw_queue_read, file);
 	/* pse queue */
 	seq_puts(file, "PSE non-empty queue info:\n");
-	mt7915_hw_queue_read(file, ARRAY_SIZE(pse_queue_map),
+	mt7902_hw_queue_read(file, ARRAY_SIZE(pse_queue_map),
 			     &pse_queue_map[0]);
 
 	return 0;
 }
 
-DEFINE_SHOW_ATTRIBUTE(mt7915_hw_queues);
+DEFINE_SHOW_ATTRIBUTE(mt7902_hw_queues);
 
 static int
-mt7915_xmit_queues_show(struct seq_file *file, void *data)
+mt7902_xmit_queues_show(struct seq_file *file, void *data)
 {
-	struct mt7915_phy *phy = file->private;
-	struct mt7915_dev *dev = phy->dev;
+	struct mt7902_phy *phy = file->private;
+	struct mt7902_dev *dev = phy->dev;
 	struct {
 		struct mt76_queue *q;
 		char *queue;
@@ -948,20 +948,20 @@ mt7915_xmit_queues_show(struct seq_file *file, void *data)
 	return 0;
 }
 
-DEFINE_SHOW_ATTRIBUTE(mt7915_xmit_queues);
+DEFINE_SHOW_ATTRIBUTE(mt7902_xmit_queues);
 
-#define mt7915_txpower_puts(rate)						\
+#define mt7902_txpower_puts(rate)						\
 ({										\
 	len += scnprintf(buf + len, sz - len, "%-16s:", #rate " (TMAC)");	\
-	for (i = 0; i < mt7915_sku_group_len[SKU_##rate]; i++, offs++)		\
+	for (i = 0; i < mt7902_sku_group_len[SKU_##rate]; i++, offs++)		\
 		len += scnprintf(buf + len, sz - len, " %6d", txpwr[offs]);	\
 	len += scnprintf(buf + len, sz - len, "\n");				\
 })
 
-#define mt7915_txpower_sets(rate, pwr, flag)			\
+#define mt7902_txpower_sets(rate, pwr, flag)			\
 ({								\
 	offs += len;						\
-	len = mt7915_sku_group_len[rate];			\
+	len = mt7902_sku_group_len[rate];			\
 	if (mode == flag) {					\
 		for (i = 0; i < len; i++)			\
 			req.txpower_sku[offs + i] = pwr;	\
@@ -969,12 +969,12 @@ DEFINE_SHOW_ATTRIBUTE(mt7915_xmit_queues);
 })
 
 static ssize_t
-mt7915_rate_txpower_get(struct file *file, char __user *user_buf,
+mt7902_rate_txpower_get(struct file *file, char __user *user_buf,
 			size_t count, loff_t *ppos)
 {
-	struct mt7915_phy *phy = file->private_data;
-	struct mt7915_dev *dev = phy->dev;
-	s8 txpwr[MT7915_SKU_RATE_NUM];
+	struct mt7902_phy *phy = file->private_data;
+	struct mt7902_dev *dev = phy->dev;
+	s8 txpwr[MT7902_SKU_RATE_NUM];
 	static const size_t sz = 2048;
 	u8 band = phy->mt76->band_idx;
 	int i, offs = 0, len = 0;
@@ -986,7 +986,7 @@ mt7915_rate_txpower_get(struct file *file, char __user *user_buf,
 	if (!buf)
 		return -ENOMEM;
 
-	ret = mt7915_mcu_get_txpower_sku(phy, txpwr, sizeof(txpwr));
+	ret = mt7902_mcu_get_txpower_sku(phy, txpwr, sizeof(txpwr));
 	if (ret)
 		goto out;
 
@@ -996,43 +996,43 @@ mt7915_rate_txpower_get(struct file *file, char __user *user_buf,
 			 phy != &dev->phy, phy->mt76->chandef.chan->hw_value);
 	len += scnprintf(buf + len, sz - len, "%-16s  %6s %6s %6s %6s\n",
 			 " ", "1m", "2m", "5m", "11m");
-	mt7915_txpower_puts(CCK);
+	mt7902_txpower_puts(CCK);
 
 	len += scnprintf(buf + len, sz - len,
 			 "%-16s  %6s %6s %6s %6s %6s %6s %6s %6s\n",
 			 " ", "6m", "9m", "12m", "18m", "24m", "36m", "48m",
 			 "54m");
-	mt7915_txpower_puts(OFDM);
+	mt7902_txpower_puts(OFDM);
 
 	len += scnprintf(buf + len, sz - len,
 			 "%-16s  %6s %6s %6s %6s %6s %6s %6s %6s\n",
 			 " ", "mcs0", "mcs1", "mcs2", "mcs3", "mcs4",
 			 "mcs5", "mcs6", "mcs7");
-	mt7915_txpower_puts(HT_BW20);
+	mt7902_txpower_puts(HT_BW20);
 
 	len += scnprintf(buf + len, sz - len,
 			 "%-16s  %6s %6s %6s %6s %6s %6s %6s %6s %6s\n",
 			 " ", "mcs0", "mcs1", "mcs2", "mcs3", "mcs4", "mcs5",
 			 "mcs6", "mcs7", "mcs32");
-	mt7915_txpower_puts(HT_BW40);
+	mt7902_txpower_puts(HT_BW40);
 
 	len += scnprintf(buf + len, sz - len,
 			 "%-16s  %6s %6s %6s %6s %6s %6s %6s %6s %6s %6s %6s %6s\n",
 			 " ", "mcs0", "mcs1", "mcs2", "mcs3", "mcs4", "mcs5",
 			 "mcs6", "mcs7", "mcs8", "mcs9", "mcs10", "mcs11");
-	mt7915_txpower_puts(VHT_BW20);
-	mt7915_txpower_puts(VHT_BW40);
-	mt7915_txpower_puts(VHT_BW80);
-	mt7915_txpower_puts(VHT_BW160);
-	mt7915_txpower_puts(HE_RU26);
-	mt7915_txpower_puts(HE_RU52);
-	mt7915_txpower_puts(HE_RU106);
-	mt7915_txpower_puts(HE_RU242);
-	mt7915_txpower_puts(HE_RU484);
-	mt7915_txpower_puts(HE_RU996);
-	mt7915_txpower_puts(HE_RU2x996);
+	mt7902_txpower_puts(VHT_BW20);
+	mt7902_txpower_puts(VHT_BW40);
+	mt7902_txpower_puts(VHT_BW80);
+	mt7902_txpower_puts(VHT_BW160);
+	mt7902_txpower_puts(HE_RU26);
+	mt7902_txpower_puts(HE_RU52);
+	mt7902_txpower_puts(HE_RU106);
+	mt7902_txpower_puts(HE_RU242);
+	mt7902_txpower_puts(HE_RU484);
+	mt7902_txpower_puts(HE_RU996);
+	mt7902_txpower_puts(HE_RU2x996);
 
-	reg = is_mt7915(&dev->mt76) ? MT_WF_PHY_TPC_CTRL_STAT(band) :
+	reg = is_mt7992(&dev->mt76) ? MT_WF_PHY_TPC_CTRL_STAT(band) :
 	      MT_WF_PHY_TPC_CTRL_STAT_MT7916(band);
 
 	len += scnprintf(buf + len, sz - len, "\nTx power (bbp)  : %6ld\n",
@@ -1046,13 +1046,13 @@ out:
 }
 
 static ssize_t
-mt7915_rate_txpower_set(struct file *file, const char __user *user_buf,
+mt7902_rate_txpower_set(struct file *file, const char __user *user_buf,
 			size_t count, loff_t *ppos)
 {
-	struct mt7915_phy *phy = file->private_data;
-	struct mt7915_dev *dev = phy->dev;
+	struct mt7902_phy *phy = file->private_data;
+	struct mt7902_dev *dev = phy->dev;
 	struct mt76_phy *mphy = phy->mt76;
-	struct mt7915_mcu_txpower_sku req = {
+	struct mt7902_mcu_txpower_sku req = {
 		.format_id = TX_POWER_LIMIT_TABLE,
 		.band_idx = phy->mt76->band_idx,
 	};
@@ -1083,47 +1083,47 @@ mt7915_rate_txpower_set(struct file *file, const char __user *user_buf,
 		return -EINVAL;
 
 	if (pwr160)
-		pwr160 = mt7915_get_power_bound(phy, pwr160);
+		pwr160 = mt7902_get_power_bound(phy, pwr160);
 	if (pwr80)
-		pwr80 = mt7915_get_power_bound(phy, pwr80);
+		pwr80 = mt7902_get_power_bound(phy, pwr80);
 	if (pwr40)
-		pwr40 = mt7915_get_power_bound(phy, pwr40);
+		pwr40 = mt7902_get_power_bound(phy, pwr40);
 	if (pwr20)
-		pwr20 = mt7915_get_power_bound(phy, pwr20);
+		pwr20 = mt7902_get_power_bound(phy, pwr20);
 
 	if (pwr160 < 0 || pwr80 < 0 || pwr40 < 0 || pwr20 < 0)
 		return -EINVAL;
 
 	mutex_lock(&dev->mt76.mutex);
-	ret = mt7915_mcu_get_txpower_sku(phy, req.txpower_sku,
+	ret = mt7902_mcu_get_txpower_sku(phy, req.txpower_sku,
 					 sizeof(req.txpower_sku));
 	if (ret)
 		goto out;
 
-	mt7915_txpower_sets(SKU_CCK, pwr20, RX_ENC_LEGACY);
-	mt7915_txpower_sets(SKU_OFDM, pwr20, RX_ENC_LEGACY);
+	mt7902_txpower_sets(SKU_CCK, pwr20, RX_ENC_LEGACY);
+	mt7902_txpower_sets(SKU_OFDM, pwr20, RX_ENC_LEGACY);
 	if (mode == RX_ENC_LEGACY)
 		goto skip;
 
-	mt7915_txpower_sets(SKU_HT_BW20, pwr20, RX_ENC_HT);
-	mt7915_txpower_sets(SKU_HT_BW40, pwr40, RX_ENC_HT);
+	mt7902_txpower_sets(SKU_HT_BW20, pwr20, RX_ENC_HT);
+	mt7902_txpower_sets(SKU_HT_BW40, pwr40, RX_ENC_HT);
 	if (mode == RX_ENC_HT)
 		goto skip;
 
-	mt7915_txpower_sets(SKU_VHT_BW20, pwr20, RX_ENC_VHT);
-	mt7915_txpower_sets(SKU_VHT_BW40, pwr40, RX_ENC_VHT);
-	mt7915_txpower_sets(SKU_VHT_BW80, pwr80, RX_ENC_VHT);
-	mt7915_txpower_sets(SKU_VHT_BW160, pwr160, RX_ENC_VHT);
+	mt7902_txpower_sets(SKU_VHT_BW20, pwr20, RX_ENC_VHT);
+	mt7902_txpower_sets(SKU_VHT_BW40, pwr40, RX_ENC_VHT);
+	mt7902_txpower_sets(SKU_VHT_BW80, pwr80, RX_ENC_VHT);
+	mt7902_txpower_sets(SKU_VHT_BW160, pwr160, RX_ENC_VHT);
 	if (mode == RX_ENC_VHT)
 		goto skip;
 
-	mt7915_txpower_sets(SKU_HE_RU26, pwr20, RX_ENC_HE + 1);
-	mt7915_txpower_sets(SKU_HE_RU52, pwr20, RX_ENC_HE + 1);
-	mt7915_txpower_sets(SKU_HE_RU106, pwr20, RX_ENC_HE + 1);
-	mt7915_txpower_sets(SKU_HE_RU242, pwr20, RX_ENC_HE);
-	mt7915_txpower_sets(SKU_HE_RU484, pwr40, RX_ENC_HE);
-	mt7915_txpower_sets(SKU_HE_RU996, pwr80, RX_ENC_HE);
-	mt7915_txpower_sets(SKU_HE_RU2x996, pwr160, RX_ENC_HE);
+	mt7902_txpower_sets(SKU_HE_RU26, pwr20, RX_ENC_HE + 1);
+	mt7902_txpower_sets(SKU_HE_RU52, pwr20, RX_ENC_HE + 1);
+	mt7902_txpower_sets(SKU_HE_RU106, pwr20, RX_ENC_HE + 1);
+	mt7902_txpower_sets(SKU_HE_RU242, pwr20, RX_ENC_HE);
+	mt7902_txpower_sets(SKU_HE_RU484, pwr40, RX_ENC_HE);
+	mt7902_txpower_sets(SKU_HE_RU996, pwr80, RX_ENC_HE);
+	mt7902_txpower_sets(SKU_HE_RU2x996, pwr160, RX_ENC_HE);
 skip:
 	ret = mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD(TX_POWER_FEATURE_CTRL),
 				&req, sizeof(req), true);
@@ -1138,19 +1138,19 @@ out:
 	return ret ? ret : count;
 }
 
-static const struct file_operations mt7915_rate_txpower_fops = {
-	.write = mt7915_rate_txpower_set,
-	.read = mt7915_rate_txpower_get,
+static const struct file_operations mt7902_rate_txpower_fops = {
+	.write = mt7902_rate_txpower_set,
+	.read = mt7902_rate_txpower_get,
 	.open = simple_open,
 	.owner = THIS_MODULE,
 	.llseek = default_llseek,
 };
 
 static int
-mt7915_twt_stats(struct seq_file *s, void *data)
+mt7902_twt_stats(struct seq_file *s, void *data)
 {
-	struct mt7915_dev *dev = dev_get_drvdata(s->private);
-	struct mt7915_twt_flow *iter;
+	struct mt7902_dev *dev = dev_get_drvdata(s->private);
+	struct mt7902_twt_flow *iter;
 
 	rcu_read_lock();
 
@@ -1176,13 +1176,13 @@ mt7915_twt_stats(struct seq_file *s, void *data)
  * WF selection [31:24] and offset [23:0].
  */
 static int
-mt7915_rf_regval_get(void *data, u64 *val)
+mt7902_rf_regval_get(void *data, u64 *val)
 {
-	struct mt7915_dev *dev = data;
+	struct mt7902_dev *dev = data;
 	u32 regval;
 	int ret;
 
-	ret = mt7915_mcu_rf_regval(dev, dev->mt76.debugfs_reg, &regval, false);
+	ret = mt7902_mcu_rf_regval(dev, dev->mt76.debugfs_reg, &regval, false);
 	if (ret)
 		return ret;
 
@@ -1192,20 +1192,20 @@ mt7915_rf_regval_get(void *data, u64 *val)
 }
 
 static int
-mt7915_rf_regval_set(void *data, u64 val)
+mt7902_rf_regval_set(void *data, u64 val)
 {
-	struct mt7915_dev *dev = data;
+	struct mt7902_dev *dev = data;
 	u32 val32 = val;
 
-	return mt7915_mcu_rf_regval(dev, dev->mt76.debugfs_reg, &val32, true);
+	return mt7902_mcu_rf_regval(dev, dev->mt76.debugfs_reg, &val32, true);
 }
 
-DEFINE_DEBUGFS_ATTRIBUTE(fops_rf_regval, mt7915_rf_regval_get,
-			 mt7915_rf_regval_set, "0x%08llx\n");
+DEFINE_DEBUGFS_ATTRIBUTE(fops_rf_regval, mt7902_rf_regval_get,
+			 mt7902_rf_regval_set, "0x%08llx\n");
 
-int mt7915_init_debugfs(struct mt7915_phy *phy)
+int mt7902_init_debugfs(struct mt7902_phy *phy)
 {
-	struct mt7915_dev *dev = phy->dev;
+	struct mt7902_dev *dev = phy->dev;
 	bool ext_phy = phy != &dev->phy;
 	struct dentry *dir;
 
@@ -1214,27 +1214,27 @@ int mt7915_init_debugfs(struct mt7915_phy *phy)
 		return -ENOMEM;
 	debugfs_create_file("muru_debug", 0600, dir, dev, &fops_muru_debug);
 	debugfs_create_file("muru_stats", 0400, dir, phy,
-			    &mt7915_muru_stats_fops);
+			    &mt7902_muru_stats_fops);
 	debugfs_create_file("hw-queues", 0400, dir, phy,
-			    &mt7915_hw_queues_fops);
+			    &mt7902_hw_queues_fops);
 	debugfs_create_file("xmit-queues", 0400, dir, phy,
-			    &mt7915_xmit_queues_fops);
-	debugfs_create_file("tx_stats", 0400, dir, phy, &mt7915_tx_stats_fops);
+			    &mt7902_xmit_queues_fops);
+	debugfs_create_file("tx_stats", 0400, dir, phy, &mt7902_tx_stats_fops);
 	debugfs_create_file("sys_recovery", 0600, dir, phy,
-			    &mt7915_sys_recovery_ops);
+			    &mt7902_sys_recovery_ops);
 	debugfs_create_file("fw_debug_wm", 0600, dir, dev, &fops_fw_debug_wm);
 	debugfs_create_file("fw_debug_wa", 0600, dir, dev, &fops_fw_debug_wa);
 	debugfs_create_file("fw_debug_bin", 0600, dir, dev, &fops_fw_debug_bin);
 	debugfs_create_file("fw_util_wm", 0400, dir, dev,
-			    &mt7915_fw_util_wm_fops);
+			    &mt7902_fw_util_wm_fops);
 	debugfs_create_file("fw_util_wa", 0400, dir, dev,
-			    &mt7915_fw_util_wa_fops);
+			    &mt7902_fw_util_wa_fops);
 	debugfs_create_file("implicit_txbf", 0600, dir, dev,
 			    &fops_implicit_txbf);
 	debugfs_create_file("txpower_sku", 0400, dir, phy,
-			    &mt7915_rate_txpower_fops);
+			    &mt7902_rate_txpower_fops);
 	debugfs_create_devm_seqfile(dev->mt76.dev, "twt_stats", dir,
-				    mt7915_twt_stats);
+				    mt7902_twt_stats);
 	debugfs_create_file("rf_regval", 0600, dir, dev, &fops_rf_regval);
 
 	if (!dev->dbdc_support || phy->mt76->band_idx) {
@@ -1243,7 +1243,7 @@ int mt7915_init_debugfs(struct mt7915_phy *phy)
 		debugfs_create_file("radar_trigger", 0200, dir, dev,
 				    &fops_radar_trigger);
 		debugfs_create_devm_seqfile(dev->mt76.dev, "rdd_monitor", dir,
-					    mt7915_rdd_monitor);
+					    mt7902_rdd_monitor);
 	}
 
 	if (!ext_phy)
@@ -1253,7 +1253,7 @@ int mt7915_init_debugfs(struct mt7915_phy *phy)
 }
 
 static void
-mt7915_debugfs_write_fwlog(struct mt7915_dev *dev, const void *hdr, int hdrlen,
+mt7902_debugfs_write_fwlog(struct mt7902_dev *dev, const void *hdr, int hdrlen,
 			 const void *data, int len)
 {
 	static DEFINE_SPINLOCK(lock);
@@ -1277,7 +1277,7 @@ mt7915_debugfs_write_fwlog(struct mt7915_dev *dev, const void *hdr, int hdrlen,
 	spin_unlock_irqrestore(&lock, flags);
 }
 
-void mt7915_debugfs_rx_fw_monitor(struct mt7915_dev *dev, const void *data, int len)
+void mt7902_debugfs_rx_fw_monitor(struct mt7902_dev *dev, const void *data, int len)
 {
 	struct {
 		__le32 magic;
@@ -1294,16 +1294,16 @@ void mt7915_debugfs_rx_fw_monitor(struct mt7915_dev *dev, const void *data, int 
 
 	hdr.timestamp = cpu_to_le32(mt76_rr(dev, MT_LPON_FRCR(0)));
 	hdr.len = *(__le16 *)data;
-	mt7915_debugfs_write_fwlog(dev, &hdr, sizeof(hdr), data, len);
+	mt7902_debugfs_write_fwlog(dev, &hdr, sizeof(hdr), data, len);
 }
 
-bool mt7915_debugfs_rx_log(struct mt7915_dev *dev, const void *data, int len)
+bool mt7902_debugfs_rx_log(struct mt7902_dev *dev, const void *data, int len)
 {
 	if (get_unaligned_le32(data) != FW_BIN_LOG_MAGIC)
 		return false;
 
 	if (dev->relay_fwlog)
-		mt7915_debugfs_write_fwlog(dev, NULL, 0, data, len);
+		mt7902_debugfs_write_fwlog(dev, NULL, 0, data, len);
 
 	return true;
 }
@@ -1311,13 +1311,13 @@ bool mt7915_debugfs_rx_log(struct mt7915_dev *dev, const void *data, int len)
 #ifdef CONFIG_MAC80211_DEBUGFS
 /** per-station debugfs **/
 
-static ssize_t mt7915_sta_fixed_rate_set(struct file *file,
+static ssize_t mt7902_sta_fixed_rate_set(struct file *file,
 					 const char __user *user_buf,
 					 size_t count, loff_t *ppos)
 {
 	struct ieee80211_sta *sta = file->private_data;
-	struct mt7915_sta *msta = (struct mt7915_sta *)sta->drv_priv;
-	struct mt7915_dev *dev = msta->vif->phy->dev;
+	struct mt7902_sta *msta = (struct mt7902_sta *)sta->drv_priv;
+	struct mt7902_dev *dev = msta->vif->phy->dev;
 	struct ieee80211_vif *vif;
 	struct sta_phy phy = {};
 	char buf[100];
@@ -1363,7 +1363,7 @@ static ssize_t mt7915_sta_fixed_rate_set(struct file *file,
 
 out:
 	vif = container_of((void *)msta->vif, struct ieee80211_vif, drv_priv);
-	ret = mt7915_mcu_set_fixed_rate_ctrl(dev, vif, sta, &phy, field);
+	ret = mt7902_mcu_set_fixed_rate_ctrl(dev, vif, sta, &phy, field);
 	if (ret)
 		return -EFAULT;
 
@@ -1371,29 +1371,29 @@ out:
 }
 
 static const struct file_operations fops_fixed_rate = {
-	.write = mt7915_sta_fixed_rate_set,
+	.write = mt7902_sta_fixed_rate_set,
 	.open = simple_open,
 	.owner = THIS_MODULE,
 	.llseek = default_llseek,
 };
 
 static int
-mt7915_queues_show(struct seq_file *s, void *data)
+mt7902_queues_show(struct seq_file *s, void *data)
 {
 	struct ieee80211_sta *sta = s->private;
 
-	mt7915_sta_hw_queue_read(s, sta);
+	mt7902_sta_hw_queue_read(s, sta);
 
 	return 0;
 }
 
-DEFINE_SHOW_ATTRIBUTE(mt7915_queues);
+DEFINE_SHOW_ATTRIBUTE(mt7902_queues);
 
-void mt7915_sta_add_debugfs(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
+void mt7902_sta_add_debugfs(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
 			    struct ieee80211_sta *sta, struct dentry *dir)
 {
 	debugfs_create_file("fixed_rate", 0600, dir, sta, &fops_fixed_rate);
-	debugfs_create_file("hw-queues", 0400, dir, sta, &mt7915_queues_fops);
+	debugfs_create_file("hw-queues", 0400, dir, sta, &mt7902_queues_fops);
 }
 
 #endif

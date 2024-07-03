@@ -1,17 +1,17 @@
 /* SPDX-License-Identifier: ISC */
 /* Copyright (C) 2020 MediaTek Inc. */
 
-#ifndef __MT7915_EEPROM_H
-#define __MT7915_EEPROM_H
+#ifndef __MT7902_EEPROM_H
+#define __MT7902_EEPROM_H
 
-#include "mt7915.h"
+#include "mt7902.h"
 
 struct cal_data {
 	u8 count;
 	u16 offset[60];
 };
 
-enum mt7915_eeprom_field {
+enum mt7902_eeprom_field {
 	MT_EE_CHIP_ID =		0x000,
 	MT_EE_VERSION =		0x002,
 	MT_EE_MAC_ADDR =	0x004,
@@ -58,7 +58,7 @@ enum mt7915_eeprom_field {
 #define MT_EE_RATE_DELTA_SIGN			BIT(6)
 #define MT_EE_RATE_DELTA_EN			BIT(7)
 
-enum mt7915_adie_sku {
+enum mt7902_adie_sku {
 	MT7976_ONE_ADIE_DBDC = 0x7,
 	MT7975_ONE_ADIE	= 0x8,
 	MT7976_ONE_ADIE	= 0xa,
@@ -66,7 +66,7 @@ enum mt7915_adie_sku {
 	MT7976_DUAL_ADIE = 0xf,
 };
 
-enum mt7915_eeprom_band {
+enum mt7902_eeprom_band {
 	MT_EE_BAND_SEL_DEFAULT,
 	MT_EE_BAND_SEL_5GHZ,
 	MT_EE_BAND_SEL_2GHZ,
@@ -80,7 +80,7 @@ enum {
 	MT_EE_V2_BAND_SEL_5GHZ_6GHZ,
 };
 
-enum mt7915_sku_rate_group {
+enum mt7902_sku_rate_group {
 	SKU_CCK,
 	SKU_OFDM,
 	SKU_HT_BW20,
@@ -100,7 +100,7 @@ enum mt7915_sku_rate_group {
 };
 
 static inline int
-mt7915_get_channel_group_5g(int channel, bool is_7976)
+mt7902_get_channel_group_5g(int channel, bool is_7976)
 {
 	if (is_7976) {
 		if (channel <= 64)
@@ -132,7 +132,7 @@ mt7915_get_channel_group_5g(int channel, bool is_7976)
 }
 
 static inline int
-mt7915_get_channel_group_6g(int channel)
+mt7902_get_channel_group_6g(int channel)
 {
 	if (channel <= 29)
 		return 0;
@@ -141,7 +141,7 @@ mt7915_get_channel_group_6g(int channel)
 }
 
 static inline bool
-mt7915_tssi_enabled(struct mt7915_dev *dev, enum nl80211_band band)
+mt7902_tssi_enabled(struct mt7902_dev *dev, enum nl80211_band band)
 {
 	u8 *eep = dev->mt76.eeprom.data;
 	u8 offs = is_mt7981(&dev->mt76) ? 8 : 7;
@@ -156,6 +156,6 @@ mt7915_tssi_enabled(struct mt7915_dev *dev, enum nl80211_band band)
 		return val & MT_EE_WIFI_CONF7_TSSI0_5G;
 }
 
-extern const u8 mt7915_sku_group_len[MAX_SKU_RATE_GROUP_NUM];
+extern const u8 mt7902_sku_group_len[MAX_SKU_RATE_GROUP_NUM];
 
 #endif

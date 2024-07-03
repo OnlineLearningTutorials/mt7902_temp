@@ -4,14 +4,14 @@
 #include <linux/etherdevice.h>
 #include <linux/timekeeping.h>
 #include "coredump.h"
-#include "mt7915.h"
+#include "mt7902.h"
 #include "../dma.h"
 #include "mac.h"
 #include "mcu.h"
 
 #define to_rssi(field, rcpi)	((FIELD_GET(field, rcpi) - 220) / 2)
 
-static const struct mt7915_dfs_radar_spec etsi_radar_specs = {
+static const struct mt7902_dfs_radar_spec etsi_radar_specs = {
 	.pulse_th = { 110, -10, -80, 40, 5200, 128, 5200 },
 	.radar_pattern = {
 		[5] =  { 1, 0,  6, 32, 28, 0,  990, 5010, 17, 1, 1 },
@@ -25,7 +25,7 @@ static const struct mt7915_dfs_radar_spec etsi_radar_specs = {
 	},
 };
 
-static const struct mt7915_dfs_radar_spec fcc_radar_specs = {
+static const struct mt7902_dfs_radar_spec fcc_radar_specs = {
 	.pulse_th = { 110, -10, -80, 40, 5200, 128, 5200 },
 	.radar_pattern = {
 		[0] = { 1, 0,  8,  32, 28, 0, 508, 3076, 13, 1,  1 },
@@ -36,7 +36,7 @@ static const struct mt7915_dfs_radar_spec fcc_radar_specs = {
 	},
 };
 
-static const struct mt7915_dfs_radar_spec jp_radar_specs = {
+static const struct mt7902_dfs_radar_spec jp_radar_specs = {
 	.pulse_th = { 110, -10, -80, 40, 5200, 128, 5200 },
 	.radar_pattern = {
 		[0] =  { 1, 0,  8,  32, 28, 0,  508, 3076,  13, 1,  1 },
@@ -50,10 +50,10 @@ static const struct mt7915_dfs_radar_spec jp_radar_specs = {
 	},
 };
 
-static struct mt76_wcid *mt7915_rx_get_wcid(struct mt7915_dev *dev,
+static struct mt76_wcid *mt7902_rx_get_wcid(struct mt7902_dev *dev,
 					    u16 idx, bool unicast)
 {
-	struct mt7915_sta *sta;
+	struct mt7902_sta *sta;
 	struct mt76_wcid *wcid;
 
 	if (idx >= ARRAY_SIZE(dev->mt76.wcid))
@@ -66,14 +66,14 @@ static struct mt76_wcid *mt7915_rx_get_wcid(struct mt7915_dev *dev,
 	if (!wcid->sta)
 		return NULL;
 
-	sta = container_of(wcid, struct mt7915_sta, wcid);
+	sta = container_of(wcid, struct mt7902_sta, wcid);
 	if (!sta->vif)
 		return NULL;
 
 	return &sta->vif->sta.wcid;
 }
 
-bool mt7915_mac_wtbl_update(struct mt7915_dev *dev, int idx, u32 mask)
+bool mt7902_mac_wtbl_update(struct mt7902_dev *dev, int idx, u32 mask)
 {
 	mt76_rmw(dev, MT_WTBL_UPDATE, MT_WTBL_UPDATE_WLAN_IDX,
 		 FIELD_PREP(MT_WTBL_UPDATE_WLAN_IDX, idx) | mask);
@@ -82,7 +82,7 @@ bool mt7915_mac_wtbl_update(struct mt7915_dev *dev, int idx, u32 mask)
 			 0, 5000);
 }
 
-u32 mt7915_mac_wtbl_lmac_addr(struct mt7915_dev *dev, u16 wcid, u8 dw)
+u32 mt7902_mac_wtbl_lmac_addr(struct mt7902_dev *dev, u16 wcid, u8 dw)
 {
 	mt76_wr(dev, MT_WTBLON_TOP_WDUCR,
 		FIELD_PREP(MT_WTBLON_TOP_WDUCR_GROUP, (wcid >> 7)));
@@ -90,7 +90,7 @@ u32 mt7915_mac_wtbl_lmac_addr(struct mt7915_dev *dev, u16 wcid, u8 dw)
 	return MT_WTBL_LMAC_OFFS(wcid, dw);
 }
 
-static void mt7915_mac_sta_poll(struct mt7915_dev *dev)
+static void mt7902_mac_sta_poll(struct mt7902_dev *dev)
 {
 	static const u8 ac_to_tid[] = {
 		[IEEE80211_AC_BE] = 0,
@@ -99,7 +99,7 @@ static void mt7915_mac_sta_poll(struct mt7915_dev *dev)
 		[IEEE80211_AC_VO] = 6
 	};
 	struct ieee80211_sta *sta;
-	struct mt7915_sta *msta;
+	struct mt7902_sta *msta;
 	struct rate_info *rate;
 	u32 tx_time[IEEE80211_NUM_ACS], rx_time[IEEE80211_NUM_ACS];
 	LIST_HEAD(sta_poll_list);
@@ -124,14 +124,14 @@ static void mt7915_mac_sta_poll(struct mt7915_dev *dev)
 			break;
 		}
 		msta = list_first_entry(&sta_poll_list,
-					struct mt7915_sta, wcid.poll_list);
+					struct mt7902_sta, wcid.poll_list);
 		list_del_init(&msta->wcid.poll_list);
 		spin_unlock_bh(&dev->mt76.sta_poll_lock);
 
 		idx = msta->wcid.idx;
 
 		/* refresh peer's airtime reporting */
-		addr = mt7915_mac_wtbl_lmac_addr(dev, idx, 20);
+		addr = mt7902_mac_wtbl_lmac_addr(dev, idx, 20);
 
 		for (i = 0; i < IEEE80211_NUM_ACS; i++) {
 			u32 tx_last = msta->airtime_ac[i];
@@ -150,7 +150,7 @@ static void mt7915_mac_sta_poll(struct mt7915_dev *dev)
 		}
 
 		if (clear) {
-			mt7915_mac_wtbl_update(dev, idx,
+			mt7902_mac_wtbl_update(dev, idx,
 					       MT_WTBL_UPDATE_ADM_COUNT_CLEAR);
 			memset(msta->airtime_ac, 0, sizeof(msta->airtime_ac));
 		}
@@ -180,7 +180,7 @@ static void mt7915_mac_sta_poll(struct mt7915_dev *dev)
 		 * from per-sta counters directly.
 		 */
 		rate = &msta->wcid.rate;
-		addr = mt7915_mac_wtbl_lmac_addr(dev, idx, 7);
+		addr = mt7902_mac_wtbl_lmac_addr(dev, idx, 7);
 		val = mt76_rr(dev, addr);
 
 		switch (rate->bw) {
@@ -211,7 +211,7 @@ static void mt7915_mac_sta_poll(struct mt7915_dev *dev)
 		}
 
 		/* get signal strength of resp frames (CTS/BA/ACK) */
-		addr = mt7915_mac_wtbl_lmac_addr(dev, idx, 30);
+		addr = mt7902_mac_wtbl_lmac_addr(dev, idx, 30);
 		val = mt76_rr(dev, addr);
 
 		rssi[0] = to_rssi(GENMASK(7, 0), val);
@@ -228,13 +228,13 @@ static void mt7915_mac_sta_poll(struct mt7915_dev *dev)
 	rcu_read_unlock();
 }
 
-void mt7915_mac_enable_rtscts(struct mt7915_dev *dev,
+void mt7902_mac_enable_rtscts(struct mt7902_dev *dev,
 			      struct ieee80211_vif *vif, bool enable)
 {
-	struct mt7915_vif *mvif = (struct mt7915_vif *)vif->drv_priv;
+	struct mt7902_vif *mvif = (struct mt7902_vif *)vif->drv_priv;
 	u32 addr;
 
-	addr = mt7915_mac_wtbl_lmac_addr(dev, mvif->sta.wcid.idx, 5);
+	addr = mt7902_mac_wtbl_lmac_addr(dev, mvif->sta.wcid.idx, 5);
 	if (enable)
 		mt76_set(dev, addr, BIT(5));
 	else
@@ -242,8 +242,8 @@ void mt7915_mac_enable_rtscts(struct mt7915_dev *dev,
 }
 
 static void
-mt7915_wed_check_ppe(struct mt7915_dev *dev, struct mt76_queue *q,
-		     struct mt7915_sta *msta, struct sk_buff *skb,
+mt7902_wed_check_ppe(struct mt7902_dev *dev, struct mt76_queue *q,
+		     struct mt7902_sta *msta, struct sk_buff *skb,
 		     u32 info)
 {
 	struct ieee80211_vif *vif;
@@ -269,12 +269,12 @@ mt7915_wed_check_ppe(struct mt7915_dev *dev, struct mt76_queue *q,
 }
 
 static int
-mt7915_mac_fill_rx(struct mt7915_dev *dev, struct sk_buff *skb,
+mt7902_mac_fill_rx(struct mt7902_dev *dev, struct sk_buff *skb,
 		   enum mt76_rxq_id q, u32 *info)
 {
 	struct mt76_rx_status *status = (struct mt76_rx_status *)skb->cb;
 	struct mt76_phy *mphy = &dev->mt76.phy;
-	struct mt7915_phy *phy = &dev->phy;
+	struct mt7902_phy *phy = &dev->phy;
 	struct ieee80211_supported_band *sband;
 	__le32 *rxd = (__le32 *)skb->data;
 	__le32 *rxv = NULL;
@@ -287,7 +287,7 @@ mt7915_mac_fill_rx(struct mt7915_dev *dev, struct sk_buff *skb,
 	bool unicast, insert_ccmp_hdr = false;
 	u8 remove_pad, amsdu_info;
 	u8 mode = 0, qos_ctl = 0;
-	struct mt7915_sta *msta = NULL;
+	struct mt7902_sta *msta = NULL;
 	u32 csum_status = *(u32 *)skb->cb;
 	bool hdr_trans;
 	u16 hdr_gap;
@@ -322,10 +322,10 @@ mt7915_mac_fill_rx(struct mt7915_dev *dev, struct sk_buff *skb,
 
 	unicast = FIELD_GET(MT_RXD3_NORMAL_ADDR_TYPE, rxd3) == MT_RXD3_NORMAL_U2M;
 	idx = FIELD_GET(MT_RXD1_NORMAL_WLAN_IDX, rxd1);
-	status->wcid = mt7915_rx_get_wcid(dev, idx, unicast);
+	status->wcid = mt7902_rx_get_wcid(dev, idx, unicast);
 
 	if (status->wcid) {
-		msta = container_of(status->wcid, struct mt7915_sta, wcid);
+		msta = container_of(status->wcid, struct mt7902_sta, wcid);
 		spin_lock_bh(&dev->mt76.sta_poll_lock);
 		if (list_empty(&msta->wcid.poll_list))
 			list_add_tail(&msta->wcid.poll_list,
@@ -463,7 +463,7 @@ mt7915_mac_fill_rx(struct mt7915_dev *dev, struct sk_buff *skb,
 				return -EINVAL;
 		}
 
-		if (!is_mt7915(&dev->mt76) || (rxd1 & MT_RXD1_NORMAL_GROUP_5)) {
+		if (!is_mt7992(&dev->mt76) || (rxd1 & MT_RXD1_NORMAL_GROUP_5)) {
 			ret = mt76_connac2_mac_fill_rx_rate(&dev->mt76, status,
 							    sband, rxv, &mode);
 			if (ret < 0)
@@ -538,7 +538,7 @@ mt7915_mac_fill_rx(struct mt7915_dev *dev, struct sk_buff *skb,
 		}
 	} else {
 		status->flag |= RX_FLAG_8023;
-		mt7915_wed_check_ppe(dev, &dev->mt76.q_rx[q], msta, skb,
+		mt7902_wed_check_ppe(dev, &dev->mt76.q_rx[q], msta, skb,
 				     *info);
 	}
 
@@ -557,10 +557,10 @@ mt7915_mac_fill_rx(struct mt7915_dev *dev, struct sk_buff *skb,
 }
 
 static void
-mt7915_mac_fill_rx_vector(struct mt7915_dev *dev, struct sk_buff *skb)
+mt7902_mac_fill_rx_vector(struct mt7902_dev *dev, struct sk_buff *skb)
 {
 #ifdef CONFIG_NL80211_TESTMODE
-	struct mt7915_phy *phy = &dev->phy;
+	struct mt7902_phy *phy = &dev->phy;
 	__le32 *rxd = (__le32 *)skb->data;
 	__le32 *rxv_hdr = rxd + 2;
 	__le32 *rxv = rxd + 4;
@@ -572,7 +572,7 @@ mt7915_mac_fill_rx_vector(struct mt7915_dev *dev, struct sk_buff *skb)
 
 	band_idx = le32_get_bits(rxv_hdr[1], MT_RXV_HDR_BAND_IDX);
 	if (band_idx && !phy->mt76->band_idx) {
-		phy = mt7915_ext_phy(dev);
+		phy = mt7902_ext_phy(dev);
 		if (!phy)
 			goto out;
 	}
@@ -606,7 +606,7 @@ out:
 }
 
 static void
-mt7915_mac_write_txwi_tm(struct mt7915_phy *phy, __le32 *txwi,
+mt7902_mac_write_txwi_tm(struct mt7902_phy *phy, __le32 *txwi,
 			 struct sk_buff *skb)
 {
 #ifdef CONFIG_NL80211_TESTMODE
@@ -720,7 +720,7 @@ mt7915_mac_write_txwi_tm(struct mt7915_phy *phy, __le32 *txwi,
 #endif
 }
 
-void mt7915_mac_write_txwi(struct mt76_dev *dev, __le32 *txwi,
+void mt7902_mac_write_txwi(struct mt76_dev *dev, __le32 *txwi,
 			   struct sk_buff *skb, struct mt76_wcid *wcid, int pid,
 			   struct ieee80211_key_conf *key,
 			   enum mt76_txq_id qid, u32 changed)
@@ -735,16 +735,16 @@ void mt7915_mac_write_txwi(struct mt76_dev *dev, __le32 *txwi,
 	mt76_connac2_mac_write_txwi(dev, txwi, skb, wcid, key, pid, qid, changed);
 
 	if (mt76_testmode_enabled(mphy))
-		mt7915_mac_write_txwi_tm(mphy->priv, txwi, skb);
+		mt7902_mac_write_txwi_tm(mphy->priv, txwi, skb);
 }
 
-int mt7915_tx_prepare_skb(struct mt76_dev *mdev, void *txwi_ptr,
+int mt7902_tx_prepare_skb(struct mt76_dev *mdev, void *txwi_ptr,
 			  enum mt76_txq_id qid, struct mt76_wcid *wcid,
 			  struct ieee80211_sta *sta,
 			  struct mt76_tx_info *tx_info)
 {
 	struct ieee80211_hdr *hdr = (struct ieee80211_hdr *)tx_info->skb->data;
-	struct mt7915_dev *dev = container_of(mdev, struct mt7915_dev, mt76);
+	struct mt7902_dev *dev = container_of(mdev, struct mt7902_dev, mt76);
 	struct ieee80211_tx_info *info = IEEE80211_SKB_CB(tx_info->skb);
 	struct ieee80211_key_conf *key = info->control.hw_key;
 	struct ieee80211_vif *vif = info->control.vif;
@@ -761,9 +761,9 @@ int mt7915_tx_prepare_skb(struct mt76_dev *mdev, void *txwi_ptr,
 		wcid = &dev->mt76.global_wcid;
 
 	if (sta) {
-		struct mt7915_sta *msta;
+		struct mt7902_sta *msta;
 
-		msta = (struct mt7915_sta *)sta->drv_priv;
+		msta = (struct mt7902_sta *)sta->drv_priv;
 
 		if (time_after(jiffies, msta->jiffies + HZ / 4)) {
 			info->flags |= IEEE80211_TX_CTL_REQ_TX_STATUS;
@@ -779,7 +779,7 @@ int mt7915_tx_prepare_skb(struct mt76_dev *mdev, void *txwi_ptr,
 		return id;
 
 	pid = mt76_tx_status_skb_add(mdev, wcid, tx_info->skb);
-	mt7915_mac_write_txwi(mdev, txwi_ptr, tx_info->skb, wcid, pid, key,
+	mt7902_mac_write_txwi(mdev, txwi_ptr, tx_info->skb, wcid, pid, key,
 			      qid, 0);
 
 	txp = (struct mt76_connac_fw_txp *)(txwi + MT_TXD_SIZE);
@@ -799,7 +799,7 @@ int mt7915_tx_prepare_skb(struct mt76_dev *mdev, void *txwi_ptr,
 		txp->flags |= cpu_to_le16(MT_CT_INFO_MGMT_FRAME);
 
 	if (vif) {
-		struct mt7915_vif *mvif = (struct mt7915_vif *)vif->drv_priv;
+		struct mt7902_vif *mvif = (struct mt7902_vif *)vif->drv_priv;
 
 		txp->bss_idx = mvif->mt76.idx;
 	}
@@ -819,7 +819,7 @@ int mt7915_tx_prepare_skb(struct mt76_dev *mdev, void *txwi_ptr,
 	return 0;
 }
 
-u32 mt7915_wed_init_buf(void *ptr, dma_addr_t phys, int token_id)
+u32 mt7902_wed_init_buf(void *ptr, dma_addr_t phys, int token_id)
 {
 	struct mt76_connac_fw_txp *txp = ptr + MT_TXD_SIZE;
 	__le32 *txwi = ptr;
@@ -843,7 +843,7 @@ u32 mt7915_wed_init_buf(void *ptr, dma_addr_t phys, int token_id)
 }
 
 static void
-mt7915_mac_tx_free_prepare(struct mt7915_dev *dev)
+mt7902_mac_tx_free_prepare(struct mt7902_dev *dev)
 {
 	struct mt76_dev *mdev = &dev->mt76;
 	struct mt76_phy *mphy_ext = mdev->phys[MT_BAND1];
@@ -858,12 +858,12 @@ mt7915_mac_tx_free_prepare(struct mt7915_dev *dev)
 }
 
 static void
-mt7915_mac_tx_free_done(struct mt7915_dev *dev,
+mt7902_mac_tx_free_done(struct mt7902_dev *dev,
 			struct list_head *free_list, bool wake)
 {
 	struct sk_buff *skb, *tmp;
 
-	mt7915_mac_sta_poll(dev);
+	mt7902_mac_sta_poll(dev);
 
 	if (wake)
 		mt76_set_tx_blocked(&dev->mt76, false);
@@ -877,7 +877,7 @@ mt7915_mac_tx_free_done(struct mt7915_dev *dev,
 }
 
 static void
-mt7915_mac_tx_free(struct mt7915_dev *dev, void *data, int len)
+mt7902_mac_tx_free(struct mt7902_dev *dev, void *data, int len)
 {
 	struct mt76_connac_tx_free *free = data;
 	__le32 *tx_info = (__le32 *)(data + sizeof(*free));
@@ -892,7 +892,7 @@ mt7915_mac_tx_free(struct mt7915_dev *dev, void *data, int len)
 	u32 txd = le32_to_cpu(free->txd);
 	__le32 *cur_info;
 
-	mt7915_mac_tx_free_prepare(dev);
+	mt7902_mac_tx_free_prepare(dev);
 
 	total = le16_get_bits(free->ctrl, MT_TX_FREE_MSDU_CNT);
 	v3 = (FIELD_GET(MT_TX_FREE_VER, txd) == 0x4);
@@ -910,7 +910,7 @@ mt7915_mac_tx_free(struct mt7915_dev *dev, void *data, int len)
 		 */
 		info = le32_to_cpu(*cur_info);
 		if (info & MT_TX_FREE_PAIR) {
-			struct mt7915_sta *msta;
+			struct mt7902_sta *msta;
 			u16 idx;
 
 			idx = FIELD_GET(MT_TX_FREE_WLAN_ID, info);
@@ -919,7 +919,7 @@ mt7915_mac_tx_free(struct mt7915_dev *dev, void *data, int len)
 			if (!sta)
 				continue;
 
-			msta = container_of(wcid, struct mt7915_sta, wcid);
+			msta = container_of(wcid, struct mt7902_sta, wcid);
 			spin_lock_bh(&mdev->sta_poll_lock);
 			if (list_empty(&msta->wcid.poll_list))
 				list_add_tail(&msta->wcid.poll_list,
@@ -966,11 +966,11 @@ mt7915_mac_tx_free(struct mt7915_dev *dev, void *data, int len)
 		}
 	}
 
-	mt7915_mac_tx_free_done(dev, &free_list, wake);
+	mt7902_mac_tx_free_done(dev, &free_list, wake);
 }
 
 static void
-mt7915_mac_tx_free_v0(struct mt7915_dev *dev, void *data, int len)
+mt7902_mac_tx_free_v0(struct mt7902_dev *dev, void *data, int len)
 {
 	struct mt76_connac_tx_free *free = data;
 	__le16 *info = (__le16 *)(data + sizeof(*free));
@@ -980,7 +980,7 @@ mt7915_mac_tx_free_v0(struct mt7915_dev *dev, void *data, int len)
 	bool wake = false;
 	u8 i, count;
 
-	mt7915_mac_tx_free_prepare(dev);
+	mt7902_mac_tx_free_prepare(dev);
 
 	count = FIELD_GET(MT_TX_FREE_MSDU_CNT_V0, le16_to_cpu(free->ctrl));
 	if (WARN_ON_ONCE((void *)&info[count] > end))
@@ -997,12 +997,12 @@ mt7915_mac_tx_free_v0(struct mt7915_dev *dev, void *data, int len)
 		mt76_connac2_txwi_free(mdev, txwi, NULL, &free_list);
 	}
 
-	mt7915_mac_tx_free_done(dev, &free_list, wake);
+	mt7902_mac_tx_free_done(dev, &free_list, wake);
 }
 
-static void mt7915_mac_add_txs(struct mt7915_dev *dev, void *data)
+static void mt7902_mac_add_txs(struct mt7902_dev *dev, void *data)
 {
-	struct mt7915_sta *msta = NULL;
+	struct mt7902_sta *msta = NULL;
 	struct mt76_wcid *wcid;
 	__le32 *txs_data = data;
 	u16 wcidx;
@@ -1014,7 +1014,7 @@ static void mt7915_mac_add_txs(struct mt7915_dev *dev, void *data)
 	if (pid < MT_PACKET_ID_WED)
 		return;
 
-	if (wcidx >= mt7915_wtbl_size(dev))
+	if (wcidx >= mt7902_wtbl_size(dev))
 		return;
 
 	rcu_read_lock();
@@ -1023,7 +1023,7 @@ static void mt7915_mac_add_txs(struct mt7915_dev *dev, void *data)
 	if (!wcid)
 		goto out;
 
-	msta = container_of(wcid, struct mt7915_sta, wcid);
+	msta = container_of(wcid, struct mt7902_sta, wcid);
 
 	if (pid == MT_PACKET_ID_WED)
 		mt76_connac2_mac_fill_txs(&dev->mt76, wcid, txs_data);
@@ -1042,9 +1042,9 @@ out:
 	rcu_read_unlock();
 }
 
-bool mt7915_rx_check(struct mt76_dev *mdev, void *data, int len)
+bool mt7902_rx_check(struct mt76_dev *mdev, void *data, int len)
 {
-	struct mt7915_dev *dev = container_of(mdev, struct mt7915_dev, mt76);
+	struct mt7902_dev *dev = container_of(mdev, struct mt7902_dev, mt76);
 	__le32 *rxd = (__le32 *)data;
 	__le32 *end = (__le32 *)&rxd[len / 4];
 	enum rx_pkt_type type;
@@ -1053,27 +1053,27 @@ bool mt7915_rx_check(struct mt76_dev *mdev, void *data, int len)
 
 	switch (type) {
 	case PKT_TYPE_TXRX_NOTIFY:
-		mt7915_mac_tx_free(dev, data, len);
+		mt7902_mac_tx_free(dev, data, len);
 		return false;
 	case PKT_TYPE_TXRX_NOTIFY_V0:
-		mt7915_mac_tx_free_v0(dev, data, len);
+		mt7902_mac_tx_free_v0(dev, data, len);
 		return false;
 	case PKT_TYPE_TXS:
 		for (rxd += 2; rxd + 8 <= end; rxd += 8)
-			mt7915_mac_add_txs(dev, rxd);
+			mt7902_mac_add_txs(dev, rxd);
 		return false;
 	case PKT_TYPE_RX_FW_MONITOR:
-		mt7915_debugfs_rx_fw_monitor(dev, data, len);
+		mt7902_debugfs_rx_fw_monitor(dev, data, len);
 		return false;
 	default:
 		return true;
 	}
 }
 
-void mt7915_queue_rx_skb(struct mt76_dev *mdev, enum mt76_rxq_id q,
+void mt7902_queue_rx_skb(struct mt76_dev *mdev, enum mt76_rxq_id q,
 			 struct sk_buff *skb, u32 *info)
 {
-	struct mt7915_dev *dev = container_of(mdev, struct mt7915_dev, mt76);
+	struct mt7902_dev *dev = container_of(mdev, struct mt7902_dev, mt76);
 	__le32 *rxd = (__le32 *)skb->data;
 	__le32 *end = (__le32 *)&skb->data[skb->len];
 	enum rx_pkt_type type;
@@ -1082,30 +1082,30 @@ void mt7915_queue_rx_skb(struct mt76_dev *mdev, enum mt76_rxq_id q,
 
 	switch (type) {
 	case PKT_TYPE_TXRX_NOTIFY:
-		mt7915_mac_tx_free(dev, skb->data, skb->len);
+		mt7902_mac_tx_free(dev, skb->data, skb->len);
 		napi_consume_skb(skb, 1);
 		break;
 	case PKT_TYPE_TXRX_NOTIFY_V0:
-		mt7915_mac_tx_free_v0(dev, skb->data, skb->len);
+		mt7902_mac_tx_free_v0(dev, skb->data, skb->len);
 		napi_consume_skb(skb, 1);
 		break;
 	case PKT_TYPE_RX_EVENT:
-		mt7915_mcu_rx_event(dev, skb);
+		mt7902_mcu_rx_event(dev, skb);
 		break;
 	case PKT_TYPE_TXRXV:
-		mt7915_mac_fill_rx_vector(dev, skb);
+		mt7902_mac_fill_rx_vector(dev, skb);
 		break;
 	case PKT_TYPE_TXS:
 		for (rxd += 2; rxd + 8 <= end; rxd += 8)
-			mt7915_mac_add_txs(dev, rxd);
+			mt7902_mac_add_txs(dev, rxd);
 		dev_kfree_skb(skb);
 		break;
 	case PKT_TYPE_RX_FW_MONITOR:
-		mt7915_debugfs_rx_fw_monitor(dev, skb->data, skb->len);
+		mt7902_debugfs_rx_fw_monitor(dev, skb->data, skb->len);
 		dev_kfree_skb(skb);
 		break;
 	case PKT_TYPE_NORMAL:
-		if (!mt7915_mac_fill_rx(dev, skb, q, info)) {
+		if (!mt7902_mac_fill_rx(dev, skb, q, info)) {
 			mt76_rx(&dev->mt76, q, skb);
 			return;
 		}
@@ -1116,18 +1116,18 @@ void mt7915_queue_rx_skb(struct mt76_dev *mdev, enum mt76_rxq_id q,
 	}
 }
 
-void mt7915_mac_cca_stats_reset(struct mt7915_phy *phy)
+void mt7902_mac_cca_stats_reset(struct mt7902_phy *phy)
 {
-	struct mt7915_dev *dev = phy->dev;
+	struct mt7902_dev *dev = phy->dev;
 	u32 reg = MT_WF_PHY_RX_CTRL1(phy->mt76->band_idx);
 
 	mt76_clear(dev, reg, MT_WF_PHY_RX_CTRL1_STSCNT_EN);
 	mt76_set(dev, reg, BIT(11) | BIT(9));
 }
 
-void mt7915_mac_reset_counters(struct mt7915_phy *phy)
+void mt7902_mac_reset_counters(struct mt7902_phy *phy)
 {
-	struct mt7915_dev *dev = phy->dev;
+	struct mt7902_dev *dev = phy->dev;
 	int i;
 
 	for (i = 0; i < 4; i++) {
@@ -1142,14 +1142,14 @@ void mt7915_mac_reset_counters(struct mt7915_phy *phy)
 	mt76_set(dev, MT_WF_RMAC_MIB_AIRTIME0(phy->mt76->band_idx),
 		 MT_WF_RMAC_MIB_RXTIME_CLR);
 
-	mt7915_mcu_get_chan_mib_info(phy, true);
+	mt7902_mcu_get_chan_mib_info(phy, true);
 }
 
-void mt7915_mac_set_timing(struct mt7915_phy *phy)
+void mt7902_mac_set_timing(struct mt7902_phy *phy)
 {
 	s16 coverage_class = phy->coverage_class;
-	struct mt7915_dev *dev = phy->dev;
-	struct mt7915_phy *ext_phy = mt7915_ext_phy(dev);
+	struct mt7902_dev *dev = phy->dev;
+	struct mt7902_phy *ext_phy = mt7902_ext_phy(dev);
 	u32 val, reg_offset;
 	u32 cck = FIELD_PREP(MT_TIMEOUT_VAL_PLCP, 231) |
 		  FIELD_PREP(MT_TIMEOUT_VAL_CCA, 48);
@@ -1174,7 +1174,7 @@ void mt7915_mac_set_timing(struct mt7915_phy *phy)
 	reg_offset = FIELD_PREP(MT_TIMEOUT_VAL_PLCP, offset) |
 		     FIELD_PREP(MT_TIMEOUT_VAL_CCA, offset);
 
-	if (!is_mt7915(&dev->mt76)) {
+	if (!is_mt7992(&dev->mt76)) {
 		if (!a_band) {
 			mt76_wr(dev, MT_TMAC_ICR1(band),
 				FIELD_PREP(MT_IFS_EIFS_CCK, 314));
@@ -1195,40 +1195,40 @@ void mt7915_mac_set_timing(struct mt7915_phy *phy)
 		FIELD_PREP(MT_IFS_SLOT, phy->slottime));
 
 	if (phy->slottime < 20 || a_band)
-		val = MT7915_CFEND_RATE_DEFAULT;
+		val = MT7902_CFEND_RATE_DEFAULT;
 	else
-		val = MT7915_CFEND_RATE_11B;
+		val = MT7902_CFEND_RATE_11B;
 
 	mt76_rmw_field(dev, MT_AGG_ACR0(band), MT_AGG_ACR_CFEND_RATE, val);
 	mt76_clear(dev, MT_ARB_SCR(band),
 		   MT_ARB_SCR_TX_DISABLE | MT_ARB_SCR_RX_DISABLE);
 }
 
-void mt7915_mac_enable_nf(struct mt7915_dev *dev, bool band)
+void mt7902_mac_enable_nf(struct mt7902_dev *dev, bool band)
 {
 	u32 reg;
 
-	reg = is_mt7915(&dev->mt76) ? MT_WF_PHY_RXTD12(band) :
+	reg = is_mt7992(&dev->mt76) ? MT_WF_PHY_RXTD12(band) :
 				      MT_WF_PHY_RXTD12_MT7916(band);
 	mt76_set(dev, reg,
 		 MT_WF_PHY_RXTD12_IRPI_SW_CLR_ONLY |
 		 MT_WF_PHY_RXTD12_IRPI_SW_CLR);
 
-	reg = is_mt7915(&dev->mt76) ? MT_WF_PHY_RX_CTRL1(band) :
+	reg = is_mt7992(&dev->mt76) ? MT_WF_PHY_RX_CTRL1(band) :
 				      MT_WF_PHY_RX_CTRL1_MT7916(band);
 	mt76_set(dev, reg, FIELD_PREP(MT_WF_PHY_RX_CTRL1_IPI_EN, 0x5));
 }
 
 static u8
-mt7915_phy_get_nf(struct mt7915_phy *phy, int idx)
+mt7902_phy_get_nf(struct mt7902_phy *phy, int idx)
 {
 	static const u8 nf_power[] = { 92, 89, 86, 83, 80, 75, 70, 65, 60, 55, 52 };
-	struct mt7915_dev *dev = phy->dev;
+	struct mt7902_dev *dev = phy->dev;
 	u32 val, sum = 0, n = 0;
 	int nss, i;
 
 	for (nss = 0; nss < hweight8(phy->mt76->chainmask); nss++) {
-		u32 reg = is_mt7915(&dev->mt76) ?
+		u32 reg = is_mt7992(&dev->mt76) ?
 			MT_WF_IRPI_NSS(0, nss + (idx << dev->dbdc_support)) :
 			MT_WF_IRPI_NSS_MT7916(idx, nss);
 
@@ -1245,15 +1245,15 @@ mt7915_phy_get_nf(struct mt7915_phy *phy, int idx)
 	return sum / n;
 }
 
-void mt7915_update_channel(struct mt76_phy *mphy)
+void mt7902_update_channel(struct mt76_phy *mphy)
 {
-	struct mt7915_phy *phy = mphy->priv;
+	struct mt7902_phy *phy = mphy->priv;
 	struct mt76_channel_state *state = mphy->chan_state;
 	int nf;
 
-	mt7915_mcu_get_chan_mib_info(phy, false);
+	mt7902_mcu_get_chan_mib_info(phy, false);
 
-	nf = mt7915_phy_get_nf(phy, phy->mt76->band_idx);
+	nf = mt7902_phy_get_nf(phy, phy->mt76->band_idx);
 	if (!phy->noise)
 		phy->noise = nf << 4;
 	else if (nf)
@@ -1263,20 +1263,20 @@ void mt7915_update_channel(struct mt76_phy *mphy)
 }
 
 static bool
-mt7915_wait_reset_state(struct mt7915_dev *dev, u32 state)
+mt7902_wait_reset_state(struct mt7902_dev *dev, u32 state)
 {
 	bool ret;
 
 	ret = wait_event_timeout(dev->reset_wait,
 				 (READ_ONCE(dev->recovery.state) & state),
-				 MT7915_RESET_TIMEOUT);
+				 MT7902_RESET_TIMEOUT);
 
 	WARN(!ret, "Timeout waiting for MCU reset state %x\n", state);
 	return ret;
 }
 
 static void
-mt7915_update_vif_beacon(void *priv, u8 *mac, struct ieee80211_vif *vif)
+mt7902_update_vif_beacon(void *priv, u8 *mac, struct ieee80211_vif *vif)
 {
 	struct ieee80211_hw *hw = priv;
 
@@ -1284,7 +1284,7 @@ mt7915_update_vif_beacon(void *priv, u8 *mac, struct ieee80211_vif *vif)
 	case NL80211_IFTYPE_MESH_POINT:
 	case NL80211_IFTYPE_ADHOC:
 	case NL80211_IFTYPE_AP:
-		mt7915_mcu_add_beacon(hw, vif, vif->bss_conf.enable_beacon,
+		mt7902_mcu_add_beacon(hw, vif, vif->bss_conf.enable_beacon,
 				      BSS_CHANGED_BEACON_ENABLED);
 		break;
 	default:
@@ -1293,26 +1293,26 @@ mt7915_update_vif_beacon(void *priv, u8 *mac, struct ieee80211_vif *vif)
 }
 
 static void
-mt7915_update_beacons(struct mt7915_dev *dev)
+mt7902_update_beacons(struct mt7902_dev *dev)
 {
 	struct mt76_phy *mphy_ext = dev->mt76.phys[MT_BAND1];
 
 	ieee80211_iterate_active_interfaces(dev->mt76.hw,
 		IEEE80211_IFACE_ITER_RESUME_ALL,
-		mt7915_update_vif_beacon, dev->mt76.hw);
+		mt7902_update_vif_beacon, dev->mt76.hw);
 
 	if (!mphy_ext)
 		return;
 
 	ieee80211_iterate_active_interfaces(mphy_ext->hw,
 		IEEE80211_IFACE_ITER_RESUME_ALL,
-		mt7915_update_vif_beacon, mphy_ext->hw);
+		mt7902_update_vif_beacon, mphy_ext->hw);
 }
 
 static int
-mt7915_mac_restart(struct mt7915_dev *dev)
+mt7902_mac_restart(struct mt7902_dev *dev)
 {
-	struct mt7915_phy *phy2;
+	struct mt7902_phy *phy2;
 	struct mt76_phy *ext_phy;
 	struct mt76_dev *mdev = &dev->mt76;
 	int i, ret;
@@ -1328,7 +1328,7 @@ mt7915_mac_restart(struct mt7915_dev *dev)
 	if (dev_is_pci(mdev->dev)) {
 		mt76_wr(dev, MT_PCIE_MAC_INT_ENABLE, 0x0);
 		if (dev->hif2) {
-			if (is_mt7915(mdev))
+			if (is_mt7992(mdev))
 				mt76_wr(dev, MT_PCIE1_MAC_INT_ENABLE, 0x0);
 			else
 				mt76_wr(dev, MT_PCIE1_MAC_INT_ENABLE_MT7916, 0x0);
@@ -1360,7 +1360,7 @@ mt7915_mac_restart(struct mt7915_dev *dev)
 	mt76_connac2_tx_token_put(&dev->mt76);
 	idr_init(&dev->mt76.token);
 
-	mt7915_dma_reset(dev, true);
+	mt7902_dma_reset(dev, true);
 
 	local_bh_disable();
 	mt76_for_each_q_rx(mdev, i) {
@@ -1383,7 +1383,7 @@ mt7915_mac_restart(struct mt7915_dev *dev)
 	if (dev_is_pci(mdev->dev)) {
 		mt76_wr(dev, MT_PCIE_MAC_INT_ENABLE, 0xff);
 		if (dev->hif2) {
-			if (is_mt7915(mdev))
+			if (is_mt7992(mdev))
 				mt76_wr(dev, MT_PCIE1_MAC_INT_ENABLE, 0xff);
 			else
 				mt76_wr(dev, MT_PCIE1_MAC_INT_ENABLE_MT7916, 0xff);
@@ -1391,28 +1391,28 @@ mt7915_mac_restart(struct mt7915_dev *dev)
 	}
 
 	/* load firmware */
-	ret = mt7915_mcu_init_firmware(dev);
+	ret = mt7902_mcu_init_firmware(dev);
 	if (ret)
 		goto out;
 
 	/* set the necessary init items */
-	ret = mt7915_mcu_set_eeprom(dev);
+	ret = mt7902_mcu_set_eeprom(dev);
 	if (ret)
 		goto out;
 
-	mt7915_mac_init(dev);
-	mt7915_init_txpower(&dev->phy);
-	mt7915_init_txpower(phy2);
-	ret = mt7915_txbf_init(dev);
+	mt7902_mac_init(dev);
+	mt7902_init_txpower(&dev->phy);
+	mt7902_init_txpower(phy2);
+	ret = mt7902_txbf_init(dev);
 
 	if (test_bit(MT76_STATE_RUNNING, &dev->mphy.state)) {
-		ret = mt7915_run(dev->mphy.hw);
+		ret = mt7902_run(dev->mphy.hw);
 		if (ret)
 			goto out;
 	}
 
 	if (ext_phy && test_bit(MT76_STATE_RUNNING, &ext_phy->state)) {
-		ret = mt7915_run(ext_phy->hw);
+		ret = mt7902_run(ext_phy->hw);
 		if (ret)
 			goto out;
 	}
@@ -1434,7 +1434,7 @@ out:
 }
 
 static void
-mt7915_mac_full_reset(struct mt7915_dev *dev)
+mt7902_mac_full_reset(struct mt7902_dev *dev)
 {
 	struct mt76_phy *ext_phy;
 	int i;
@@ -1454,7 +1454,7 @@ mt7915_mac_full_reset(struct mt7915_dev *dev)
 
 	mutex_lock(&dev->mt76.mutex);
 	for (i = 0; i < 10; i++) {
-		if (!mt7915_mac_restart(dev))
+		if (!mt7902_mac_restart(dev))
 			break;
 	}
 	mutex_unlock(&dev->mt76.mutex);
@@ -1472,22 +1472,22 @@ mt7915_mac_full_reset(struct mt7915_dev *dev)
 
 	dev->recovery.hw_full_reset = false;
 	ieee80211_queue_delayed_work(mt76_hw(dev), &dev->mphy.mac_work,
-				     MT7915_WATCHDOG_TIME);
+				     MT7902_WATCHDOG_TIME);
 	if (ext_phy)
 		ieee80211_queue_delayed_work(ext_phy->hw,
 					     &ext_phy->mac_work,
-					     MT7915_WATCHDOG_TIME);
+					     MT7902_WATCHDOG_TIME);
 }
 
 /* system error recovery */
-void mt7915_mac_reset_work(struct work_struct *work)
+void mt7902_mac_reset_work(struct work_struct *work)
 {
-	struct mt7915_phy *phy2;
+	struct mt7902_phy *phy2;
 	struct mt76_phy *ext_phy;
-	struct mt7915_dev *dev;
+	struct mt7902_dev *dev;
 	int i;
 
-	dev = container_of(work, struct mt7915_dev, reset_work);
+	dev = container_of(work, struct mt7902_dev, reset_work);
 	ext_phy = dev->mt76.phys[MT_BAND1];
 	phy2 = ext_phy ? ext_phy->priv : NULL;
 
@@ -1502,11 +1502,11 @@ void mt7915_mac_reset_work(struct work_struct *work)
 		else
 			dev->recovery.wm_reset_count++;
 
-		mt7915_mac_full_reset(dev);
+		mt7902_mac_full_reset(dev);
 
 		/* enable mcu irq */
-		mt7915_irq_enable(dev, MT_INT_MCU_CMD);
-		mt7915_irq_disable(dev, 0);
+		mt7902_irq_enable(dev, MT_INT_MCU_CMD);
+		mt7902_irq_disable(dev, 0);
 
 		/* enable WA/WM WDT */
 		mt76_set(dev, MT_WFDMA0_MCU_HOST_INT_ENA, MT_MCU_CMD_WDT_MASK);
@@ -1547,21 +1547,21 @@ void mt7915_mac_reset_work(struct work_struct *work)
 
 	mt76_wr(dev, MT_MCU_INT_EVENT, MT_MCU_INT_EVENT_DMA_STOPPED);
 
-	if (mt7915_wait_reset_state(dev, MT_MCU_CMD_RESET_DONE)) {
-		mt7915_dma_reset(dev, false);
+	if (mt7902_wait_reset_state(dev, MT_MCU_CMD_RESET_DONE)) {
+		mt7902_dma_reset(dev, false);
 
 		mt76_connac2_tx_token_put(&dev->mt76);
 		idr_init(&dev->mt76.token);
 
 		mt76_wr(dev, MT_MCU_INT_EVENT, MT_MCU_INT_EVENT_DMA_INIT);
-		mt7915_wait_reset_state(dev, MT_MCU_CMD_RECOVERY_DONE);
+		mt7902_wait_reset_state(dev, MT_MCU_CMD_RECOVERY_DONE);
 	}
 
 	mt76_wr(dev, MT_MCU_INT_EVENT, MT_MCU_INT_EVENT_RESET_DONE);
-	mt7915_wait_reset_state(dev, MT_MCU_CMD_NORMAL_STATE);
+	mt7902_wait_reset_state(dev, MT_MCU_CMD_NORMAL_STATE);
 
 	/* enable DMA Tx/Rx and interrupt */
-	mt7915_dma_start(dev, false, false);
+	mt7902_dma_start(dev, false, false);
 
 	clear_bit(MT76_MCU_RESET, &dev->mphy.state);
 	clear_bit(MT76_RESET, &dev->mphy.state);
@@ -1590,39 +1590,39 @@ void mt7915_mac_reset_work(struct work_struct *work)
 
 	mutex_unlock(&dev->mt76.mutex);
 
-	mt7915_update_beacons(dev);
+	mt7902_update_beacons(dev);
 
 	ieee80211_queue_delayed_work(mt76_hw(dev), &dev->mphy.mac_work,
-				     MT7915_WATCHDOG_TIME);
+				     MT7902_WATCHDOG_TIME);
 	if (phy2)
 		ieee80211_queue_delayed_work(ext_phy->hw,
 					     &phy2->mt76->mac_work,
-					     MT7915_WATCHDOG_TIME);
+					     MT7902_WATCHDOG_TIME);
 }
 
 /* firmware coredump */
-void mt7915_mac_dump_work(struct work_struct *work)
+void mt7902_mac_dump_work(struct work_struct *work)
 {
-	const struct mt7915_mem_region *mem_region;
-	struct mt7915_crash_data *crash_data;
-	struct mt7915_dev *dev;
-	struct mt7915_mem_hdr *hdr;
+	const struct mt7902_mem_region *mem_region;
+	struct mt7902_crash_data *crash_data;
+	struct mt7902_dev *dev;
+	struct mt7902_mem_hdr *hdr;
 	size_t buf_len;
 	int i;
 	u32 num;
 	u8 *buf;
 
-	dev = container_of(work, struct mt7915_dev, dump_work);
+	dev = container_of(work, struct mt7902_dev, dump_work);
 
 	mutex_lock(&dev->dump_mutex);
 
-	crash_data = mt7915_coredump_new(dev);
+	crash_data = mt7902_coredump_new(dev);
 	if (!crash_data) {
 		mutex_unlock(&dev->dump_mutex);
 		goto skip_coredump;
 	}
 
-	mem_region = mt7915_coredump_get_mem_layout(dev, &num);
+	mem_region = mt7902_coredump_get_mem_layout(dev, &num);
 	if (!mem_region || !crash_data->memdump_buf_len) {
 		mutex_unlock(&dev->dump_mutex);
 		goto skip_memdump;
@@ -1646,7 +1646,7 @@ void mt7915_mac_dump_work(struct work_struct *work)
 		buf += sizeof(*hdr);
 		buf_len -= sizeof(*hdr);
 
-		mt7915_memcpy_fromio(dev, buf, mem_region->start,
+		mt7902_memcpy_fromio(dev, buf, mem_region->start,
 				     mem_region->len);
 
 		hdr->start = mem_region->start;
@@ -1665,12 +1665,12 @@ void mt7915_mac_dump_work(struct work_struct *work)
 	mutex_unlock(&dev->dump_mutex);
 
 skip_memdump:
-	mt7915_coredump_submit(dev);
+	mt7902_coredump_submit(dev);
 skip_coredump:
 	queue_work(dev->mt76.wq, &dev->reset_work);
 }
 
-void mt7915_reset(struct mt7915_dev *dev)
+void mt7902_reset(struct mt7902_dev *dev)
 {
 	if (!dev->recovery.hw_init_done)
 		return;
@@ -1685,7 +1685,7 @@ void mt7915_reset(struct mt7915_dev *dev)
 			 "%s indicated firmware crash, attempting recovery\n",
 			 wiphy_name(dev->mt76.hw->wiphy));
 
-		mt7915_irq_disable(dev, MT_INT_MCU_CMD);
+		mt7902_irq_disable(dev, MT_INT_MCU_CMD);
 		queue_work(dev->mt76.wq, &dev->dump_work);
 		return;
 	}
@@ -1694,16 +1694,16 @@ void mt7915_reset(struct mt7915_dev *dev)
 	wake_up(&dev->reset_wait);
 }
 
-void mt7915_mac_update_stats(struct mt7915_phy *phy)
+void mt7902_mac_update_stats(struct mt7902_phy *phy)
 {
 	struct mt76_mib_stats *mib = &phy->mib;
-	struct mt7915_dev *dev = phy->dev;
+	struct mt7902_dev *dev = phy->dev;
 	int i, aggr0 = 0, aggr1, cnt;
 	u8 band = phy->mt76->band_idx;
 	u32 val;
 
 	cnt = mt76_rr(dev, MT_MIB_SDR3(band));
-	mib->fcs_err_cnt += is_mt7915(&dev->mt76) ?
+	mib->fcs_err_cnt += is_mt7992(&dev->mt76) ?
 		FIELD_GET(MT_MIB_SDR3_FCS_ERR_MASK, cnt) :
 		FIELD_GET(MT_MIB_SDR3_FCS_ERR_MASK_MT7916, cnt);
 
@@ -1725,7 +1725,7 @@ void mt7915_mac_update_stats(struct mt7915_phy *phy)
 		FIELD_GET(MT_MIB_SDR8_RX_DELIMITER_FAIL_CNT_MASK, cnt);
 
 	cnt = mt76_rr(dev, MT_MIB_SDR10(band));
-	mib->rx_mrdy_cnt += is_mt7915(&dev->mt76) ?
+	mib->rx_mrdy_cnt += is_mt7992(&dev->mt76) ?
 		FIELD_GET(MT_MIB_SDR10_MRDY_COUNT_MASK, cnt) :
 		FIELD_GET(MT_MIB_SDR10_MRDY_COUNT_MASK_MT7916, cnt);
 
@@ -1741,12 +1741,12 @@ void mt7915_mac_update_stats(struct mt7915_phy *phy)
 		FIELD_GET(MT_MIB_SDR13_TX_STOP_Q_EMPTY_CNT_MASK, cnt);
 
 	cnt = mt76_rr(dev, MT_MIB_SDR14(band));
-	mib->tx_mpdu_attempts_cnt += is_mt7915(&dev->mt76) ?
+	mib->tx_mpdu_attempts_cnt += is_mt7992(&dev->mt76) ?
 		FIELD_GET(MT_MIB_SDR14_TX_MPDU_ATTEMPTS_CNT_MASK, cnt) :
 		FIELD_GET(MT_MIB_SDR14_TX_MPDU_ATTEMPTS_CNT_MASK_MT7916, cnt);
 
 	cnt = mt76_rr(dev, MT_MIB_SDR15(band));
-	mib->tx_mpdu_success_cnt += is_mt7915(&dev->mt76) ?
+	mib->tx_mpdu_success_cnt += is_mt7992(&dev->mt76) ?
 		FIELD_GET(MT_MIB_SDR15_TX_MPDU_SUCCESS_CNT_MASK, cnt) :
 		FIELD_GET(MT_MIB_SDR15_TX_MPDU_SUCCESS_CNT_MASK_MT7916, cnt);
 
@@ -1780,7 +1780,7 @@ void mt7915_mac_update_stats(struct mt7915_phy *phy)
 	mib->rx_ampdu_bytes_cnt += cnt;
 
 	cnt = mt76_rr(dev, MT_MIB_SDR24(band));
-	mib->rx_ampdu_valid_subframe_cnt += is_mt7915(&dev->mt76) ?
+	mib->rx_ampdu_valid_subframe_cnt += is_mt7992(&dev->mt76) ?
 		FIELD_GET(MT_MIB_SDR24_RX_AMPDU_SF_CNT_MASK, cnt) :
 		FIELD_GET(MT_MIB_SDR24_RX_AMPDU_SF_CNT_MASK_MT7916, cnt);
 
@@ -1796,12 +1796,12 @@ void mt7915_mac_update_stats(struct mt7915_phy *phy)
 		FIELD_GET(MT_MIB_SDR28_TX_RWP_NEED_CNT_MASK, cnt);
 
 	cnt = mt76_rr(dev, MT_MIB_SDR29(band));
-	mib->rx_pfdrop_cnt += is_mt7915(&dev->mt76) ?
+	mib->rx_pfdrop_cnt += is_mt7992(&dev->mt76) ?
 		FIELD_GET(MT_MIB_SDR29_RX_PFDROP_CNT_MASK, cnt) :
 		FIELD_GET(MT_MIB_SDR29_RX_PFDROP_CNT_MASK_MT7916, cnt);
 
 	cnt = mt76_rr(dev, MT_MIB_SDRVEC(band));
-	mib->rx_vec_queue_overflow_drop_cnt += is_mt7915(&dev->mt76) ?
+	mib->rx_vec_queue_overflow_drop_cnt += is_mt7992(&dev->mt76) ?
 		FIELD_GET(MT_MIB_SDR30_RX_VEC_QUEUE_OVERFLOW_DROP_CNT_MASK, cnt) :
 		FIELD_GET(MT_MIB_SDR30_RX_VEC_QUEUE_OVERFLOW_DROP_CNT_MASK_MT7916, cnt);
 
@@ -1831,7 +1831,7 @@ void mt7915_mac_update_stats(struct mt7915_phy *phy)
 		mib->tx_amsdu_cnt += cnt;
 	}
 
-	if (is_mt7915(&dev->mt76)) {
+	if (is_mt7992(&dev->mt76)) {
 		for (i = 0, aggr1 = aggr0 + 8; i < 4; i++) {
 			val = mt76_rr(dev, MT_MIB_MB_SDR1(band, (i << 4)));
 			mib->ba_miss_cnt +=
@@ -1925,9 +1925,9 @@ void mt7915_mac_update_stats(struct mt7915_phy *phy)
 	}
 }
 
-static void mt7915_mac_severe_check(struct mt7915_phy *phy)
+static void mt7902_mac_severe_check(struct mt7902_phy *phy)
 {
-	struct mt7915_dev *dev = phy->dev;
+	struct mt7902_dev *dev = phy->dev;
 	u32 trb;
 
 	if (!phy->omac_mask)
@@ -1944,18 +1944,18 @@ static void mt7915_mac_severe_check(struct mt7915_phy *phy)
 	    (FIELD_GET(MT_TRB_RXPSR0_RX_RMAC_PTR, phy->trb_ts) !=
 	     FIELD_GET(MT_TRB_RXPSR0_RX_WTBL_PTR, phy->trb_ts)) &&
 	    trb == phy->trb_ts)
-		mt7915_mcu_set_ser(dev, SER_RECOVER, SER_SET_RECOVER_L3_RX_ABORT,
+		mt7902_mcu_set_ser(dev, SER_RECOVER, SER_SET_RECOVER_L3_RX_ABORT,
 				   phy->mt76->band_idx);
 
 	phy->trb_ts = trb;
 }
 
-void mt7915_mac_sta_rc_work(struct work_struct *work)
+void mt7902_mac_sta_rc_work(struct work_struct *work)
 {
-	struct mt7915_dev *dev = container_of(work, struct mt7915_dev, rc_work);
+	struct mt7902_dev *dev = container_of(work, struct mt7902_dev, rc_work);
 	struct ieee80211_sta *sta;
 	struct ieee80211_vif *vif;
-	struct mt7915_sta *msta;
+	struct mt7902_sta *msta;
 	u32 changed;
 	LIST_HEAD(list);
 
@@ -1963,7 +1963,7 @@ void mt7915_mac_sta_rc_work(struct work_struct *work)
 	list_splice_init(&dev->sta_rc_list, &list);
 
 	while (!list_empty(&list)) {
-		msta = list_first_entry(&list, struct mt7915_sta, rc_list);
+		msta = list_first_entry(&list, struct mt7902_sta, rc_list);
 		list_del_init(&msta->rc_list);
 		changed = msta->changed;
 		msta->changed = 0;
@@ -1975,10 +1975,10 @@ void mt7915_mac_sta_rc_work(struct work_struct *work)
 		if (changed & (IEEE80211_RC_SUPP_RATES_CHANGED |
 			       IEEE80211_RC_NSS_CHANGED |
 			       IEEE80211_RC_BW_CHANGED))
-			mt7915_mcu_add_rate_ctrl(dev, vif, sta, true);
+			mt7902_mcu_add_rate_ctrl(dev, vif, sta, true);
 
 		if (changed & IEEE80211_RC_SMPS_CHANGED)
-			mt7915_mcu_add_smps(dev, vif, sta);
+			mt7902_mcu_add_smps(dev, vif, sta);
 
 		spin_lock_bh(&dev->mt76.sta_poll_lock);
 	}
@@ -1986,9 +1986,9 @@ void mt7915_mac_sta_rc_work(struct work_struct *work)
 	spin_unlock_bh(&dev->mt76.sta_poll_lock);
 }
 
-void mt7915_mac_work(struct work_struct *work)
+void mt7902_mac_work(struct work_struct *work)
 {
-	struct mt7915_phy *phy;
+	struct mt7902_phy *phy;
 	struct mt76_phy *mphy;
 
 	mphy = (struct mt76_phy *)container_of(work, struct mt76_phy,
@@ -2001,11 +2001,11 @@ void mt7915_mac_work(struct work_struct *work)
 	if (++mphy->mac_work_count == 5) {
 		mphy->mac_work_count = 0;
 
-		mt7915_mac_update_stats(phy);
-		mt7915_mac_severe_check(phy);
+		mt7902_mac_update_stats(phy);
+		mt7902_mac_severe_check(phy);
 
 		if (phy->dev->muru_debug)
-			mt7915_mcu_muru_debug_get(phy);
+			mt7902_mcu_muru_debug_get(phy);
 	}
 
 	mutex_unlock(&mphy->dev->mutex);
@@ -2013,12 +2013,12 @@ void mt7915_mac_work(struct work_struct *work)
 	mt76_tx_status_check(mphy->dev, false);
 
 	ieee80211_queue_delayed_work(mphy->hw, &mphy->mac_work,
-				     MT7915_WATCHDOG_TIME);
+				     MT7902_WATCHDOG_TIME);
 }
 
-static void mt7915_dfs_stop_radar_detector(struct mt7915_phy *phy)
+static void mt7902_dfs_stop_radar_detector(struct mt7902_phy *phy)
 {
-	struct mt7915_dev *dev = phy->dev;
+	struct mt7902_dev *dev = phy->dev;
 
 	if (phy->rdd_state & BIT(0))
 		mt76_connac_mcu_rdd_cmd(&dev->mt76, RDD_STOP, 0,
@@ -2028,7 +2028,7 @@ static void mt7915_dfs_stop_radar_detector(struct mt7915_phy *phy)
 					MT_RX_SEL0, 0);
 }
 
-static int mt7915_dfs_start_rdd(struct mt7915_dev *dev, int chain)
+static int mt7902_dfs_start_rdd(struct mt7902_dev *dev, int chain)
 {
 	int err, region;
 
@@ -2050,7 +2050,7 @@ static int mt7915_dfs_start_rdd(struct mt7915_dev *dev, int chain)
 	if (err < 0)
 		return err;
 
-	if (is_mt7915(&dev->mt76)) {
+	if (is_mt7992(&dev->mt76)) {
 		err = mt76_connac_mcu_rdd_cmd(&dev->mt76, RDD_SET_WF_ANT, chain,
 					      0, dev->dbdc_support ? 2 : 0);
 		if (err < 0)
@@ -2061,10 +2061,10 @@ static int mt7915_dfs_start_rdd(struct mt7915_dev *dev, int chain)
 				       MT_RX_SEL0, 1);
 }
 
-static int mt7915_dfs_start_radar_detector(struct mt7915_phy *phy)
+static int mt7902_dfs_start_radar_detector(struct mt7902_phy *phy)
 {
 	struct cfg80211_chan_def *chandef = &phy->mt76->chandef;
-	struct mt7915_dev *dev = phy->dev;
+	struct mt7902_dev *dev = phy->dev;
 	int err;
 
 	/* start CAC */
@@ -2073,18 +2073,18 @@ static int mt7915_dfs_start_radar_detector(struct mt7915_phy *phy)
 	if (err < 0)
 		return err;
 
-	err = mt7915_dfs_start_rdd(dev, phy->mt76->band_idx);
+	err = mt7902_dfs_start_rdd(dev, phy->mt76->band_idx);
 	if (err < 0)
 		return err;
 
 	phy->rdd_state |= BIT(phy->mt76->band_idx);
 
-	if (!is_mt7915(&dev->mt76))
+	if (!is_mt7992(&dev->mt76))
 		return 0;
 
 	if (chandef->width == NL80211_CHAN_WIDTH_160 ||
 	    chandef->width == NL80211_CHAN_WIDTH_80P80) {
-		err = mt7915_dfs_start_rdd(dev, 1);
+		err = mt7902_dfs_start_rdd(dev, 1);
 		if (err < 0)
 			return err;
 
@@ -2095,16 +2095,16 @@ static int mt7915_dfs_start_radar_detector(struct mt7915_phy *phy)
 }
 
 static int
-mt7915_dfs_init_radar_specs(struct mt7915_phy *phy)
+mt7902_dfs_init_radar_specs(struct mt7902_phy *phy)
 {
-	const struct mt7915_dfs_radar_spec *radar_specs;
-	struct mt7915_dev *dev = phy->dev;
+	const struct mt7902_dfs_radar_spec *radar_specs;
+	struct mt7902_dev *dev = phy->dev;
 	int err, i;
 
 	switch (dev->mt76.region) {
 	case NL80211_DFS_FCC:
 		radar_specs = &fcc_radar_specs;
-		err = mt7915_mcu_set_fcc5_lpn(dev, 8);
+		err = mt7902_mcu_set_fcc5_lpn(dev, 8);
 		if (err < 0)
 			return err;
 		break;
@@ -2119,18 +2119,18 @@ mt7915_dfs_init_radar_specs(struct mt7915_phy *phy)
 	}
 
 	for (i = 0; i < ARRAY_SIZE(radar_specs->radar_pattern); i++) {
-		err = mt7915_mcu_set_radar_th(dev, i,
+		err = mt7902_mcu_set_radar_th(dev, i,
 					      &radar_specs->radar_pattern[i]);
 		if (err < 0)
 			return err;
 	}
 
-	return mt7915_mcu_set_pulse_th(dev, &radar_specs->pulse_th);
+	return mt7902_mcu_set_pulse_th(dev, &radar_specs->pulse_th);
 }
 
-int mt7915_dfs_init_radar_detector(struct mt7915_phy *phy)
+int mt7902_dfs_init_radar_detector(struct mt7902_phy *phy)
 {
-	struct mt7915_dev *dev = phy->dev;
+	struct mt7902_dev *dev = phy->dev;
 	enum mt76_dfs_state dfs_state, prev_state;
 	int err;
 
@@ -2141,17 +2141,17 @@ int mt7915_dfs_init_radar_detector(struct mt7915_phy *phy)
 		return 0;
 
 	if (prev_state == MT_DFS_STATE_UNKNOWN)
-		mt7915_dfs_stop_radar_detector(phy);
+		mt7902_dfs_stop_radar_detector(phy);
 
 	if (dfs_state == MT_DFS_STATE_DISABLED)
 		goto stop;
 
 	if (prev_state <= MT_DFS_STATE_DISABLED) {
-		err = mt7915_dfs_init_radar_specs(phy);
+		err = mt7902_dfs_init_radar_specs(phy);
 		if (err < 0)
 			return err;
 
-		err = mt7915_dfs_start_radar_detector(phy);
+		err = mt7902_dfs_start_radar_detector(phy);
 		if (err < 0)
 			return err;
 
@@ -2177,7 +2177,7 @@ stop:
 	if (err < 0)
 		return err;
 
-	if (is_mt7915(&dev->mt76)) {
+	if (is_mt7992(&dev->mt76)) {
 		err = mt76_connac_mcu_rdd_cmd(&dev->mt76, RDD_SET_WF_ANT,
 					      phy->mt76->band_idx, 0,
 					      dev->dbdc_support ? 2 : 0);
@@ -2185,28 +2185,28 @@ stop:
 			return err;
 	}
 
-	mt7915_dfs_stop_radar_detector(phy);
+	mt7902_dfs_stop_radar_detector(phy);
 	phy->mt76->dfs_state = MT_DFS_STATE_DISABLED;
 
 	return 0;
 }
 
 static int
-mt7915_mac_twt_duration_align(int duration)
+mt7902_mac_twt_duration_align(int duration)
 {
 	return duration << 8;
 }
 
 static u64
-mt7915_mac_twt_sched_list_add(struct mt7915_dev *dev,
-			      struct mt7915_twt_flow *flow)
+mt7902_mac_twt_sched_list_add(struct mt7902_dev *dev,
+			      struct mt7902_twt_flow *flow)
 {
-	struct mt7915_twt_flow *iter, *iter_next;
+	struct mt7902_twt_flow *iter, *iter_next;
 	u32 duration = flow->duration << 8;
 	u64 start_tsf;
 
 	iter = list_first_entry_or_null(&dev->twt_list,
-					struct mt7915_twt_flow, list);
+					struct mt7902_twt_flow, list);
 	if (!iter || !iter->sched || iter->start_tsf > duration) {
 		/* add flow as first entry in the list */
 		list_add(&flow->list, &dev->twt_list);
@@ -2215,7 +2215,7 @@ mt7915_mac_twt_sched_list_add(struct mt7915_dev *dev,
 
 	list_for_each_entry_safe(iter, iter_next, &dev->twt_list, list) {
 		start_tsf = iter->start_tsf +
-			    mt7915_mac_twt_duration_align(iter->duration);
+			    mt7902_mac_twt_duration_align(iter->duration);
 		if (list_is_last(&iter->list, &dev->twt_list))
 			break;
 
@@ -2232,7 +2232,7 @@ out:
 	return start_tsf;
 }
 
-static int mt7915_mac_check_twt_req(struct ieee80211_twt_setup *twt)
+static int mt7902_mac_check_twt_req(struct ieee80211_twt_setup *twt)
 {
 	struct ieee80211_twt_params *twt_agrt;
 	u64 interval, duration;
@@ -2266,7 +2266,7 @@ static int mt7915_mac_check_twt_req(struct ieee80211_twt_setup *twt)
 }
 
 static bool
-mt7915_mac_twt_param_equal(struct mt7915_sta *msta,
+mt7902_mac_twt_param_equal(struct mt7902_sta *msta,
 			   struct ieee80211_twt_params *twt_agrt)
 {
 	u16 type = le16_to_cpu(twt_agrt->req_type);
@@ -2274,8 +2274,8 @@ mt7915_mac_twt_param_equal(struct mt7915_sta *msta,
 	int i;
 
 	exp = FIELD_GET(IEEE80211_TWT_REQTYPE_WAKE_INT_EXP, type);
-	for (i = 0; i < MT7915_MAX_STA_TWT_AGRT; i++) {
-		struct mt7915_twt_flow *f;
+	for (i = 0; i < MT7902_MAX_STA_TWT_AGRT; i++) {
+		struct mt7902_twt_flow *f;
 
 		if (!(msta->twt.flowid_mask & BIT(i)))
 			continue;
@@ -2293,34 +2293,34 @@ mt7915_mac_twt_param_equal(struct mt7915_sta *msta,
 	return false;
 }
 
-void mt7915_mac_add_twt_setup(struct ieee80211_hw *hw,
+void mt7902_mac_add_twt_setup(struct ieee80211_hw *hw,
 			      struct ieee80211_sta *sta,
 			      struct ieee80211_twt_setup *twt)
 {
 	enum ieee80211_twt_setup_cmd setup_cmd = TWT_SETUP_CMD_REJECT;
-	struct mt7915_sta *msta = (struct mt7915_sta *)sta->drv_priv;
+	struct mt7902_sta *msta = (struct mt7902_sta *)sta->drv_priv;
 	struct ieee80211_twt_params *twt_agrt = (void *)twt->params;
 	u16 req_type = le16_to_cpu(twt_agrt->req_type);
 	enum ieee80211_twt_setup_cmd sta_setup_cmd;
-	struct mt7915_dev *dev = mt7915_hw_dev(hw);
-	struct mt7915_twt_flow *flow;
+	struct mt7902_dev *dev = mt7902_hw_dev(hw);
+	struct mt7902_twt_flow *flow;
 	int flowid, table_id;
 	u8 exp;
 
-	if (mt7915_mac_check_twt_req(twt))
+	if (mt7902_mac_check_twt_req(twt))
 		goto out;
 
 	mutex_lock(&dev->mt76.mutex);
 
-	if (dev->twt.n_agrt == MT7915_MAX_TWT_AGRT)
+	if (dev->twt.n_agrt == MT7902_MAX_TWT_AGRT)
 		goto unlock;
 
 	if (hweight8(msta->twt.flowid_mask) == ARRAY_SIZE(msta->twt.flow))
 		goto unlock;
 
-	if (twt_agrt->min_twt_dur < MT7915_MIN_TWT_DUR) {
+	if (twt_agrt->min_twt_dur < MT7902_MIN_TWT_DUR) {
 		setup_cmd = TWT_SETUP_CMD_DICTATE;
-		twt_agrt->min_twt_dur = MT7915_MIN_TWT_DUR;
+		twt_agrt->min_twt_dur = MT7902_MIN_TWT_DUR;
 		goto unlock;
 	}
 
@@ -2333,7 +2333,7 @@ void mt7915_mac_add_twt_setup(struct ieee80211_hw *hw,
 	exp = FIELD_GET(IEEE80211_TWT_REQTYPE_WAKE_INT_EXP, req_type);
 	sta_setup_cmd = FIELD_GET(IEEE80211_TWT_REQTYPE_SETUP_CMD, req_type);
 
-	if (mt7915_mac_twt_param_equal(msta, twt_agrt))
+	if (mt7902_mac_twt_param_equal(msta, twt_agrt))
 		goto unlock;
 
 	flow = &msta->twt.flow[flowid];
@@ -2356,8 +2356,8 @@ void mt7915_mac_add_twt_setup(struct ieee80211_hw *hw,
 		u32 rem;
 
 		flow->sched = true;
-		flow->start_tsf = mt7915_mac_twt_sched_list_add(dev, flow);
-		curr_tsf = __mt7915_get_tsf(hw, msta->vif);
+		flow->start_tsf = mt7902_mac_twt_sched_list_add(dev, flow);
+		curr_tsf = __mt7902_get_tsf(hw, msta->vif);
 		div_u64_rem(curr_tsf - flow->start_tsf, interval, &rem);
 		flow_tsf = curr_tsf + interval - rem;
 		twt_agrt->twt = cpu_to_le64(flow_tsf);
@@ -2366,7 +2366,7 @@ void mt7915_mac_add_twt_setup(struct ieee80211_hw *hw,
 	}
 	flow->tsf = le64_to_cpu(twt_agrt->twt);
 
-	if (mt7915_mcu_twt_agrt_update(dev, msta->vif, flow, MCU_TWT_AGRT_ADD))
+	if (mt7902_mcu_twt_agrt_update(dev, msta->vif, flow, MCU_TWT_AGRT_ADD))
 		goto unlock;
 
 	setup_cmd = TWT_SETUP_CMD_ACCEPT;
@@ -2384,11 +2384,11 @@ out:
 		       (twt->control & IEEE80211_TWT_CONTROL_RX_DISABLED);
 }
 
-void mt7915_mac_twt_teardown_flow(struct mt7915_dev *dev,
-				  struct mt7915_sta *msta,
+void mt7902_mac_twt_teardown_flow(struct mt7902_dev *dev,
+				  struct mt7902_sta *msta,
 				  u8 flowid)
 {
-	struct mt7915_twt_flow *flow;
+	struct mt7902_twt_flow *flow;
 
 	lockdep_assert_held(&dev->mt76.mutex);
 
@@ -2399,7 +2399,7 @@ void mt7915_mac_twt_teardown_flow(struct mt7915_dev *dev,
 		return;
 
 	flow = &msta->twt.flow[flowid];
-	if (mt7915_mcu_twt_agrt_update(dev, msta->vif, flow,
+	if (mt7902_mcu_twt_agrt_update(dev, msta->vif, flow,
 				       MCU_TWT_AGRT_DELETE))
 		return;
 

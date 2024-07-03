@@ -1,8 +1,8 @@
 /* SPDX-License-Identifier: ISC */
 /* Copyright (C) 2020 MediaTek Inc. */
 
-#ifndef __MT7915_MCU_H
-#define __MT7915_MCU_H
+#ifndef __MT7902_MCU_H
+#define __MT7902_MCU_H
 
 #include "../mt76_connac_mcu.h"
 
@@ -13,7 +13,7 @@ enum {
 	MCU_ATE_CLEAN_TXQUEUE = 0x1c,
 };
 
-struct mt7915_mcu_thermal_ctrl {
+struct mt7902_mcu_thermal_ctrl {
 	u8 ctrl_id;
 	u8 band_idx;
 	union {
@@ -28,15 +28,15 @@ struct mt7915_mcu_thermal_ctrl {
 	};
 } __packed;
 
-struct mt7915_mcu_thermal_notify {
+struct mt7902_mcu_thermal_notify {
 	struct mt76_connac2_mcu_rxd rxd;
 
-	struct mt7915_mcu_thermal_ctrl ctrl;
+	struct mt7902_mcu_thermal_ctrl ctrl;
 	__le32 temperature;
 	u8 rsv[8];
 } __packed;
 
-struct mt7915_mcu_csa_notify {
+struct mt7902_mcu_csa_notify {
 	struct mt76_connac2_mcu_rxd rxd;
 
 	u8 omac_idx;
@@ -45,7 +45,7 @@ struct mt7915_mcu_csa_notify {
 	u8 rsv;
 } __packed;
 
-struct mt7915_mcu_bcc_notify {
+struct mt7902_mcu_bcc_notify {
 	struct mt76_connac2_mcu_rxd rxd;
 
 	u8 band_idx;
@@ -54,7 +54,7 @@ struct mt7915_mcu_bcc_notify {
 	u8 rsv;
 } __packed;
 
-struct mt7915_mcu_rdd_report {
+struct mt7902_mcu_rdd_report {
 	struct mt76_connac2_mcu_rxd rxd;
 
 	u8 band_idx;
@@ -106,7 +106,7 @@ struct mt7915_mcu_rdd_report {
 	} hw_pulse[32];
 } __packed;
 
-struct mt7915_mcu_background_chain_ctrl {
+struct mt7902_mcu_background_chain_ctrl {
 	u8 chan;		/* primary channel */
 	u8 central_chan;	/* central channel */
 	u8 bw;
@@ -129,7 +129,7 @@ struct mt7915_mcu_background_chain_ctrl {
 	u8 rsv[2];
 } __packed;
 
-struct mt7915_mcu_sr_ctrl {
+struct mt7902_mcu_sr_ctrl {
 	u8 action;
 	u8 argnum;
 	u8 band_idx;
@@ -140,19 +140,19 @@ struct mt7915_mcu_sr_ctrl {
 	__le32 val;
 } __packed;
 
-struct mt7915_mcu_eeprom {
+struct mt7902_mcu_eeprom {
 	u8 buffer_mode;
 	u8 format;
 	__le16 len;
 } __packed;
 
-struct mt7915_mcu_eeprom_info {
+struct mt7902_mcu_eeprom_info {
 	__le32 addr;
 	__le32 valid;
 	u8 data[16];
 } __packed;
 
-struct mt7915_mcu_phy_rx_info {
+struct mt7902_mcu_phy_rx_info {
 	u8 category;
 	u8 rate;
 	u8 mode;
@@ -163,14 +163,14 @@ struct mt7915_mcu_phy_rx_info {
 	u8 bw;
 };
 
-struct mt7915_mcu_mib {
+struct mt7902_mcu_mib {
 	__le32 band;
 	__le32 offs;
 	__le64 data;
 } __packed;
 
-enum mt7915_chan_mib_offs {
-	/* mt7915 */
+enum mt7902_chan_mib_offs {
+	/* mt7902 */
 	MIB_TX_TIME = 81,
 	MIB_RX_TIME,
 	MIB_OBSS_AIRTIME = 86,
@@ -184,11 +184,11 @@ enum mt7915_chan_mib_offs {
 	MIB_NON_WIFI_TIME_V2
 };
 
-struct mt7915_mcu_txpower_sku {
+struct mt7902_mcu_txpower_sku {
 	u8 format_id;
 	u8 limit_type;
 	u8 band_idx;
-	s8 txpower_sku[MT7915_SKU_RATE_NUM];
+	s8 txpower_sku[MT7902_SKU_RATE_NUM];
 } __packed;
 
 struct edca {
@@ -200,7 +200,7 @@ struct edca {
 	__le16 txop;
 };
 
-struct mt7915_mcu_tx {
+struct mt7902_mcu_tx {
 	u8 total;
 	u8 action;
 	u8 valid;
@@ -209,7 +209,7 @@ struct mt7915_mcu_tx {
 	struct edca edca[IEEE80211_NUM_ACS];
 } __packed;
 
-struct mt7915_mcu_muru_stats {
+struct mt7902_mcu_muru_stats {
 	__le32 event_id;
 	struct {
 		__le32 cck_cnt;
@@ -495,17 +495,17 @@ enum {
 	SER_RECOVER
 };
 
-#define MT7915_MAX_BEACON_SIZE		1308
-#define MT7915_BEACON_UPDATE_SIZE	(sizeof(struct sta_req_hdr) +	\
+#define MT7902_MAX_BEACON_SIZE		1308
+#define MT7902_BEACON_UPDATE_SIZE	(sizeof(struct sta_req_hdr) +	\
 					 sizeof(struct bss_info_bcn) +	\
 					 sizeof(struct bss_info_bcn_cntdwn) +	\
 					 sizeof(struct bss_info_bcn_mbss) +	\
 					 MT_TXD_SIZE +	\
 					 sizeof(struct bss_info_bcn_cont))
-#define MT7915_MAX_BSS_OFFLOAD_SIZE	(MT7915_MAX_BEACON_SIZE +	\
-					 MT7915_BEACON_UPDATE_SIZE)
+#define MT7902_MAX_BSS_OFFLOAD_SIZE	(MT7902_MAX_BEACON_SIZE +	\
+					 MT7902_BEACON_UPDATE_SIZE)
 
-#define MT7915_BSS_UPDATE_MAX_SIZE	(sizeof(struct sta_req_hdr) +	\
+#define MT7902_BSS_UPDATE_MAX_SIZE	(sizeof(struct sta_req_hdr) +	\
 					 sizeof(struct bss_info_omac) +	\
 					 sizeof(struct bss_info_basic) +\
 					 sizeof(struct bss_info_rf_ch) +\
@@ -516,7 +516,7 @@ enum {
 					 sizeof(struct bss_info_ext_bss))
 
 static inline s8
-mt7915_get_power_bound(struct mt7915_phy *phy, s8 txpower)
+mt7902_get_power_bound(struct mt7902_phy *phy, s8 txpower)
 {
 	struct mt76_phy *mphy = phy->mt76;
 	int n_chains = hweight16(mphy->chainmask);

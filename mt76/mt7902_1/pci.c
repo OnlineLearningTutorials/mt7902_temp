@@ -8,7 +8,7 @@
 #include <linux/module.h>
 #include <linux/pci.h>
 
-#include "mt7915.h"
+#include "mt7902.h"
 #include "mac.h"
 #include "../trace.h"
 
@@ -16,21 +16,21 @@ static LIST_HEAD(hif_list);
 static DEFINE_SPINLOCK(hif_lock);
 static u32 hif_idx;
 
-static const struct pci_device_id mt7915_pci_device_table[] = {
-	{ PCI_DEVICE(PCI_VENDOR_ID_MEDIATEK, 0x7915) },
+static const struct pci_device_id mt7902_pci_device_table[] = {
+	{ PCI_DEVICE(PCI_VENDOR_ID_MEDIATEK, 0x7902) },
 	{ PCI_DEVICE(PCI_VENDOR_ID_MEDIATEK, 0x7906) },
 	{ },
 };
 
-static const struct pci_device_id mt7915_hif_device_table[] = {
+static const struct pci_device_id mt7902_hif_device_table[] = {
 	{ PCI_DEVICE(PCI_VENDOR_ID_MEDIATEK, 0x7916) },
 	{ PCI_DEVICE(PCI_VENDOR_ID_MEDIATEK, 0x790a) },
 	{ },
 };
 
-static struct mt7915_hif *mt7915_pci_get_hif2(u32 idx)
+static struct mt7902_hif *mt7902_pci_get_hif2(u32 idx)
 {
-	struct mt7915_hif *hif;
+	struct mt7902_hif *hif;
 	u32 val;
 
 	spin_lock_bh(&hif_lock);
@@ -52,7 +52,7 @@ out:
 	return hif;
 }
 
-static void mt7915_put_hif2(struct mt7915_hif *hif)
+static void mt7902_put_hif2(struct mt7902_hif *hif)
 {
 	if (!hif)
 		return;
@@ -60,7 +60,7 @@ static void mt7915_put_hif2(struct mt7915_hif *hif)
 	put_device(hif->dev);
 }
 
-static struct mt7915_hif *mt7915_pci_init_hif2(struct pci_dev *pdev)
+static struct mt7902_hif *mt7902_pci_init_hif2(struct pci_dev *pdev)
 {
 	struct pci_dev *tmp_pdev;
 
@@ -77,12 +77,12 @@ static struct mt7915_hif *mt7915_pci_init_hif2(struct pci_dev *pdev)
 	writel(hif_idx | MT_PCIE_RECOG_ID_SEM,
 	       pcim_iomap_table(pdev)[0] + MT_PCIE_RECOG_ID);
 
-	return mt7915_pci_get_hif2(hif_idx);
+	return mt7902_pci_get_hif2(hif_idx);
 }
 
-static int mt7915_pci_hif2_probe(struct pci_dev *pdev)
+static int mt7902_pci_hif2_probe(struct pci_dev *pdev)
 {
-	struct mt7915_hif *hif;
+	struct mt7902_hif *hif;
 
 	hif = devm_kzalloc(&pdev->dev, sizeof(*hif), GFP_KERNEL);
 	if (!hif)
@@ -99,11 +99,11 @@ static int mt7915_pci_hif2_probe(struct pci_dev *pdev)
 	return 0;
 }
 
-static int mt7915_pci_probe(struct pci_dev *pdev,
+static int mt7902_pci_probe(struct pci_dev *pdev,
 			    const struct pci_device_id *id)
 {
-	struct mt7915_hif *hif2 = NULL;
-	struct mt7915_dev *dev;
+	struct mt7902_hif *hif2 = NULL;
+	struct mt7902_dev *dev;
 	struct mt76_dev *mdev;
 	int irq;
 	int ret;
@@ -125,23 +125,23 @@ static int mt7915_pci_probe(struct pci_dev *pdev,
 	mt76_pci_disable_aspm(pdev);
 
 	if (id->device == 0x7916 || id->device == 0x790a)
-		return mt7915_pci_hif2_probe(pdev);
+		return mt7902_pci_hif2_probe(pdev);
 
-	dev = mt7915_mmio_probe(&pdev->dev, pcim_iomap_table(pdev)[0],
+	dev = mt7902_mmio_probe(&pdev->dev, pcim_iomap_table(pdev)[0],
 				id->device);
 	if (IS_ERR(dev))
 		return PTR_ERR(dev);
 
 	mdev = &dev->mt76;
-	mt7915_wfsys_reset(dev);
-	hif2 = mt7915_pci_init_hif2(pdev);
+	mt7902_wfsys_reset(dev);
+	hif2 = mt7902_pci_init_hif2(pdev);
 
-	ret = mt7915_mmio_wed_init(dev, pdev, true, &irq);
+	ret = mt7902_mmio_wed_init(dev, pdev, true, &irq);
 	if (ret < 0)
 		goto free_wed_or_irq_vector;
 
 	if (!ret) {
-		hif2 = mt7915_pci_init_hif2(pdev);
+		hif2 = mt7902_pci_init_hif2(pdev);
 
 		ret = pci_alloc_irq_vectors(pdev, 1, 1, PCI_IRQ_ALL_TYPES);
 		if (ret < 0)
@@ -150,7 +150,7 @@ static int mt7915_pci_probe(struct pci_dev *pdev,
 		irq = pdev->irq;
 	}
 
-	ret = devm_request_irq(mdev->dev, irq, mt7915_irq_handler,
+	ret = devm_request_irq(mdev->dev, irq, mt7902_irq_handler,
 			       IRQF_SHARED, KBUILD_MODNAME, dev);
 	if (ret)
 		goto free_wed_or_irq_vector;
@@ -163,19 +163,19 @@ static int mt7915_pci_probe(struct pci_dev *pdev,
 
 		mt76_wr(dev, MT_INT1_MASK_CSR, 0);
 		/* master switch of PCIe tnterrupt enable */
-		if (is_mt7915(mdev))
+		if (is_mt7992(mdev))
 			mt76_wr(dev, MT_PCIE1_MAC_INT_ENABLE, 0xff);
 		else
 			mt76_wr(dev, MT_PCIE1_MAC_INT_ENABLE_MT7916, 0xff);
 
 		ret = devm_request_irq(mdev->dev, dev->hif2->irq,
-				       mt7915_irq_handler, IRQF_SHARED,
+				       mt7902_irq_handler, IRQF_SHARED,
 				       KBUILD_MODNAME "-hif", dev);
 		if (ret)
 			goto free_hif2;
 	}
 
-	ret = mt7915_register_device(dev);
+	ret = mt7902_register_device(dev);
 	if (ret)
 		goto free_hif2_irq;
 
@@ -199,43 +199,43 @@ free_device:
 	return ret;
 }
 
-static void mt7915_hif_remove(struct pci_dev *pdev)
+static void mt7902_hif_remove(struct pci_dev *pdev)
 {
-	struct mt7915_hif *hif = pci_get_drvdata(pdev);
+	struct mt7902_hif *hif = pci_get_drvdata(pdev);
 
 	list_del(&hif->list);
 }
 
-static void mt7915_pci_remove(struct pci_dev *pdev)
+static void mt7902_pci_remove(struct pci_dev *pdev)
 {
 	struct mt76_dev *mdev;
-	struct mt7915_dev *dev;
+	struct mt7902_dev *dev;
 
 	mdev = pci_get_drvdata(pdev);
-	dev = container_of(mdev, struct mt7915_dev, mt76);
-	mt7915_put_hif2(dev->hif2);
-	mt7915_unregister_device(dev);
+	dev = container_of(mdev, struct mt7902_dev, mt76);
+	mt7902_put_hif2(dev->hif2);
+	mt7902_unregister_device(dev);
 }
 
-struct pci_driver mt7915_hif_driver = {
+struct pci_driver mt7902_hif_driver = {
 	.name		= KBUILD_MODNAME "_hif",
-	.id_table	= mt7915_hif_device_table,
-	.probe		= mt7915_pci_probe,
-	.remove		= mt7915_hif_remove,
+	.id_table	= mt7902_hif_device_table,
+	.probe		= mt7902_pci_probe,
+	.remove		= mt7902_hif_remove,
 };
 
-struct pci_driver mt7915_pci_driver = {
+struct pci_driver mt7902_pci_driver = {
 	.name		= KBUILD_MODNAME,
-	.id_table	= mt7915_pci_device_table,
-	.probe		= mt7915_pci_probe,
-	.remove		= mt7915_pci_remove,
+	.id_table	= mt7902_pci_device_table,
+	.probe		= mt7902_pci_probe,
+	.remove		= mt7902_pci_remove,
 };
 
-MODULE_DEVICE_TABLE(pci, mt7915_pci_device_table);
-MODULE_DEVICE_TABLE(pci, mt7915_hif_device_table);
-MODULE_FIRMWARE(MT7915_FIRMWARE_WA);
-MODULE_FIRMWARE(MT7915_FIRMWARE_WM);
-MODULE_FIRMWARE(MT7915_ROM_PATCH);
+MODULE_DEVICE_TABLE(pci, mt7902_pci_device_table);
+MODULE_DEVICE_TABLE(pci, mt7902_hif_device_table);
+MODULE_FIRMWARE(MT7902_FIRMWARE_WA);
+MODULE_FIRMWARE(MT7902_FIRMWARE_WM);
+MODULE_FIRMWARE(MT7902_ROM_PATCH);
 MODULE_FIRMWARE(MT7916_FIRMWARE_WA);
 MODULE_FIRMWARE(MT7916_FIRMWARE_WM);
 MODULE_FIRMWARE(MT7916_ROM_PATCH);
