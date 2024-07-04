@@ -8,7 +8,7 @@ Clone the repository to your local pc
   ```
 If you don't want to clone past history than 
   ```
-  git clone -depth=1 https://github.com/OnlineLearningTutorials/mt7902_temp
+  git clone --depth 1 https://github.com/OnlineLearningTutorials/mt7902_temp
   ```
 
 If you want to build the whole module than you just open the terminal in the main folder and execute `make` it will compile all modules of mt76 project. however if you want to only compile the mt7902 than go to folder `mt7902_temp/mt76/mt7902` and than execute the command `make`
