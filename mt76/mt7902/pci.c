@@ -13,8 +13,8 @@
 #include "mcu.h"
 
 static const struct pci_device_id mt7902_pci_device_table[] = {
-	{ PCI_DEVICE(PCI_VENDOR_ID_MEDIATEK, 0x7961),
-		.driver_data = (kernel_ulong_t)MT7922_FIRMWARE_WM },
+	{ PCI_DEVICE(PCI_VENDOR_ID_MEDIATEK, 0x7902),
+		.driver_data = (kernel_ulong_t)MT7921_FIRMWARE_WM },
 	{ PCI_DEVICE(PCI_VENDOR_ID_MEDIATEK, 0x7922),
 		.driver_data = (kernel_ulong_t)MT7922_FIRMWARE_WM },
 	{ PCI_DEVICE(PCI_VENDOR_ID_ITTIM, 0x7922),
@@ -539,8 +539,8 @@ static struct pci_driver mt7902_pci_driver = {
 module_pci_driver(mt7902_pci_driver);
 
 MODULE_DEVICE_TABLE(pci, mt7902_pci_device_table);
-MODULE_FIRMWARE(MT7922_FIRMWARE_WM);
-MODULE_FIRMWARE(MT7922_ROM_PATCH);
+MODULE_FIRMWARE(MT7921_FIRMWARE_WM);
+MODULE_FIRMWARE(MT7921_ROM_PATCH);
 MODULE_FIRMWARE(MT7922_FIRMWARE_WM);
 MODULE_FIRMWARE(MT7922_ROM_PATCH);
 MODULE_AUTHOR("Sean Wang <sean.wang@mediatek.com>");
