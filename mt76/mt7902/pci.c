@@ -53,7 +53,7 @@ static void mt7902e_unregister_device(struct mt792x_dev *dev)
 
 static u32 __mt7902_reg_addr(struct mt792x_dev *dev, u32 addr)
 {
-    printk(KERN_INFO "pci.c - __mt7902_reg_addr");
+    //printk(KERN_INFO "pci.c - __mt7902_reg_addr");
 	static const struct mt76_connac_reg_map fixed_map[] = {
 		{ 0x820d0000, 0x30000, 0x10000 }, /* WF_LMAC_TOP (WF_WTBLON) */
 		{ 0x820ed000, 0x24800, 0x00800 }, /* WF_LMAC_TOP BN0 (WF_MIB) */
