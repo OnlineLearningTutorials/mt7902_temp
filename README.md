@@ -3,10 +3,12 @@ As mediatek wifi mt7902 wifi 6E works fine in windows 11, however linux does not
 
 ## Compile and Build
 Clone the repository to your local pc
+
     ```
     git clone https://github.com/OnlineLearningTutorials/mt7902_temp
     ```
 If you don't want to clone past history than 
+
     ```
     git clone -depth=1 https://github.com/OnlineLearningTutorials/mt7902_temp
     ```
@@ -54,6 +56,7 @@ If you want to build the whole module than you just open the terminal in the mai
     ./mt7601u/mt7601u.ko
 
 In which the folder mt76 have shared modules as
+
     mt76-connac-lib.ko
     mt76.ko
     mt76-sdio.ko
@@ -62,6 +65,7 @@ In which the folder mt76 have shared modules as
     mt76x02-usb.ko
     mt792x-lib.ko
     mt792x-usb.ko
+    
 other modules are individual modules of particular chip
 
 ## Working with Kernel Modules in Linux
@@ -69,15 +73,19 @@ you can check currently loaded modules by `lsmod`, you can load a .ko kernel mod
 
 ## Firmware for Wireless LAN_MTK_3.3.0.633_W11x64_(MTK7902)
 `https://global-download.acer.com/GDFiles/Driver/Wireless%20LAN/Wireless%20LAN_MTK_3.3.0.633_W11x64_A.zip?acerid=638041027988808845&Step1=&Step2=&Step3=ASPIRE%20A314-23P&OS=ALL&LC=en&BC=ACER&SC=PA_6` windows driver for mtk7902 has following firmware
-    WIFI_MT7922_patch_mcu_1_1_hdr.bin  
-    WIFI_MT7961_patch_mcu_1_2_hdr.bin  
-    WIFI_RAM_CODE_MT7922_1.bin  
-    WIFI_RAM_CODE_MT7961_1.bin  
+
+    WIFI_MT7922_patch_mcu_1_1_hdr.bin
+    WIFI_MT7961_patch_mcu_1_2_hdr.bin
+    WIFI_RAM_CODE_MT7922_1.bin
+    WIFI_RAM_CODE_MT7961_1.bin
+    
 these files are already present in the `linux-firmware` package in Ubuntu 24.04 (Noble Numbat) as
+
     linux-firmware: /lib/firmware/mediatek/WIFI_MT7922_patch_mcu_1_1_hdr.bin.zst
     linux-firmware: /lib/firmware/mediatek/WIFI_MT7961_patch_mcu_1_2_hdr.bin.zst
     linux-firmware: /lib/firmware/mediatek/WIFI_RAM_CODE_MT7922_1.bin.zst
     linux-firmware: /lib/firmware/mediatek/WIFI_RAM_CODE_MT7961_1.bin.zst
+
 
 
 
