@@ -67,7 +67,11 @@ In which the folder mt76 have shared modules as
 other modules are individual modules of particular chip
 
 ## Working with Kernel Modules in Linux
-you can check currently loaded modules by `lsmod`, you can load a .ko kernel module by `insmod`. you can check if a module is already present in your kernel by `modinfo`. you can load already present module in kernel by `modprobe`. Insert the module in your kernel by 
+you can check currently loaded modules by `lsmod`. 
+you can load a .ko kernel module by `insmod`. 
+you can check if a module is already present in your kernel by `modinfo`. 
+you can load already present module in kernel by `modprobe`. 
+Insert the module in your kernel by 
 
     sudo modprobe mt76-connac-lib
     sudo modprobe mt76
