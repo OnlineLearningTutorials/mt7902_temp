@@ -67,7 +67,16 @@ In which the folder mt76 have shared modules as
 other modules are individual modules of particular chip
 
 ## Working with Kernel Modules in Linux
-you can check currently loaded modules by `lsmod`, you can load a .ko kernel module by `insmod`. you can check if a module is already present in your kernel by `modinfo`. you can load already present module in kernel by `modprobe`
+you can check currently loaded modules by `lsmod`, you can load a .ko kernel module by `insmod`. you can check if a module is already present in your kernel by `modinfo`. you can load already present module in kernel by `modprobe`. Insert the module in your kernel by 
+
+    sudo modprobe mt76-connac-lib
+    sudo modprobe mt76
+    sudo modprobe mt76-sdio
+    sudo modprobe mt76-usb
+    sudo modprobe mt76x02-lib
+    sudo modprobe mt76x02-usb
+    sudo modprobe mt792x-lib
+    sudo modprobe mt792x-usb
 
 ## Firmware for Wireless LAN_MTK_3.3.0.633_W11x64_(MTK7902)
 `https://global-download.acer.com/GDFiles/Driver/Wireless%20LAN/Wireless%20LAN_MTK_3.3.0.633_W11x64_A.zip?acerid=638041027988808845&Step1=&Step2=&Step3=ASPIRE%20A314-23P&OS=ALL&LC=en&BC=ACER&SC=PA_6` windows driver for mtk7902 has following firmware
