@@ -32,6 +32,7 @@ MODULE_PARM_DESC(disable_aspm, "disable PCI ASPM support");
 
 static int mt7902e_init_reset(struct mt792x_dev *dev)
 {
+    printk(KERN_INFO "MT7902 in mt7902e_init_reset function is running");
 	return mt792x_wpdma_reset(dev, true);
 }
 
