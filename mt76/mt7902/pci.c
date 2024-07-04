@@ -15,14 +15,6 @@
 static const struct pci_device_id mt7902_pci_device_table[] = {
 	{ PCI_DEVICE(PCI_VENDOR_ID_MEDIATEK, 0x7902),
 		.driver_data = (kernel_ulong_t)MT7921_FIRMWARE_WM },
-	{ PCI_DEVICE(PCI_VENDOR_ID_MEDIATEK, 0x7922),
-		.driver_data = (kernel_ulong_t)MT7922_FIRMWARE_WM },
-	{ PCI_DEVICE(PCI_VENDOR_ID_ITTIM, 0x7922),
-		.driver_data = (kernel_ulong_t)MT7922_FIRMWARE_WM },
-	{ PCI_DEVICE(PCI_VENDOR_ID_MEDIATEK, 0x0608),
-		.driver_data = (kernel_ulong_t)MT7922_FIRMWARE_WM },
-	{ PCI_DEVICE(PCI_VENDOR_ID_MEDIATEK, 0x0616),
-		.driver_data = (kernel_ulong_t)MT7922_FIRMWARE_WM },
 	{ },
 };
 
@@ -32,12 +24,13 @@ MODULE_PARM_DESC(disable_aspm, "disable PCI ASPM support");
 
 static int mt7902e_init_reset(struct mt792x_dev *dev)
 {
-    printk(KERN_INFO "MT7902 in mt7902e_init_reset function is running");
+    printk(KERN_INFO "pci.c - mt7902e_init_reset");
 	return mt792x_wpdma_reset(dev, true);
 }
 
 static void mt7902e_unregister_device(struct mt792x_dev *dev)
 {
+    printk(KERN_INFO "pci.c - mt7902e_unregister_device");
 	int i;
 	struct mt76_connac_pm *pm = &dev->pm;
 
@@ -60,6 +53,7 @@ static void mt7902e_unregister_device(struct mt792x_dev *dev)
 
 static u32 __mt7902_reg_addr(struct mt792x_dev *dev, u32 addr)
 {
+    printk(KERN_INFO "pci.c - __mt7902_reg_addr");
 	static const struct mt76_connac_reg_map fixed_map[] = {
 		{ 0x820d0000, 0x30000, 0x10000 }, /* WF_LMAC_TOP (WF_WTBLON) */
 		{ 0x820ed000, 0x24800, 0x00800 }, /* WF_LMAC_TOP BN0 (WF_MIB) */
@@ -137,6 +131,7 @@ static u32 __mt7902_reg_addr(struct mt792x_dev *dev, u32 addr)
 
 static u32 mt7902_rr(struct mt76_dev *mdev, u32 offset)
 {
+    printk(KERN_INFO "pci.c - mt7902_rr");
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
 	u32 addr = __mt7902_reg_addr(dev, offset);
 
@@ -145,6 +140,7 @@ static u32 mt7902_rr(struct mt76_dev *mdev, u32 offset)
 
 static void mt7902_wr(struct mt76_dev *mdev, u32 offset, u32 val)
 {
+    printk(KERN_INFO "pci.c - mt7902_wr");
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
 	u32 addr = __mt7902_reg_addr(dev, offset);
 
@@ -153,6 +149,7 @@ static void mt7902_wr(struct mt76_dev *mdev, u32 offset, u32 val)
 
 static u32 mt7902_rmw(struct mt76_dev *mdev, u32 offset, u32 mask, u32 val)
 {
+    printk(KERN_INFO "pci.c - mt7902_rmw");
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
 	u32 addr = __mt7902_reg_addr(dev, offset);
 
@@ -161,6 +158,7 @@ static u32 mt7902_rmw(struct mt76_dev *mdev, u32 offset, u32 mask, u32 val)
 
 static int mt7902_dma_init(struct mt792x_dev *dev)
 {
+    printk(KERN_INFO "pci.c - mt7902_dma_init");
 	int ret;
 
 	mt76_dma_attach(&dev->mt76);
@@ -227,6 +225,7 @@ static int mt7902_dma_init(struct mt792x_dev *dev)
 static int mt7902_pci_probe(struct pci_dev *pdev,
 			    const struct pci_device_id *id)
 {
+    printk(KERN_INFO "pci.c - mt7902_pci_probe");
 	static const struct mt76_driver_ops drv_ops = {
 		/* txwi_size = txd size + txp size */
 		.txwi_size = MT_TXD_SIZE + sizeof(struct mt76_connac_hw_txp),
@@ -384,6 +383,7 @@ err_free_pci_vec:
 
 static void mt7902_pci_remove(struct pci_dev *pdev)
 {
+    printk(KERN_INFO "pci.c - mt7902_pci_remove");
 	struct mt76_dev *mdev = pci_get_drvdata(pdev);
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
 
@@ -396,6 +396,7 @@ static void mt7902_pci_remove(struct pci_dev *pdev)
 
 static int mt7902_pci_suspend(struct device *device)
 {
+    printk(KERN_INFO "pci.c - mt7902_pci_suspend");
 	struct pci_dev *pdev = to_pci_dev(device);
 	struct mt76_dev *mdev = pci_get_drvdata(pdev);
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
@@ -470,6 +471,7 @@ restore_suspend:
 
 static int mt7902_pci_resume(struct device *device)
 {
+    printk(KERN_INFO "pci.c - mt7902_pci_resume");
 	struct pci_dev *pdev = to_pci_dev(device);
 	struct mt76_dev *mdev = pci_get_drvdata(pdev);
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
@@ -523,6 +525,7 @@ failed:
 
 static void mt7902_pci_shutdown(struct pci_dev *pdev)
 {
+    printk(KERN_INFO "pci.c - mt7902_pci_shutdown");
 	mt7902_pci_remove(pdev);
 }
 
@@ -542,8 +545,6 @@ module_pci_driver(mt7902_pci_driver);
 MODULE_DEVICE_TABLE(pci, mt7902_pci_device_table);
 MODULE_FIRMWARE(MT7921_FIRMWARE_WM);
 MODULE_FIRMWARE(MT7921_ROM_PATCH);
-MODULE_FIRMWARE(MT7922_FIRMWARE_WM);
-MODULE_FIRMWARE(MT7922_ROM_PATCH);
 MODULE_AUTHOR("Sean Wang <sean.wang@mediatek.com>");
 MODULE_AUTHOR("Lorenzo Bianconi <lorenzo@kernel.org>");
 MODULE_DESCRIPTION("MediaTek MT7902E (PCIe) wireless driver");
