@@ -6,6 +6,7 @@
 
 int mt7902e_driver_own(struct mt792x_dev *dev)
 {
+    printk(KERN_INFO "pci_mcu.c - mt7902e_driver_own");
 	u32 reg = mt7902_reg_map_l1(dev, MT_TOP_LPCR_HOST_BAND0);
 
 	mt76_wr(dev, reg, MT_TOP_LPCR_HOST_DRV_OWN);
@@ -22,6 +23,7 @@ static int
 mt7902_mcu_send_message(struct mt76_dev *mdev, struct sk_buff *skb,
 			int cmd, int *seq)
 {
+    printk(KERN_INFO "pci_mcu.c - mt7902_mcu_send_message");
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
 	enum mt76_mcuq_id txq = MT_MCUQ_WM;
 	int ret;
@@ -40,6 +42,7 @@ mt7902_mcu_send_message(struct mt76_dev *mdev, struct sk_buff *skb,
 
 int mt7902e_mcu_init(struct mt792x_dev *dev)
 {
+    printk(KERN_INFO "pci_mcu.c - mt7902e_mcu_init");
 	static const struct mt76_mcu_ops mt7902_mcu_ops = {
 		.headroom = sizeof(struct mt76_connac2_mcu_txd),
 		.mcu_skb_send_msg = mt7902_mcu_send_message,

@@ -10,6 +10,7 @@ int mt7902e_tx_prepare_skb(struct mt76_dev *mdev, void *txwi_ptr,
 			   struct ieee80211_sta *sta,
 			   struct mt76_tx_info *tx_info)
 {
+    printk(KERN_INFO "pci_mac.c - mt7902e_tx_prepare_skb");
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
 	struct ieee80211_tx_info *info = IEEE80211_SKB_CB(tx_info->skb);
 	struct ieee80211_key_conf *key = info->control.hw_key;
@@ -55,6 +56,7 @@ int mt7902e_tx_prepare_skb(struct mt76_dev *mdev, void *txwi_ptr,
 
 int mt7902e_mac_reset(struct mt792x_dev *dev)
 {
+    printk(KERN_INFO "pci_mac.c - mt7902e_mac_reset");
 	int i, err;
 
 	mt792xe_mcu_drv_pmctrl(dev);
