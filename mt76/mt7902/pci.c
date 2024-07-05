@@ -14,7 +14,7 @@
 
 static const struct pci_device_id mt7902_pci_device_table[] = {
 	{ PCI_DEVICE(PCI_VENDOR_ID_MEDIATEK, 0x7902),
-		.driver_data = (kernel_ulong_t)MT7921_FIRMWARE_WM },
+		.driver_data = (kernel_ulong_t)MT7922_FIRMWARE_WM },
 	{ },
 };
 
@@ -55,7 +55,7 @@ static u32 __mt7902_reg_addr(struct mt792x_dev *dev, u32 addr)
 {
     //printk(KERN_INFO "pci.c - __mt7902_reg_addr");
 	static const struct mt76_connac_reg_map fixed_map[] = {
-		/* chip addr, bus addr, range */
+	    /* chip addr, bus addr, range */
 	    {0x54000000, 0x02000, 0x1000},  /* WFDMA PCIE0 MCU DMA0 */
 	    {0x55000000, 0x03000, 0x1000},  /* WFDMA PCIE0 MCU DMA1 */
 	    {0x56000000, 0x04000, 0x1000},  /* WFDMA reserved */
@@ -82,6 +82,7 @@ static u32 __mt7902_reg_addr(struct mt792x_dev *dev, u32 addr)
 	    {0x820ed000, 0x24800, 0x0800},  /* WF_LMAC_TOP BN0 (WF_MIB) */
 	    {0x820ca000, 0x26000, 0x2000},  /* WF_LMAC_TOP BN0 (WF_MUCOP) */
 	    {0x820d0000, 0x30000, 0x10000}, /* WF_LMAC_TOP (WF_WTBLON) */
+	    {0x88000000, 0x40000, 0x10000}, /* CONN_MCU_CONFG_LS */
 	    {0x40000000, 0x70000, 0x10000}, /* WF_UMAC_SYSRAM */
 	    {0x00400000, 0x80000, 0x10000}, /* WF_MCU_SYSRAM */
 	    {0x00410000, 0x90000, 0x10000}, /* WF_MCU_SYSRAM (configure register) */
@@ -104,7 +105,7 @@ static u32 __mt7902_reg_addr(struct mt792x_dev *dev, u32 addr)
 	    {0x81020000, 0xc0000, 0x10000}, /* WF_TOP_MISC_ON */
 	    {0x7c020000, 0xd0000, 0x10000}, /* CONN_INFRA, wfdma */
 	    {0x7c060000, 0xe0000, 0x10000}, /* CONN_INFRA, conn_host_csr_top */
-	    {0x7c000000, 0xf0000, 0x10000}, /* CONN_INFRA */
+	    {0x7c000000, 0xf0000, 0x10000}, /* CONN_INFRA */    
 	};
 	int i;
 
@@ -549,8 +550,8 @@ static struct pci_driver mt7902_pci_driver = {
 module_pci_driver(mt7902_pci_driver);
 
 MODULE_DEVICE_TABLE(pci, mt7902_pci_device_table);
-MODULE_FIRMWARE(MT7921_FIRMWARE_WM);
-MODULE_FIRMWARE(MT7921_ROM_PATCH);
+MODULE_FIRMWARE(MT7922_FIRMWARE_WM);
+MODULE_FIRMWARE(MT7922_ROM_PATCH);
 MODULE_AUTHOR("Sean Wang <sean.wang@mediatek.com>");
 MODULE_AUTHOR("Lorenzo Bianconi <lorenzo@kernel.org>");
 MODULE_DESCRIPTION("MediaTek MT7902E (PCIe) wireless driver");
