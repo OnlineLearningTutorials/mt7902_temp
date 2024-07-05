@@ -177,18 +177,23 @@ static int __mt7902_init_hardware(struct mt792x_dev *dev)
 	/* force firmware operation mode into normal state,
 	 * which should be set before firmware download stage.
 	 */
+	printk(KERN_INFO "init.c - __mt7902_init_hardware MT_SWDEF_MODE : %lu, MT_SWDEF_NORMAL_MODE : %lu", MT_SWDEF_MODE, MT_SWDEF_NORMAL_MODE);
 	mt76_wr(dev, MT_SWDEF_MODE, MT_SWDEF_NORMAL_MODE);
 	ret = mt792x_mcu_init(dev);
+	printk(KERN_INFO "init.c - __mt7902_init_hardware mt792x_mcu_init(dev) : %d", ret);
 	if (ret)
 		goto out;
+
 
 	mt76_eeprom_override(&dev->mphy);
 
 	ret = mt7902_mcu_set_eeprom(dev);
+		printk(KERN_INFO "init.c - __mt7902_init_hardware mt7902_mcu_set_eeprom(dev) : %d", ret);
 	if (ret)
 		goto out;
 
 	ret = mt7902_mac_init(dev);
+	printk(KERN_INFO "init.c - __mt7902_init_hardware mt7902_mac_init(dev) : %d", ret);
 out:
 	return ret;
 }
@@ -327,7 +332,7 @@ int mt7902_register_device(struct mt792x_dev *dev)
 			IEEE80211_VHT_CAP_SU_BEAMFORMEE_CAPABLE |
 			IEEE80211_VHT_CAP_MU_BEAMFORMEE_CAPABLE |
 			(3 << IEEE80211_VHT_CAP_BEAMFORMEE_STS_SHIFT);
-	if (is_mt7922(&dev->mt76))
+	if (is_mt7902(&dev->mt76))
 		dev->mphy.sband_5g.sband.vht_cap.cap |=
 			IEEE80211_VHT_CAP_SUPP_CHAN_WIDTH_160MHZ |
 			IEEE80211_VHT_CAP_SHORT_GI_160;

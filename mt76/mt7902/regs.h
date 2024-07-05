@@ -1,8 +1,8 @@
 /* SPDX-License-Identifier: ISC */
 /* Copyright (C) 2020 MediaTek Inc. */
 
-#ifndef __MT7921_REGS_H
-#define __MT7921_REGS_H
+#ifndef __MT7902_REGS_H
+#define __MT7902_REGS_H
 
 #include "../mt792x_regs.h"
 

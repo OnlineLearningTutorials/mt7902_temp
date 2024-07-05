@@ -8,6 +8,7 @@ int mt7902e_driver_own(struct mt792x_dev *dev)
 {
     printk(KERN_INFO "pci_mcu.c - mt7902e_driver_own");
 	u32 reg = mt7902_reg_map_l1(dev, MT_TOP_LPCR_HOST_BAND0);
+	    printk(KERN_INFO "pci_mcu.c - mt7902e_driver_own - reg : %lu, MT_TOP_LPCR_HOST_BAND0 : %lu, MT_TOP_LPCR_HOST_DRV_OWN : %lu", reg, MT_TOP_LPCR_HOST_BAND0, MT_TOP_LPCR_HOST_DRV_OWN );
 
 	mt76_wr(dev, reg, MT_TOP_LPCR_HOST_DRV_OWN);
 	if (!mt76_poll_msec(dev, reg, MT_TOP_LPCR_HOST_FW_OWN,
@@ -56,10 +57,11 @@ int mt7902e_mcu_init(struct mt792x_dev *dev)
 	if (err)
 		return err;
 
+    printk(KERN_INFO "pci_mcu.c - mt7902e_mcu_init - MT_PCIE_MAC_PM : %lu, MT_PCIE_MAC_PM_L0S_DIS : %lu", MT_PCIE_MAC_PM, MT_PCIE_MAC_PM_L0S_DIS);
 	mt76_rmw_field(dev, MT_PCIE_MAC_PM, MT_PCIE_MAC_PM_L0S_DIS, 1);
 
 	err = mt7902_run_firmware(dev);
-
+    printk(KERN_INFO "pci_mcu.c - mt7902e_mcu_init - mt7902_run_firmware err : %d", err);
 	mt76_queue_tx_cleanup(dev, dev->mt76.q_mcu[MT_MCUQ_FWDL], false);
 
 	return err;
