@@ -14,6 +14,7 @@ static ssize_t mt7902_thermal_temp_show(struct device *dev,
 					struct device_attribute *attr,
 					char *buf)
 {
+    printk(KERN_INFO "init.c - mt7902_thermal_temp_show");
 	switch (to_sensor_dev_attr(attr)->index) {
 	case 0: {
 		struct mt792x_phy *phy = dev_get_drvdata(dev);
@@ -43,6 +44,7 @@ ATTRIBUTE_GROUPS(mt7902_hwmon);
 
 static int mt7902_thermal_init(struct mt792x_phy *phy)
 {
+    printk(KERN_INFO "init.c - mt7902_thermal_init");
 	struct wiphy *wiphy = phy->mt76->hw->wiphy;
 	struct device *hwmon;
 	const char *name;
@@ -61,6 +63,7 @@ static int mt7902_thermal_init(struct mt792x_phy *phy)
 static void
 mt7902_regd_channel_update(struct wiphy *wiphy, struct mt792x_dev *dev)
 {
+    printk(KERN_INFO "init.c - mt7902_regd_channel_update");
 #define IS_UNII_INVALID(idx, sfreq, efreq) \
 	(!(dev->phy.clc_chan_conf & BIT(idx)) && (cfreq) >= (sfreq) && (cfreq) <= (efreq))
 	struct ieee80211_supported_band *sband;
@@ -112,6 +115,7 @@ mt7902_regd_channel_update(struct wiphy *wiphy, struct mt792x_dev *dev)
 
 void mt7902_regd_update(struct mt792x_dev *dev)
 {
+    printk(KERN_INFO "init.c - mt7902_regd_update");
 	struct mt76_dev *mdev = &dev->mt76;
 	struct ieee80211_hw *hw = mdev->hw;
 	struct wiphy *wiphy = hw->wiphy;
@@ -127,6 +131,7 @@ static void
 mt7902_regd_notifier(struct wiphy *wiphy,
 		     struct regulatory_request *request)
 {
+    printk(KERN_INFO "init.c - mt7902_regd_notifier");
 	struct ieee80211_hw *hw = wiphy_to_ieee80211_hw(wiphy);
 	struct mt792x_dev *dev = mt792x_hw_dev(hw);
 	struct mt76_connac_pm *pm = &dev->pm;
@@ -145,6 +150,7 @@ mt7902_regd_notifier(struct wiphy *wiphy,
 
 int mt7902_mac_init(struct mt792x_dev *dev)
 {
+    printk(KERN_INFO "init.c - mt7902_mac_init");
 	int i;
 
 	mt76_rmw_field(dev, MT_MDP_DCR1, MT_MDP_DCR1_MAX_RX_LEN, 1536);
@@ -165,6 +171,7 @@ EXPORT_SYMBOL_GPL(mt7902_mac_init);
 
 static int __mt7902_init_hardware(struct mt792x_dev *dev)
 {
+    printk(KERN_INFO "init.c - __mt7902_init_hardware");
 	int ret;
 
 	/* force firmware operation mode into normal state,
@@ -188,6 +195,7 @@ out:
 
 static int mt7902_init_hardware(struct mt792x_dev *dev)
 {
+    printk(KERN_INFO "init.c - mt7902_init_hardware");
 	int ret, i;
 
 	set_bit(MT76_STATE_INITIALIZED, &dev->mphy.state);
@@ -210,6 +218,7 @@ static int mt7902_init_hardware(struct mt792x_dev *dev)
 
 static void mt7902_init_work(struct work_struct *work)
 {
+    printk(KERN_INFO "init.c - mt7902_init_work");
 	struct mt792x_dev *dev = container_of(work, struct mt792x_dev,
 					      init_work);
 	int ret;
@@ -248,6 +257,7 @@ static void mt7902_init_work(struct work_struct *work)
 
 int mt7902_register_device(struct mt792x_dev *dev)
 {
+    printk(KERN_INFO "init.c - mt7902_register_device");
 	struct ieee80211_hw *hw = mt76_hw(dev);
 	int ret;
 

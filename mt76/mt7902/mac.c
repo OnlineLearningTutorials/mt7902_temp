@@ -17,6 +17,7 @@
 
 bool mt7902_mac_wtbl_update(struct mt792x_dev *dev, int idx, u32 mask)
 {
+    printk(KERN_INFO "mac.c - mt7902_mac_wtbl_update");
 	mt76_rmw(dev, MT_WTBL_UPDATE, MT_WTBL_UPDATE_WLAN_IDX,
 		 FIELD_PREP(MT_WTBL_UPDATE_WLAN_IDX, idx) | mask);
 
@@ -26,11 +27,13 @@ bool mt7902_mac_wtbl_update(struct mt792x_dev *dev, int idx, u32 mask)
 
 static u32 mt7902_mac_wtbl_lmac_addr(int idx, u8 offset)
 {
+    printk(KERN_INFO "mac.c - mt7902_mac_wtbl_lmac_addr");
 	return MT_WTBL_LMAC_OFFS(idx, 0) + offset * 4;
 }
 
 static void mt7902_mac_sta_poll(struct mt792x_dev *dev)
 {
+    printk(KERN_INFO "mac.c - mt7902_mac_sta_poll");
 	static const u8 ac_to_tid[] = {
 		[IEEE80211_AC_BE] = 0,
 		[IEEE80211_AC_BK] = 1,
@@ -164,6 +167,7 @@ static void mt7902_mac_sta_poll(struct mt792x_dev *dev)
 static int
 mt7902_mac_fill_rx(struct mt792x_dev *dev, struct sk_buff *skb)
 {
+    printk(KERN_INFO "mac.c - mt7902_mac_fill_rx");
 	u32 csum_mask = MT_RXD0_NORMAL_IP_SUM | MT_RXD0_NORMAL_UDP_TCP_SUM;
 	struct mt76_rx_status *status = (struct mt76_rx_status *)skb->cb;
 	bool hdr_trans, unicast, insert_ccmp_hdr = false;
@@ -444,6 +448,7 @@ mt7902_mac_fill_rx(struct mt792x_dev *dev, struct sk_buff *skb)
 
 void mt7902_mac_add_txs(struct mt792x_dev *dev, void *data)
 {
+    printk(KERN_INFO "mac.c - mt7902_mac_add_txs");
 	struct mt792x_sta *msta = NULL;
 	struct mt76_wcid *wcid;
 	__le32 *txs_data = data;
@@ -485,6 +490,7 @@ out:
 
 static void mt7902_mac_tx_free(struct mt792x_dev *dev, void *data, int len)
 {
+    printk(KERN_INFO "mac.c - mt7902_mac_tx_free");
 	struct mt76_connac_tx_free *free = data;
 	__le32 *tx_info = (__le32 *)(data + sizeof(*free));
 	struct mt76_dev *mdev = &dev->mt76;
@@ -565,6 +571,7 @@ static void mt7902_mac_tx_free(struct mt792x_dev *dev, void *data, int len)
 
 bool mt7902_rx_check(struct mt76_dev *mdev, void *data, int len)
 {
+    printk(KERN_INFO "mac.c - mt7902_rx_check");
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
 	__le32 *rxd = (__le32 *)data;
 	__le32 *end = (__le32 *)&rxd[len / 4];
@@ -590,6 +597,7 @@ EXPORT_SYMBOL_GPL(mt7902_rx_check);
 void mt7902_queue_rx_skb(struct mt76_dev *mdev, enum mt76_rxq_id q,
 			 struct sk_buff *skb, u32 *info)
 {
+    printk(KERN_INFO "mac.c - mt7902_queue_rx_skb");
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
 	__le32 *rxd = (__le32 *)skb->data;
 	__le32 *end = (__le32 *)&skb->data[skb->len];
@@ -634,6 +642,7 @@ static void
 mt7902_vif_connect_iter(void *priv, u8 *mac,
 			struct ieee80211_vif *vif)
 {
+    printk(KERN_INFO "mac.c - mt7902_vif_connect_iter");
 	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
 	struct mt792x_dev *dev = mvif->phy->dev;
 	struct ieee80211_hw *hw = mt76_hw(dev);
@@ -656,6 +665,7 @@ mt7902_vif_connect_iter(void *priv, u8 *mac,
 /* system error recovery */
 void mt7902_mac_reset_work(struct work_struct *work)
 {
+    printk(KERN_INFO "mac.c - mt7902_mac_reset_work");
 	struct mt792x_dev *dev = container_of(work, struct mt792x_dev,
 					      reset_work);
 	struct ieee80211_hw *hw = mt76_hw(dev);
@@ -701,6 +711,7 @@ void mt7902_mac_reset_work(struct work_struct *work)
 
 void mt7902_coredump_work(struct work_struct *work)
 {
+    printk(KERN_INFO "mac.c - mt7902_coredump_work");
 	struct mt792x_dev *dev;
 	char *dump, *data;
 
@@ -753,6 +764,7 @@ mt7902_usb_sdio_write_txwi(struct mt792x_dev *dev, struct mt76_wcid *wcid,
 			   struct ieee80211_key_conf *key, int pid,
 			   struct sk_buff *skb)
 {
+    printk(KERN_INFO "mac.c - mt7902_usb_sdio_write_txwi");
 	__le32 *txwi = (__le32 *)(skb->data - MT_SDIO_TXD_SIZE);
 
 	memset(txwi, 0, MT_SDIO_TXD_SIZE);
@@ -765,6 +777,7 @@ int mt7902_usb_sdio_tx_prepare_skb(struct mt76_dev *mdev, void *txwi_ptr,
 				   struct ieee80211_sta *sta,
 				   struct mt76_tx_info *tx_info)
 {
+    printk(KERN_INFO "mac.c - mt7902_usb_sdio_tx_prepare_skb");
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
 	struct ieee80211_tx_info *info = IEEE80211_SKB_CB(tx_info->skb);
 	struct ieee80211_key_conf *key = info->control.hw_key;
@@ -811,6 +824,7 @@ EXPORT_SYMBOL_GPL(mt7902_usb_sdio_tx_prepare_skb);
 void mt7902_usb_sdio_tx_complete_skb(struct mt76_dev *mdev,
 				     struct mt76_queue_entry *e)
 {
+    printk(KERN_INFO "mac.c - mt7902_usb_sdio_tx_complete_skb");
 	__le32 *txwi = (__le32 *)(e->skb->data + MT_SDIO_HDR_SIZE);
 	unsigned int headroom = MT_SDIO_TXD_SIZE + MT_SDIO_HDR_SIZE;
 	struct ieee80211_sta *sta;
@@ -831,6 +845,7 @@ EXPORT_SYMBOL_GPL(mt7902_usb_sdio_tx_complete_skb);
 
 bool mt7902_usb_sdio_tx_status_data(struct mt76_dev *mdev, u8 *update)
 {
+    printk(KERN_INFO "mac.c - mt7902_usb_sdio_tx_status_data");
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
 
 	mt792x_mutex_acquire(dev);
@@ -844,6 +859,7 @@ EXPORT_SYMBOL_GPL(mt7902_usb_sdio_tx_status_data);
 #if IS_ENABLED(CONFIG_IPV6)
 void mt7902_set_ipv6_ns_work(struct work_struct *work)
 {
+    printk(KERN_INFO "mac.c - mt7902_set_ipv6_ns_work");
 	struct mt792x_dev *dev = container_of(work, struct mt792x_dev,
 					      ipv6_ns_work);
 	struct sk_buff *skb;

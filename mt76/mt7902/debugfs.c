@@ -6,6 +6,7 @@
 static int
 mt7902_reg_set(void *data, u64 val)
 {
+    printk(KERN_INFO "debugfs.c - mt7902_reg_set");
 	struct mt792x_dev *dev = data;
 
 	mt792x_mutex_acquire(dev);
@@ -18,6 +19,7 @@ mt7902_reg_set(void *data, u64 val)
 static int
 mt7902_reg_get(void *data, u64 *val)
 {
+    printk(KERN_INFO "debugfs.c - mt7902_reg_get");
 	struct mt792x_dev *dev = data;
 
 	mt792x_mutex_acquire(dev);
@@ -32,6 +34,7 @@ DEFINE_DEBUGFS_ATTRIBUTE(fops_regval, mt7902_reg_get, mt7902_reg_set,
 static int
 mt7902_fw_debug_set(void *data, u64 val)
 {
+    printk(KERN_INFO "debugfs.c - mt7902_fw_debug_set");
 	struct mt792x_dev *dev = data;
 
 	mt792x_mutex_acquire(dev);
@@ -47,6 +50,7 @@ mt7902_fw_debug_set(void *data, u64 val)
 static int
 mt7902_fw_debug_get(void *data, u64 *val)
 {
+    printk(KERN_INFO "debugfs.c - mt7902_fw_debug_get");
 	struct mt792x_dev *dev = data;
 
 	*val = dev->fw_debug;
@@ -63,6 +67,7 @@ static void
 mt7902_seq_puts_array(struct seq_file *file, const char *str,
 		      s8 *val, int len)
 {
+    printk(KERN_INFO "debugfs.c - mt7902_seq_puts_array");
 	int i;
 
 	seq_printf(file, "%-16s:", str);
@@ -90,6 +95,7 @@ mt7902_seq_puts_array(struct seq_file *file, const char *str,
 static int
 mt7902_txpwr(struct seq_file *s, void *data)
 {
+    printk(KERN_INFO "debugfs.c - mt7902_txpwr");
 	struct mt792x_dev *dev = dev_get_drvdata(s->private);
 	struct mt7902_txpwr txpwr;
 	int ret;
@@ -142,6 +148,7 @@ mt7902_txpwr(struct seq_file *s, void *data)
 static int
 mt7902_pm_set(void *data, u64 val)
 {
+    printk(KERN_INFO "debugfs.c - mt7902_pm_set");
 	struct mt792x_dev *dev = data;
 	struct mt76_connac_pm *pm = &dev->pm;
 
@@ -175,6 +182,7 @@ out:
 static int
 mt7902_pm_get(void *data, u64 *val)
 {
+    printk(KERN_INFO "debugfs.c - mt7902_pm_get");
 	struct mt792x_dev *dev = data;
 
 	*val = dev->pm.enable_user;
@@ -187,6 +195,7 @@ DEFINE_DEBUGFS_ATTRIBUTE(fops_pm, mt7902_pm_get, mt7902_pm_set, "%lld\n");
 static int
 mt7902_deep_sleep_set(void *data, u64 val)
 {
+    printk(KERN_INFO "debugfs.c - mt7902_deep_sleep_set");
 	struct mt792x_dev *dev = data;
 	struct mt76_connac_pm *pm = &dev->pm;
 	bool monitor = !!(dev->mphy.hw->conf.flags & IEEE80211_CONF_MONITOR);
@@ -211,6 +220,7 @@ out:
 static int
 mt7902_deep_sleep_get(void *data, u64 *val)
 {
+    printk(KERN_INFO "debugfs.c - mt7902_deep_sleep_get");
 	struct mt792x_dev *dev = data;
 
 	*val = dev->pm.ds_enable_user;
@@ -226,6 +236,7 @@ DEFINE_DEBUGFS_ATTRIBUTE(fops_pm_idle_timeout, mt792x_pm_idle_timeout_get,
 
 static int mt7902_chip_reset(void *data, u64 val)
 {
+    printk(KERN_INFO "debugfs.c - mt7902_chip_reset");
 	struct mt792x_dev *dev = data;
 	int ret = 0;
 
@@ -250,6 +261,7 @@ DEFINE_DEBUGFS_ATTRIBUTE(fops_reset, NULL, mt7902_chip_reset, "%lld\n");
 static int
 mt7902s_sched_quota_read(struct seq_file *s, void *data)
 {
+    printk(KERN_INFO "debugfs.c - mt7902s_sched_quota_read");
 	struct mt792x_dev *dev = dev_get_drvdata(s->private);
 	struct mt76_sdio *sdio = &dev->mt76.sdio;
 
@@ -263,6 +275,7 @@ mt7902s_sched_quota_read(struct seq_file *s, void *data)
 
 int mt7902_init_debugfs(struct mt792x_dev *dev)
 {
+    printk(KERN_INFO "debugfs.c - mt7902_init_debugfs");
 	struct dentry *dir;
 
 	dir = mt76_register_debugfs_fops(&dev->mphy, &fops_regval);
