@@ -612,17 +612,20 @@ int mt7902_run_firmware(struct mt792x_dev *dev)
 	int err;
 
 	err = mt792x_load_firmware(dev);
+	printk(KERN_INFO "mcu.c - mt7902_run_firmware - mt792x_load_firmware(dev)->err : %d", err);
 	if (err)
 		return err;
 
-    printk(KERN_INFO "mcu.c - mt7902_run_firmware - load firmware passed");
 	err = mt7902_mcu_get_nic_capability(&dev->phy);
+	printk(KERN_INFO "mcu.c - mt7902_run_firmware - mt7902_mcu_get_nic_capability(&dev->phy)->err : %d", err);
 	if (err)
 		return err;
 
-    printk(KERN_INFO "mcu.c - mt7902_run_firmware - mcu_get_nic_capability passed");
+	printk(KERN_INFO "mcu.c - mt7902_run_firmware - set_bit MT76_STATE_MCU_RUNNING : %lu, &dev->mphy.state : %lu", MT76_STATE_MCU_RUNNING, &dev->mphy.state);
 	set_bit(MT76_STATE_MCU_RUNNING, &dev->mphy.state);
+		printk(KERN_INFO "mcu.c - mt7902_run_firmware - mt792x_ram_name(dev) : %lu", mt792x_ram_name(dev));
 	err = mt7902_load_clc(dev, mt792x_ram_name(dev));
+	printk(KERN_INFO "mcu.c - mt7902_run_firmware - mt7902_load_clc(dev, mt792x_ram_name(dev));->err : %d", err);
 	if (err)
 		return err;
 
