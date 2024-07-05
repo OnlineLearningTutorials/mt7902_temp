@@ -830,8 +830,9 @@ EXPORT_SYMBOL_GPL(mt792xe_mcu_fw_pmctrl);
 int mt792x_load_firmware(struct mt792x_dev *dev)
 {
 	int ret;
-
+	printk(KERN_INFO "mt792x_core.c - mt792x_load_firmware - mt792x_patch_name : %s", mt792x_patch_name(dev));
 	ret = mt76_connac2_load_patch(&dev->mt76, mt792x_patch_name(dev));
+    printk(KERN_INFO "mt792x_core.c - mt792x_load_firmware - mt76_connac2_load_patch->ret : %d", ret);
 	if (ret)
 		return ret;
 
@@ -842,7 +843,9 @@ int mt792x_load_firmware(struct mt792x_dev *dev)
 			ret = __mt792x_mcu_drv_pmctrl(dev);
 	}
 
+	printk(KERN_INFO "mt792x_core.c - mt792x_load_firmware - mt792x_ram_name : %s", mt792x_ram_name(dev));
 	ret = mt76_connac2_load_ram(&dev->mt76, mt792x_ram_name(dev), NULL);
+    printk(KERN_INFO "mt792x_core.c - mt792x_load_firmware - mt76_connac2_load_ram->ret : %d", ret);
 	if (ret)
 		return ret;
 

@@ -3005,6 +3005,7 @@ int mt76_connac2_load_patch(struct mt76_dev *dev, const char *fw_name)
 	const struct firmware *fw = NULL;
 
 	sem = mt76_connac_mcu_patch_sem_ctrl(dev, true);
+	printk(KERN_INFO "mt76_connac_mcu - mt76_connac2_load_patch - mt76_connac_mcu_patch_sem_ctrl->sem %d", sem);
 	switch (sem) {
 	case PATCH_IS_DL:
 		return 0;
