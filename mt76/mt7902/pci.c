@@ -138,7 +138,7 @@ static u32 __mt7902_reg_addr(struct mt792x_dev *dev, u32 addr)
 
 static u32 mt7902_rr(struct mt76_dev *mdev, u32 offset)
 {
-    printk(KERN_INFO "pci.c - mt7902_rr");
+    //printk(KERN_INFO "pci.c - mt7902_rr");
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
 	u32 addr = __mt7902_reg_addr(dev, offset);
 
@@ -147,7 +147,7 @@ static u32 mt7902_rr(struct mt76_dev *mdev, u32 offset)
 
 static void mt7902_wr(struct mt76_dev *mdev, u32 offset, u32 val)
 {
-    printk(KERN_INFO "pci.c - mt7902_wr");
+    //printk(KERN_INFO "pci.c - mt7902_wr");
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
 	u32 addr = __mt7902_reg_addr(dev, offset);
 
@@ -156,7 +156,7 @@ static void mt7902_wr(struct mt76_dev *mdev, u32 offset, u32 val)
 
 static u32 mt7902_rmw(struct mt76_dev *mdev, u32 offset, u32 mask, u32 val)
 {
-    printk(KERN_INFO "pci.c - mt7902_rmw");
+    //printk(KERN_INFO "pci.c - mt7902_rmw");
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
 	u32 addr = __mt7902_reg_addr(dev, offset);
 
@@ -232,7 +232,7 @@ static int mt7902_dma_init(struct mt792x_dev *dev)
 static int mt7902_pci_probe(struct pci_dev *pdev,
 			    const struct pci_device_id *id)
 {
-    printk(KERN_INFO "pci.c - mt7902_pci_probe");
+    printk(KERN_INFO "pci.c - mt7902_pci_probe starting the mt7902 driver from the pci probe function. This is the first function to display in dmesg");
 	static const struct mt76_driver_ops drv_ops = {
 		/* txwi_size = txd size + txp size */
 		.txwi_size = MT_TXD_SIZE + sizeof(struct mt76_connac_hw_txp),
@@ -550,6 +550,7 @@ static struct pci_driver mt7902_pci_driver = {
 module_pci_driver(mt7902_pci_driver);
 
 MODULE_DEVICE_TABLE(pci, mt7902_pci_device_table);
+
 MODULE_FIRMWARE(MT7922_FIRMWARE_WM);
 MODULE_FIRMWARE(MT7922_ROM_PATCH);
 MODULE_AUTHOR("Sean Wang <sean.wang@mediatek.com>");
