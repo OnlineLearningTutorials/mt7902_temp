@@ -104,6 +104,11 @@ static u32 __mt7921_reg_addr(struct mt792x_dev *dev, u32 addr)
 		{ 0x820fb000, 0xa4200, 0x00400 }, /* WF_LMAC_TOP BN1 (WF_LPON) */
 		{ 0x820fc000, 0xa4600, 0x00200 }, /* WF_LMAC_TOP BN1 (WF_INT) */
 		{ 0x820fd000, 0xa4800, 0x00800 }, /* WF_LMAC_TOP BN1 (WF_MIB) */
+		{ 0x56000000, 0x04000, 0x01000 },  /* WFDMA reserved */		
+		{ 0x57000000, 0x05000, 0x01000 },  /* WFDMA MCU wrap CR */
+		{ 0x820ca000, 0x26000, 0x02000 },  /* WF_LMAC_TOP BN0 (WF_MUCOP) */
+		{ 0x820c4000, 0xa8000, 0x04000 },  /* WF_LMAC_TOP BN1 (WF_MUCOP) */
+		{ 0x820b0000, 0xae000, 0x01000 },  /* [APB2] WFSYS_ON */
 	};
 	int i;
 

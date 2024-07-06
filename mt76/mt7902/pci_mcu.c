@@ -8,9 +8,10 @@ int mt7902e_driver_own(struct mt792x_dev *dev)
 {
     printk(KERN_INFO "pci_mcu.c - mt7902e_driver_own");
 	u32 reg = mt7902_reg_map_l1(dev, MT_TOP_LPCR_HOST_BAND0);
-	printk(KERN_INFO "pci_mcu.c - mt7902e_driver_own - reg : %lu, MT_TOP_LPCR_HOST_BAND0 : %lu, MT_TOP_LPCR_HOST_DRV_OWN : %lu", reg, MT_TOP_LPCR_HOST_BAND0, MT_TOP_LPCR_HOST_DRV_OWN );
-
+	printk(KERN_INFO "pci_mcu.c - mt7902e_driver_own - mt7902_reg_map_l1(dev, 0x%x); - reg : 0x%x, MT_TOP_LPCR_HOST_BAND0 : 0x%x", MT_TOP_LPCR_HOST_BAND0, reg, MT_TOP_LPCR_HOST_BAND0 );
+	printk(KERN_INFO "pci_mcu.c - mt7902e_driver_own - mt76_wr(dev, 0x%x, 0x%x); - reg : 0x%x, MT_TOP_LPCR_HOST_DRV_OWN : 0x%x", reg, MT_TOP_LPCR_HOST_DRV_OWN, reg, MT_TOP_LPCR_HOST_DRV_OWN );
 	mt76_wr(dev, reg, MT_TOP_LPCR_HOST_DRV_OWN);
+	printk(KERN_INFO "pci_mcu.c - mt7902e_driver_own - mt76_wr(dev, 0x%x, 0x%x); - reg : 0x%x, MT_TOP_LPCR_HOST_DRV_OWN : 0x%x", reg, MT_TOP_LPCR_HOST_DRV_OWN, reg, MT_TOP_LPCR_HOST_DRV_OWN );
 	if (!mt76_poll_msec(dev, reg, MT_TOP_LPCR_HOST_FW_OWN,
 			    0, 500)) {
 		dev_err(dev->mt76.dev, "Timeout for driver own\n");
@@ -56,10 +57,11 @@ int mt7902e_mcu_init(struct mt792x_dev *dev)
 	dev->mt76.mcu_ops = &mt7902_mcu_ops;
 
 	err = mt7902e_driver_own(dev);
+	printk(KERN_INFO "pci_mcu.c - mt7902e_mcu_init - mt7902e_driver_own(dev)->err: %d",err);
 	if (err)
 		return err;
 
-    printk(KERN_INFO "pci_mcu.c - mt7902e_mcu_init - MT_PCIE_MAC_PM : %lu, MT_PCIE_MAC_PM_L0S_DIS : %lu", MT_PCIE_MAC_PM, MT_PCIE_MAC_PM_L0S_DIS);
+    printk(KERN_INFO "pci_mcu.c - mt7902e_mcu_init - mt76_rmw_field(dev, 0x%x, 0x%x, 1) MT_PCIE_MAC_PM : 0x%x, MT_PCIE_MAC_PM_L0S_DIS : 0x%x", MT_PCIE_MAC_PM, MT_PCIE_MAC_PM_L0S_DIS, MT_PCIE_MAC_PM, MT_PCIE_MAC_PM_L0S_DIS);
 	mt76_rmw_field(dev, MT_PCIE_MAC_PM, MT_PCIE_MAC_PM_L0S_DIS, 1);
 
 	err = mt7902_run_firmware(dev);
