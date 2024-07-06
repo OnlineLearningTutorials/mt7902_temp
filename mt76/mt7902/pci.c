@@ -53,9 +53,10 @@ static void mt7902e_unregister_device(struct mt792x_dev *dev)
 
 static u32 __mt7902_reg_addr(struct mt792x_dev *dev, u32 addr)
 {
-    printk(KERN_INFO "pci.c - __mt7902_reg_addr");
+    //printk(KERN_INFO "pci.c - __mt7902_reg_addr - addr: %d = 0x%x", addr, addr);
 	static const struct mt76_connac_reg_map fixed_map[] = {
 	    /* chip addr, bus addr, range */
+	    /* phys, maps, size */
 	    { 0x820d0000, 0x30000, 0x10000 }, /* WF_LMAC_TOP (WF_WTBLON) */
 		{ 0x820ed000, 0x24800, 0x00800 }, /* WF_LMAC_TOP BN0 (WF_MIB) */
 		{ 0x820e4000, 0x21000, 0x00400 }, /* WF_LMAC_TOP BN0 (WF_TMAC) */
@@ -102,26 +103,26 @@ static u32 __mt7902_reg_addr(struct mt792x_dev *dev, u32 addr)
 		{ 0x820fd000, 0xa4800, 0x00800 }, /* WF_LMAC_TOP BN1 (WF_MIB) */
 	};
 	int i;
-    printk(KERN_INFO "pci.c - __mt7902_reg_addr - addr: %d", addr);
+
 	if (addr < 0x100000)
 		return addr;
 
 	for (i = 0; i < ARRAY_SIZE(fixed_map); i++) {
 		u32 ofs;
-    	printk(KERN_INFO "pci.c - __mt7902_reg_addr - addr: %lu, fixed_map[%d].phys: %lu", addr, i, fixed_map[i].phys);
+    	//printk(KERN_INFO "pci.c - __mt7902_reg_addr - addr: 0x%x, fixed_map[%d].phys: 0x%x", addr, i, fixed_map[i].phys);
 		if (addr < fixed_map[i].phys)
 			continue;
 
 		ofs = addr - fixed_map[i].phys;
-    	printk(KERN_INFO "pci.c - __mt7902_reg_addr - ofs: %lu, fixed_map[%d].size: %lu", ofs, i, fixed_map[i].size);
+    	//printk(KERN_INFO "pci.c - __mt7902_reg_addr - ofs: 0x%x, fixed_map[%d].size: 0x%x", ofs, i, fixed_map[i].size);
 		if (ofs > fixed_map[i].size)
 			continue;
 
-    	printk(KERN_INFO "pci.c - __mt7902_reg_addr - ofs: %lu, fixed_map[%d].maps: %lu", ofs, i, fixed_map[i].maps);
+    	printk(KERN_INFO "pci.c - __mt7902_reg_addr - fixed_map[%d].phys: 0x%x, fixed_map[%d].maps: 0x%x, fixed_map[%d].size: 0x%x, ofs: 0x%x, return:0x%x, addr:0x%x", i, fixed_map[i].phys, i, fixed_map[i].maps, i, fixed_map[i].size, ofs, ofs+fixed_map[i].maps, addr);
 		return fixed_map[i].maps + ofs;
 	}
 
-    	printk(KERN_INFO "pci.c - __mt7902_reg_addr - addr: %lu, mt7902_reg_map_l1(dev, %lu): %lu", addr, addr, mt7902_reg_map_l1(dev, addr));
+    	printk(KERN_INFO "pci.c - __mt7902_reg_addr - addr: 0x%x, mt7902_reg_map_l1(dev, 0x%x): 0x%x", addr, addr, mt7902_reg_map_l1(dev, addr));
 	if ((addr >= 0x18000000 && addr < 0x18c00000) ||
 	    (addr >= 0x70000000 && addr < 0x78000000) ||
 	    (addr >= 0x7c000000 && addr < 0x7c400000))
@@ -135,28 +136,28 @@ static u32 __mt7902_reg_addr(struct mt792x_dev *dev, u32 addr)
 
 static u32 mt7902_rr(struct mt76_dev *mdev, u32 offset)
 {
-    printk(KERN_INFO "pci.c - mt7902_rr");
+    printk(KERN_INFO "pci.c - mt7902_rr - offset: 0x%x", offset);
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
 	u32 addr = __mt7902_reg_addr(dev, offset);
-    printk(KERN_INFO "pci.c - mt7902_rr - addr: %lu, offset: %lu", addr, offset);
+    //printk(KERN_INFO "pci.c - mt7902_rr - addr: 0x%x, offset: 0x%x", addr, offset);
 	return dev->bus_ops->rr(mdev, addr);
 }
 
 static void mt7902_wr(struct mt76_dev *mdev, u32 offset, u32 val)
 {
-    printk(KERN_INFO "pci.c - mt7902_wr");
+    printk(KERN_INFO "pci.c - mt7902_wr - offset: 0x%x, val: 0x%x", offset, val);
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
 	u32 addr = __mt7902_reg_addr(dev, offset);
-    printk(KERN_INFO "pci.c - mt7902_wr - addr: %lu, offset: %lu, val: %lu", addr, offset, val);
+    //printk(KERN_INFO "pci.c - mt7902_wr - addr: 0x%x, offset: 0x%x, val: 0x%x", addr, offset, val);
 	dev->bus_ops->wr(mdev, addr, val);
 }
 
 static u32 mt7902_rmw(struct mt76_dev *mdev, u32 offset, u32 mask, u32 val)
 {
-    printk(KERN_INFO "pci.c - mt7902_rmw");
+    printk(KERN_INFO "pci.c - mt7902_rmw - offset: 0x%x, mask: 0x%x, val: 0x%x", offset, mask, val);
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
 	u32 addr = __mt7902_reg_addr(dev, offset);
-    printk(KERN_INFO "pci.c - mt7902_rmw - addr : %lu, mask: %lu, val: %lu", addr, mask, val);
+    //printk(KERN_INFO "pci.c - mt7902_rmw - addr : 0x%x, mask: 0x%x, val: 0x%x", addr, mask, val);
 	return dev->bus_ops->rmw(mdev, addr, mask, val);
 }
 
@@ -285,12 +286,12 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 	u16 cmd;
 
 	ret = pcim_enable_device(pdev);
-    printk(KERN_INFO "pci.c - mt7902_pci_probe pcim_enable_device->ret : %d", ret);
+    //printk(KERN_INFO "pci.c - mt7902_pci_probe pcim_enable_device->ret : %d", ret);
 	if (ret)
 		return ret;
 
 	ret = pcim_iomap_regions(pdev, BIT(0), pci_name(pdev));
-    printk(KERN_INFO "pci.c - mt7902_pci_probe pcim_iomap_regions->ret : %d", ret);
+    //printk(KERN_INFO "pci.c - mt7902_pci_probe pcim_iomap_regions->ret : %d", ret);
 	if (ret)
 		return ret;
 
@@ -302,16 +303,16 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 	pci_set_master(pdev);
 
 	ret = pci_alloc_irq_vectors(pdev, 1, 1, PCI_IRQ_ALL_TYPES);
-    printk(KERN_INFO "pci.c - mt7902_pci_probe pci_alloc_irq_vectors->ret : %d", ret);
+    //printk(KERN_INFO "pci.c - mt7902_pci_probe pci_alloc_irq_vectors->ret : %d", ret);
 	if (ret < 0)
 		return ret;
 
 	ret = dma_set_mask(&pdev->dev, DMA_BIT_MASK(32));
-    printk(KERN_INFO "pci.c - mt7902_pci_probe dma_set_mask->ret: %d", ret);
+    //printk(KERN_INFO "pci.c - mt7902_pci_probe dma_set_mask->ret: %d", ret);
 	if (ret)
 		goto err_free_pci_vec;
 
-    printk(KERN_INFO "pci.c - mt7902_pci_probe mt7902_disable_aspm: %d", mt7902_disable_aspm);
+    //printk(KERN_INFO "pci.c - mt7902_pci_probe mt7902_disable_aspm: %d", mt7902_disable_aspm);
 	if (mt7902_disable_aspm)
 		mt76_pci_disable_aspm(pdev);
 
