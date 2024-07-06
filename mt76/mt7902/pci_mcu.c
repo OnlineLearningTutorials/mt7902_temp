@@ -8,7 +8,7 @@ int mt7902e_driver_own(struct mt792x_dev *dev)
 {
     printk(KERN_INFO "pci_mcu.c - mt7902e_driver_own");
 	u32 reg = mt7902_reg_map_l1(dev, MT_TOP_LPCR_HOST_BAND0);
-	    printk(KERN_INFO "pci_mcu.c - mt7902e_driver_own - reg : %lu, MT_TOP_LPCR_HOST_BAND0 : %lu, MT_TOP_LPCR_HOST_DRV_OWN : %lu", reg, MT_TOP_LPCR_HOST_BAND0, MT_TOP_LPCR_HOST_DRV_OWN );
+	printk(KERN_INFO "pci_mcu.c - mt7902e_driver_own - reg : %lu, MT_TOP_LPCR_HOST_BAND0 : %lu, MT_TOP_LPCR_HOST_DRV_OWN : %lu", reg, MT_TOP_LPCR_HOST_BAND0, MT_TOP_LPCR_HOST_DRV_OWN );
 
 	mt76_wr(dev, reg, MT_TOP_LPCR_HOST_DRV_OWN);
 	if (!mt76_poll_msec(dev, reg, MT_TOP_LPCR_HOST_FW_OWN,
@@ -30,11 +30,13 @@ mt7902_mcu_send_message(struct mt76_dev *mdev, struct sk_buff *skb,
 	int ret;
 
 	ret = mt76_connac2_mcu_fill_message(mdev, skb, cmd, seq);
+    printk(KERN_INFO "pci_mcu.c - mt7902_mcu_send_message - mt76_connac2_mcu_fill_message->ret: %d", ret);
 	if (ret)
 		return ret;
 
 	mdev->mcu.timeout = 3 * HZ;
 
+    printk(KERN_INFO "pci_mcu.c - mt7902_mcu_send_message - cmd: %d, MCU_CMD(FW_SCATTER): %d", cmd, MCU_CMD(FW_SCATTER));
 	if (cmd == MCU_CMD(FW_SCATTER))
 		txq = MT_MCUQ_FWDL;
 
