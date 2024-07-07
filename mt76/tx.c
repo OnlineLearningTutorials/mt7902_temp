@@ -8,6 +8,7 @@
 static int
 mt76_txq_get_qid(struct ieee80211_txq *txq)
 {
+	printk(KERN_INFO "mt76_tx.c - mt76_txq_get_qid");
 	if (!txq->sta)
 		return MT_TXQ_BE;
 
@@ -17,6 +18,7 @@ mt76_txq_get_qid(struct ieee80211_txq *txq)
 void
 mt76_tx_check_agg_ssn(struct ieee80211_sta *sta, struct sk_buff *skb)
 {
+	printk(KERN_INFO "mt76_tx.c - mt76_tx_check_agg_ssn");
 	struct ieee80211_hdr *hdr = (struct ieee80211_hdr *)skb->data;
 	struct ieee80211_txq *txq;
 	struct mt76_txq *mtxq;
@@ -40,6 +42,7 @@ void
 mt76_tx_status_lock(struct mt76_dev *dev, struct sk_buff_head *list)
 		   __acquires(&dev->status_lock)
 {
+	printk(KERN_INFO "mt76_tx.c - mt76_tx_status_lock");
 	__skb_queue_head_init(list);
 	spin_lock_bh(&dev->status_lock);
 }
@@ -49,6 +52,7 @@ void
 mt76_tx_status_unlock(struct mt76_dev *dev, struct sk_buff_head *list)
 		      __releases(&dev->status_lock)
 {
+	printk(KERN_INFO "mt76_tx.c - mt76_tx_status_unlock");
 	struct ieee80211_hw *hw;
 	struct sk_buff *skb;
 
@@ -89,6 +93,7 @@ static void
 __mt76_tx_status_skb_done(struct mt76_dev *dev, struct sk_buff *skb, u8 flags,
 			  struct sk_buff_head *list)
 {
+	printk(KERN_INFO "mt76_tx.c - __mt76_tx_status_skb_done");
 	struct ieee80211_tx_info *info = IEEE80211_SKB_CB(skb);
 	struct mt76_tx_cb *cb = mt76_tx_skb_cb(skb);
 	u8 done = MT_TX_CB_DMA_DONE | MT_TX_CB_TXS_DONE;
@@ -113,6 +118,7 @@ void
 mt76_tx_status_skb_done(struct mt76_dev *dev, struct sk_buff *skb,
 			struct sk_buff_head *list)
 {
+	printk(KERN_INFO "mt76_tx.c - mt76_tx_status_skb_done");
 	__mt76_tx_status_skb_done(dev, skb, MT_TX_CB_TXS_DONE, list);
 }
 EXPORT_SYMBOL_GPL(mt76_tx_status_skb_done);
@@ -121,6 +127,7 @@ int
 mt76_tx_status_skb_add(struct mt76_dev *dev, struct mt76_wcid *wcid,
 		       struct sk_buff *skb)
 {
+	printk(KERN_INFO "mt76_tx.c - mt76_tx_status_skb_add");
 	struct ieee80211_hdr *hdr = (struct ieee80211_hdr *)skb->data;
 	struct ieee80211_tx_info *info = IEEE80211_SKB_CB(skb);
 	struct mt76_tx_cb *cb = mt76_tx_skb_cb(skb);
@@ -170,6 +177,7 @@ struct sk_buff *
 mt76_tx_status_skb_get(struct mt76_dev *dev, struct mt76_wcid *wcid, int pktid,
 		       struct sk_buff_head *list)
 {
+	printk(KERN_INFO "mt76_tx.c - mt76_tx_status_skb_get");
 	struct sk_buff *skb;
 	int id;
 
@@ -211,6 +219,7 @@ EXPORT_SYMBOL_GPL(mt76_tx_status_skb_get);
 void
 mt76_tx_status_check(struct mt76_dev *dev, bool flush)
 {
+	printk(KERN_INFO "mt76_tx.c - mt76_tx_status_check");
 	struct mt76_wcid *wcid, *tmp;
 	struct sk_buff_head list;
 
@@ -225,6 +234,7 @@ static void
 mt76_tx_check_non_aql(struct mt76_dev *dev, struct mt76_wcid *wcid,
 		      struct sk_buff *skb)
 {
+	printk(KERN_INFO "mt76_tx.c - mt76_tx_check_non_aql");
 	struct ieee80211_tx_info *info = IEEE80211_SKB_CB(skb);
 	int pending;
 
@@ -239,6 +249,7 @@ mt76_tx_check_non_aql(struct mt76_dev *dev, struct mt76_wcid *wcid,
 void __mt76_tx_complete_skb(struct mt76_dev *dev, u16 wcid_idx, struct sk_buff *skb,
 			    struct list_head *free_list)
 {
+	printk(KERN_INFO "mt76_tx.c - __mt76_tx_complete_skb");
 	struct mt76_tx_cb *cb = mt76_tx_skb_cb(skb);
 	struct ieee80211_tx_status status = {
 		.skb = skb,
@@ -300,6 +311,7 @@ __mt76_tx_queue_skb(struct mt76_phy *phy, int qid, struct sk_buff *skb,
 		    struct mt76_wcid *wcid, struct ieee80211_sta *sta,
 		    bool *stop)
 {
+	printk(KERN_INFO "mt76_tx.c - __mt76_tx_queue_skb");
 	struct ieee80211_tx_info *info = IEEE80211_SKB_CB(skb);
 	struct mt76_queue *q = phy->q_tx[qid];
 	struct mt76_dev *dev = phy->dev;
@@ -329,6 +341,7 @@ void
 mt76_tx(struct mt76_phy *phy, struct ieee80211_sta *sta,
 	struct mt76_wcid *wcid, struct sk_buff *skb)
 {
+	printk(KERN_INFO "mt76_tx.c - mt76_tx");
 	struct ieee80211_tx_info *info = IEEE80211_SKB_CB(skb);
 
 	if (mt76_testmode_enabled(phy)) {
@@ -361,6 +374,7 @@ EXPORT_SYMBOL_GPL(mt76_tx);
 static struct sk_buff *
 mt76_txq_dequeue(struct mt76_phy *phy, struct mt76_txq *mtxq)
 {
+	printk(KERN_INFO "mt76_tx.c - mt76_txq_dequeue");
 	struct ieee80211_txq *txq = mtxq_to_txq(mtxq);
 	struct ieee80211_tx_info *info;
 	struct sk_buff *skb;
@@ -379,6 +393,7 @@ static void
 mt76_queue_ps_skb(struct mt76_phy *phy, struct ieee80211_sta *sta,
 		  struct sk_buff *skb, bool last)
 {
+	printk(KERN_INFO "mt76_tx.c - mt76_queue_ps_skb");
 	struct mt76_wcid *wcid = (struct mt76_wcid *)sta->drv_priv;
 	struct ieee80211_tx_info *info = IEEE80211_SKB_CB(skb);
 
@@ -397,6 +412,7 @@ mt76_release_buffered_frames(struct ieee80211_hw *hw, struct ieee80211_sta *sta,
 			     enum ieee80211_frame_release_type reason,
 			     bool more_data)
 {
+	printk(KERN_INFO "mt76_tx.c - mt76_release_buffered_frames");
 	struct mt76_phy *phy = hw->priv;
 	struct mt76_dev *dev = phy->dev;
 	struct sk_buff *last_skb = NULL;
@@ -439,6 +455,7 @@ EXPORT_SYMBOL_GPL(mt76_release_buffered_frames);
 static bool
 mt76_txq_stopped(struct mt76_queue *q)
 {
+	printk(KERN_INFO "mt76_tx.c - mt76_txq_stopped");
 	return q->stopped || q->blocked ||
 	       q->queued + MT_TXQ_FREE_THR >= q->ndesc;
 }
@@ -447,6 +464,7 @@ static int
 mt76_txq_send_burst(struct mt76_phy *phy, struct mt76_queue *q,
 		    struct mt76_txq *mtxq, struct mt76_wcid *wcid)
 {
+	printk(KERN_INFO "mt76_tx.c - mt76_txq_send_burst");
 	struct mt76_dev *dev = phy->dev;
 	struct ieee80211_txq *txq = mtxq_to_txq(mtxq);
 	enum mt76_txq_id qid = mt76_txq_get_qid(txq);
@@ -512,6 +530,7 @@ mt76_txq_send_burst(struct mt76_phy *phy, struct mt76_queue *q,
 static int
 mt76_txq_schedule_list(struct mt76_phy *phy, enum mt76_txq_id qid)
 {
+	printk(KERN_INFO "mt76_tx.c - mt76_txq_schedule_list");
 	struct mt76_queue *q = phy->q_tx[qid];
 	struct mt76_dev *dev = phy->dev;
 	struct ieee80211_txq *txq;
@@ -566,6 +585,7 @@ mt76_txq_schedule_list(struct mt76_phy *phy, enum mt76_txq_id qid)
 
 void mt76_txq_schedule(struct mt76_phy *phy, enum mt76_txq_id qid)
 {
+	printk(KERN_INFO "mt76_tx.c - mt76_txq_schedule");
 	int len;
 
 	if (qid >= 4)
@@ -588,6 +608,7 @@ EXPORT_SYMBOL_GPL(mt76_txq_schedule);
 static int
 mt76_txq_schedule_pending_wcid(struct mt76_phy *phy, struct mt76_wcid *wcid)
 {
+	printk(KERN_INFO "mt76_tx.c - mt76_txq_schedule_pending_wcid");
 	struct mt76_dev *dev = phy->dev;
 	struct ieee80211_sta *sta;
 	struct mt76_queue *q;
@@ -630,6 +651,7 @@ mt76_txq_schedule_pending_wcid(struct mt76_phy *phy, struct mt76_wcid *wcid)
 
 static void mt76_txq_schedule_pending(struct mt76_phy *phy)
 {
+	printk(KERN_INFO "mt76_tx.c - mt76_txq_schedule_pending");
 	if (list_empty(&phy->tx_list))
 		return;
 
@@ -662,6 +684,7 @@ static void mt76_txq_schedule_pending(struct mt76_phy *phy)
 
 void mt76_txq_schedule_all(struct mt76_phy *phy)
 {
+	printk(KERN_INFO "mt76_tx.c - mt76_txq_schedule_all");
 	int i;
 
 	mt76_txq_schedule_pending(phy);
@@ -672,6 +695,7 @@ EXPORT_SYMBOL_GPL(mt76_txq_schedule_all);
 
 void mt76_tx_worker_run(struct mt76_dev *dev)
 {
+	printk(KERN_INFO "mt76_tx.c - mt76_tx_worker_run");
 	struct mt76_phy *phy;
 	int i;
 
@@ -697,6 +721,7 @@ EXPORT_SYMBOL_GPL(mt76_tx_worker_run);
 
 void mt76_tx_worker(struct mt76_worker *w)
 {
+	printk(KERN_INFO "mt76_tx.c - mt76_tx_worker");
 	struct mt76_dev *dev = container_of(w, struct mt76_dev, tx_worker);
 
 	mt76_tx_worker_run(dev);
@@ -705,6 +730,7 @@ void mt76_tx_worker(struct mt76_worker *w)
 void mt76_stop_tx_queues(struct mt76_phy *phy, struct ieee80211_sta *sta,
 			 bool send_bar)
 {
+	printk(KERN_INFO "mt76_tx.c - mt76_stop_tx_queues");
 	int i;
 
 	for (i = 0; i < ARRAY_SIZE(sta->txq); i++) {
@@ -727,6 +753,7 @@ EXPORT_SYMBOL_GPL(mt76_stop_tx_queues);
 
 void mt76_wake_tx_queue(struct ieee80211_hw *hw, struct ieee80211_txq *txq)
 {
+	printk(KERN_INFO "mt76_tx.c - mt76_wake_tx_queue");
 	struct mt76_phy *phy = hw->priv;
 	struct mt76_dev *dev = phy->dev;
 
@@ -739,6 +766,7 @@ EXPORT_SYMBOL_GPL(mt76_wake_tx_queue);
 
 u8 mt76_ac_to_hwq(u8 ac)
 {
+	printk(KERN_INFO "mt76_tx.c - mt76_ac_to_hwq");
 	static const u8 wmm_queue_map[] = {
 		[IEEE80211_AC_BE] = 0,
 		[IEEE80211_AC_BK] = 1,
@@ -755,6 +783,7 @@ EXPORT_SYMBOL_GPL(mt76_ac_to_hwq);
 
 int mt76_skb_adjust_pad(struct sk_buff *skb, int pad)
 {
+	printk(KERN_INFO "mt76_tx.c - mt76_skb_adjust_pad");
 	struct sk_buff *iter, *last = skb;
 
 	/* First packet of a A-MSDU burst keeps track of the whole burst
@@ -781,6 +810,7 @@ EXPORT_SYMBOL_GPL(mt76_skb_adjust_pad);
 void mt76_queue_tx_complete(struct mt76_dev *dev, struct mt76_queue *q,
 			    struct mt76_queue_entry *e)
 {
+	printk(KERN_INFO "mt76_tx.c - mt76_queue_tx_complete");
 	if (e->skb)
 		dev->drv->tx_complete_skb(dev, e);
 
@@ -793,6 +823,7 @@ EXPORT_SYMBOL_GPL(mt76_queue_tx_complete);
 
 void __mt76_set_tx_blocked(struct mt76_dev *dev, bool blocked)
 {
+	printk(KERN_INFO "mt76_tx.c - __mt76_set_tx_blocked");
 	struct mt76_phy *phy = &dev->phy;
 	struct mt76_queue *q = phy->q_tx[0];
 
@@ -819,6 +850,7 @@ EXPORT_SYMBOL_GPL(__mt76_set_tx_blocked);
 
 int mt76_token_consume(struct mt76_dev *dev, struct mt76_txwi_cache **ptxwi)
 {
+	printk(KERN_INFO "mt76_tx.c - mt76_token_consume");
 	int token;
 
 	spin_lock_bh(&dev->token_lock);
@@ -845,6 +877,7 @@ EXPORT_SYMBOL_GPL(mt76_token_consume);
 int mt76_rx_token_consume(struct mt76_dev *dev, void *ptr,
 			  struct mt76_txwi_cache *t, dma_addr_t phys)
 {
+	printk(KERN_INFO "mt76_tx.c - mt76_rx_token_consume");
 	int token;
 
 	spin_lock_bh(&dev->rx_token_lock);
@@ -863,6 +896,7 @@ EXPORT_SYMBOL_GPL(mt76_rx_token_consume);
 struct mt76_txwi_cache *
 mt76_token_release(struct mt76_dev *dev, int token, bool *wake)
 {
+	printk(KERN_INFO "mt76_tx.c - mt76_token_release");
 	struct mt76_txwi_cache *txwi;
 
 	spin_lock_bh(&dev->token_lock);
@@ -892,6 +926,7 @@ EXPORT_SYMBOL_GPL(mt76_token_release);
 struct mt76_txwi_cache *
 mt76_rx_token_release(struct mt76_dev *dev, int token)
 {
+	printk(KERN_INFO "mt76_tx.c - mt76_rx_token_release");
 	struct mt76_txwi_cache *t;
 
 	spin_lock_bh(&dev->rx_token_lock);

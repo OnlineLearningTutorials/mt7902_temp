@@ -8,6 +8,7 @@
 
 void mt76_pci_disable_aspm(struct pci_dev *pdev)
 {
+	printk(KERN_INFO "mt76_pci.c - mt76_pci_disable_aspm");
 	struct pci_dev *parent = pdev->bus->self;
 	u16 aspm_conf, parent_aspm_conf = 0;
 

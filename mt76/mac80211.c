@@ -195,6 +195,7 @@ static const struct cfg80211_sar_capa mt76_sar_capa = {
 
 static int mt76_led_init(struct mt76_phy *phy)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_led_init");
 	struct mt76_dev *dev = phy->dev;
 	struct ieee80211_hw *hw = phy->hw;
 	struct device_node *np = dev->dev->of_node;
@@ -242,6 +243,7 @@ static int mt76_led_init(struct mt76_phy *phy)
 
 static void mt76_led_cleanup(struct mt76_phy *phy)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_led_cleanup");
 	if (!phy->leds.cdev.brightness_set && !phy->leds.cdev.blink_set)
 		return;
 
@@ -252,6 +254,7 @@ static void mt76_init_stream_cap(struct mt76_phy *phy,
 				 struct ieee80211_supported_band *sband,
 				 bool vht)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_init_stream_cap");
 	struct ieee80211_sta_ht_cap *ht_cap = &sband->ht_cap;
 	int i, nstream = hweight8(phy->antenna_mask);
 	struct ieee80211_sta_vht_cap *vht_cap;
@@ -292,6 +295,7 @@ static void mt76_init_stream_cap(struct mt76_phy *phy,
 
 void mt76_set_stream_caps(struct mt76_phy *phy, bool vht)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_set_stream_caps");
 	if (phy->cap.has_2ghz)
 		mt76_init_stream_cap(phy, &phy->sband_2g.sband, false);
 	if (phy->cap.has_5ghz)
@@ -307,6 +311,7 @@ mt76_init_sband(struct mt76_phy *phy, struct mt76_sband *msband,
 		struct ieee80211_rate *rates, int n_rates,
 		bool ht, bool vht)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_init_sband");
 	struct ieee80211_supported_band *sband = &msband->sband;
 	struct ieee80211_sta_vht_cap *vht_cap;
 	struct ieee80211_sta_ht_cap *ht_cap;
@@ -362,6 +367,7 @@ static int
 mt76_init_sband_2g(struct mt76_phy *phy, struct ieee80211_rate *rates,
 		   int n_rates)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_init_sband_2g");
 	phy->hw->wiphy->bands[NL80211_BAND_2GHZ] = &phy->sband_2g.sband;
 
 	return mt76_init_sband(phy, &phy->sband_2g, mt76_channels_2ghz,
@@ -373,6 +379,7 @@ static int
 mt76_init_sband_5g(struct mt76_phy *phy, struct ieee80211_rate *rates,
 		   int n_rates, bool vht)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_init_sband_5g");
 	phy->hw->wiphy->bands[NL80211_BAND_5GHZ] = &phy->sband_5g.sband;
 
 	return mt76_init_sband(phy, &phy->sband_5g, mt76_channels_5ghz,
@@ -384,6 +391,7 @@ static int
 mt76_init_sband_6g(struct mt76_phy *phy, struct ieee80211_rate *rates,
 		   int n_rates)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_init_sband_6g");
 	phy->hw->wiphy->bands[NL80211_BAND_6GHZ] = &phy->sband_6g.sband;
 
 	return mt76_init_sband(phy, &phy->sband_6g, mt76_channels_6ghz,
@@ -395,6 +403,7 @@ static void
 mt76_check_sband(struct mt76_phy *phy, struct mt76_sband *msband,
 		 enum nl80211_band band)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_check_sband");
 	struct ieee80211_supported_band *sband = &msband->sband;
 	bool found = false;
 	int i;
@@ -423,6 +432,7 @@ mt76_check_sband(struct mt76_phy *phy, struct mt76_sband *msband,
 static int
 mt76_phy_init(struct mt76_phy *phy, struct ieee80211_hw *hw)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_phy_init");
 	struct mt76_dev *dev = phy->dev;
 	struct wiphy *wiphy = hw->wiphy;
 
@@ -483,6 +493,7 @@ struct mt76_phy *
 mt76_alloc_phy(struct mt76_dev *dev, unsigned int size,
 	       const struct ieee80211_ops *ops, u8 band_idx)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_alloc_phy");
 	struct ieee80211_hw *hw;
 	unsigned int phy_size;
 	struct mt76_phy *phy;
@@ -516,6 +527,7 @@ EXPORT_SYMBOL_GPL(mt76_alloc_phy);
 int mt76_register_phy(struct mt76_phy *phy, bool vht,
 		      struct ieee80211_rate *rates, int n_rates)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_register_phy");
 	int ret;
 
 	ret = mt76_phy_init(phy, phy->hw);
@@ -564,6 +576,7 @@ EXPORT_SYMBOL_GPL(mt76_register_phy);
 
 void mt76_unregister_phy(struct mt76_phy *phy)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_unregister_phy");
 	struct mt76_dev *dev = phy->dev;
 
 	if (!test_bit(MT76_STATE_REGISTERED, &phy->state))
@@ -579,6 +592,7 @@ EXPORT_SYMBOL_GPL(mt76_unregister_phy);
 
 int mt76_create_page_pool(struct mt76_dev *dev, struct mt76_queue *q)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_create_page_pool");
 	struct page_pool_params pp_params = {
 		.order = 0,
 		.flags = 0,
@@ -623,6 +637,7 @@ mt76_alloc_device(struct device *pdev, unsigned int size,
 		  const struct ieee80211_ops *ops,
 		  const struct mt76_driver_ops *drv_ops)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_alloc_device");
 	struct ieee80211_hw *hw;
 	struct mt76_phy *phy;
 	struct mt76_dev *dev;
@@ -698,6 +713,7 @@ EXPORT_SYMBOL_GPL(mt76_alloc_device);
 int mt76_register_device(struct mt76_dev *dev, bool vht,
 			 struct ieee80211_rate *rates, int n_rates)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_register_device");
 	struct ieee80211_hw *hw = dev->hw;
 	struct mt76_phy *phy = &dev->phy;
 	int ret;
@@ -751,6 +767,7 @@ EXPORT_SYMBOL_GPL(mt76_register_device);
 
 void mt76_unregister_device(struct mt76_dev *dev)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_unregister_device");
 	struct ieee80211_hw *hw = dev->hw;
 
 	if (!test_bit(MT76_STATE_REGISTERED, &dev->phy.state))
@@ -766,6 +783,7 @@ EXPORT_SYMBOL_GPL(mt76_unregister_device);
 
 void mt76_free_device(struct mt76_dev *dev)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_free_device");
 	mt76_worker_teardown(&dev->tx_worker);
 	if (dev->wq) {
 		destroy_workqueue(dev->wq);
@@ -777,6 +795,7 @@ EXPORT_SYMBOL_GPL(mt76_free_device);
 
 static void mt76_rx_release_amsdu(struct mt76_phy *phy, enum mt76_rxq_id q)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_rx_release_amsdu");
 	struct sk_buff *skb = phy->rx_amsdu[q].head;
 	struct mt76_rx_status *status = (struct mt76_rx_status *)skb->cb;
 	struct mt76_dev *dev = phy->dev;
@@ -814,6 +833,7 @@ static void mt76_rx_release_amsdu(struct mt76_phy *phy, enum mt76_rxq_id q)
 static void mt76_rx_release_burst(struct mt76_phy *phy, enum mt76_rxq_id q,
 				  struct sk_buff *skb)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_rx_release_burst");
 	struct mt76_rx_status *status = (struct mt76_rx_status *)skb->cb;
 
 	if (phy->rx_amsdu[q].head &&
@@ -836,6 +856,7 @@ static void mt76_rx_release_burst(struct mt76_phy *phy, enum mt76_rxq_id q,
 
 void mt76_rx(struct mt76_dev *dev, enum mt76_rxq_id q, struct sk_buff *skb)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_rx");
 	struct mt76_rx_status *status = (struct mt76_rx_status *)skb->cb;
 	struct mt76_phy *phy = mt76_dev_phy(dev, status->phy_idx);
 
@@ -858,6 +879,7 @@ EXPORT_SYMBOL_GPL(mt76_rx);
 
 bool mt76_has_tx_pending(struct mt76_phy *phy)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_has_tx_pending");
 	struct mt76_queue *q;
 	int i;
 
@@ -874,6 +896,7 @@ EXPORT_SYMBOL_GPL(mt76_has_tx_pending);
 static struct mt76_channel_state *
 mt76_channel_state(struct mt76_phy *phy, struct ieee80211_channel *c)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_channel_state");
 	struct mt76_sband *msband;
 	int idx;
 
@@ -890,6 +913,7 @@ mt76_channel_state(struct mt76_phy *phy, struct ieee80211_channel *c)
 
 void mt76_update_survey_active_time(struct mt76_phy *phy, ktime_t time)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_update_survey_active_time");
 	struct mt76_channel_state *state = phy->chan_state;
 
 	state->cc_active += ktime_to_us(ktime_sub(time,
@@ -900,6 +924,7 @@ EXPORT_SYMBOL_GPL(mt76_update_survey_active_time);
 
 void mt76_update_survey(struct mt76_phy *phy)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_update_survey");
 	struct mt76_dev *dev = phy->dev;
 	ktime_t cur_time;
 
@@ -922,6 +947,7 @@ EXPORT_SYMBOL_GPL(mt76_update_survey);
 
 void mt76_set_channel(struct mt76_phy *phy)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_set_channel");
 	struct mt76_dev *dev = phy->dev;
 	struct ieee80211_hw *hw = phy->hw;
 	struct cfg80211_chan_def *chandef = &hw->conf.chandef;
@@ -949,6 +975,7 @@ EXPORT_SYMBOL_GPL(mt76_set_channel);
 int mt76_get_survey(struct ieee80211_hw *hw, int idx,
 		    struct survey_info *survey)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_get_survey");
 	struct mt76_phy *phy = hw->priv;
 	struct mt76_dev *dev = phy->dev;
 	struct mt76_sband *sband;
@@ -1014,6 +1041,7 @@ EXPORT_SYMBOL_GPL(mt76_get_survey);
 void mt76_wcid_key_setup(struct mt76_dev *dev, struct mt76_wcid *wcid,
 			 struct ieee80211_key_conf *key)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_wcid_key_setup");
 	struct ieee80211_key_seq seq;
 	int i;
 
@@ -1042,6 +1070,7 @@ EXPORT_SYMBOL(mt76_wcid_key_setup);
 
 int mt76_rx_signal(u8 chain_mask, s8 *chain_signal)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_rx_signal");
 	int signal = -128;
 	u8 chains;
 
@@ -1074,6 +1103,7 @@ mt76_rx_convert(struct mt76_dev *dev, struct sk_buff *skb,
 		struct ieee80211_hw **hw,
 		struct ieee80211_sta **sta)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_rx_convert");
 	struct ieee80211_rx_status *status = IEEE80211_SKB_RXCB(skb);
 	struct ieee80211_hdr *hdr = mt76_skb_get_hdr(skb);
 	struct mt76_rx_status mstat;
@@ -1123,6 +1153,7 @@ mt76_rx_convert(struct mt76_dev *dev, struct sk_buff *skb,
 static void
 mt76_check_ccmp_pn(struct sk_buff *skb)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_check_ccmp_pn");
 	struct mt76_rx_status *status = (struct mt76_rx_status *)skb->cb;
 	struct mt76_wcid *wcid = status->wcid;
 	struct ieee80211_hdr *hdr;
@@ -1182,6 +1213,7 @@ static void
 mt76_airtime_report(struct mt76_dev *dev, struct mt76_rx_status *status,
 		    int len)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_airtime_report");
 	struct mt76_wcid *wcid = status->wcid;
 	struct ieee80211_rx_status info = {
 		.enc_flags = status->enc_flags,
@@ -1210,6 +1242,7 @@ mt76_airtime_report(struct mt76_dev *dev, struct mt76_rx_status *status,
 static void
 mt76_airtime_flush_ampdu(struct mt76_dev *dev)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_airtime_flush_ampdu");
 	struct mt76_wcid *wcid;
 	int wcid_idx;
 
@@ -1232,6 +1265,7 @@ mt76_airtime_flush_ampdu(struct mt76_dev *dev)
 static void
 mt76_airtime_check(struct mt76_dev *dev, struct sk_buff *skb)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_airtime_check");
 	struct mt76_rx_status *status = (struct mt76_rx_status *)skb->cb;
 	struct mt76_wcid *wcid = status->wcid;
 
@@ -1272,6 +1306,7 @@ mt76_airtime_check(struct mt76_dev *dev, struct sk_buff *skb)
 static void
 mt76_check_sta(struct mt76_dev *dev, struct sk_buff *skb)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_check_sta");
 	struct mt76_rx_status *status = (struct mt76_rx_status *)skb->cb;
 	struct ieee80211_hdr *hdr = mt76_skb_get_hdr(skb);
 	struct ieee80211_sta *sta;
@@ -1340,6 +1375,7 @@ mt76_check_sta(struct mt76_dev *dev, struct sk_buff *skb)
 void mt76_rx_complete(struct mt76_dev *dev, struct sk_buff_head *frames,
 		      struct napi_struct *napi)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_rx_complete");
 	struct ieee80211_sta *sta;
 	struct ieee80211_hw *hw;
 	struct sk_buff *skb, *tmp;
@@ -1380,6 +1416,7 @@ void mt76_rx_complete(struct mt76_dev *dev, struct sk_buff_head *frames,
 void mt76_rx_poll_complete(struct mt76_dev *dev, enum mt76_rxq_id q,
 			   struct napi_struct *napi)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_rx_poll_complete");
 	struct sk_buff_head frames;
 	struct sk_buff *skb;
 
@@ -1401,6 +1438,7 @@ static int
 mt76_sta_add(struct mt76_phy *phy, struct ieee80211_vif *vif,
 	     struct ieee80211_sta *sta)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_sta_add");
 	struct mt76_wcid *wcid = (struct mt76_wcid *)sta->drv_priv;
 	struct mt76_dev *dev = phy->dev;
 	int ret;
@@ -1438,6 +1476,7 @@ out:
 void __mt76_sta_remove(struct mt76_dev *dev, struct ieee80211_vif *vif,
 		       struct ieee80211_sta *sta)
 {
+	printk(KERN_INFO "mt76_mac80211.c - __mt76_sta_remove ");
 	struct mt76_wcid *wcid = (struct mt76_wcid *)sta->drv_priv;
 	int i, idx = wcid->idx;
 
@@ -1458,6 +1497,7 @@ static void
 mt76_sta_remove(struct mt76_dev *dev, struct ieee80211_vif *vif,
 		struct ieee80211_sta *sta)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_sta_remove");
 	mutex_lock(&dev->mutex);
 	__mt76_sta_remove(dev, vif, sta);
 	mutex_unlock(&dev->mutex);
@@ -1468,6 +1508,7 @@ int mt76_sta_state(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
 		   enum ieee80211_sta_state old_state,
 		   enum ieee80211_sta_state new_state)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_sta_state");
 	struct mt76_phy *phy = hw->priv;
 	struct mt76_dev *dev = phy->dev;
 
@@ -1491,6 +1532,7 @@ EXPORT_SYMBOL_GPL(mt76_sta_state);
 void mt76_sta_pre_rcu_remove(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
 			     struct ieee80211_sta *sta)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_sta_pre_rcu_remove");
 	struct mt76_phy *phy = hw->priv;
 	struct mt76_dev *dev = phy->dev;
 	struct mt76_wcid *wcid = (struct mt76_wcid *)sta->drv_priv;
@@ -1505,6 +1547,7 @@ EXPORT_SYMBOL_GPL(mt76_sta_pre_rcu_remove);
 
 void mt76_wcid_init(struct mt76_wcid *wcid)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_wcid_init");
 	INIT_LIST_HEAD(&wcid->tx_list);
 	skb_queue_head_init(&wcid->tx_pending);
 
@@ -1515,6 +1558,7 @@ EXPORT_SYMBOL_GPL(mt76_wcid_init);
 
 void mt76_wcid_cleanup(struct mt76_dev *dev, struct mt76_wcid *wcid)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_wcid_cleanup");
 	struct mt76_phy *phy = dev->phys[wcid->phy_idx];
 	struct ieee80211_hw *hw;
 	struct sk_buff_head list;
@@ -1547,6 +1591,7 @@ EXPORT_SYMBOL_GPL(mt76_wcid_cleanup);
 int mt76_get_txpower(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
 		     int *dbm)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_get_txpower");
 	struct mt76_phy *phy = hw->priv;
 	int n_chains = hweight16(phy->chainmask);
 	int delta = mt76_tx_power_nss_delta(n_chains);
@@ -1560,6 +1605,7 @@ EXPORT_SYMBOL_GPL(mt76_get_txpower);
 int mt76_init_sar_power(struct ieee80211_hw *hw,
 			const struct cfg80211_sar_specs *sar)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_init_sar_power");
 	struct mt76_phy *phy = hw->priv;
 	const struct cfg80211_sar_capa *capa = hw->wiphy->sar_capa;
 	int i;
@@ -1587,6 +1633,7 @@ int mt76_get_sar_power(struct mt76_phy *phy,
 		       struct ieee80211_channel *chan,
 		       int power)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_get_sar_power");
 	const struct cfg80211_sar_capa *capa = phy->hw->wiphy->sar_capa;
 	int freq, i;
 
@@ -1613,12 +1660,14 @@ EXPORT_SYMBOL_GPL(mt76_get_sar_power);
 static void
 __mt76_csa_finish(void *priv, u8 *mac, struct ieee80211_vif *vif)
 {
+	printk(KERN_INFO "mt76_mac80211.c - __mt76_csa_finish");
 	if (vif->bss_conf.csa_active && ieee80211_beacon_cntdwn_is_complete(vif))
 		ieee80211_csa_finish(vif);
 }
 
 void mt76_csa_finish(struct mt76_dev *dev)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_csa_finish");
 	if (!dev->csa_complete)
 		return;
 
@@ -1633,6 +1682,7 @@ EXPORT_SYMBOL_GPL(mt76_csa_finish);
 static void
 __mt76_csa_check(void *priv, u8 *mac, struct ieee80211_vif *vif)
 {
+	printk(KERN_INFO "mt76_mac80211.c - __mt76_csa_check");
 	struct mt76_dev *dev = priv;
 
 	if (!vif->bss_conf.csa_active)
@@ -1643,6 +1693,7 @@ __mt76_csa_check(void *priv, u8 *mac, struct ieee80211_vif *vif)
 
 void mt76_csa_check(struct mt76_dev *dev)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_csa_check");
 	ieee80211_iterate_active_interfaces_atomic(dev->hw,
 		IEEE80211_IFACE_ITER_RESUME_ALL,
 		__mt76_csa_check, dev);
@@ -1652,12 +1703,14 @@ EXPORT_SYMBOL_GPL(mt76_csa_check);
 int
 mt76_set_tim(struct ieee80211_hw *hw, struct ieee80211_sta *sta, bool set)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_set_tim");
 	return 0;
 }
 EXPORT_SYMBOL_GPL(mt76_set_tim);
 
 void mt76_insert_ccmp_hdr(struct sk_buff *skb, u8 key_id)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_insert_ccmp_hdr");
 	struct mt76_rx_status *status = (struct mt76_rx_status *)skb->cb;
 	int hdr_len = ieee80211_get_hdrlen_from_skb(skb);
 	u8 *hdr, *pn = status->iv;
@@ -1683,6 +1736,7 @@ int mt76_get_rate(struct mt76_dev *dev,
 		  struct ieee80211_supported_band *sband,
 		  int idx, bool cck)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_get_rate");
 	int i, offset = 0, len = sband->n_bitrates;
 
 	if (cck) {
@@ -1706,6 +1760,7 @@ EXPORT_SYMBOL_GPL(mt76_get_rate);
 void mt76_sw_scan(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
 		  const u8 *mac)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_sw_scan");
 	struct mt76_phy *phy = hw->priv;
 
 	set_bit(MT76_SCANNING, &phy->state);
@@ -1714,6 +1769,7 @@ EXPORT_SYMBOL_GPL(mt76_sw_scan);
 
 void mt76_sw_scan_complete(struct ieee80211_hw *hw, struct ieee80211_vif *vif)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_sw_scan_complete");
 	struct mt76_phy *phy = hw->priv;
 
 	clear_bit(MT76_SCANNING, &phy->state);
@@ -1722,6 +1778,7 @@ EXPORT_SYMBOL_GPL(mt76_sw_scan_complete);
 
 int mt76_get_antenna(struct ieee80211_hw *hw, u32 *tx_ant, u32 *rx_ant)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_get_antenna");
 	struct mt76_phy *phy = hw->priv;
 	struct mt76_dev *dev = phy->dev;
 
@@ -1738,6 +1795,7 @@ struct mt76_queue *
 mt76_init_queue(struct mt76_dev *dev, int qid, int idx, int n_desc,
 		int ring_base, void *wed, u32 flags)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_init_queue");
 	struct mt76_queue *hwq;
 	int err;
 
@@ -1759,6 +1817,7 @@ EXPORT_SYMBOL_GPL(mt76_init_queue);
 u16 mt76_calculate_default_rate(struct mt76_phy *phy,
 				struct ieee80211_vif *vif, int rateidx)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_calculate_default_rate");
 	struct mt76_vif *mvif = (struct mt76_vif *)vif->drv_priv;
 	struct cfg80211_chan_def *chandef = mvif->ctx ?
 					    &mvif->ctx->def :
@@ -1783,6 +1842,7 @@ EXPORT_SYMBOL_GPL(mt76_calculate_default_rate);
 void mt76_ethtool_worker(struct mt76_ethtool_worker_info *wi,
 			 struct mt76_sta_stats *stats, bool eht)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_ethtool_worker");
 	int i, ei = wi->initial_stat_idx;
 	u64 *data = wi->data;
 
@@ -1818,6 +1878,7 @@ EXPORT_SYMBOL_GPL(mt76_ethtool_worker);
 
 void mt76_ethtool_page_pool_stats(struct mt76_dev *dev, u64 *data, int *index)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_ethtool_page_pool_stats");
 #ifdef CONFIG_PAGE_POOL_STATS
 	struct page_pool_stats stats = {};
 	int i;
@@ -1833,6 +1894,7 @@ EXPORT_SYMBOL_GPL(mt76_ethtool_page_pool_stats);
 
 enum mt76_dfs_state mt76_phy_dfs_state(struct mt76_phy *phy)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_dfs_state mt76_phy_dfs_state");
 	struct ieee80211_hw *hw = phy->hw;
 	struct mt76_dev *dev = phy->dev;
 
@@ -1860,6 +1922,7 @@ int mt76_net_setup_tc(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
 		      struct net_device *netdev, enum tc_setup_type type,
 		      void *type_data)
 {
+	printk(KERN_INFO "mt76_mac80211.c - mt76_net_setup_tc");
 	struct mt76_phy *phy = hw->priv;
 	struct mtk_wed_device *wed = &phy->dev->mmio.wed;
 

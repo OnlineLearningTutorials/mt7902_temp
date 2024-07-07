@@ -7,6 +7,7 @@
 static int
 mt792x_acpi_read(struct mt792x_dev *dev, u8 *method, u8 **tbl, u32 *len)
 {
+	printk(KERN_INFO "mt792x_acpi_sar.c - mt792x_acpi_read");
 	struct acpi_buffer buf = { ACPI_ALLOCATE_BUFFER, NULL };
 	struct mt76_dev *mdev = &dev->mt76;
 	union acpi_object *sar_root;
@@ -69,6 +70,7 @@ free:
 static int
 mt792x_asar_acpi_read_mtcl(struct mt792x_dev *dev, u8 **table, u8 *version)
 {
+	printk(KERN_INFO "mt792x_acpi_sar.c - mt792x_asar_acpi_read_mtcl");
 	int ret;
 
 	*version = ((ret = mt792x_acpi_read(dev, MT792x_ACPI_MTCL, table, NULL)) < 0)
@@ -81,6 +83,7 @@ mt792x_asar_acpi_read_mtcl(struct mt792x_dev *dev, u8 **table, u8 *version)
 static int
 mt792x_asar_acpi_read_mtds(struct mt792x_dev *dev, u8 **table, u8 version)
 {
+	printk(KERN_INFO "mt792x_acpi_sar.c - mt792x_asar_acpi_read_mtds");
 	int len, ret, sarlen, prelen, tblcnt;
 	bool enable;
 
@@ -116,6 +119,7 @@ mt792x_asar_acpi_read_mtds(struct mt792x_dev *dev, u8 **table, u8 version)
 static int
 mt792x_asar_acpi_read_mtgs(struct mt792x_dev *dev, u8 **table, u8 version)
 {
+	printk(KERN_INFO "mt792x_acpi_sar.c - mt792x_asar_acpi_read_mtgs");
 	int len, ret, sarlen, prelen, tblcnt;
 
 	ret = mt792x_acpi_read(dev, MT792x_ACPI_MTGS, table, &len);
@@ -147,6 +151,7 @@ mt792x_asar_acpi_read_mtgs(struct mt792x_dev *dev, u8 **table, u8 version)
 static int
 mt792x_asar_acpi_read_mtfg(struct mt792x_dev *dev, u8 **table)
 {
+	printk(KERN_INFO "mt792x_acpi_sar.c - mt792x_asar_acpi_read_mtfg");
 	int len, ret;
 
 	ret = mt792x_acpi_read(dev, MT792x_ACPI_MTFG, table, &len);
@@ -161,6 +166,7 @@ mt792x_asar_acpi_read_mtfg(struct mt792x_dev *dev, u8 **table)
 
 int mt792x_init_acpi_sar(struct mt792x_dev *dev)
 {
+	printk(KERN_INFO "mt792x_acpi_sar.c - mt792x_init_acpi_sar");
 	struct mt792x_acpi_sar *asar;
 	int ret;
 
@@ -203,6 +209,7 @@ static s8
 mt792x_asar_get_geo_pwr(struct mt792x_phy *phy,
 			enum nl80211_band band, s8 dyn_power)
 {
+	printk(KERN_INFO "mt792x_acpi_sar.c - mt792x_asar_get_geo_pwr");
 	struct mt792x_acpi_sar *asar = phy->acpisar;
 	struct mt792x_asar_geo_band *band_pwr;
 	s8 geo_power;
@@ -259,6 +266,7 @@ mt792x_asar_range_pwr(struct mt792x_phy *phy,
 		      const struct cfg80211_sar_freq_ranges *range,
 		      u8 idx)
 {
+	printk(KERN_INFO "mt792x_acpi_sar.c - mt792x_asar_range_pwr");
 	const struct cfg80211_sar_capa *capa = phy->mt76->hw->wiphy->sar_capa;
 	struct mt792x_acpi_sar *asar = phy->acpisar;
 	u8 *limit, band, max;
@@ -289,6 +297,7 @@ mt792x_asar_range_pwr(struct mt792x_phy *phy,
 
 int mt792x_init_acpi_sar_power(struct mt792x_phy *phy, bool set_default)
 {
+	printk(KERN_INFO "mt792x_acpi_sar.c - mt792x_init_acpi_sar_power");
 	const struct cfg80211_sar_capa *capa = phy->mt76->hw->wiphy->sar_capa;
 	int i;
 
@@ -316,6 +325,7 @@ EXPORT_SYMBOL_GPL(mt792x_init_acpi_sar_power);
 
 u8 mt792x_acpi_get_flags(struct mt792x_phy *phy)
 {
+	printk(KERN_INFO "mt792x_acpi_sar.c - mt792x_acpi_get_flags");
 	struct mt792x_acpi_sar *acpisar = phy->acpisar;
 	struct mt792x_asar_fg *fg;
 	struct {
@@ -354,6 +364,7 @@ EXPORT_SYMBOL_GPL(mt792x_acpi_get_flags);
 static u8
 mt792x_acpi_get_mtcl_map(int row, int column, struct mt792x_asar_cl *cl)
 {
+	printk(KERN_INFO "mt792x_acpi_sar.c - mt792x_acpi_get_mtcl_map");
 	u8 config = 0;
 
 	if (cl->cl6g[row] & BIT(column))
@@ -366,6 +377,7 @@ mt792x_acpi_get_mtcl_map(int row, int column, struct mt792x_asar_cl *cl)
 
 u8 mt792x_acpi_get_mtcl_conf(struct mt792x_phy *phy, char *alpha2)
 {
+	printk(KERN_INFO "mt792x_acpi_sar.c - mt792x_acpi_get_mtcl_conf");
 	static const char * const cc_list_all[] = {
 		"00", "EU", "AR", "AU", "AZ", "BY", "BO", "BR",
 		"CA", "CL", "CN", "ID", "JP", "MY", "MX", "ME",

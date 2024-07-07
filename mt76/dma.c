@@ -41,6 +41,7 @@
 static struct mt76_txwi_cache *
 mt76_alloc_txwi(struct mt76_dev *dev)
 {
+	printk(KERN_INFO "mt76_dma.c - mt76_alloc_txwi");
 	struct mt76_txwi_cache *t;
 	dma_addr_t addr;
 	u8 *txwi;
@@ -67,6 +68,7 @@ mt76_alloc_txwi(struct mt76_dev *dev)
 static struct mt76_txwi_cache *
 mt76_alloc_rxwi(struct mt76_dev *dev)
 {
+	printk(KERN_INFO "mt76_dma.c - mt76_alloc_rxwi");
 	struct mt76_txwi_cache *t;
 
 	t = kzalloc(L1_CACHE_ALIGN(sizeof(*t)), GFP_ATOMIC);
@@ -80,6 +82,7 @@ mt76_alloc_rxwi(struct mt76_dev *dev)
 static struct mt76_txwi_cache *
 __mt76_get_txwi(struct mt76_dev *dev)
 {
+	printk(KERN_INFO "mt76_dma.c - __mt76_get_txwi");
 	struct mt76_txwi_cache *t = NULL;
 
 	spin_lock(&dev->lock);
@@ -96,6 +99,7 @@ __mt76_get_txwi(struct mt76_dev *dev)
 static struct mt76_txwi_cache *
 __mt76_get_rxwi(struct mt76_dev *dev)
 {
+	printk(KERN_INFO "mt76_dma.c - __mt76_get_rxwi");
 	struct mt76_txwi_cache *t = NULL;
 
 	spin_lock_bh(&dev->wed_lock);
@@ -112,6 +116,7 @@ __mt76_get_rxwi(struct mt76_dev *dev)
 static struct mt76_txwi_cache *
 mt76_get_txwi(struct mt76_dev *dev)
 {
+	printk(KERN_INFO "mt76_dma.c - mt76_get_txwi");
 	struct mt76_txwi_cache *t = __mt76_get_txwi(dev);
 
 	if (t)
@@ -123,6 +128,7 @@ mt76_get_txwi(struct mt76_dev *dev)
 struct mt76_txwi_cache *
 mt76_get_rxwi(struct mt76_dev *dev)
 {
+	printk(KERN_INFO "mt76_dma.c - mt76_get_rxwi");
 	struct mt76_txwi_cache *t = __mt76_get_rxwi(dev);
 
 	if (t)
@@ -135,6 +141,7 @@ EXPORT_SYMBOL_GPL(mt76_get_rxwi);
 void
 mt76_put_txwi(struct mt76_dev *dev, struct mt76_txwi_cache *t)
 {
+	printk(KERN_INFO "mt76_dma.c - mt76_put_txwi");
 	if (!t)
 		return;
 
@@ -147,6 +154,7 @@ EXPORT_SYMBOL_GPL(mt76_put_txwi);
 void
 mt76_put_rxwi(struct mt76_dev *dev, struct mt76_txwi_cache *t)
 {
+	printk(KERN_INFO "mt76_dma.c - mt76_put_rxwi");
 	if (!t)
 		return;
 
@@ -159,6 +167,7 @@ EXPORT_SYMBOL_GPL(mt76_put_rxwi);
 static void
 mt76_free_pending_txwi(struct mt76_dev *dev)
 {
+	printk(KERN_INFO "mt76_dma.c - mt76_free_pending_txwi");
 	struct mt76_txwi_cache *t;
 
 	local_bh_disable();
@@ -173,6 +182,7 @@ mt76_free_pending_txwi(struct mt76_dev *dev)
 void
 mt76_free_pending_rxwi(struct mt76_dev *dev)
 {
+	printk(KERN_INFO "mt76_dma.c - mt76_free_pending_rxwi");
 	struct mt76_txwi_cache *t;
 
 	local_bh_disable();
@@ -188,6 +198,7 @@ EXPORT_SYMBOL_GPL(mt76_free_pending_rxwi);
 static void
 mt76_dma_sync_idx(struct mt76_dev *dev, struct mt76_queue *q)
 {
+	printk(KERN_INFO "mt76_dma.c - mt76_dma_sync_idx");
 	Q_WRITE(q, desc_base, q->desc_dma);
 	if (q->flags & MT_QFLAG_WED_RRO_EN)
 		Q_WRITE(q, ring_size, MT_DMA_RRO_EN | q->ndesc);
@@ -201,6 +212,7 @@ static void
 __mt76_dma_queue_reset(struct mt76_dev *dev, struct mt76_queue *q,
 		       bool reset_idx)
 {
+	printk(KERN_INFO "mt76_dma.c - __mt76_dma_queue_reset");
 	if (!q || !q->ndesc)
 		return;
 
@@ -222,6 +234,7 @@ __mt76_dma_queue_reset(struct mt76_dev *dev, struct mt76_queue *q,
 static void
 mt76_dma_queue_reset(struct mt76_dev *dev, struct mt76_queue *q)
 {
+	printk(KERN_INFO "mt76_dma.c - mt76_dma_queue_reset");
 	__mt76_dma_queue_reset(dev, q, true);
 }
 
@@ -229,6 +242,7 @@ static int
 mt76_dma_add_rx_buf(struct mt76_dev *dev, struct mt76_queue *q,
 		    struct mt76_queue_buf *buf, void *data)
 {
+	//printk(KERN_INFO "mt76_dma.c - mt76_dma_add_rx_buf");
 	struct mt76_queue_entry *entry = &q->entry[q->head];
 	struct mt76_txwi_cache *txwi = NULL;
 	struct mt76_desc *desc;
@@ -288,6 +302,7 @@ mt76_dma_add_buf(struct mt76_dev *dev, struct mt76_queue *q,
 		 struct mt76_queue_buf *buf, int nbufs, u32 info,
 		 struct sk_buff *skb, void *txwi)
 {
+	printk(KERN_INFO "mt76_dma.c - mt76_dma_add_buf");
 	struct mt76_queue_entry *entry;
 	struct mt76_desc *desc;
 	int i, idx = -1;
@@ -356,6 +371,7 @@ static void
 mt76_dma_tx_cleanup_idx(struct mt76_dev *dev, struct mt76_queue *q, int idx,
 			struct mt76_queue_entry *prev_e)
 {
+	printk(KERN_INFO "mt76_dma.c - mt76_dma_tx_cleanup_idx");
 	struct mt76_queue_entry *e = &q->entry[idx];
 
 	if (!e->skip_buf0)
@@ -376,6 +392,7 @@ mt76_dma_tx_cleanup_idx(struct mt76_dev *dev, struct mt76_queue *q, int idx,
 static void
 mt76_dma_kick_queue(struct mt76_dev *dev, struct mt76_queue *q)
 {
+	printk(KERN_INFO "mt76_dma.c - mt76_dma_kick_queue");
 	wmb();
 	Q_WRITE(q, cpu_idx, q->head);
 }
@@ -383,6 +400,7 @@ mt76_dma_kick_queue(struct mt76_dev *dev, struct mt76_queue *q)
 static void
 mt76_dma_tx_cleanup(struct mt76_dev *dev, struct mt76_queue *q, bool flush)
 {
+	printk(KERN_INFO "mt76_dma.c - mt76_dma_tx_cleanup");
 	struct mt76_queue_entry entry;
 	int last;
 
@@ -424,6 +442,7 @@ static void *
 mt76_dma_get_buf(struct mt76_dev *dev, struct mt76_queue *q, int idx,
 		 int *len, u32 *info, bool *more, bool *drop)
 {
+	//printk(KERN_INFO "mt76_dma.c - mt76_dma_get_buf");
 	struct mt76_queue_entry *e = &q->entry[idx];
 	struct mt76_desc *desc = &q->desc[idx];
 	u32 ctrl, desc_info, buf1;
@@ -478,6 +497,7 @@ static void *
 mt76_dma_dequeue(struct mt76_dev *dev, struct mt76_queue *q, bool flush,
 		 int *len, u32 *info, bool *more, bool *drop)
 {
+	//printk(KERN_INFO "mt76_dma.c - mt76_dma_dequeue");
 	int idx = q->tail;
 
 	*more = false;
@@ -504,6 +524,7 @@ static int
 mt76_dma_tx_queue_skb_raw(struct mt76_dev *dev, struct mt76_queue *q,
 			  struct sk_buff *skb, u32 tx_info)
 {
+	printk(KERN_INFO "mt76_dma.c - mt76_dma_tx_queue_skb_raw");
 	struct mt76_queue_buf buf = {};
 	dma_addr_t addr;
 
@@ -538,6 +559,7 @@ mt76_dma_tx_queue_skb(struct mt76_dev *dev, struct mt76_queue *q,
 		      enum mt76_txq_id qid, struct sk_buff *skb,
 		      struct mt76_wcid *wcid, struct ieee80211_sta *sta)
 {
+	printk(KERN_INFO "mt76_dma.c - mt76_dma_tx_queue_skb");
 	struct ieee80211_tx_status status = {
 		.sta = sta,
 	};
@@ -636,6 +658,7 @@ static int
 mt76_dma_rx_fill(struct mt76_dev *dev, struct mt76_queue *q,
 		 bool allow_direct)
 {
+	printk(KERN_INFO "mt76_dma.c - mt76_dma_rx_fill");
 	int len = SKB_WITH_OVERHEAD(q->buf_size);
 	int frames = 0;
 
@@ -683,6 +706,7 @@ done:
 
 int mt76_dma_wed_setup(struct mt76_dev *dev, struct mt76_queue *q, bool reset)
 {
+	printk(KERN_INFO "mt76_dma.c - mt76_dma_wed_setup");
 #ifdef CONFIG_NET_MEDIATEK_SOC_WED
 	int ret = 0, type, ring;
 	u16 flags;
@@ -761,6 +785,7 @@ mt76_dma_alloc_queue(struct mt76_dev *dev, struct mt76_queue *q,
 		     int idx, int n_desc, int bufsize,
 		     u32 ring_base)
 {
+	printk(KERN_INFO "mt76_dma.c - mt76_dma_alloc_queue");
 	int ret, size;
 
 	spin_lock_init(&q->lock);
@@ -818,6 +843,7 @@ mt76_dma_alloc_queue(struct mt76_dev *dev, struct mt76_queue *q,
 static void
 mt76_dma_rx_cleanup(struct mt76_dev *dev, struct mt76_queue *q)
 {
+	printk(KERN_INFO "mt76_dma.c - mt76_dma_rx_cleanup");
 	void *buf;
 	bool more;
 
@@ -848,6 +874,7 @@ mt76_dma_rx_cleanup(struct mt76_dev *dev, struct mt76_queue *q)
 static void
 mt76_dma_rx_reset(struct mt76_dev *dev, enum mt76_rxq_id qid)
 {
+	printk(KERN_INFO "mt76_dma.c - mt76_dma_rx_reset");
 	struct mt76_queue *q = &dev->q_rx[qid];
 
 	if (!q->ndesc)
@@ -880,6 +907,7 @@ static void
 mt76_add_fragment(struct mt76_dev *dev, struct mt76_queue *q, void *data,
 		  int len, bool more, u32 info, bool allow_direct)
 {
+	printk(KERN_INFO "mt76_dma.c - mt76_add_fragment");
 	struct sk_buff *skb = q->rx_head;
 	struct skb_shared_info *shinfo = skb_shinfo(skb);
 	int nr_frags = shinfo->nr_frags;
@@ -906,6 +934,7 @@ mt76_add_fragment(struct mt76_dev *dev, struct mt76_queue *q, void *data,
 static int
 mt76_dma_rx_process(struct mt76_dev *dev, struct mt76_queue *q, int budget)
 {
+	printk(KERN_INFO "mt76_dma.c - mt76_dma_rx_process");
 	int len, data_len, done = 0, dma_idx;
 	struct sk_buff *skb;
 	unsigned char *data;
@@ -990,6 +1019,7 @@ free_frag:
 
 int mt76_dma_rx_poll(struct napi_struct *napi, int budget)
 {
+	printk(KERN_INFO "mt76_dma.c - mt76_dma_rx_poll");
 	struct mt76_dev *dev;
 	int qid, done = 0, cur;
 
@@ -1017,6 +1047,7 @@ static int
 mt76_dma_init(struct mt76_dev *dev,
 	      int (*poll)(struct napi_struct *napi, int budget))
 {
+	printk(KERN_INFO "mt76_dma.c - mt76_dma_init");
 	int i;
 
 	init_dummy_netdev(&dev->napi_dev);
@@ -1050,12 +1081,14 @@ static const struct mt76_queue_ops mt76_dma_ops = {
 
 void mt76_dma_attach(struct mt76_dev *dev)
 {
+	printk(KERN_INFO "mt76_dma.c - mt76_dma_attach");
 	dev->queue_ops = &mt76_dma_ops;
 }
 EXPORT_SYMBOL_GPL(mt76_dma_attach);
 
 void mt76_dma_wed_reset(struct mt76_dev *dev)
 {
+	printk(KERN_INFO "mt76_dma.c - mt76_dma_wed_reset");
 	struct mt76_mmio *mmio = &dev->mmio;
 
 	if (!test_bit(MT76_STATE_WED_RESET, &dev->phy.state))
@@ -1070,6 +1103,7 @@ EXPORT_SYMBOL_GPL(mt76_dma_wed_reset);
 
 void mt76_dma_cleanup(struct mt76_dev *dev)
 {
+	printk(KERN_INFO "mt76_dma.c - mt76_dma_cleanup");
 	int i;
 
 	mt76_worker_disable(&dev->tx_worker);

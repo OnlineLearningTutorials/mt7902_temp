@@ -7,6 +7,7 @@
 static int
 mt76_reg_set(void *data, u64 val)
 {
+	printk(KERN_INFO "mt76_debugfs.c - mt76_reg_set");
 	struct mt76_dev *dev = data;
 
 	__mt76_wr(dev, dev->debugfs_reg, val);
@@ -16,6 +17,7 @@ mt76_reg_set(void *data, u64 val)
 static int
 mt76_reg_get(void *data, u64 *val)
 {
+	printk(KERN_INFO "mt76_debugfs.c - mt76_reg_get");
 	struct mt76_dev *dev = data;
 
 	*val = __mt76_rr(dev, dev->debugfs_reg);
@@ -28,6 +30,7 @@ DEFINE_DEBUGFS_ATTRIBUTE(fops_regval, mt76_reg_get, mt76_reg_set,
 static int
 mt76_napi_threaded_set(void *data, u64 val)
 {
+	printk(KERN_INFO "mt76_debugfs.c - mt76_napi_threaded_set");
 	struct mt76_dev *dev = data;
 
 	if (!mt76_is_mmio(dev))
@@ -42,6 +45,7 @@ mt76_napi_threaded_set(void *data, u64 val)
 static int
 mt76_napi_threaded_get(void *data, u64 *val)
 {
+	printk(KERN_INFO "mt76_debugfs.c - mt76_napi_threaded_get");
 	struct mt76_dev *dev = data;
 
 	*val = dev->napi_dev.threaded;
@@ -53,6 +57,7 @@ DEFINE_DEBUGFS_ATTRIBUTE(fops_napi_threaded, mt76_napi_threaded_get,
 
 int mt76_queues_read(struct seq_file *s, void *data)
 {
+	printk(KERN_INFO "mt76_debugfs.c -  mt76_queues_read");
 	struct mt76_dev *dev = dev_get_drvdata(s->private);
 	int i;
 
@@ -73,6 +78,7 @@ EXPORT_SYMBOL_GPL(mt76_queues_read);
 
 static int mt76_rx_queues_read(struct seq_file *s, void *data)
 {
+	printk(KERN_INFO "mt76_debugfs.c - mt76_rx_queues_read");
 	struct mt76_dev *dev = dev_get_drvdata(s->private);
 	int i, queued;
 
@@ -91,6 +97,7 @@ static int mt76_rx_queues_read(struct seq_file *s, void *data)
 void mt76_seq_puts_array(struct seq_file *file, const char *str,
 			 s8 *val, int len)
 {
+	printk(KERN_INFO "mt76_debugfs.c - mt76_seq_puts_array");
 	int i;
 
 	seq_printf(file, "%10s:", str);
@@ -104,6 +111,7 @@ struct dentry *
 mt76_register_debugfs_fops(struct mt76_phy *phy,
 			   const struct file_operations *ops)
 {
+	printk(KERN_INFO "mt76_debugfs.c - mt76_register_debugfs_fops");
 	const struct file_operations *fops = ops ? ops : &fops_regval;
 	struct mt76_dev *dev = phy->dev;
 	struct dentry *dir;

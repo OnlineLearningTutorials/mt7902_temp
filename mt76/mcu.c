@@ -9,6 +9,7 @@ struct sk_buff *
 __mt76_mcu_msg_alloc(struct mt76_dev *dev, const void *data,
 		     int len, int data_len, gfp_t gfp)
 {
+	printk(KERN_INFO "mt76_mcu.c - __mt76_mcu_msg_alloc");
 	const struct mt76_mcu_ops *ops = dev->mcu_ops;
 	struct sk_buff *skb;
 
@@ -32,6 +33,7 @@ EXPORT_SYMBOL_GPL(__mt76_mcu_msg_alloc);
 struct sk_buff *mt76_mcu_get_response(struct mt76_dev *dev,
 				      unsigned long expires)
 {
+	printk(KERN_INFO "mt76_mcu.c - mt76_mcu_get_response");
 	unsigned long timeout;
 
 	if (!time_is_after_jiffies(expires))
@@ -48,6 +50,7 @@ EXPORT_SYMBOL_GPL(mt76_mcu_get_response);
 
 void mt76_mcu_rx_event(struct mt76_dev *dev, struct sk_buff *skb)
 {
+	printk(KERN_INFO "mt76_mcu.c - mt76_mcu_rx_event");
 	skb_queue_tail(&dev->mcu.res_q, skb);
 	wake_up(&dev->mcu.wait);
 }
@@ -56,6 +59,7 @@ EXPORT_SYMBOL_GPL(mt76_mcu_rx_event);
 int mt76_mcu_send_and_get_msg(struct mt76_dev *dev, int cmd, const void *data,
 			      int len, bool wait_resp, struct sk_buff **ret_skb)
 {
+	printk(KERN_INFO "mt76_mcu.c - mt76_mcu_send_and_get_msg");
 	struct sk_buff *skb;
 
 	if (dev->mcu_ops->mcu_send_msg)
@@ -73,6 +77,7 @@ int mt76_mcu_skb_send_and_get_msg(struct mt76_dev *dev, struct sk_buff *skb,
 				  int cmd, bool wait_resp,
 				  struct sk_buff **ret_skb)
 {
+	printk(KERN_INFO "mt76_mcu.c - mt76_mcu_skb_send_and_get_msg");
 	unsigned long expires;
 	int ret, seq;
 
@@ -111,6 +116,7 @@ EXPORT_SYMBOL_GPL(mt76_mcu_skb_send_and_get_msg);
 int __mt76_mcu_send_firmware(struct mt76_dev *dev, int cmd, const void *data,
 			     int len, int max_len)
 {
+	printk(KERN_INFO "mt76_mcu.c - __mt76_mcu_send_firmware");
 	int err, cur_len;
 
 	while (len > 0) {

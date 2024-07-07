@@ -7,6 +7,7 @@ static void
 mt792x_ampdu_stat_read_phy(struct mt792x_phy *phy,
 			   struct seq_file *file)
 {
+	printk(KERN_INFO "mt792x_debugfs.c - mt792x_ampdu_stat_read_phy");
 	struct mt792x_dev *dev = file->private;
 	int bound[15], range[4], i;
 
@@ -38,6 +39,7 @@ mt792x_ampdu_stat_read_phy(struct mt792x_phy *phy,
 
 int mt792x_tx_stats_show(struct seq_file *file, void *data)
 {
+	printk(KERN_INFO "mt792x_debugfs.c - mt792x_tx_stats_show");
 	struct mt792x_dev *dev = file->private;
 	struct mt792x_phy *phy = &dev->phy;
 	struct mt76_mib_stats *mib = &phy->mib;
@@ -66,6 +68,7 @@ EXPORT_SYMBOL_GPL(mt792x_tx_stats_show);
 
 int mt792x_queues_acq(struct seq_file *s, void *data)
 {
+	printk(KERN_INFO "mt792x_debugfs.c - mt792x_queues_acq");
 	struct mt792x_dev *dev = dev_get_drvdata(s->private);
 	int i;
 
@@ -97,6 +100,7 @@ EXPORT_SYMBOL_GPL(mt792x_queues_acq);
 
 int mt792x_queues_read(struct seq_file *s, void *data)
 {
+	printk(KERN_INFO "mt792x_debugfs.c - mt792x_queues_read");
 	struct mt792x_dev *dev = dev_get_drvdata(s->private);
 	struct {
 		struct mt76_queue *q;
@@ -126,6 +130,7 @@ EXPORT_SYMBOL_GPL(mt792x_queues_read);
 
 int mt792x_pm_stats(struct seq_file *s, void *data)
 {
+	printk(KERN_INFO "mt792x_debugfs.c - mt792x_pm_stats");
 	struct mt792x_dev *dev = dev_get_drvdata(s->private);
 	struct mt76_connac_pm *pm = &dev->pm;
 
@@ -149,6 +154,7 @@ EXPORT_SYMBOL_GPL(mt792x_pm_stats);
 
 int mt792x_pm_idle_timeout_set(void *data, u64 val)
 {
+	printk(KERN_INFO "mt792x_debugfs.c - mt792x_pm_idle_timeout_set");
 	struct mt792x_dev *dev = data;
 
 	dev->pm.idle_timeout = msecs_to_jiffies(val);
@@ -159,6 +165,7 @@ EXPORT_SYMBOL_GPL(mt792x_pm_idle_timeout_set);
 
 int mt792x_pm_idle_timeout_get(void *data, u64 *val)
 {
+	printk(KERN_INFO "mt792x_debugfs.c - mt792x_pm_idle_timeout_get");
 	struct mt792x_dev *dev = data;
 
 	*val = jiffies_to_msecs(dev->pm.idle_timeout);

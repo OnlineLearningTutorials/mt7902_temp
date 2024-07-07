@@ -54,6 +54,7 @@ static const struct ieee80211_iface_combination if_comb_chanctx[] = {
 void mt792x_tx(struct ieee80211_hw *hw, struct ieee80211_tx_control *control,
 	       struct sk_buff *skb)
 {
+	printk(KERN_INFO "mt792x_core.c - mt792x_tx");
 	struct mt792x_dev *dev = mt792x_hw_dev(hw);
 	struct mt76_phy *mphy = hw->priv;
 	struct ieee80211_tx_info *info = IEEE80211_SKB_CB(skb);
@@ -93,6 +94,7 @@ EXPORT_SYMBOL_GPL(mt792x_tx);
 
 void mt792x_stop(struct ieee80211_hw *hw)
 {
+	printk(KERN_INFO "mt792x_core.c - mt792x_stop");
 	struct mt792x_dev *dev = mt792x_hw_dev(hw);
 	struct mt792x_phy *phy = mt792x_hw_phy(hw);
 
@@ -116,6 +118,7 @@ EXPORT_SYMBOL_GPL(mt792x_stop);
 void mt792x_remove_interface(struct ieee80211_hw *hw,
 			     struct ieee80211_vif *vif)
 {
+	printk(KERN_INFO "mt792x_core.c - mt792x_remove_interface");
 	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
 	struct mt792x_sta *msta = &mvif->sta;
 	struct mt792x_dev *dev = mt792x_hw_dev(hw);
@@ -145,6 +148,7 @@ int mt792x_conf_tx(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
 		   unsigned int link_id, u16 queue,
 		   const struct ieee80211_tx_queue_params *params)
 {
+	printk(KERN_INFO "mt792x_core.c - mt792x_conf_tx");
 	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
 
 	/* no need to update right away, we'll get BSS_CHANGED_QOS */
@@ -158,6 +162,7 @@ EXPORT_SYMBOL_GPL(mt792x_conf_tx);
 int mt792x_get_stats(struct ieee80211_hw *hw,
 		     struct ieee80211_low_level_stats *stats)
 {
+	printk(KERN_INFO "mt792x_core.c - mt792x_get_stats");
 	struct mt792x_phy *phy = mt792x_hw_phy(hw);
 	struct mt76_mib_stats *mib = &phy->mib;
 
@@ -176,6 +181,7 @@ EXPORT_SYMBOL_GPL(mt792x_get_stats);
 
 u64 mt792x_get_tsf(struct ieee80211_hw *hw, struct ieee80211_vif *vif)
 {
+	printk(KERN_INFO "mt792x_core.c - mt792x_get_tsf");
 	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
 	struct mt792x_dev *dev = mt792x_hw_dev(hw);
 	u8 omac_idx = mvif->mt76.omac_idx;
@@ -202,6 +208,7 @@ EXPORT_SYMBOL_GPL(mt792x_get_tsf);
 void mt792x_set_tsf(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
 		    u64 timestamp)
 {
+	printk(KERN_INFO "mt792x_core.c - mt792x_set_tsf");
 	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
 	struct mt792x_dev *dev = mt792x_hw_dev(hw);
 	u8 omac_idx = mvif->mt76.omac_idx;
@@ -225,6 +232,7 @@ EXPORT_SYMBOL_GPL(mt792x_set_tsf);
 
 void mt792x_tx_worker(struct mt76_worker *w)
 {
+	printk(KERN_INFO "mt792x_core.c - mt792x_tx_worker");
 	struct mt792x_dev *dev = container_of(w, struct mt792x_dev,
 					      mt76.tx_worker);
 
@@ -240,6 +248,7 @@ EXPORT_SYMBOL_GPL(mt792x_tx_worker);
 
 void mt792x_roc_timer(struct timer_list *timer)
 {
+	printk(KERN_INFO "mt792x_core.c - mt792x_roc_timer");
 	struct mt792x_phy *phy = from_timer(phy, timer, roc_timer);
 
 	ieee80211_queue_work(phy->mt76->hw, &phy->roc_work);
@@ -249,6 +258,7 @@ EXPORT_SYMBOL_GPL(mt792x_roc_timer);
 void mt792x_flush(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
 		  u32 queues, bool drop)
 {
+	printk(KERN_INFO "mt792x_core.c - mt792x_flush");
 	struct mt792x_dev *dev = mt792x_hw_dev(hw);
 
 	wait_event_timeout(dev->mt76.tx_wait,
@@ -261,6 +271,7 @@ int mt792x_assign_vif_chanctx(struct ieee80211_hw *hw,
 			      struct ieee80211_bss_conf *link_conf,
 			      struct ieee80211_chanctx_conf *ctx)
 {
+	printk(KERN_INFO "mt792x_core.c - mt792x_assign_vif_chanctx");
 	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
 	struct mt792x_dev *dev = mt792x_hw_dev(hw);
 
@@ -277,6 +288,7 @@ void mt792x_unassign_vif_chanctx(struct ieee80211_hw *hw,
 				 struct ieee80211_bss_conf *link_conf,
 				 struct ieee80211_chanctx_conf *ctx)
 {
+	printk(KERN_INFO "mt792x_core.c - mt792x_unassign_vif_chanctx");
 	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
 	struct mt792x_dev *dev = mt792x_hw_dev(hw);
 
@@ -288,6 +300,7 @@ EXPORT_SYMBOL_GPL(mt792x_unassign_vif_chanctx);
 
 void mt792x_set_wakeup(struct ieee80211_hw *hw, bool enabled)
 {
+	printk(KERN_INFO "mt792x_core.c - mt792x_set_wakeup");
 	struct mt792x_dev *dev = mt792x_hw_dev(hw);
 	struct mt76_dev *mdev = &dev->mt76;
 
@@ -378,6 +391,7 @@ static const char mt792x_gstrings_stats[][ETH_GSTRING_LEN] = {
 void mt792x_get_et_strings(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
 			   u32 sset, u8 *data)
 {
+	printk(KERN_INFO "mt792x_core.c - mt792x_get_et_strings");
 	if (sset != ETH_SS_STATS)
 		return;
 
@@ -391,6 +405,7 @@ EXPORT_SYMBOL_GPL(mt792x_get_et_strings);
 int mt792x_get_et_sset_count(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
 			     int sset)
 {
+	printk(KERN_INFO "mt792x_core.c - mt792x_get_et_sset_count");
 	if (sset != ETH_SS_STATS)
 		return 0;
 
@@ -402,6 +417,7 @@ EXPORT_SYMBOL_GPL(mt792x_get_et_sset_count);
 static void
 mt792x_ethtool_worker(void *wi_data, struct ieee80211_sta *sta)
 {
+	printk(KERN_INFO "mt792x_core.c - mt792x_ethtool_worker");
 	struct mt792x_sta *msta = (struct mt792x_sta *)sta->drv_priv;
 	struct mt76_ethtool_worker_info *wi = wi_data;
 
@@ -414,6 +430,7 @@ mt792x_ethtool_worker(void *wi_data, struct ieee80211_sta *sta)
 void mt792x_get_et_stats(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
 			 struct ethtool_stats *stats, u64 *data)
 {
+	printk(KERN_INFO "mt792x_core.c - mt792x_get_et_stats");
 	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
 	int stats_size = ARRAY_SIZE(mt792x_gstrings_stats);
 	struct mt792x_phy *phy = mt792x_hw_phy(hw);
@@ -486,6 +503,7 @@ void mt792x_sta_statistics(struct ieee80211_hw *hw,
 			   struct ieee80211_sta *sta,
 			   struct station_info *sinfo)
 {
+	printk(KERN_INFO "mt792x_core.c - mt792x_sta_statistics");
 	struct mt792x_sta *msta = (struct mt792x_sta *)sta->drv_priv;
 	struct rate_info *txrate = &msta->wcid.rate;
 
@@ -521,6 +539,7 @@ EXPORT_SYMBOL_GPL(mt792x_sta_statistics);
 
 void mt792x_set_coverage_class(struct ieee80211_hw *hw, s16 coverage_class)
 {
+	printk(KERN_INFO "mt792x_core.c - mt792x_set_coverage_class");
 	struct mt792x_phy *phy = mt792x_hw_phy(hw);
 	struct mt792x_dev *dev = phy->dev;
 
@@ -535,6 +554,7 @@ EXPORT_SYMBOL_GPL(mt792x_set_coverage_class);
 
 int mt792x_init_wiphy(struct ieee80211_hw *hw)
 {
+	printk(KERN_INFO "mt792x_core.c - mt792x_init_wiphy");
 	struct mt792x_phy *phy = mt792x_hw_phy(hw);
 	struct mt792x_dev *dev = phy->dev;
 	struct wiphy *wiphy = hw->wiphy;
@@ -616,6 +636,7 @@ EXPORT_SYMBOL_GPL(mt792x_init_wiphy);
 static u8
 mt792x_get_offload_capability(struct device *dev, const char *fw_wm)
 {
+	printk(KERN_INFO "mt792x_core.c - mt792x_get_offload_capability");
 	const struct mt76_connac2_fw_trailer *hdr;
 	struct mt792x_realease_info *rel_info;
 	const struct firmware *fw;
@@ -674,6 +695,7 @@ mt792x_get_mac80211_ops(struct device *dev,
 			const struct ieee80211_ops *mac80211_ops,
 			void *drv_data, u8 *fw_features)
 {
+	printk(KERN_INFO "mt792x_core.c - mt792x_get_mac80211_ops");
 	struct ieee80211_ops *ops;
 
 	ops = devm_kmemdup(dev, mac80211_ops, sizeof(struct ieee80211_ops),
@@ -699,6 +721,7 @@ EXPORT_SYMBOL_GPL(mt792x_get_mac80211_ops);
 
 int mt792x_init_wcid(struct mt792x_dev *dev)
 {
+	printk(KERN_INFO "mt792x_core.c - mt792x_init_wcid");
 	int idx;
 
 	/* Beacon and mgmt frames should occupy wcid 0 */
@@ -717,6 +740,7 @@ EXPORT_SYMBOL_GPL(mt792x_init_wcid);
 
 int mt792x_mcu_drv_pmctrl(struct mt792x_dev *dev)
 {
+	printk(KERN_INFO "mt792x_core.c - mt792x_mcu_drv_pmctrl");
 	struct mt76_phy *mphy = &dev->mt76.phy;
 	struct mt76_connac_pm *pm = &dev->pm;
 	int err = 0;
@@ -739,6 +763,7 @@ EXPORT_SYMBOL_GPL(mt792x_mcu_drv_pmctrl);
 
 int mt792x_mcu_fw_pmctrl(struct mt792x_dev *dev)
 {
+	printk(KERN_INFO "mt792x_core.c - mt792x_mcu_fw_pmctrl");
 	struct mt76_phy *mphy = &dev->mt76.phy;
 	struct mt76_connac_pm *pm = &dev->pm;
 	int err = 0;
@@ -761,6 +786,7 @@ EXPORT_SYMBOL_GPL(mt792x_mcu_fw_pmctrl);
 
 int __mt792xe_mcu_drv_pmctrl(struct mt792x_dev *dev)
 {
+	printk(KERN_INFO "mt792x_core.c - __mt792xe_mcu_drv_pmctrl");
 	int i, err = 0;
 
 	for (i = 0; i < MT792x_DRV_OWN_RETRY_COUNT; i++) {
@@ -781,6 +807,7 @@ EXPORT_SYMBOL_GPL(__mt792xe_mcu_drv_pmctrl);
 
 int mt792xe_mcu_drv_pmctrl(struct mt792x_dev *dev)
 {
+	printk(KERN_INFO "mt792x_core.c - mt792xe_mcu_drv_pmctrl");
 	struct mt76_phy *mphy = &dev->mt76.phy;
 	struct mt76_connac_pm *pm = &dev->pm;
 	int err;
@@ -802,6 +829,7 @@ EXPORT_SYMBOL_GPL(mt792xe_mcu_drv_pmctrl);
 
 int mt792xe_mcu_fw_pmctrl(struct mt792x_dev *dev)
 {
+	printk(KERN_INFO "mt792x_core.c - mt792xe_mcu_fw_pmctrl");
 	struct mt76_phy *mphy = &dev->mt76.phy;
 	struct mt76_connac_pm *pm = &dev->pm;
 	int i;

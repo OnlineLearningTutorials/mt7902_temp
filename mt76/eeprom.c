@@ -12,6 +12,7 @@
 
 static int mt76_get_of_eeprom_data(struct mt76_dev *dev, void *eep, int len)
 {
+	printk(KERN_INFO "mt76_eeprom.c - mt76_get_of_eeprom_data");
 	struct device_node *np = dev->dev->of_node;
 	const void *data;
 	int size;
@@ -30,6 +31,7 @@ static int mt76_get_of_eeprom_data(struct mt76_dev *dev, void *eep, int len)
 
 int mt76_get_of_data_from_mtd(struct mt76_dev *dev, void *eep, int offset, int len)
 {
+	printk(KERN_INFO "mt76_eeprom.c - mt76_get_of_data_from_mtd");
 #ifdef CONFIG_MTD
 	struct device_node *np = dev->dev->of_node;
 	struct mtd_info *mtd;
@@ -110,6 +112,7 @@ EXPORT_SYMBOL_GPL(mt76_get_of_data_from_mtd);
 int mt76_get_of_data_from_nvmem(struct mt76_dev *dev, void *eep,
 				const char *cell_name, int len)
 {
+	printk(KERN_INFO "mt76_eeprom.c - mt76_get_of_data_from_nvmem");
 	struct device_node *np = dev->dev->of_node;
 	struct nvmem_cell *cell;
 	const void *data;
@@ -142,6 +145,7 @@ EXPORT_SYMBOL_GPL(mt76_get_of_data_from_nvmem);
 
 static int mt76_get_of_eeprom(struct mt76_dev *dev, void *eep, int len)
 {
+	printk(KERN_INFO "mt76_eeprom.c - mt76_get_of_eeprom");
 	struct device_node *np = dev->dev->of_node;
 	int ret;
 
@@ -162,6 +166,7 @@ static int mt76_get_of_eeprom(struct mt76_dev *dev, void *eep, int len)
 void
 mt76_eeprom_override(struct mt76_phy *phy)
 {
+	printk(KERN_INFO "mt76_eeprom.c - mt76_eeprom_override");
 	struct mt76_dev *dev = phy->dev;
 	struct device_node *np = dev->dev->of_node;
 
@@ -178,6 +183,7 @@ EXPORT_SYMBOL_GPL(mt76_eeprom_override);
 
 static bool mt76_string_prop_find(struct property *prop, const char *str)
 {
+	printk(KERN_INFO "mt76_eeprom.c - mt76_string_prop_find");
 	const char *cp = NULL;
 
 	if (!prop || !str || !str[0])
@@ -193,6 +199,7 @@ static bool mt76_string_prop_find(struct property *prop, const char *str)
 struct device_node *
 mt76_find_power_limits_node(struct mt76_dev *dev)
 {
+	printk(KERN_INFO "mt76_eeprom.c - mt76_find_power_limits_node");
 	struct device_node *np = dev->dev->of_node;
 	const char *const region_names[] = {
 		[NL80211_DFS_UNSET] = "ww",
@@ -234,6 +241,7 @@ EXPORT_SYMBOL_GPL(mt76_find_power_limits_node);
 static const __be32 *
 mt76_get_of_array(struct device_node *np, char *name, size_t *len, int min)
 {
+	printk(KERN_INFO "mt76_eeprom.c - mt76_get_of_array");
 	struct property *prop = of_find_property(np, name, NULL);
 
 	if (!prop || !prop->value || prop->length < min * 4)
@@ -247,6 +255,7 @@ mt76_get_of_array(struct device_node *np, char *name, size_t *len, int min)
 struct device_node *
 mt76_find_channel_node(struct device_node *np, struct ieee80211_channel *chan)
 {
+	printk(KERN_INFO "mt76_eeprom.c - mt76_find_channel_node");
 	struct device_node *cur;
 	const __be32 *val;
 	size_t len;
@@ -274,6 +283,7 @@ EXPORT_SYMBOL_GPL(mt76_find_channel_node);
 static s8
 mt76_get_txs_delta(struct device_node *np, u8 nss)
 {
+	printk(KERN_INFO "mt76_eeprom.c - mt76_get_txs_delta");
 	const __be32 *val;
 	size_t len;
 
@@ -288,6 +298,7 @@ static void
 mt76_apply_array_limit(s8 *pwr, size_t pwr_len, const __be32 *data,
 		       s8 target_power, s8 nss_delta, s8 *max_power)
 {
+	printk(KERN_INFO "mt76_eeprom.c - mt76_apply_array_limit");
 	int i;
 
 	if (!data)
@@ -305,6 +316,7 @@ mt76_apply_multi_array_limit(s8 *pwr, size_t pwr_len, s8 pwr_num,
 			     const __be32 *data, size_t len, s8 target_power,
 			     s8 nss_delta, s8 *max_power)
 {
+	printk(KERN_INFO "mt76_eeprom.c - mt76_apply_multi_array_limit");
 	int i, cur;
 
 	if (!data)
@@ -335,6 +347,7 @@ s8 mt76_get_rate_power_limits(struct mt76_phy *phy,
 			      struct mt76_power_limits *dest,
 			      s8 target_power)
 {
+	printk(KERN_INFO "mt76_eeprom.c - mt76_get_rate_power_limits");
 	struct mt76_dev *dev = phy->dev;
 	struct device_node *np;
 	const __be32 *val;
@@ -409,6 +422,7 @@ EXPORT_SYMBOL_GPL(mt76_get_rate_power_limits);
 int
 mt76_eeprom_init(struct mt76_dev *dev, int len)
 {
+	printk(KERN_INFO "mt76_eeprom.c - mt76_eeprom_init");
 	dev->eeprom.size = len;
 	dev->eeprom.data = devm_kzalloc(dev->dev, len, GFP_KERNEL);
 	if (!dev->eeprom.data)

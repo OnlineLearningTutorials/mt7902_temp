@@ -14,6 +14,7 @@ mt76_connac3_mac_decode_he_radiotap_ru(struct mt76_rx_status *status,
 				       struct ieee80211_radiotap_he *he,
 				       __le32 *rxv)
 {
+	printk(KERN_INFO "mt76_connac3_mac - mt76_connac3_mac_decode_he_radiotap_ru");
 	u32 ru = le32_get_bits(rxv[0], MT_PRXV_HE_RU_ALLOC), offs = 0;
 
 	status->bw = RATE_INFO_BW_HE_RU;
@@ -57,6 +58,7 @@ mt76_connac3_mac_decode_he_radiotap_ru(struct mt76_rx_status *status,
 static void
 mt76_connac3_mac_decode_he_mu_radiotap(struct sk_buff *skb, __le32 *rxv)
 {
+	printk(KERN_INFO "mt76_connac3_mac - mt76_connac3_mac_decode_he_mu_radiotap");
 	struct mt76_rx_status *status = (struct mt76_rx_status *)skb->cb;
 	static const struct ieee80211_radiotap_he_mu mu_known = {
 		.flags1 = HE_BITS(MU_FLAGS1_SIG_B_MCS_KNOWN) |
@@ -101,6 +103,7 @@ mt76_connac3_mac_decode_he_mu_radiotap(struct sk_buff *skb, __le32 *rxv)
 void mt76_connac3_mac_decode_he_radiotap(struct sk_buff *skb, __le32 *rxv,
 					 u8 mode)
 {
+	printk(KERN_INFO "mt76_connac3_mac - mt76_connac3_mac_decode_he_radiotap");
 	struct mt76_rx_status *status = (struct mt76_rx_status *)skb->cb;
 	static const struct ieee80211_radiotap_he known = {
 		.data1 = HE_BITS(DATA1_DATA_MCS_KNOWN) |

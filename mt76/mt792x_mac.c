@@ -8,6 +8,7 @@
 
 void mt792x_mac_work(struct work_struct *work)
 {
+	printk(KERN_INFO "mt792x_mac.c - mt792x_mac_work");
 	struct mt792x_phy *phy;
 	struct mt76_phy *mphy;
 
@@ -34,6 +35,7 @@ EXPORT_SYMBOL_GPL(mt792x_mac_work);
 
 void mt792x_mac_set_timeing(struct mt792x_phy *phy)
 {
+	printk(KERN_INFO "mt792x_mac.c - mt792x_mac_set_timeing");
 	s16 coverage_class = phy->coverage_class;
 	struct mt792x_dev *dev = phy->dev;
 	u32 val, reg_offset;
@@ -76,6 +78,7 @@ EXPORT_SYMBOL_GPL(mt792x_mac_set_timeing);
 
 void mt792x_mac_update_mib_stats(struct mt792x_phy *phy)
 {
+	printk(KERN_INFO "mt792x_mac.c - mt792x_mac_update_mib_stats");
 	struct mt76_mib_stats *mib = &phy->mib;
 	struct mt792x_dev *dev = phy->dev;
 	int i, aggr0 = 0, aggr1;
@@ -138,6 +141,7 @@ EXPORT_SYMBOL_GPL(mt792x_mac_update_mib_stats);
 struct mt76_wcid *mt792x_rx_get_wcid(struct mt792x_dev *dev, u16 idx,
 				     bool unicast)
 {
+	printk(KERN_INFO "mt792x_mac.c - mt792x_rx_get_wcid");
 	struct mt792x_sta *sta;
 	struct mt76_wcid *wcid;
 
@@ -162,6 +166,7 @@ EXPORT_SYMBOL_GPL(mt792x_rx_get_wcid);
 static void
 mt792x_mac_rssi_iter(void *priv, u8 *mac, struct ieee80211_vif *vif)
 {
+	printk(KERN_INFO "mt792x_mac.c - mt792x_mac_rssi_iter");
 	struct sk_buff *skb = priv;
 	struct mt76_rx_status *status = (struct mt76_rx_status *)skb->cb;
 	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
@@ -178,6 +183,7 @@ mt792x_mac_rssi_iter(void *priv, u8 *mac, struct ieee80211_vif *vif)
 
 void mt792x_mac_assoc_rssi(struct mt792x_dev *dev, struct sk_buff *skb)
 {
+	printk(KERN_INFO "mt792x_mac.c - mt792x_mac_assoc_rssi");
 	struct ieee80211_hdr *hdr = mt76_skb_get_hdr(skb);
 
 	if (!ieee80211_is_assoc_resp(hdr->frame_control) &&
@@ -192,6 +198,7 @@ EXPORT_SYMBOL_GPL(mt792x_mac_assoc_rssi);
 
 void mt792x_mac_reset_counters(struct mt792x_phy *phy)
 {
+	printk(KERN_INFO "mt792x_mac.c - mt792x_mac_reset_counters");
 	struct mt792x_dev *dev = phy->dev;
 	int i;
 
@@ -216,12 +223,14 @@ EXPORT_SYMBOL_GPL(mt792x_mac_reset_counters);
 static u8
 mt792x_phy_get_nf(struct mt792x_phy *phy, int idx)
 {
+	printk(KERN_INFO "mt792x_mac.c - mt792x_phy_get_nf");
 	return 0;
 }
 
 static void
 mt792x_phy_update_channel(struct mt76_phy *mphy, int idx)
 {
+	printk(KERN_INFO "mt792x_mac.c - mt792x_phy_update_channel");
 	struct mt792x_dev *dev = container_of(mphy->dev, struct mt792x_dev, mt76);
 	struct mt792x_phy *phy = mphy->priv;
 	struct mt76_channel_state *state;
@@ -253,6 +262,7 @@ mt792x_phy_update_channel(struct mt76_phy *mphy, int idx)
 
 void mt792x_update_channel(struct mt76_phy *mphy)
 {
+	printk(KERN_INFO "mt792x_mac.c - mt792x_update_channel");
 	struct mt792x_dev *dev = container_of(mphy->dev, struct mt792x_dev, mt76);
 
 	if (mt76_connac_pm_wake(mphy, &dev->pm))
@@ -267,6 +277,7 @@ EXPORT_SYMBOL_GPL(mt792x_update_channel);
 
 void mt792x_reset(struct mt76_dev *mdev)
 {
+	printk(KERN_INFO "mt792x_mac.c - mt792x_reset");
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
 	struct mt76_connac_pm *pm = &dev->pm;
 
@@ -285,6 +296,7 @@ EXPORT_SYMBOL_GPL(mt792x_reset);
 
 void mt792x_mac_init_band(struct mt792x_dev *dev, u8 band)
 {
+	printk(KERN_INFO "mt792x_mac.c - mt792x_mac_init_band");
 	u32 mask, set;
 
 	mt76_rmw_field(dev, MT_TMAC_CTCR0(band),
@@ -314,6 +326,7 @@ EXPORT_SYMBOL_GPL(mt792x_mac_init_band);
 
 void mt792x_pm_wake_work(struct work_struct *work)
 {
+	printk(KERN_INFO "mt792x_mac.c - mt792x_pm_wake_work");
 	struct mt792x_dev *dev;
 	struct mt76_phy *mphy;
 
@@ -348,6 +361,7 @@ EXPORT_SYMBOL_GPL(mt792x_pm_wake_work);
 
 void mt792x_pm_power_save_work(struct work_struct *work)
 {
+	printk(KERN_INFO "mt792x_mac.c - mt792x_pm_power_save_work");
 	struct mt792x_dev *dev;
 	unsigned long delta;
 	struct mt76_phy *mphy;

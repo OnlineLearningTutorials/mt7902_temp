@@ -10,6 +10,7 @@
 
 irqreturn_t mt792x_irq_handler(int irq, void *dev_instance)
 {
+	printk(KERN_INFO "mt792x_dma.c - mt792x_irq_handler");
 	struct mt792x_dev *dev = dev_instance;
 
 	if (test_bit(MT76_REMOVED, &dev->mt76.phy.state))
@@ -27,6 +28,7 @@ EXPORT_SYMBOL_GPL(mt792x_irq_handler);
 
 void mt792x_irq_tasklet(unsigned long data)
 {
+	printk(KERN_INFO "mt792x_dma.c - mt792x_irq_tasklet");
 	struct mt792x_dev *dev = (struct mt792x_dev *)data;
 	const struct mt792x_irq_map *irq_map = dev->irq_map;
 	u32 intr, mask = 0;
@@ -75,6 +77,7 @@ EXPORT_SYMBOL_GPL(mt792x_irq_tasklet);
 
 void mt792x_rx_poll_complete(struct mt76_dev *mdev, enum mt76_rxq_id q)
 {
+	printk(KERN_INFO "mt792x_dma.c - mt792x_rx_poll_complete");
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
 	const struct mt792x_irq_map *irq_map = dev->irq_map;
 
@@ -90,6 +93,7 @@ EXPORT_SYMBOL_GPL(mt792x_rx_poll_complete);
 #define PREFETCH(base, depth)	((base) << 16 | (depth))
 static void mt792x_dma_prefetch(struct mt792x_dev *dev)
 {
+	printk(KERN_INFO "mt792x_dma.c - mt792x_dma_prefetch");
 	if (is_mt7925(&dev->mt76)) {
 		/* rx ring */
 		mt76_wr(dev, MT_WFDMA0_RX_RING0_EXT_CTRL, PREFETCH(0x0000, 0x4));
@@ -125,6 +129,7 @@ static void mt792x_dma_prefetch(struct mt792x_dev *dev)
 
 int mt792x_dma_enable(struct mt792x_dev *dev)
 {
+	printk(KERN_INFO "mt792x_dma.c - mt792x_dma_enable");
 	/* configure perfetch settings */
 	mt792x_dma_prefetch(dev);
 
@@ -173,6 +178,7 @@ EXPORT_SYMBOL_GPL(mt792x_dma_enable);
 static int
 mt792x_dma_reset(struct mt792x_dev *dev, bool force)
 {
+	printk(KERN_INFO "mt792x_dma.c - mt792x_dma_reset");
 	int i, err;
 
 	err = mt792x_dma_disable(dev, force);
@@ -196,6 +202,7 @@ mt792x_dma_reset(struct mt792x_dev *dev, bool force)
 
 int mt792x_wpdma_reset(struct mt792x_dev *dev, bool force)
 {
+	printk(KERN_INFO "mt792x_dma.c - mt792x_wpdma_reset");
 	int i, err;
 
 	/* clean up hw queues */
@@ -226,6 +233,7 @@ EXPORT_SYMBOL_GPL(mt792x_wpdma_reset);
 
 int mt792x_wpdma_reinit_cond(struct mt792x_dev *dev)
 {
+	printk(KERN_INFO "mt792x_dma.c - mt792x_wpdma_reinit_cond");
 	struct mt76_connac_pm *pm = &dev->pm;
 	int err;
 
@@ -252,6 +260,7 @@ EXPORT_SYMBOL_GPL(mt792x_wpdma_reinit_cond);
 
 int mt792x_dma_disable(struct mt792x_dev *dev, bool force)
 {
+	printk(KERN_INFO "mt792x_dma.c - mt792x_dma_disable");
 	/* disable WFDMA0 */
 	mt76_clear(dev, MT_WFDMA0_GLO_CFG,
 		   MT_WFDMA0_GLO_CFG_TX_DMA_EN | MT_WFDMA0_GLO_CFG_RX_DMA_EN |
@@ -287,6 +296,7 @@ EXPORT_SYMBOL_GPL(mt792x_dma_disable);
 
 void mt792x_dma_cleanup(struct mt792x_dev *dev)
 {
+	printk(KERN_INFO "mt792x_dma.c - mt792x_dma_cleanup");
 	/* disable */
 	mt76_clear(dev, MT_WFDMA0_GLO_CFG,
 		   MT_WFDMA0_GLO_CFG_TX_DMA_EN |
@@ -315,6 +325,7 @@ EXPORT_SYMBOL_GPL(mt792x_dma_cleanup);
 
 int mt792x_poll_tx(struct napi_struct *napi, int budget)
 {
+	printk(KERN_INFO "mt792x_dma.c - mt792x_poll_tx");
 	struct mt792x_dev *dev;
 
 	dev = container_of(napi, struct mt792x_dev, mt76.tx_napi);
@@ -337,6 +348,7 @@ EXPORT_SYMBOL_GPL(mt792x_poll_tx);
 
 int mt792x_poll_rx(struct napi_struct *napi, int budget)
 {
+	printk(KERN_INFO "mt792x_dma.c - mt792x_poll_rx");
 	struct mt792x_dev *dev;
 	int done;
 
@@ -356,6 +368,7 @@ EXPORT_SYMBOL_GPL(mt792x_poll_rx);
 
 int mt792x_wfsys_reset(struct mt792x_dev *dev)
 {
+	printk(KERN_INFO "mt792x_dma.c - mt792x_wfsys_reset");
 	u32 addr = is_mt7921(&dev->mt76) ? 0x18000140 : 0x7c000140;
 
 	mt76_clear(dev, addr, WFSYS_SW_RST_B);

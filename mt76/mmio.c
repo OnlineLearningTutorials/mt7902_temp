@@ -9,6 +9,7 @@
 
 static u32 mt76_mmio_rr(struct mt76_dev *dev, u32 offset)
 {
+	printk(KERN_INFO "mt76_mmio.c - mt76_mmio_rr");
 	u32 val;
 
 	val = readl(dev->mmio.regs + offset);
@@ -19,12 +20,14 @@ static u32 mt76_mmio_rr(struct mt76_dev *dev, u32 offset)
 
 static void mt76_mmio_wr(struct mt76_dev *dev, u32 offset, u32 val)
 {
+	printk(KERN_INFO "mt76_mmio.c - mt76_mmio_wr");
 	trace_reg_wr(dev, offset, val);
 	writel(val, dev->mmio.regs + offset);
 }
 
 static u32 mt76_mmio_rmw(struct mt76_dev *dev, u32 offset, u32 mask, u32 val)
 {
+	printk(KERN_INFO "mt76_mmio.c - mt76_mmio_rmw");
 	val |= mt76_mmio_rr(dev, offset) & ~mask;
 	mt76_mmio_wr(dev, offset, val);
 	return val;
@@ -33,18 +36,21 @@ static u32 mt76_mmio_rmw(struct mt76_dev *dev, u32 offset, u32 mask, u32 val)
 static void mt76_mmio_write_copy(struct mt76_dev *dev, u32 offset,
 				 const void *data, int len)
 {
+	printk(KERN_INFO "mt76_mmio.c - mt76_mmio_write_copy");
 	__iowrite32_copy(dev->mmio.regs + offset, data, DIV_ROUND_UP(len, 4));
 }
 
 static void mt76_mmio_read_copy(struct mt76_dev *dev, u32 offset,
 				void *data, int len)
 {
+	printk(KERN_INFO "mt76_mmio.c - mt76_mmio_read_copy");
 	__ioread32_copy(data, dev->mmio.regs + offset, DIV_ROUND_UP(len, 4));
 }
 
 static int mt76_mmio_wr_rp(struct mt76_dev *dev, u32 base,
 			   const struct mt76_reg_pair *data, int len)
 {
+	printk(KERN_INFO "mt76_mmio.c - mt76_mmio_wr_rp ");
 	while (len > 0) {
 		mt76_mmio_wr(dev, data->reg, data->value);
 		data++;
@@ -57,6 +63,7 @@ static int mt76_mmio_wr_rp(struct mt76_dev *dev, u32 base,
 static int mt76_mmio_rd_rp(struct mt76_dev *dev, u32 base,
 			   struct mt76_reg_pair *data, int len)
 {
+	printk(KERN_INFO "mt76_mmio.c - mt76_mmio_rd_rp");
 	while (len > 0) {
 		data->value = mt76_mmio_rr(dev, data->reg);
 		data++;
@@ -69,6 +76,7 @@ static int mt76_mmio_rd_rp(struct mt76_dev *dev, u32 base,
 void mt76_set_irq_mask(struct mt76_dev *dev, u32 addr,
 		       u32 clear, u32 set)
 {
+	printk(KERN_INFO "mt76_mmio.c - mt76_set_irq_mask");
 	unsigned long flags;
 
 	spin_lock_irqsave(&dev->mmio.irq_lock, flags);
@@ -88,6 +96,7 @@ EXPORT_SYMBOL_GPL(mt76_set_irq_mask);
 #ifdef CONFIG_NET_MEDIATEK_SOC_WED
 void mt76_mmio_wed_release_rx_buf(struct mtk_wed_device *wed)
 {
+	printk(KERN_INFO "mt76_mmio.c - mt76_mmio_wed_release_rx_buf");
 	struct mt76_dev *dev = container_of(wed, struct mt76_dev, mmio.wed);
 	int i;
 
@@ -110,6 +119,7 @@ EXPORT_SYMBOL_GPL(mt76_mmio_wed_release_rx_buf);
 
 u32 mt76_mmio_wed_init_rx_buf(struct mtk_wed_device *wed, int size)
 {
+	printk(KERN_INFO "mt76_mmio.c - mt76_mmio_wed_init_rx_buf");
 	struct mt76_dev *dev = container_of(wed, struct mt76_dev, mmio.wed);
 	struct mtk_wed_bm_desc *desc = wed->rx_buf_ring.desc;
 	struct mt76_queue *q = &dev->q_rx[MT_RXQ_MAIN];
@@ -163,6 +173,7 @@ EXPORT_SYMBOL_GPL(mt76_mmio_wed_init_rx_buf);
 
 int mt76_mmio_wed_offload_enable(struct mtk_wed_device *wed)
 {
+	printk(KERN_INFO "mt76_mmio.c - mt76_mmio_wed_offload_enable");
 	struct mt76_dev *dev = container_of(wed, struct mt76_dev, mmio.wed);
 
 	spin_lock_bh(&dev->token_lock);
@@ -175,6 +186,7 @@ EXPORT_SYMBOL_GPL(mt76_mmio_wed_offload_enable);
 
 void mt76_mmio_wed_offload_disable(struct mtk_wed_device *wed)
 {
+	printk(KERN_INFO "mt76_mmio.c - mt76_mmio_wed_offload_disable");
 	struct mt76_dev *dev = container_of(wed, struct mt76_dev, mmio.wed);
 
 	spin_lock_bh(&dev->token_lock);
@@ -185,6 +197,7 @@ EXPORT_SYMBOL_GPL(mt76_mmio_wed_offload_disable);
 
 void mt76_mmio_wed_reset_complete(struct mtk_wed_device *wed)
 {
+	printk(KERN_INFO "mt76_mmio.c - mt76_mmio_wed_reset_complete");
 	struct mt76_dev *dev = container_of(wed, struct mt76_dev, mmio.wed);
 
 	complete(&dev->mmio.wed_reset_complete);
@@ -194,6 +207,7 @@ EXPORT_SYMBOL_GPL(mt76_mmio_wed_reset_complete);
 
 void mt76_mmio_init(struct mt76_dev *dev, void __iomem *regs)
 {
+	printk(KERN_INFO "mt76_mmio.c - mt76_mmio_init");
 	static const struct mt76_bus_ops mt76_mmio_ops = {
 		.rr = mt76_mmio_rr,
 		.rmw = mt76_mmio_rmw,

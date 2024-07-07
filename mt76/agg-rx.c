@@ -15,6 +15,7 @@ static unsigned long mt76_aggr_tid_to_timeo(u8 tidno)
 static void
 mt76_aggr_release(struct mt76_rx_tid *tid, struct sk_buff_head *frames, int idx)
 {
+	printk(KERN_INFO "mt76_agg-rx.c - mt76_aggr_release");
 	struct sk_buff *skb;
 
 	tid->head = ieee80211_sn_inc(tid->head);
@@ -33,6 +34,7 @@ mt76_rx_aggr_release_frames(struct mt76_rx_tid *tid,
 			    struct sk_buff_head *frames,
 			    u16 head)
 {
+	printk(KERN_INFO "mt76_agg-rx.c - mt76_rx_aggr_release_frames");
 	int idx;
 
 	while (ieee80211_sn_less(tid->head, head)) {
@@ -44,6 +46,7 @@ mt76_rx_aggr_release_frames(struct mt76_rx_tid *tid,
 static void
 mt76_rx_aggr_release_head(struct mt76_rx_tid *tid, struct sk_buff_head *frames)
 {
+	printk(KERN_INFO "mt76_agg-rx.c - mt76_rx_aggr_release_head");
 	int idx = tid->head % tid->size;
 
 	while (tid->reorder_buf[idx]) {
@@ -55,6 +58,7 @@ mt76_rx_aggr_release_head(struct mt76_rx_tid *tid, struct sk_buff_head *frames)
 static void
 mt76_rx_aggr_check_release(struct mt76_rx_tid *tid, struct sk_buff_head *frames)
 {
+	printk(KERN_INFO "mt76_agg-rx.c - mt76_rx_aggr_check_release");
 	struct mt76_rx_status *status;
 	struct sk_buff *skb;
 	int start, idx, nframes;
@@ -90,6 +94,7 @@ mt76_rx_aggr_check_release(struct mt76_rx_tid *tid, struct sk_buff_head *frames)
 static void
 mt76_rx_aggr_reorder_work(struct work_struct *work)
 {
+	printk(KERN_INFO "mt76_agg-rx.c - mt76_rx_aggr_reorder_work");
 	struct mt76_rx_tid *tid = container_of(work, struct mt76_rx_tid,
 					       reorder_work.work);
 	struct mt76_dev *dev = tid->dev;
@@ -118,6 +123,7 @@ mt76_rx_aggr_reorder_work(struct work_struct *work)
 static void
 mt76_rx_aggr_check_ctl(struct sk_buff *skb, struct sk_buff_head *frames)
 {
+	printk(KERN_INFO "mt76_agg-rx.c - mt76_rx_aggr_check_ctl");
 	struct mt76_rx_status *status = (struct mt76_rx_status *)skb->cb;
 	struct ieee80211_bar *bar = mt76_skb_get_hdr(skb);
 	struct mt76_wcid *wcid = status->wcid;
@@ -147,6 +153,7 @@ mt76_rx_aggr_check_ctl(struct sk_buff *skb, struct sk_buff_head *frames)
 
 void mt76_rx_aggr_reorder(struct sk_buff *skb, struct sk_buff_head *frames)
 {
+	printk(KERN_INFO "mt76_agg-rx.c - mt76_rx_aggr_reorder");
 	struct mt76_rx_status *status = (struct mt76_rx_status *)skb->cb;
 	struct mt76_wcid *wcid = status->wcid;
 	struct ieee80211_sta *sta;
@@ -242,6 +249,7 @@ out:
 int mt76_rx_aggr_start(struct mt76_dev *dev, struct mt76_wcid *wcid, u8 tidno,
 		       u16 ssn, u16 size)
 {
+	printk(KERN_INFO "mt76_agg-rx.c - mt76_rx_aggr_start");
 	struct mt76_rx_tid *tid;
 
 	mt76_rx_aggr_stop(dev, wcid, tidno);
@@ -265,6 +273,7 @@ EXPORT_SYMBOL_GPL(mt76_rx_aggr_start);
 
 static void mt76_rx_aggr_shutdown(struct mt76_dev *dev, struct mt76_rx_tid *tid)
 {
+	printk(KERN_INFO "mt76_agg-rx.c - mt76_rx_aggr_shutdown");
 	u16 size = tid->size;
 	int i;
 
@@ -289,6 +298,7 @@ static void mt76_rx_aggr_shutdown(struct mt76_dev *dev, struct mt76_rx_tid *tid)
 
 void mt76_rx_aggr_stop(struct mt76_dev *dev, struct mt76_wcid *wcid, u8 tidno)
 {
+	printk(KERN_INFO "mt76_agg-rx.c - mt76_rx_aggr_stop");
 	struct mt76_rx_tid *tid = NULL;
 
 	tid = rcu_replace_pointer(wcid->aggr[tidno], tid,

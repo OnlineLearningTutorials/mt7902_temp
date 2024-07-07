@@ -11,6 +11,7 @@
 
 void mt76_connac_gen_ppe_thresh(u8 *he_ppet, int nss)
 {
+	printk(KERN_INFO "mt76_connac_mac - mt76_connac_gen_ppe_thresh");
 	static const u8 ppet16_ppet8_ru3_ru0[] = { 0x1c, 0xc7, 0x71 };
 	u8 i, ppet_bits, ppet_size, ru_bit_mask = 0x7; /* HE80 */
 
@@ -32,6 +33,7 @@ EXPORT_SYMBOL_GPL(mt76_connac_gen_ppe_thresh);
 
 int mt76_connac_pm_wake(struct mt76_phy *phy, struct mt76_connac_pm *pm)
 {
+	printk(KERN_INFO "mt76_connac_mac - mt76_connac_pm_wake");
 	struct mt76_dev *dev = phy->dev;
 
 	if (mt76_is_usb(dev))
@@ -59,6 +61,7 @@ EXPORT_SYMBOL_GPL(mt76_connac_pm_wake);
 void mt76_connac_power_save_sched(struct mt76_phy *phy,
 				  struct mt76_connac_pm *pm)
 {
+	printk(KERN_INFO "mt76_connac_mac - mt76_connac_power_save_sched");
 	struct mt76_dev *dev = phy->dev;
 
 	if (mt76_is_usb(dev))
@@ -82,6 +85,7 @@ EXPORT_SYMBOL_GPL(mt76_connac_power_save_sched);
 void mt76_connac_free_pending_tx_skbs(struct mt76_connac_pm *pm,
 				      struct mt76_wcid *wcid)
 {
+	printk(KERN_INFO "mt76_connac_mac - mt76_connac_free_pending_tx_skbs");
 	int i;
 
 	spin_lock_bh(&pm->txq_lock);
@@ -101,6 +105,7 @@ void mt76_connac_pm_queue_skb(struct ieee80211_hw *hw,
 			      struct mt76_wcid *wcid,
 			      struct sk_buff *skb)
 {
+	printk(KERN_INFO "mt76_connac_mac - mt76_connac_pm_queue_skb");
 	int qid = skb_get_queue_mapping(skb);
 	struct mt76_phy *phy = hw->priv;
 
@@ -120,6 +125,7 @@ EXPORT_SYMBOL_GPL(mt76_connac_pm_queue_skb);
 void mt76_connac_pm_dequeue_skbs(struct mt76_phy *phy,
 				 struct mt76_connac_pm *pm)
 {
+	printk(KERN_INFO "mt76_connac_mac - mt76_connac_pm_dequeue_skbs");
 	int i;
 
 	spin_lock_bh(&pm->txq_lock);
@@ -146,6 +152,7 @@ EXPORT_SYMBOL_GPL(mt76_connac_pm_dequeue_skbs);
 void mt76_connac_tx_complete_skb(struct mt76_dev *mdev,
 				 struct mt76_queue_entry *e)
 {
+	printk(KERN_INFO "mt76_connac_mac - mt76_connac_tx_complete_skb");
 	if (!e->txwi) {
 		dev_kfree_skb_any(e->skb);
 		return;
@@ -160,6 +167,7 @@ void mt76_connac_write_hw_txp(struct mt76_dev *dev,
 			      struct mt76_tx_info *tx_info,
 			      void *txp_ptr, u32 id)
 {
+	printk(KERN_INFO "mt76_connac_mac - mt76_connac_write_hw_txp");
 	struct mt76_connac_hw_txp *txp = txp_ptr;
 	struct mt76_connac_txp_ptr *ptr = &txp->ptr[0];
 	int i, nbuf = tx_info->nbuf - 1;
@@ -199,6 +207,7 @@ static void
 mt76_connac_txp_skb_unmap_fw(struct mt76_dev *mdev,
 			     struct mt76_connac_fw_txp *txp)
 {
+	printk(KERN_INFO "mt76_connac_mac - mt76_connac_txp_skb_unmap_fw");
 	struct device *dev = is_connac_v1(mdev) ? mdev->dev : mdev->dma_dev;
 	int i;
 
@@ -211,6 +220,7 @@ static void
 mt76_connac_txp_skb_unmap_hw(struct mt76_dev *dev,
 			     struct mt76_connac_hw_txp *txp)
 {
+	printk(KERN_INFO "mt76_connac_mac - mt76_connac_txp_skb_unmap_hw");
 	u32 last_mask;
 	int i;
 
@@ -245,6 +255,7 @@ mt76_connac_txp_skb_unmap_hw(struct mt76_dev *dev,
 void mt76_connac_txp_skb_unmap(struct mt76_dev *dev,
 			       struct mt76_txwi_cache *t)
 {
+	printk(KERN_INFO "mt76_connac_mac - mt76_connac_txp_skb_unmap");
 	struct mt76_connac_txp_common *txp;
 
 	txp = mt76_connac_txwi_to_txp(dev, t);
@@ -258,6 +269,7 @@ EXPORT_SYMBOL_GPL(mt76_connac_txp_skb_unmap);
 int mt76_connac_init_tx_queues(struct mt76_phy *phy, int idx, int n_desc,
 			       int ring_base, void *wed, u32 flags)
 {
+	printk(KERN_INFO "mt76_connac_mac - mt76_connac_init_tx_queues");
 	int i, err;
 
 	err = mt76_init_tx_queue(phy, 0, idx, n_desc, ring_base,
@@ -294,6 +306,7 @@ u16 mt76_connac2_mac_tx_rate_val(struct mt76_phy *mphy,
 				 struct ieee80211_vif *vif,
 				 bool beacon, bool mcast)
 {
+	printk(KERN_INFO "mt76_connac_mac - mt76_connac2_mac_tx_rate_val");
 	struct mt76_vif *mvif = (struct mt76_vif *)vif->drv_priv;
 	struct cfg80211_chan_def *chandef = mvif->ctx ?
 					    &mvif->ctx->def : &mphy->chandef;
@@ -344,6 +357,7 @@ static void
 mt76_connac2_mac_write_txwi_8023(__le32 *txwi, struct sk_buff *skb,
 				 struct mt76_wcid *wcid)
 {
+	printk(KERN_INFO "mt76_connac_mac - mt76_connac2_mac_write_txwi_8023");
 	u8 tid = skb->priority & IEEE80211_QOS_CTL_TID_MASK;
 	u8 fc_type, fc_stype;
 	u16 ethertype;
@@ -385,6 +399,7 @@ mt76_connac2_mac_write_txwi_80211(struct mt76_dev *dev, __le32 *txwi,
 				  struct sk_buff *skb,
 				  struct ieee80211_key_conf *key)
 {
+	printk(KERN_INFO "mt76_connac_mac - mt76_connac2_mac_write_txwi_80211");
 	struct ieee80211_hdr *hdr = (struct ieee80211_hdr *)skb->data;
 	struct ieee80211_mgmt *mgmt = (struct ieee80211_mgmt *)skb->data;
 	struct ieee80211_tx_info *info = IEEE80211_SKB_CB(skb);
@@ -471,6 +486,7 @@ void mt76_connac2_mac_write_txwi(struct mt76_dev *dev, __le32 *txwi,
 				 struct ieee80211_key_conf *key, int pid,
 				 enum mt76_txq_id qid, u32 changed)
 {
+	printk(KERN_INFO "mt76_connac_mac - mt76_connac2_mac_write_txwi");
 	struct ieee80211_tx_info *info = IEEE80211_SKB_CB(skb);
 	u8 phy_idx = (info->hw_queue & MT_TX_HW_QUEUE_PHY) >> 2;
 	struct ieee80211_vif *vif = info->control.vif;
@@ -586,6 +602,7 @@ EXPORT_SYMBOL_GPL(mt76_connac2_mac_write_txwi);
 bool mt76_connac2_mac_fill_txs(struct mt76_dev *dev, struct mt76_wcid *wcid,
 			       __le32 *txs_data)
 {
+	printk(KERN_INFO "mt76_connac_mac - mt76_connac2_mac_fill_txs");
 	struct mt76_sta_stats *stats = &wcid->stats;
 	struct ieee80211_supported_band *sband;
 	struct mt76_phy *mphy;
@@ -711,6 +728,7 @@ EXPORT_SYMBOL_GPL(mt76_connac2_mac_fill_txs);
 bool mt76_connac2_mac_add_txs_skb(struct mt76_dev *dev, struct mt76_wcid *wcid,
 				  int pid, __le32 *txs_data)
 {
+	printk(KERN_INFO "mt76_connac_mac - mt76_connac2_mac_add_txs_skb");
 	struct sk_buff_head list;
 	struct sk_buff *skb;
 
@@ -741,6 +759,7 @@ mt76_connac2_mac_decode_he_radiotap_ru(struct mt76_rx_status *status,
 				       struct ieee80211_radiotap_he *he,
 				       __le32 *rxv)
 {
+	printk(KERN_INFO "mt76_connac_mac - mt76_connac2_mac_decode_he_radiotap_ru");
 	u32 ru_h, ru_l;
 	u8 ru, offs = 0;
 
@@ -789,6 +808,7 @@ static void
 mt76_connac2_mac_decode_he_mu_radiotap(struct mt76_dev *dev, struct sk_buff *skb,
 				       __le32 *rxv)
 {
+	printk(KERN_INFO "mt76_connac_mac - mt76_connac2_mac_decode_he_mu_radiotap");
 	struct mt76_rx_status *status = (struct mt76_rx_status *)skb->cb;
 	static struct ieee80211_radiotap_he_mu mu_known = {
 		.flags1 = HE_BITS(MU_FLAGS1_SIG_B_MCS_KNOWN) |
@@ -839,6 +859,7 @@ void mt76_connac2_mac_decode_he_radiotap(struct mt76_dev *dev,
 					 struct sk_buff *skb,
 					 __le32 *rxv, u32 mode)
 {
+	printk(KERN_INFO "mt76_connac_mac - mt76_connac2_mac_decode_he_radiotap");
 	struct mt76_rx_status *status = (struct mt76_rx_status *)skb->cb;
 	static const struct ieee80211_radiotap_he known = {
 		.data1 = HE_BITS(DATA1_DATA_MCS_KNOWN) |
@@ -923,6 +944,7 @@ EXPORT_SYMBOL_GPL(mt76_connac2_mac_decode_he_radiotap);
 int mt76_connac2_reverse_frag0_hdr_trans(struct ieee80211_vif *vif,
 					 struct sk_buff *skb, u16 hdr_offset)
 {
+	printk(KERN_INFO "mt76_connac_mac - mt76_connac2_reverse_frag0_hdr_trans");
 	struct mt76_rx_status *status = (struct mt76_rx_status *)skb->cb;
 	struct ethhdr *eth_hdr = (struct ethhdr *)(skb->data + hdr_offset);
 	__le32 *rxd = (__le32 *)skb->data;
@@ -1000,6 +1022,7 @@ int mt76_connac2_mac_fill_rx_rate(struct mt76_dev *dev,
 				  struct ieee80211_supported_band *sband,
 				  __le32 *rxv, u8 *mode)
 {
+	printk(KERN_INFO "mt76_connac_mac - mt76_connac2_mac_fill_rx_rate");
 	u32 v0, v2;
 	u8 stbc, gi, bw, dcm, nss;
 	int i, idx;
@@ -1102,6 +1125,7 @@ EXPORT_SYMBOL_GPL(mt76_connac2_mac_fill_rx_rate);
 
 void mt76_connac2_tx_check_aggr(struct ieee80211_sta *sta, __le32 *txwi)
 {
+	printk(KERN_INFO "mt76_connac_mac - mt76_connac2_tx_check_aggr");
 	struct mt76_wcid *wcid;
 	u16 fc, tid;
 	u32 val;
@@ -1130,6 +1154,7 @@ void mt76_connac2_txwi_free(struct mt76_dev *dev, struct mt76_txwi_cache *t,
 			    struct ieee80211_sta *sta,
 			    struct list_head *free_list)
 {
+	printk(KERN_INFO "mt76_connac_mac - mt76_connac2_txwi_free");
 	struct mt76_wcid *wcid;
 	__le32 *txwi;
 	u16 wcid_idx;
@@ -1169,6 +1194,7 @@ EXPORT_SYMBOL_GPL(mt76_connac2_txwi_free);
 
 void mt76_connac2_tx_token_put(struct mt76_dev *dev)
 {
+	printk(KERN_INFO "mt76_connac_mac - mt76_connac2_tx_token_put");
 	struct mt76_txwi_cache *txwi;
 	int id;
 
