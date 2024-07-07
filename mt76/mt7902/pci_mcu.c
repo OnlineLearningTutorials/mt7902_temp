@@ -60,7 +60,7 @@ int mt7902e_mcu_init(struct mt792x_dev *dev)
 	if (err)
 		return err;
 
-    printk(KERN_INFO "pci_mcu.c - mt7902e_mcu_init - mt76_rmw_field(dev, 0x%x, 0x%x, 1) MT_PCIE_MAC_PM : 0x%x, MT_PCIE_MAC_PM_L0S_DIS : 0x%x", MT_PCIE_MAC_PM, MT_PCIE_MAC_PM_L0S_DIS, MT_PCIE_MAC_PM, MT_PCIE_MAC_PM_L0S_DIS);
+    printk(KERN_INFO "pci_mcu.c - mt7902e_mcu_init - mt76_rmw_field(dev, 0x%x, 0x%x, 1)", MT_PCIE_MAC_PM, MT_PCIE_MAC_PM_L0S_DIS);
 	mt76_rmw_field(dev, MT_PCIE_MAC_PM, MT_PCIE_MAC_PM_L0S_DIS, 1);
 
 	err = mt7902_run_firmware(dev);
