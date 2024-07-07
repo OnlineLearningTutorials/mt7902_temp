@@ -324,6 +324,7 @@ int mt792x_mcu_fw_pmctrl(struct mt792x_dev *dev);
 static inline char *mt792x_ram_name(struct mt792x_dev *dev)
 {
 	switch (mt76_chip(&dev->mt76)) {
+	case 0x7902:
 	case 0x7922:
 		return MT7922_FIRMWARE_WM;
 	case 0x7925:
@@ -336,6 +337,7 @@ static inline char *mt792x_ram_name(struct mt792x_dev *dev)
 static inline char *mt792x_patch_name(struct mt792x_dev *dev)
 {
 	switch (mt76_chip(&dev->mt76)) {
+	case 0x7902:
 	case 0x7922:
 		return MT7922_ROM_PATCH;
 	case 0x7925:

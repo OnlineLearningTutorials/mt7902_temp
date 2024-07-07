@@ -277,7 +277,7 @@ EXPORT_SYMBOL_GPL(mt792x_update_channel);
 
 void mt792x_reset(struct mt76_dev *mdev)
 {
-	printk(KERN_INFO "mt792x_mac.c - mt792x_reset");
+	printk(KERN_INFO "mt792x_mac.c - mt792x_reset(struct mt76_dev *mdev)");
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
 	struct mt76_connac_pm *pm = &dev->pm;
 

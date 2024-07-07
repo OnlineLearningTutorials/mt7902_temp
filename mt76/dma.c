@@ -302,7 +302,7 @@ mt76_dma_add_buf(struct mt76_dev *dev, struct mt76_queue *q,
 		 struct mt76_queue_buf *buf, int nbufs, u32 info,
 		 struct sk_buff *skb, void *txwi)
 {
-	printk(KERN_INFO "mt76_dma.c - mt76_dma_add_buf");
+	printk(KERN_INFO "mt76_dma.c - mt76_dma_add_buf(struct mt76_dev *dev, struct mt76_queue *q, struct mt76_queue_buf *buf, %d , 0x%x , struct sk_buff *skb, void *txwi)", nbufs, info);
 	struct mt76_queue_entry *entry;
 	struct mt76_desc *desc;
 	int i, idx = -1;
@@ -371,7 +371,7 @@ static void
 mt76_dma_tx_cleanup_idx(struct mt76_dev *dev, struct mt76_queue *q, int idx,
 			struct mt76_queue_entry *prev_e)
 {
-	printk(KERN_INFO "mt76_dma.c - mt76_dma_tx_cleanup_idx");
+	printk(KERN_INFO "mt76_dma.c - mt76_dma_tx_cleanup_idx(struct mt76_dev *dev, struct mt76_queue *q, %d, struct mt76_queue_entry *prev_e)", idx);
 	struct mt76_queue_entry *e = &q->entry[idx];
 
 	if (!e->skip_buf0)
@@ -392,7 +392,7 @@ mt76_dma_tx_cleanup_idx(struct mt76_dev *dev, struct mt76_queue *q, int idx,
 static void
 mt76_dma_kick_queue(struct mt76_dev *dev, struct mt76_queue *q)
 {
-	printk(KERN_INFO "mt76_dma.c - mt76_dma_kick_queue");
+	printk(KERN_INFO "mt76_dma.c - mt76_dma_kick_queue(struct mt76_dev *dev, struct mt76_queue *q)");
 	wmb();
 	Q_WRITE(q, cpu_idx, q->head);
 }
@@ -400,7 +400,7 @@ mt76_dma_kick_queue(struct mt76_dev *dev, struct mt76_queue *q)
 static void
 mt76_dma_tx_cleanup(struct mt76_dev *dev, struct mt76_queue *q, bool flush)
 {
-	printk(KERN_INFO "mt76_dma.c - mt76_dma_tx_cleanup");
+	printk(KERN_INFO "mt76_dma.c - mt76_dma_tx_cleanup(struct mt76_dev *dev, struct mt76_queue *q, %d)", flush);
 	struct mt76_queue_entry entry;
 	int last;
 
@@ -524,7 +524,7 @@ static int
 mt76_dma_tx_queue_skb_raw(struct mt76_dev *dev, struct mt76_queue *q,
 			  struct sk_buff *skb, u32 tx_info)
 {
-	printk(KERN_INFO "mt76_dma.c - mt76_dma_tx_queue_skb_raw");
+	printk(KERN_INFO "mt76_dma.c - mt76_dma_tx_queue_skb_raw(struct mt76_dev *dev, struct mt76_queue *q, struct sk_buff *skb, 0x%x)", tx_info);
 	struct mt76_queue_buf buf = {};
 	dma_addr_t addr;
 

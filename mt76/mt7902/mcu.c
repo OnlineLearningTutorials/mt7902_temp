@@ -18,7 +18,7 @@ MODULE_PARM_DESC(disable_clc, "disable CLC support");
 int mt7902_mcu_parse_response(struct mt76_dev *mdev, int cmd,
 			      struct sk_buff *skb, int seq)
 {
-    printk(KERN_INFO "mcu.c - mt7902_mcu_parse_response");
+    printk(KERN_INFO "mcu.c - mt7902_mcu_parse_response(struct mt76_dev *mdev, %d, struct sk_buff *skb, %d)", cmd, seq);
 	int mcu_cmd = FIELD_GET(__MCU_CMD_FIELD_ID, cmd);
 	struct mt76_connac2_mcu_rxd *rxd;
 	int ret = 0;
@@ -608,9 +608,9 @@ int mt7902_mcu_fw_log_2_host(struct mt792x_dev *dev, u8 ctrl)
 
 int mt7902_run_firmware(struct mt792x_dev *dev)
 {
-    printk(KERN_INFO "mcu.c - mt7902_run_firmware");
+    printk(KERN_INFO "mcu.c - mt7902_run_firmware(struct mt792x_dev *dev)");
 	int err;
-
+	printk(KERN_INFO "mcu.c - mt7902_run_firmware - chip_id : 0x%x", mt76_chip(&dev->mt76));
 	err = mt792x_load_firmware(dev);
 	printk(KERN_INFO "mcu.c - mt7902_run_firmware - mt792x_load_firmware(dev)->err : %d", err);
 	if (err)

@@ -150,7 +150,7 @@ mt7902_regd_notifier(struct wiphy *wiphy,
 
 int mt7902_mac_init(struct mt792x_dev *dev)
 {
-    printk(KERN_INFO "init.c - mt7902_mac_init");
+    printk(KERN_INFO "init.c - mt7902_mac_init(struct mt792x_dev *dev)");
 	int i;
 
 	mt76_rmw_field(dev, MT_MDP_DCR1, MT_MDP_DCR1_MAX_RX_LEN, 1536);
@@ -171,13 +171,13 @@ EXPORT_SYMBOL_GPL(mt7902_mac_init);
 
 static int __mt7902_init_hardware(struct mt792x_dev *dev)
 {
-    printk(KERN_INFO "init.c - __mt7902_init_hardware");
+    printk(KERN_INFO "init.c - __mt7902_init_hardware(struct mt792x_dev *dev)");
 	int ret;
 
 	/* force firmware operation mode into normal state,
 	 * which should be set before firmware download stage.
 	 */
-	printk(KERN_INFO "init.c - __mt7902_init_hardware - mt76_wr(dev, 0x%x, 0x%x); MT_SWDEF_MODE : 0x%x, MT_SWDEF_NORMAL_MODE : 0x%x", MT_SWDEF_MODE, MT_SWDEF_NORMAL_MODE, MT_SWDEF_MODE, MT_SWDEF_NORMAL_MODE);
+	printk(KERN_INFO "init.c - __mt7902_init_hardware - mt76_wr(dev, 0x%x, 0x%x);", MT_SWDEF_MODE, MT_SWDEF_NORMAL_MODE);
 	mt76_wr(dev, MT_SWDEF_MODE, MT_SWDEF_NORMAL_MODE);
 	ret = mt792x_mcu_init(dev);
 	printk(KERN_INFO "init.c - __mt7902_init_hardware mt792x_mcu_init(dev)->ret : %d", ret);
@@ -200,7 +200,7 @@ out:
 
 static int mt7902_init_hardware(struct mt792x_dev *dev)
 {
-    printk(KERN_INFO "init.c - mt7902_init_hardware");
+    printk(KERN_INFO "init.c - mt7902_init_hardware(struct mt792x_dev *dev)");
 	int ret, i;
 
 	set_bit(MT76_STATE_INITIALIZED, &dev->mphy.state);
@@ -223,7 +223,7 @@ static int mt7902_init_hardware(struct mt792x_dev *dev)
 
 static void mt7902_init_work(struct work_struct *work)
 {
-    printk(KERN_INFO "init.c - mt7902_init_work");
+    printk(KERN_INFO "init.c - mt7902_init_work(struct work_struct *work)");
 	struct mt792x_dev *dev = container_of(work, struct mt792x_dev,
 					      init_work);
 	int ret;
@@ -262,7 +262,7 @@ static void mt7902_init_work(struct work_struct *work)
 
 int mt7902_register_device(struct mt792x_dev *dev)
 {
-    printk(KERN_INFO "init.c - mt7902_register_device");
+    printk(KERN_INFO "init.c - mt7902_register_device(struct mt792x_dev *dev)");
 	struct ieee80211_hw *hw = mt76_hw(dev);
 	int ret;
 

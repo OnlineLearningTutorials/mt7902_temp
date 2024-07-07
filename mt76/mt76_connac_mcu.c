@@ -69,8 +69,10 @@ int mt76_connac_mcu_init_download(struct mt76_dev *dev, u32 addr, u32 len,
 	int cmd;
 
 	if ((!is_connac_v1(dev) && addr == MCU_PATCH_ADDRESS) ||
+	    (is_mt7902(dev) && addr == 0x900000) ||
 	    (is_mt7921(dev) && addr == 0x900000) ||
-	    (is_mt7925(dev) && (addr == 0x900000 || addr == 0xe0002800)) ||
+	    (is_mt7925(dev) && (addr == 0x900000 || 
+	    addr == 0xe0002800)) ||
 	    (is_mt7996(dev) && addr == 0x900000) ||
 	    (is_mt7992(dev) && addr == 0x900000))
 		cmd = MCU_CMD(PATCH_START_REQ);
@@ -3080,7 +3082,7 @@ int mt76_connac2_load_patch(struct mt76_dev *dev, const char *fw_name)
 	const struct firmware *fw = NULL;
 
 	sem = mt76_connac_mcu_patch_sem_ctrl(dev, true);
-	printk(KERN_INFO "mt76_connac_mcu - mt76_connac2_load_patch - mt76_connac_mcu_patch_sem_ctrl->sem %d", sem);
+	printk(KERN_INFO "mt76_connac_mcu - mt76_connac2_load_patch(struct mt76_dev *dev, %s) - mt76_connac_mcu_patch_sem_ctrl->sem %d", fw_name, sem);
 	switch (sem) {
 	case PATCH_IS_DL:
 		return 0;
@@ -3162,7 +3164,7 @@ EXPORT_SYMBOL_GPL(mt76_connac2_load_patch);
 int mt76_connac2_mcu_fill_message(struct mt76_dev *dev, struct sk_buff *skb,
 				  int cmd, int *wait_seq)
 {
-	printk(KERN_INFO "mt76_connac_mcu - mt76_connac2_mcu_fill_message");
+	printk(KERN_INFO "mt76_connac_mcu - mt76_connac2_mcu_fill_message(struct mt76_dev *dev, struct sk_buff *skb, %d, %d=%s)", cmd, *wait_seq, wait_seq);
 	int txd_len, mcu_cmd = FIELD_GET(__MCU_CMD_FIELD_ID, cmd);
 	struct mt76_connac2_mcu_uni_txd *uni_txd;
 	struct mt76_connac2_mcu_txd *mcu_txd;
