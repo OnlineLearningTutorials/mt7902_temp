@@ -12,17 +12,19 @@ __mt76_mcu_msg_alloc(struct mt76_dev *dev, const void *data,
 	printk(KERN_INFO "mt76_mcu.c - __mt76_mcu_msg_alloc(struct mt76_dev *dev, %s, %d, %d, gfp_t gfp)", data, len, data_len);
 	const struct mt76_mcu_ops *ops = dev->mcu_ops;
 	struct sk_buff *skb;
-
+	printk(KERN_INFO "mt76_mcu.c - __mt76_mcu_msg_alloc - len = max_t(int, %d, %d)", len, data_len);
 	len = max_t(int, len, data_len);
+	printk(KERN_INFO "mt76_mcu.c - __mt76_mcu_msg_alloc - len: %d", len);
+	printk(KERN_INFO "mt76_mcu.c - __mt76_mcu_msg_alloc - len = ops->headroom: %d + len: %d + ops->tailroom: %d", ops->headroom, len, ops->tailroom);
 	len = ops->headroom + len + ops->tailroom;
-
+	printk(KERN_INFO "mt76_mcu.c - __mt76_mcu_msg_alloc - len: %d", len);
 	skb = alloc_skb(len, gfp);
 	if (!skb)
 		return NULL;
 
 	memset(skb->head, 0, len);
 	skb_reserve(skb, ops->headroom);
-
+	printk(KERN_INFO "mt76_mcu.c - __mt76_mcu_msg_alloc - data: 0x%x - %s, data_len: %d", data, &data, data_len);
 	if (data && data_len)
 		skb_put_data(skb, data, data_len);
 
