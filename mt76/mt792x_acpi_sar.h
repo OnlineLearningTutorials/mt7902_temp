@@ -1,8 +1,8 @@
 /* SPDX-License-Identifier: ISC */
 /* Copyright (C) 2023 MediaTek Inc. */
 
-#ifndef __MT7921_ACPI_SAR_H
-#define __MT7921_ACPI_SAR_H
+#ifndef __MT7902_ACPI_SAR_H
+#define __MT7902_ACPI_SAR_H
 
 #define MT792x_ASAR_MIN_DYN		1
 #define MT792x_ASAR_MAX_DYN		8
