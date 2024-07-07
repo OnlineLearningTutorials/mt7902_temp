@@ -36,10 +36,11 @@ mt7902_mcu_send_message(struct mt76_dev *mdev, struct sk_buff *skb,
 
 	mdev->mcu.timeout = 3 * HZ;
 
-    printk(KERN_INFO "pci_mcu.c - mt7902_mcu_send_message - cmd: %d, MCU_CMD(FW_SCATTER): %d", cmd, MCU_CMD(FW_SCATTER));
+
 	if (cmd == MCU_CMD(FW_SCATTER))
 		txq = MT_MCUQ_FWDL;
-
+		
+    printk(KERN_INFO "pci_mcu.c - mt7902_mcu_send_message - cmd: %d, MCU_CMD(FW_SCATTER): %d, txq: %d, skb:%s ", cmd, MCU_CMD(FW_SCATTER), txq, skb);
 	return mt76_tx_queue_skb_raw(dev, mdev->q_mcu[txq], skb, 0);
 }
 

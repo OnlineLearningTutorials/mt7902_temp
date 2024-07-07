@@ -23,14 +23,15 @@ EXPORT_SYMBOL_GPL(mt76_connac_mcu_start_firmware);
 
 int mt76_connac_mcu_patch_sem_ctrl(struct mt76_dev *dev, bool get)
 {
-	printk(KERN_INFO "mt76_connac_mcu - mt76_connac_mcu_patch_sem_ctrl(struct mt76_dev *dev, bool %d)", get);
+	printk(KERN_INFO "mt76_connac_mcu - mt76_connac_mcu_patch_sem_ctrl(struct mt76_dev *dev, %d)", get);
 	u32 op = get ? PATCH_SEM_GET : PATCH_SEM_RELEASE;
+		printk(KERN_INFO "mt76_connac_mcu - mt76_connac_mcu_patch_sem_ctrl - op: 0x%x", op);
 	struct {
 		__le32 op;
 	} req = {
 		.op = cpu_to_le32(op),
 	};
-
+	printk(KERN_INFO "mt76_connac_mcu - mt76_connac_mcu_patch_sem_ctrl - mt76_mcu_send_msg(dev, %d, %s, %d, %d)", MCU_CMD(PATCH_SEM_CONTROL), &req, sizeof(req), true);
 	return mt76_mcu_send_msg(dev, MCU_CMD(PATCH_SEM_CONTROL),
 				 &req, sizeof(req), true);
 }
