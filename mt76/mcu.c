@@ -24,7 +24,7 @@ __mt76_mcu_msg_alloc(struct mt76_dev *dev, const void *data,
 
 	memset(skb->head, 0, len);
 	skb_reserve(skb, ops->headroom);
-	printk(KERN_INFO "mt76_mcu.c - __mt76_mcu_msg_alloc - data: 0x%x - %s, data_len: %d", data, &data, data_len);
+	printk(KERN_INFO "mt76_mcu.c - __mt76_mcu_msg_alloc - data: 0x%x, data_len: %d", data, data_len);
 	if (data && data_len)
 		skb_put_data(skb, data, data_len);
 
@@ -71,6 +71,7 @@ int mt76_mcu_send_and_get_msg(struct mt76_dev *dev, int cmd, const void *data,
 	if (!skb)
 		return -ENOMEM;
 
+	printk(KERN_INFO "mt76_mcu.c - mt76_mcu_send_and_get_msg - mt76_mcu_skb_send_and_get_msg(dev, skb, %d, %d, ret_skb)", cmd, wait_resp);
 	return mt76_mcu_skb_send_and_get_msg(dev, skb, cmd, wait_resp, ret_skb);
 }
 EXPORT_SYMBOL_GPL(mt76_mcu_send_and_get_msg);
@@ -86,9 +87,11 @@ int mt76_mcu_skb_send_and_get_msg(struct mt76_dev *dev, struct sk_buff *skb,
 	if (ret_skb)
 		*ret_skb = NULL;
 
+	printk(KERN_INFO "mt76_mcu.c - mt76_mcu_skb_send_and_get_msg - mutex_lock");
 	mutex_lock(&dev->mcu.mutex);
 
 	ret = dev->mcu_ops->mcu_skb_send_msg(dev, skb, cmd, &seq);
+	printk(KERN_INFO "mt76_mcu.c - mt76_mcu_skb_send_and_get_msg - mcu_skb_send_msg->ret:%d", ret);
 	if (ret < 0)
 		goto out;
 
@@ -98,7 +101,7 @@ int mt76_mcu_skb_send_and_get_msg(struct mt76_dev *dev, struct sk_buff *skb,
 	}
 
 	expires = jiffies + dev->mcu.timeout;
-
+	printk(KERN_INFO "mt76_mcu.c - mt76_mcu_skb_send_and_get_msg - expires:%lu", expires);
 	do {
 		skb = mt76_mcu_get_response(dev, expires);
 		ret = dev->mcu_ops->mcu_parse_response(dev, cmd, skb, seq);
