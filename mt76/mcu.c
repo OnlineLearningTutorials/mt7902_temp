@@ -105,6 +105,7 @@ int mt76_mcu_skb_send_and_get_msg(struct mt76_dev *dev, struct sk_buff *skb,
 	do {
 		skb = mt76_mcu_get_response(dev, expires);
 		ret = dev->mcu_ops->mcu_parse_response(dev, cmd, skb, seq);
+		printk(KERN_INFO "mt76_mcu.c - mt76_mcu_skb_send_and_get_msg - dev->mcu_ops->mcu_parse_response(dev, %d, skb, %d)->ret: %d", cmd, seq, ret);
 		if (!ret && ret_skb)
 			*ret_skb = skb;
 		else
@@ -112,6 +113,7 @@ int mt76_mcu_skb_send_and_get_msg(struct mt76_dev *dev, struct sk_buff *skb,
 	} while (ret == -EAGAIN);
 
 out:
+	printk(KERN_INFO "mt76_mcu.c - mt76_mcu_skb_send_and_get_msg - mutex_unlock");
 	mutex_unlock(&dev->mcu.mutex);
 
 	return ret;
