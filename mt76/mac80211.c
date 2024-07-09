@@ -592,7 +592,7 @@ EXPORT_SYMBOL_GPL(mt76_unregister_phy);
 
 int mt76_create_page_pool(struct mt76_dev *dev, struct mt76_queue *q)
 {
-	printk(KERN_INFO "mt76_mac80211.c - mt76_create_page_pool");
+	printk(KERN_INFO "mt76_mac80211.c - mt76_create_page_pool - q:%d", q);
 	struct page_pool_params pp_params = {
 		.order = 0,
 		.flags = 0,
@@ -600,7 +600,7 @@ int mt76_create_page_pool(struct mt76_dev *dev, struct mt76_queue *q)
 		.dev = dev->dma_dev,
 	};
 	int idx = q - dev->q_rx;
-
+	printk(KERN_INFO "mt76_mac80211.c - mt76_create_page_pool - idx: %d", idx);
 	switch (idx) {
 	case MT_RXQ_MAIN:
 	case MT_RXQ_BAND1:
@@ -612,22 +612,24 @@ int mt76_create_page_pool(struct mt76_dev *dev, struct mt76_queue *q)
 		break;
 	}
 
+	printk(KERN_INFO "mt76_mac80211.c - mt76_create_page_pool - pool_size: %d", pp_params.pool_size);
 	if (mt76_is_mmio(dev)) {
 		/* rely on page_pool for DMA mapping */
 		pp_params.flags |= PP_FLAG_DMA_MAP | PP_FLAG_DMA_SYNC_DEV;
 		pp_params.dma_dir = DMA_FROM_DEVICE;
 		pp_params.max_len = PAGE_SIZE;
 		pp_params.offset = 0;
+		printk(KERN_INFO "mt76_mac80211.c - mt76_create_page_pool - mt76_is_mmio(dev)");
 	}
 
 	q->page_pool = page_pool_create(&pp_params);
 	if (IS_ERR(q->page_pool)) {
 		int err = PTR_ERR(q->page_pool);
-
+		printk(KERN_INFO "mt76_mac80211.c - mt76_create_page_pool - is_err(q->page_pool)");
 		q->page_pool = NULL;
 		return err;
 	}
-
+		printk(KERN_INFO "mt76_mac80211.c - mt76_create_page_pool - return");
 	return 0;
 }
 EXPORT_SYMBOL_GPL(mt76_create_page_pool);
@@ -713,7 +715,7 @@ EXPORT_SYMBOL_GPL(mt76_alloc_device);
 int mt76_register_device(struct mt76_dev *dev, bool vht,
 			 struct ieee80211_rate *rates, int n_rates)
 {
-	printk(KERN_INFO "mt76_mac80211.c - mt76_register_device");
+	printk(KERN_INFO "mt76_mac80211.c - mt76_register_device(struct mt76_dev *dev, %d, struct ieee80211_rate *rates, %d)", vht, n_rates);
 	struct ieee80211_hw *hw = dev->hw;
 	struct mt76_phy *phy = &dev->phy;
 	int ret;
@@ -725,18 +727,22 @@ int mt76_register_device(struct mt76_dev *dev, bool vht,
 		return ret;
 
 	if (phy->cap.has_2ghz) {
+		printk(KERN_INFO "mt76_mac80211.c - mt76_register_device - mt76_init_sband_2g(phy, %d, %d)", rates, n_rates);
 		ret = mt76_init_sband_2g(phy, rates, n_rates);
 		if (ret)
 			return ret;
 	}
 
 	if (phy->cap.has_5ghz) {
+		printk(KERN_INFO "mt76_mac80211.c - mt76_register_device - mt76_init_sband_5g(phy, %d, %d, %d)", rates + 4, n_rates - 4, vht);
 		ret = mt76_init_sband_5g(phy, rates + 4, n_rates - 4, vht);
 		if (ret)
+		
 			return ret;
 	}
 
 	if (phy->cap.has_6ghz) {
+		printk(KERN_INFO "mt76_mac80211.c - mt76_register_device - mt76_init_sband_6g(phy, %d, %d)", rates + 4, n_rates - 4);
 		ret = mt76_init_sband_6g(phy, rates + 4, n_rates - 4);
 		if (ret)
 			return ret;
@@ -748,17 +754,19 @@ int mt76_register_device(struct mt76_dev *dev, bool vht,
 	mt76_check_sband(&dev->phy, &phy->sband_6g, NL80211_BAND_6GHZ);
 
 	if (IS_ENABLED(CONFIG_MT76_LEDS)) {
+		printk(KERN_INFO "mt76_mac80211.c - mt76_register_device - led_init");
 		ret = mt76_led_init(phy);
 		if (ret)
 			return ret;
 	}
-
+	printk(KERN_INFO "mt76_mac80211.c - mt76_register_device - ieee80211_register_hw(hw);");
 	ret = ieee80211_register_hw(hw);
 	if (ret)
 		return ret;
 
 	WARN_ON(mt76_worker_setup(hw, &dev->tx_worker, NULL, "tx"));
 	set_bit(MT76_STATE_REGISTERED, &phy->state);
+	printk(KERN_INFO "mt76_mac80211.c - mt76_register_device - set_bit(MT76_STATE_REGISTERED, &phy->state) - 0x%x", &phy->state);
 	sched_set_fifo_low(dev->tx_worker.task);
 
 	return 0;
@@ -1795,7 +1803,7 @@ struct mt76_queue *
 mt76_init_queue(struct mt76_dev *dev, int qid, int idx, int n_desc,
 		int ring_base, void *wed, u32 flags)
 {
-	printk(KERN_INFO "mt76_mac80211.c - mt76_init_queue");
+	printk(KERN_INFO "mt76_mac80211.c - mt76_init_queue(struct mt76_dev *dev, %d, %d, %d, %d, 0x%x)", qid, idx, n_desc, ring_base, flags);
 	struct mt76_queue *hwq;
 	int err;
 
@@ -1805,11 +1813,12 @@ mt76_init_queue(struct mt76_dev *dev, int qid, int idx, int n_desc,
 
 	hwq->flags = flags;
 	hwq->wed = wed;
-
+	printk(KERN_INFO "mt76_mac80211.c - mt76_init_queue - queue_ops");
 	err = dev->queue_ops->alloc(dev, hwq, idx, n_desc, 0, ring_base);
 	if (err < 0)
 		return ERR_PTR(err);
 
+	printk(KERN_INFO "mt76_mac80211.c - mt76_init_queue - return");
 	return hwq;
 }
 EXPORT_SYMBOL_GPL(mt76_init_queue);

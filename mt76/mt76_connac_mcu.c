@@ -3077,11 +3077,11 @@ static u32 mt76_connac2_get_data_mode(struct mt76_dev *dev, u32 info)
 
 int mt76_connac2_load_patch(struct mt76_dev *dev, const char *fw_name)
 {
-	int i, ret, sem, max_len = mt76_is_sdio(dev) ? 2048 : 4096;
+	int i, ret, sem, max_len = 4096;
 	const struct mt76_connac2_patch_hdr *hdr;
 	const struct firmware *fw = NULL;
 
-	sem = mt76_connac_mcu_patch_sem_ctrl(dev, true);
+	/*sem = mt76_connac_mcu_patch_sem_ctrl(dev, true);
 	printk(KERN_INFO "mt76_connac_mcu - mt76_connac2_load_patch(struct mt76_dev *dev, %s) - mt76_connac_mcu_patch_sem_ctrl->sem %d", fw_name, sem);
 	switch (sem) {
 	case PATCH_IS_DL:
@@ -3092,7 +3092,7 @@ int mt76_connac2_load_patch(struct mt76_dev *dev, const char *fw_name)
 		dev_err(dev->dev, "Failed to get patch semaphore\n");
 		return -EAGAIN;
 	}
-
+ */
 	ret = request_firmware(&fw, fw_name, dev->dev);
 	if (ret)
 		goto out;
@@ -3173,16 +3173,19 @@ int mt76_connac2_mcu_fill_message(struct mt76_dev *dev, struct sk_buff *skb,
 	u8 seq;
 
 	/* TODO: make dynamic based on msg type */
-	dev->mcu.timeout = 20 * HZ;
+	dev->mcu.timeout = 3 * HZ;
 
 	seq = ++dev->mcu.msg_seq & 0xf;
+	printk(KERN_INFO "mt76_connac_mcu - mt76_connac2_mcu_fill_message - seq: 0x%x", seq);
 	if (!seq)
 		seq = ++dev->mcu.msg_seq & 0xf;
 
+	printk(KERN_INFO "mt76_connac_mcu - mt76_connac2_mcu_fill_message - seq: 0x%x", seq);
 	if (cmd == MCU_CMD(FW_SCATTER))
 		goto exit;
 
 	txd_len = cmd & __MCU_CMD_FIELD_UNI ? sizeof(*uni_txd) : sizeof(*mcu_txd);
+	printk(KERN_INFO "mt76_connac_mcu - mt76_connac2_mcu_fill_message - txd_len:%d", txd_len);
 	txd = (__le32 *)skb_push(skb, txd_len);
 
 	val = FIELD_PREP(MT_TXD0_TX_BYTES, skb->len) |
@@ -3202,7 +3205,7 @@ int mt76_connac2_mcu_fill_message(struct mt76_dev *dev, struct sk_buff *skb,
 		uni_txd->s2d_index = MCU_S2D_H2N;
 		uni_txd->pkt_type = MCU_PKT_ID;
 		uni_txd->seq = seq;
-
+	printk(KERN_INFO "mt76_connac_mcu - mt76_connac2_mcu_fill_message - if_cmd");
 		goto exit;
 	}
 
@@ -3234,6 +3237,7 @@ exit:
 	if (wait_seq)
 		*wait_seq = seq;
 
+	printk(KERN_INFO "mt76_connac_mcu - mt76_connac2_mcu_fill_message - seq: 0x%x, wait_seq:%s", seq, wait_seq);
 	return 0;
 }
 EXPORT_SYMBOL_GPL(mt76_connac2_mcu_fill_message);

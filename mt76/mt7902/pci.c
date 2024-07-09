@@ -287,15 +287,15 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 	u16 cmd;
 
 	ret = pcim_enable_device(pdev);
-    //printk(KERN_INFO "pci.c - mt7902_pci_probe pcim_enable_device->ret : %d", ret);
+    printk(KERN_INFO "pci.c - mt7902_pci_probe pcim_enable_device->ret : %d", ret);
 	if (ret)
 		return ret;
 
 	ret = pcim_iomap_regions(pdev, BIT(0), pci_name(pdev));
-    //printk(KERN_INFO "pci.c - mt7902_pci_probe pcim_iomap_regions->ret : %d", ret);
+    printk(KERN_INFO "pci.c - mt7902_pci_probe pcim_iomap_regions(pdev, %d, %s)->ret : %d", BIT(0), pci_name(pdev), ret);
 	if (ret)
 		return ret;
-
+    printk(KERN_INFO "pci.c - mt7902_pci_probe - pci_read_config_word(pdev, %d, 0x%x);", PCI_COMMAND, &cmd);
 	pci_read_config_word(pdev, PCI_COMMAND, &cmd);
 	if (!(cmd & PCI_COMMAND_MEMORY)) {
 		cmd |= PCI_COMMAND_MEMORY;
@@ -304,16 +304,16 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 	pci_set_master(pdev);
 
 	ret = pci_alloc_irq_vectors(pdev, 1, 1, PCI_IRQ_ALL_TYPES);
-    //printk(KERN_INFO "pci.c - mt7902_pci_probe pci_alloc_irq_vectors->ret : %d", ret);
+    printk(KERN_INFO "pci.c - mt7902_pci_probe pci_alloc_irq_vectors->ret : %d", ret);
 	if (ret < 0)
 		return ret;
 
 	ret = dma_set_mask(&pdev->dev, DMA_BIT_MASK(32));
-    //printk(KERN_INFO "pci.c - mt7902_pci_probe dma_set_mask->ret: %d", ret);
+    printk(KERN_INFO "pci.c - mt7902_pci_probe dma_set_mask(pdev, 0x%x)->ret: %d", DMA_BIT_MASK(32), ret);
 	if (ret)
 		goto err_free_pci_vec;
 
-    //printk(KERN_INFO "pci.c - mt7902_pci_probe mt7902_disable_aspm: %d", mt7902_disable_aspm);
+    printk(KERN_INFO "pci.c - mt7902_pci_probe mt7902_disable_aspm: %d", mt7902_disable_aspm);
 	if (mt7902_disable_aspm)
 		mt76_pci_disable_aspm(pdev);
 
@@ -368,6 +368,8 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 	if (ret)
 		goto err_free_dev;
 
+	printk(KERN_INFO "pci.c - mt7902_pci_probe - rev - 0x%x  - 0x%x", mt7902_l1_rr(dev, MT_HW_CHIPID), MT_HW_CHIPID);
+	printk(KERN_INFO "pci.c - mt7902_pci_probe - rev - 0x%x  - 0x%x", (mt7902_l1_rr(dev, MT_HW_REV) & 0xff), MT_HW_REV);
 	mdev->rev = (mt7902_l1_rr(dev, MT_HW_CHIPID) << 16) |
 		    (mt7902_l1_rr(dev, MT_HW_REV) & 0xff);
 	dev_info(mdev->dev, "ASIC revision: %04x\n", mdev->rev);

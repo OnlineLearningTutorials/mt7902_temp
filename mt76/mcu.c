@@ -9,7 +9,7 @@ struct sk_buff *
 __mt76_mcu_msg_alloc(struct mt76_dev *dev, const void *data,
 		     int len, int data_len, gfp_t gfp)
 {
-	printk(KERN_INFO "mt76_mcu.c - __mt76_mcu_msg_alloc(struct mt76_dev *dev, %s, %d, %d, gfp_t gfp)", data, len, data_len);
+	printk(KERN_INFO "mt76_mcu.c - __mt76_mcu_msg_alloc(struct mt76_dev *dev, %s=%d=0x%x=%s, %d, %d, gfp_t gfp)", data, data, data, &data, len, data_len);
 	const struct mt76_mcu_ops *ops = dev->mcu_ops;
 	struct sk_buff *skb;
 	printk(KERN_INFO "mt76_mcu.c - __mt76_mcu_msg_alloc - len = max_t(int, %d, %d)", len, data_len);
@@ -25,9 +25,12 @@ __mt76_mcu_msg_alloc(struct mt76_dev *dev, const void *data,
 	memset(skb->head, 0, len);
 	skb_reserve(skb, ops->headroom);
 	printk(KERN_INFO "mt76_mcu.c - __mt76_mcu_msg_alloc - data: 0x%x, data_len: %d", data, data_len);
-	if (data && data_len)
+	if (data && data_len) {
+		printk(KERN_INFO "mt76_mcu.c - __mt76_mcu_msg_alloc - skb_put_data - data: 0x%x, data_len: %d", data, data_len);
 		skb_put_data(skb, data, data_len);
+	}
 
+	printk(KERN_INFO "mt76_mcu.c - __mt76_mcu_msg_alloc - data: 0x%x, skb_queue_empty: %d", data, skb_queue_empty(&dev->mcu.res_q));
 	return skb;
 }
 EXPORT_SYMBOL_GPL(__mt76_mcu_msg_alloc);
@@ -42,12 +45,12 @@ struct sk_buff *mt76_mcu_get_response(struct mt76_dev *dev,
 		return NULL;
 
 	timeout = expires - jiffies;
-	printk(KERN_INFO "mt76_mcu.c - mt76_mcu_get_response - timeout: %lu", timeout);
+	printk(KERN_INFO "mt76_mcu.c - mt76_mcu_get_response - timeout: %lu - phy.state: 0x%x - test_bit: %d, skb_queue_empty: %d, MT76_MCU_RESET: 0x%x", timeout, &dev->phy.state, test_bit(MT76_MCU_RESET, &dev->phy.state), skb_queue_empty(&dev->mcu.res_q), MT76_MCU_RESET );
 	wait_event_timeout(dev->mcu.wait,
 			   (!skb_queue_empty(&dev->mcu.res_q) ||
 			    test_bit(MT76_MCU_RESET, &dev->phy.state)),
 			   timeout);
-	printk(KERN_INFO "mt76_mcu.c - mt76_mcu_get_response - skb_dequeue");
+	printk(KERN_INFO "mt76_mcu.c - mt76_mcu_get_response - skb_dequeue - phy.state: 0x%x", &dev->phy.state);
 	return skb_dequeue(&dev->mcu.res_q);
 }
 EXPORT_SYMBOL_GPL(mt76_mcu_get_response);
@@ -89,11 +92,11 @@ int mt76_mcu_skb_send_and_get_msg(struct mt76_dev *dev, struct sk_buff *skb,
 	if (ret_skb)
 		*ret_skb = NULL;
 
-	printk(KERN_INFO "mt76_mcu.c - mt76_mcu_skb_send_and_get_msg - mutex_lock");
+	printk(KERN_INFO "mt76_mcu.c - mt76_mcu_skb_send_and_get_msg - mutex_lock - skb_queue_empty:%d", skb_queue_empty(&dev->mcu.res_q));
 	mutex_lock(&dev->mcu.mutex);
 
 	ret = dev->mcu_ops->mcu_skb_send_msg(dev, skb, cmd, &seq);
-	printk(KERN_INFO "mt76_mcu.c - mt76_mcu_skb_send_and_get_msg - mcu_skb_send_msg->ret:%d", ret);
+	printk(KERN_INFO "mt76_mcu.c - mt76_mcu_skb_send_and_get_msg - mcu_skb_send_msg->ret:%d, skb_queue_empty:%d, seq:0x%x", ret, skb_queue_empty(&dev->mcu.res_q), &seq);
 	if (ret < 0)
 		goto out;
 
@@ -106,6 +109,7 @@ int mt76_mcu_skb_send_and_get_msg(struct mt76_dev *dev, struct sk_buff *skb,
 	printk(KERN_INFO "mt76_mcu.c - mt76_mcu_skb_send_and_get_msg - expires:%lu", expires);
 	do {
 		skb = mt76_mcu_get_response(dev, expires);
+		printk(KERN_INFO "mt76_mcu.c - mt76_mcu_skb_send_and_get_msg - skb:%d", skb);
 		ret = dev->mcu_ops->mcu_parse_response(dev, cmd, skb, seq);
 		printk(KERN_INFO "mt76_mcu.c - mt76_mcu_skb_send_and_get_msg - dev->mcu_ops->mcu_parse_response(dev, %d, skb, %d)->ret: %d", cmd, seq, ret);
 		if (!ret && ret_skb)

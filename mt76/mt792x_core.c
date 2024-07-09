@@ -636,15 +636,16 @@ EXPORT_SYMBOL_GPL(mt792x_init_wiphy);
 static u8
 mt792x_get_offload_capability(struct device *dev, const char *fw_wm)
 {
-	printk(KERN_INFO "mt792x_core.c - mt792x_get_offload_capability");
+	printk(KERN_INFO "mt792x_core.c - mt792x_get_offload_capability(dev, %s)", fw_wm);
 	const struct mt76_connac2_fw_trailer *hdr;
 	struct mt792x_realease_info *rel_info;
 	const struct firmware *fw;
 	int ret, i, offset = 0;
 	const u8 *data, *end;
 	u8 offload_caps = 0;
-	printk(KERN_INFO "mt792x_core.c - mt792x_get_offload_capability - request_firmware");
+
 	ret = request_firmware(&fw, fw_wm, dev);
+	printk(KERN_INFO "mt792x_core.c - mt792x_get_offload_capability - request_firmware->ret:%d", ret);
 	if (ret)
 		return ret;
 
@@ -670,23 +671,24 @@ mt792x_get_offload_capability(struct device *dev, const char *fw_wm)
 	rel_info = (struct mt792x_realease_info *)data;
 	data += sizeof(*rel_info);
 	end = data + le16_to_cpu(rel_info->len);
-
+	printk(KERN_INFO "mt792x_core.c - mt792x_get_offload_capability - while(data:0x%x < end:0x%x)", data, end);
 	while (data < end) {
 		rel_info = (struct mt792x_realease_info *)data;
 		data += sizeof(*rel_info);
-
+		printk(KERN_INFO "mt792x_core.c - mt792x_get_offload_capability - while(data:0x%x < end:0x%x)", data, end);
 		if (rel_info->tag == MT792x_FW_TAG_FEATURE) {
 			struct mt792x_fw_features *features;
-
+			printk(KERN_INFO "mt792x_core.c - mt792x_get_offload_capability - MT792x_FW_TAG_FEATURE: 0x%x", MT792x_FW_TAG_FEATURE);
 			features = (struct mt792x_fw_features *)data;
 			offload_caps = features->data;
 			break;
 		}
-
+		printk(KERN_INFO "mt792x_core.c - mt792x_get_offload_capability - while(data:0x%x < end:0x%x)", data, end);
 		data += le16_to_cpu(rel_info->len) + rel_info->pad_len;
 	}
 
 out:
+	printk(KERN_INFO "mt792x_core.c - mt792x_get_offload_capability - release_firmware");
 	release_firmware(fw);
 
 	return offload_caps;
