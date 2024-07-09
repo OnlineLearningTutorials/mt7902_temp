@@ -136,7 +136,7 @@ static u32 __mt7902_reg_addr(struct mt792x_dev *dev, u32 addr)
 
 static u32 mt7902_rr(struct mt76_dev *mdev, u32 offset)
 {
-    printk(KERN_INFO "pci.c - mt7902_rr(struct mt76_dev *mdev, 0x%x)", offset);
+    //printk(KERN_INFO "pci.c - mt7902_rr(struct mt76_dev *mdev, 0x%x)", offset);
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
 	u32 addr = __mt7902_reg_addr(dev, offset);
     //printk(KERN_INFO "pci.c - mt7902_rr - addr: 0x%x, offset: 0x%x", addr, offset);
@@ -145,7 +145,7 @@ static u32 mt7902_rr(struct mt76_dev *mdev, u32 offset)
 
 static void mt7902_wr(struct mt76_dev *mdev, u32 offset, u32 val)
 {
-    printk(KERN_INFO "pci.c - mt7902_wr(struct mt76_dev *mdev, 0x%x, 0x%x)", offset, val);
+    //printk(KERN_INFO "pci.c - mt7902_wr(struct mt76_dev *mdev, 0x%x, 0x%x)", offset, val);
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
 	u32 addr = __mt7902_reg_addr(dev, offset);
     //printk(KERN_INFO "pci.c - mt7902_wr - addr: 0x%x, offset: 0x%x, val: 0x%x", addr, offset, val);
@@ -154,7 +154,7 @@ static void mt7902_wr(struct mt76_dev *mdev, u32 offset, u32 val)
 
 static u32 mt7902_rmw(struct mt76_dev *mdev, u32 offset, u32 mask, u32 val)
 {
-    printk(KERN_INFO "pci.c - mt7902_rmw(struct mt76_dev *mdev, 0x%x, 0x%x, 0x%x)", offset, mask, val);
+    //printk(KERN_INFO "pci.c - mt7902_rmw(struct mt76_dev *mdev, 0x%x, 0x%x, 0x%x)", offset, mask, val);
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
 	u32 addr = __mt7902_reg_addr(dev, offset);
     //printk(KERN_INFO "pci.c - mt7902_rmw - addr : 0x%x, mask: 0x%x, val: 0x%x", addr, mask, val);

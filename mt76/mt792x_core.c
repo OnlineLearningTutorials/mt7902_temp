@@ -613,7 +613,7 @@ int mt792x_init_wiphy(struct ieee80211_hw *hw)
 	wiphy_ext_feature_set(wiphy, NL80211_EXT_FEATURE_BEACON_RATE_HE);
 	wiphy_ext_feature_set(wiphy, NL80211_EXT_FEATURE_ACK_SIGNAL_SUPPORT);
 	wiphy_ext_feature_set(wiphy, NL80211_EXT_FEATURE_CAN_REPLACE_PTK0);
-
+	printk(KERN_INFO "mt792x_core.c - mt792x_init_wiphy - ieee80211_hw_set");
 	ieee80211_hw_set(hw, SINGLE_SCAN_ON_ALL_BANDS);
 	ieee80211_hw_set(hw, HAS_RATE_CONTROL);
 	ieee80211_hw_set(hw, SUPPORTS_TX_ENCAP_OFFLOAD);
@@ -643,11 +643,12 @@ mt792x_get_offload_capability(struct device *dev, const char *fw_wm)
 	int ret, i, offset = 0;
 	const u8 *data, *end;
 	u8 offload_caps = 0;
-
+	printk(KERN_INFO "mt792x_core.c - mt792x_get_offload_capability - request_firmware");
 	ret = request_firmware(&fw, fw_wm, dev);
 	if (ret)
 		return ret;
 
+	printk(KERN_INFO "mt792x_core.c - mt792x_get_offload_capability - check firmware error");
 	if (!fw || !fw->data || fw->size < sizeof(*hdr)) {
 		dev_err(dev, "Invalid firmware\n");
 		goto out;
@@ -655,6 +656,7 @@ mt792x_get_offload_capability(struct device *dev, const char *fw_wm)
 
 	data = fw->data;
 	hdr = (const void *)(fw->data + fw->size - sizeof(*hdr));
+
 
 	for (i = 0; i < hdr->n_region; i++) {
 		const struct mt76_connac2_fw_region *region;
@@ -729,6 +731,7 @@ int mt792x_init_wcid(struct mt792x_dev *dev)
 	if (idx)
 		return -ENOSPC;
 
+	printk(KERN_INFO "mt792x_core.c - mt792x_init_wcid - idx:%d", idx);
 	dev->mt76.global_wcid.idx = idx;
 	dev->mt76.global_wcid.hw_key_idx = -1;
 	dev->mt76.global_wcid.tx_info |= MT_WCID_TX_INFO_SET;
@@ -746,12 +749,13 @@ int mt792x_mcu_drv_pmctrl(struct mt792x_dev *dev)
 	int err = 0;
 
 	mutex_lock(&pm->mutex);
-
+	printk(KERN_INFO "mt792x_core.c - mt792x_mcu_drv_pmctrl - mutex_lock");
 	if (!test_bit(MT76_STATE_PM, &mphy->state))
 		goto out;
 
 	err = __mt792x_mcu_drv_pmctrl(dev);
 out:
+	printk(KERN_INFO "mt792x_core.c - mt792x_mcu_drv_pmctrl - mutex_unlock");
 	mutex_unlock(&pm->mutex);
 
 	if (err)
@@ -769,12 +773,13 @@ int mt792x_mcu_fw_pmctrl(struct mt792x_dev *dev)
 	int err = 0;
 
 	mutex_lock(&pm->mutex);
-
+	printk(KERN_INFO "mt792x_core.c - mt792x_mcu_fw_pmctrl - mutex_lock");
 	if (mt76_connac_skip_fw_pmctrl(mphy, pm))
 		goto out;
 
 	err = __mt792x_mcu_fw_pmctrl(dev);
 out:
+	printk(KERN_INFO "mt792x_core.c - mt792x_mcu_fw_pmctrl - mutex_unlock");
 	mutex_unlock(&pm->mutex);
 
 	if (err)
@@ -790,6 +795,7 @@ int __mt792xe_mcu_drv_pmctrl(struct mt792x_dev *dev)
 	int i, err = 0;
 
 	for (i = 0; i < MT792x_DRV_OWN_RETRY_COUNT; i++) {
+		printk(KERN_INFO "mt792x_core.c - __mt792xe_mcu_drv_pmctrl - i:%d - mt76_wr(dev, 0x%x, 0x%x)", i, MT_CONN_ON_LPCTL, PCIE_LPCR_HOST_CLR_OWN);
 		mt76_wr(dev, MT_CONN_ON_LPCTL, PCIE_LPCR_HOST_CLR_OWN);
 		if (mt76_poll_msec_tick(dev, MT_CONN_ON_LPCTL,
 					PCIE_LPCR_HOST_OWN_SYNC, 0, 50, 1))
@@ -818,7 +824,7 @@ int mt792xe_mcu_drv_pmctrl(struct mt792x_dev *dev)
 
 	mt792x_wpdma_reinit_cond(dev);
 	clear_bit(MT76_STATE_PM, &mphy->state);
-
+	printk(KERN_INFO "mt792x_core.c - mt792xe_mcu_drv_pmctrl - clear_bit(0x%x, 0x%x)", MT76_STATE_PM, &mphy->state);
 	pm->stats.last_wake_event = jiffies;
 	pm->stats.doze_time += pm->stats.last_wake_event -
 			       pm->stats.last_doze_event;
@@ -835,6 +841,7 @@ int mt792xe_mcu_fw_pmctrl(struct mt792x_dev *dev)
 	int i;
 
 	for (i = 0; i < MT792x_DRV_OWN_RETRY_COUNT; i++) {
+		printk(KERN_INFO "mt792x_core.c - mt792xe_mcu_fw_pmctrl - mt76_wr(dev, 0x%x, 0x%x)", MT_CONN_ON_LPCTL, PCIE_LPCR_HOST_SET_OWN);
 		mt76_wr(dev, MT_CONN_ON_LPCTL, PCIE_LPCR_HOST_SET_OWN);
 		if (mt76_poll_msec_tick(dev, MT_CONN_ON_LPCTL,
 					PCIE_LPCR_HOST_OWN_SYNC, 4, 50, 1))
