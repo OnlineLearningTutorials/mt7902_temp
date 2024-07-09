@@ -9,27 +9,30 @@
 
 static u32 mt76_mmio_rr(struct mt76_dev *dev, u32 offset)
 {
-	//printk(KERN_INFO "mt76_mmio.c - mt76_mmio_rr(struct mt76_dev *dev, 0x%x)", offset);
+	printk(KERN_INFO "mt76_mmio.c - mt76_mmio_rr(struct mt76_dev *dev, 0x%x)", offset);
 	u32 val;
-
+	printk(KERN_INFO "mt76_mmio.c - mt76_mmio_rr - dev->mmio.regs: 0x%x", dev->mmio.regs);
 	val = readl(dev->mmio.regs + offset);
+	printk(KERN_INFO "mt76_mmio.c - mt76_mmio_rr - readl(0x%x)->val: 0x%x", dev->mmio.regs + offset, val);
 	trace_reg_rr(dev, offset, val);
-
+	printk(KERN_INFO "mt76_mmio.c - mt76_mmio_rr - val", val);
 	return val;
 }
 
 static void mt76_mmio_wr(struct mt76_dev *dev, u32 offset, u32 val)
 {
-	//printk(KERN_INFO "mt76_mmio.c - mt76_mmio_wr(struct mt76_dev *dev, 0x%x, 0x%x)", offset, val);
+	printk(KERN_INFO "mt76_mmio.c - mt76_mmio_wr(struct mt76_dev *dev, 0x%x, 0x%x)", offset, val);
 	trace_reg_wr(dev, offset, val);
+	printk(KERN_INFO "mt76_mmio.c - mt76_mmio_wr - writel(0x%x, 0x%x) - dev->mmio.regs: 0x%x", val, dev->mmio.regs + offset, dev->mmio.regs);
 	writel(val, dev->mmio.regs + offset);
 }
 
 static u32 mt76_mmio_rmw(struct mt76_dev *dev, u32 offset, u32 mask, u32 val)
 {
-	//printk(KERN_INFO "mt76_mmio.c - mt76_mmio_rmw(struct mt76_dev *dev, 0x%x, 0x%x, 0x%x)", offset, mask, val);
+	printk(KERN_INFO "mt76_mmio.c - mt76_mmio_rmw(struct mt76_dev *dev, 0x%x, 0x%x, 0x%x)", offset, mask, val);
 	val |= mt76_mmio_rr(dev, offset) & ~mask;
 	mt76_mmio_wr(dev, offset, val);
+	printk(KERN_INFO "mt76_mmio.c - mt76_mmio_rmw - mt76_mmio_wr(dev, 0x%x, 0x%x) - val: 0x%x", offset, val, val);
 	return val;
 }
 

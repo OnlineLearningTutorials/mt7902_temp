@@ -9,7 +9,7 @@
 bool __mt76_poll(struct mt76_dev *dev, u32 offset, u32 mask, u32 val,
 		 int timeout)
 {
-	printk(KERN_INFO "mt76_util.c - __mt76_poll");
+	printk(KERN_INFO "mt76_util.c - __mt76_poll(struct mt76_dev *dev, 0x%x, 0x%x, 0x%x, %d)", offset, mask, val, timeout);
 	u32 cur;
 
 	timeout /= 10;
@@ -28,7 +28,7 @@ EXPORT_SYMBOL_GPL(__mt76_poll);
 bool ____mt76_poll_msec(struct mt76_dev *dev, u32 offset, u32 mask, u32 val,
 			int timeout, int tick)
 {
-	printk(KERN_INFO "mt76_util.c - ____mt76_poll_msec");
+	printk(KERN_INFO "mt76_util.c - ____mt76_poll_msec(struct mt76_dev *dev, 0x%x, 0x%x, 0x%x, %d, %d)", offset, mask, val, timeout, tick);
 	u32 cur;
 
 	timeout /= tick;
@@ -46,7 +46,7 @@ EXPORT_SYMBOL_GPL(____mt76_poll_msec);
 
 int mt76_wcid_alloc(u32 *mask, int size)
 {
-	printk(KERN_INFO "mt76_util.c - mt76_wcid_alloc");
+	printk(KERN_INFO "mt76_util.c - mt76_wcid_alloc(0x%x, %d)", *mask, size);
 	int i, idx = 0, cur;
 
 	for (i = 0; i < DIV_ROUND_UP(size, 32); i++) {
@@ -69,7 +69,7 @@ EXPORT_SYMBOL_GPL(mt76_wcid_alloc);
 
 int mt76_get_min_avg_rssi(struct mt76_dev *dev, bool ext_phy)
 {
-	printk(KERN_INFO "mt76_util.c - mt76_get_min_avg_rssi");
+	printk(KERN_INFO "mt76_util.c - mt76_get_min_avg_rssi(struct mt76_dev *dev, %d)", ext_phy);
 	struct mt76_wcid *wcid;
 	int i, j, min_rssi = 0;
 	s8 cur_rssi;
