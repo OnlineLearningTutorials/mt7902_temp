@@ -69,6 +69,7 @@ int mt76_connac_mcu_init_download(struct mt76_dev *dev, u32 addr, u32 len,
 	};
 	int cmd;
 
+	printk(KERN_INFO "mt76_connac_mcu -  mt76_connac_mcu_init_download - if  %d && %d", !is_connac_v1(dev), addr == MCU_PATCH_ADDRESS );
 	if ((!is_connac_v1(dev) && addr == MCU_PATCH_ADDRESS) ||
 	    (is_mt7902(dev) && addr == 0x900000) ||
 	    (is_mt7925(dev) && (addr == 0x900000 || 
@@ -79,6 +80,7 @@ int mt76_connac_mcu_init_download(struct mt76_dev *dev, u32 addr, u32 len,
 	else
 		cmd = MCU_CMD(TARGET_ADDRESS_LEN_REQ);
 
+	printk(KERN_INFO "mt76_connac_mcu -  mt76_connac_mcu_init_download - mt76_mcu_send_msg(dev, %d, %s, %d, %d)", cmd, &req, sizeof(req), true );
 	return mt76_mcu_send_msg(dev, cmd, &req, sizeof(req), true);
 }
 EXPORT_SYMBOL_GPL(mt76_connac_mcu_init_download);
@@ -3048,12 +3050,13 @@ EXPORT_SYMBOL_GPL(mt76_connac2_load_ram);
 
 static u32 mt76_connac2_get_data_mode(struct mt76_dev *dev, u32 info)
 {
-	printk(KERN_INFO "mt76_connac_mcu - mt76_connac2_get_data_mode");
+	printk(KERN_INFO "mt76_connac_mcu - mt76_connac2_get_data_mode(dev, 0x%x) ==> 0x%x", info, PATCH_SEC_NOT_SUPPORT);
 	u32 mode = DL_MODE_NEED_RSP;
 
-	if ((!is_mt7902(dev) && !is_mt7925(dev)) || info == PATCH_SEC_NOT_SUPPORT)
+	if ((!is_mt7925(dev)) || info == PATCH_SEC_NOT_SUPPORT)
 		return mode;
 
+	printk(KERN_INFO "mt76_connac_mcu - mt76_connac2_get_data_mode - switch: %d", FIELD_GET(PATCH_SEC_ENC_TYPE_MASK, info));
 	switch (FIELD_GET(PATCH_SEC_ENC_TYPE_MASK, info)) {
 	case PATCH_SEC_ENC_TYPE_PLAIN:
 		break;
@@ -3106,7 +3109,7 @@ int mt76_connac2_load_patch(struct mt76_dev *dev, const char *fw_name)
 	hdr = (const void *)fw->data;
 	dev_info(dev->dev, "HW/SW Version: 0x%x, Build Time: %.16s\n",
 		 be32_to_cpu(hdr->hw_sw_ver), hdr->build_date);
-
+	printk(KERN_INFO "mt76_connac_mcu - mt76_connac2_load_patch - loop %d", hdr->desc.n_region);
 	for (i = 0; i < be32_to_cpu(hdr->desc.n_region); i++) {
 		struct mt76_connac2_patch_sec *sec;
 		u32 len, addr, mode;
@@ -3124,8 +3127,9 @@ int mt76_connac2_load_patch(struct mt76_dev *dev, const char *fw_name)
 		len = be32_to_cpu(sec->info.len);
 		dl = fw->data + be32_to_cpu(sec->offs);
 		sec_info = be32_to_cpu(sec->info.sec_key_idx);
+		printk(KERN_INFO "mt76_connac_mcu - mt76_connac2_load_patch - mt76_connac2_get_data_mode(dev, 0x%x)", sec_info);
 		mode = mt76_connac2_get_data_mode(dev, sec_info);
-
+		printk(KERN_INFO "mt76_connac_mcu - mt76_connac2_load_patch - mt76_connac_mcu_init_download(dev, 0x%x, 0x%x, 0x%x)", addr, len, mode);
 		ret = mt76_connac_mcu_init_download(dev, addr, len, mode);
 		if (ret) {
 			dev_err(dev->dev, "Download request failed\n");
