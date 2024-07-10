@@ -3241,7 +3241,7 @@ exit:
 	if (wait_seq)
 		*wait_seq = seq;
 
-	printk(KERN_INFO "mt76_connac_mcu - mt76_connac2_mcu_fill_message - seq: 0x%x, wait_seq:%s", seq, &wait_seq);
+	printk(KERN_INFO "mt76_connac_mcu - mt76_connac2_mcu_fill_message - seq: 0x%x, wait_seq:0x%x", seq, wait_seq);
 	return 0;
 }
 EXPORT_SYMBOL_GPL(mt76_connac2_mcu_fill_message);

@@ -524,7 +524,7 @@ static int
 mt76_dma_tx_queue_skb_raw(struct mt76_dev *dev, struct mt76_queue *q,
 			  struct sk_buff *skb, u32 tx_info)
 {
-	//printk(KERN_INFO "mt76_dma.c - mt76_dma_tx_queue_skb_raw(struct mt76_dev *dev, struct mt76_queue *q, struct sk_buff *skb, 0x%x)", tx_info);
+	printk(KERN_INFO "mt76_dma.c - mt76_dma_tx_queue_skb_raw(struct mt76_dev *dev, struct mt76_queue *q, struct sk_buff *skb, 0x%x)", tx_info);
 	struct mt76_queue_buf buf = {};
 	dma_addr_t addr;
 
@@ -533,7 +533,7 @@ mt76_dma_tx_queue_skb_raw(struct mt76_dev *dev, struct mt76_queue *q,
 
 	if (q->queued + 1 >= q->ndesc - 1)
 		goto error;
-
+	printk(KERN_INFO "mt76_dma.c - mt76_dma_tx_queue_skb_raw - dma_map_single");
 	addr = dma_map_single(dev->dma_dev, skb->data, skb->len,
 			      DMA_TO_DEVICE);
 	if (unlikely(dma_mapping_error(dev->dma_dev, addr)))
@@ -541,9 +541,10 @@ mt76_dma_tx_queue_skb_raw(struct mt76_dev *dev, struct mt76_queue *q,
 
 	buf.addr = addr;
 	buf.len = skb->len;
-
+	printk(KERN_INFO "mt76_dma.c - mt76_dma_tx_queue_skb_raw - dma_add_buf");
 	spin_lock_bh(&q->lock);
 	mt76_dma_add_buf(dev, q, &buf, 1, tx_info, skb, NULL);
+	printk(KERN_INFO "mt76_dma.c - mt76_dma_tx_queue_skb_raw - dma_kick_queue");
 	mt76_dma_kick_queue(dev, q);
 	spin_unlock_bh(&q->lock);
 
