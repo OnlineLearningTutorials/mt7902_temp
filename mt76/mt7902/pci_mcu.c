@@ -43,8 +43,10 @@ mt7902_mcu_skb_send_message(struct mt76_dev *mdev, struct sk_buff *skb,
 		txq = MT_MCUQ_FWDL;
 		
     printk(KERN_INFO "pci_mcu.c - mt7902_mcu_send_message - cmd: %d, MCU_CMD(FW_SCATTER): %d, txq: %d, skb:%s ", cmd, MCU_CMD(FW_SCATTER), txq, skb);
-	return mt76_tx_queue_skb_raw(dev, mdev->q_mcu[txq], skb, 0);
+	return mt76_tx_queue_skb_raw(dev, mdev->q_mcu[txq], skb, 0); 
 }
+
+
 
 int mt7902e_mcu_init(struct mt792x_dev *dev)
 {
@@ -63,6 +65,7 @@ int mt7902e_mcu_init(struct mt792x_dev *dev)
 	if (err)
 		return err;
 
+	
     printk(KERN_INFO "pci_mcu.c - mt7902e_mcu_init - mt76_rmw_field(dev, 0x%x, 0x%x, 1)", MT_PCIE_MAC_PM, MT_PCIE_MAC_PM_L0S_DIS);
 	mt76_rmw_field(dev, MT_PCIE_MAC_PM, MT_PCIE_MAC_PM_L0S_DIS, 1);
 

@@ -45,12 +45,13 @@ struct sk_buff *mt76_mcu_get_response(struct mt76_dev *dev,
 		return NULL;
 
 	timeout = expires - jiffies;
-	printk(KERN_INFO "mt76_mcu.c - mt76_mcu_get_response - timeout: %lu - phy.state: 0x%x - test_bit: %d, skb_queue_empty: %d, MT76_MCU_RESET: 0x%x", timeout, &dev->phy.state, test_bit(MT76_MCU_RESET, &dev->phy.state), skb_queue_empty(&dev->mcu.res_q), MT76_MCU_RESET );
+	printk(KERN_INFO "mt76_mcu.c - mt76_mcu_get_response - timeout: %lu - jiffies: %lu, skb_queue_empty: %d, - test_bit: %d, MT76_MCU_RESET: 0x%x- phy.state: 0x%x ", timeout, jiffies,  skb_queue_empty(&dev->mcu.res_q), test_bit(MT76_MCU_RESET, &dev->phy.state),  MT76_MCU_RESET, &dev->phy.state );
 	wait_event_timeout(dev->mcu.wait,
 			   (!skb_queue_empty(&dev->mcu.res_q) ||
 			    test_bit(MT76_MCU_RESET, &dev->phy.state)),
 			   timeout);
-	printk(KERN_INFO "mt76_mcu.c - mt76_mcu_get_response - skb_dequeue - phy.state: 0x%x", &dev->phy.state);
+		printk(KERN_INFO "mt76_mcu.c - mt76_mcu_get_response - timeout: %lu - jiffies: %lu, skb_queue_empty: %d, - test_bit: %d, MT76_MCU_RESET: 0x%x- phy.state: 0x%x ", expires - jiffies, jiffies,  skb_queue_empty(&dev->mcu.res_q), test_bit(MT76_MCU_RESET, &dev->phy.state),  MT76_MCU_RESET, &dev->phy.state );
+	printk(KERN_INFO "mt76_mcu.c - mt76_mcu_get_response - jiffies: %lu, skb_dequeue - phy.state: 0x%x", jiffies, &dev->phy.state);
 	return skb_dequeue(&dev->mcu.res_q);
 }
 EXPORT_SYMBOL_GPL(mt76_mcu_get_response);
@@ -66,7 +67,7 @@ EXPORT_SYMBOL_GPL(mt76_mcu_rx_event);
 int mt76_mcu_send_and_get_msg(struct mt76_dev *dev, int cmd, const void *data,
 			      int len, bool wait_resp, struct sk_buff **ret_skb)
 {
-	printk(KERN_INFO "mt76_mcu.c - mt76_mcu_send_and_get_msg(struct mt76_dev *dev, cmd:%d, data:%s, len:%d, wait_resp:%d, struct sk_buff **ret_skb)", cmd, data, len, wait_resp);
+	printk(KERN_INFO "mt76_mcu.c - mt76_mcu_send_and_get_msg(struct mt76_dev *dev, cmd:%d, data:0x%x, len:%d, wait_resp:%d, struct sk_buff **ret_skb) ", cmd, data, len, wait_resp);
 	struct sk_buff *skb;
 
 	if (dev->mcu_ops->mcu_send_msg)

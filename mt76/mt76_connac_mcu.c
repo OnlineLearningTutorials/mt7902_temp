@@ -70,7 +70,7 @@ int mt76_connac_mcu_init_download(struct mt76_dev *dev, u32 addr, u32 len,
 	int cmd;
 
 	printk(KERN_INFO "mt76_connac_mcu -  mt76_connac_mcu_init_download - if  %d && %d", !is_connac_v1(dev), addr == MCU_PATCH_ADDRESS );
-	if ((!is_connac_v1(dev) && addr == MCU_PATCH_ADDRESS) ||
+	if ((!is_connac_v1(dev) || addr == MCU_PATCH_ADDRESS) ||
 	    (is_mt7902(dev) && addr == 0x900000) ||
 	    (is_mt7925(dev) && (addr == 0x900000 || 
 	    addr == 0xe0002800)) ||
@@ -80,7 +80,7 @@ int mt76_connac_mcu_init_download(struct mt76_dev *dev, u32 addr, u32 len,
 	else
 		cmd = MCU_CMD(TARGET_ADDRESS_LEN_REQ);
 
-	printk(KERN_INFO "mt76_connac_mcu -  mt76_connac_mcu_init_download - mt76_mcu_send_msg(dev, %d, %s, %d, %d)", cmd, &req, sizeof(req), true );
+	printk(KERN_INFO "mt76_connac_mcu -  mt76_connac_mcu_init_download - mt76_mcu_send_msg(dev, %d, 0x%x, %d, %d) - req->addr: 0x%x", cmd, &req, sizeof(req), true, req.addr );
 	return mt76_mcu_send_msg(dev, cmd, &req, sizeof(req), true);
 }
 EXPORT_SYMBOL_GPL(mt76_connac_mcu_init_download);
@@ -3107,8 +3107,8 @@ int mt76_connac2_load_patch(struct mt76_dev *dev, const char *fw_name)
 	}
 
 	hdr = (const void *)fw->data;
-	dev_info(dev->dev, "HW/SW Version: 0x%x, Build Time: %.16s\n",
-		 be32_to_cpu(hdr->hw_sw_ver), hdr->build_date);
+	dev_info(dev->dev, "HW/SW Version: 0x%x, Build Time: %.16s, Size: 0x%x",
+		 be32_to_cpu(hdr->hw_sw_ver), hdr->build_date, fw->size);
 	printk(KERN_INFO "mt76_connac_mcu - mt76_connac2_load_patch - loop %d", hdr->desc.n_region);
 	for (i = 0; i < be32_to_cpu(hdr->desc.n_region); i++) {
 		struct mt76_connac2_patch_sec *sec;
@@ -3127,7 +3127,7 @@ int mt76_connac2_load_patch(struct mt76_dev *dev, const char *fw_name)
 		len = be32_to_cpu(sec->info.len);
 		dl = fw->data + be32_to_cpu(sec->offs);
 		sec_info = be32_to_cpu(sec->info.sec_key_idx);
-		printk(KERN_INFO "mt76_connac_mcu - mt76_connac2_load_patch - mt76_connac2_get_data_mode(dev, 0x%x)", sec_info);
+		printk(KERN_INFO "mt76_connac_mcu - mt76_connac2_load_patch - mt76_connac2_get_data_mode(dev, 0x%x) - addr: 0x%x, len: 0x%x, dl: 0x%x", sec_info, addr, len, dl);
 		mode = mt76_connac2_get_data_mode(dev, sec_info);
 		printk(KERN_INFO "mt76_connac_mcu - mt76_connac2_load_patch - mt76_connac_mcu_init_download(dev, 0x%x, 0x%x, 0x%x)", addr, len, mode);
 		ret = mt76_connac_mcu_init_download(dev, addr, len, mode);
@@ -3241,7 +3241,7 @@ exit:
 	if (wait_seq)
 		*wait_seq = seq;
 
-	printk(KERN_INFO "mt76_connac_mcu - mt76_connac2_mcu_fill_message - seq: 0x%x, wait_seq:%s", seq, wait_seq);
+	printk(KERN_INFO "mt76_connac_mcu - mt76_connac2_mcu_fill_message - seq: 0x%x, wait_seq:%s", seq, &wait_seq);
 	return 0;
 }
 EXPORT_SYMBOL_GPL(mt76_connac2_mcu_fill_message);
