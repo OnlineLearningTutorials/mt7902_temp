@@ -13,8 +13,7 @@
 #include "mcu.h"
 
 static const struct pci_device_id mt7902_pci_device_table[] = {
-	{ PCI_DEVICE(PCI_VENDOR_ID_MEDIATEK, 0x7902),
-		.driver_data = (kernel_ulong_t)MT7922_FIRMWARE_WM },
+	{ PCI_DEVICE(PCI_VENDOR_ID_MEDIATEK, 0x7902), .driver_data = (kernel_ulong_t)MT7922_FIRMWARE_WM },
 	{ },
 };
 
@@ -174,40 +173,40 @@ static int mt7902_dma_init(struct mt792x_dev *dev)
 		return ret;
 
 	/* init tx queue */
-	ret = mt76_connac_init_tx_queues(dev->phy.mt76, MT7902_TXQ_BAND0, MT7902_TX_RING_SIZE, MT_TX_RING_BASE, NULL, 0);
+	ret = mt76_connac_init_tx_queues(dev->phy.mt76, MT7902_TXQ_BAND0, MT7902_TX_RING_SIZE, MT_TX_RING_BASE, NULL, 0); //mt76_connac_init_tx_queues(dev->phy.mt76, 0x0, 0x800, 0xd4300, NULL, 0)->ret: 0 
     printk(KERN_INFO "pci.c - mt7902_dma_init - mt76_connac_init_tx_queues(dev->phy.mt76, 0x%x, 0x%x, 0x%x, NULL, 0)->ret: %d  (init tx queue)", MT7902_TXQ_BAND0, MT7902_TX_RING_SIZE, MT_TX_RING_BASE, ret);
 	if (ret)
 		return ret;
 
     printk(KERN_INFO "pci.c - mt7902_dma_init - mt76_wr(dev, 0x%x, 0x4);", MT_WFDMA0_TX_RING0_EXT_CTRL);
-	mt76_wr(dev, MT_WFDMA0_TX_RING0_EXT_CTRL, 0x4);
+	mt76_wr(dev, MT_WFDMA0_TX_RING0_EXT_CTRL, 0x4); //mt76_wr(dev, 0xd4600, 0x4);
 
 	/* command to WM */
-	ret = mt76_init_mcu_queue(&dev->mt76, MT_MCUQ_WM, MT7902_TXQ_MCU_WM, MT7902_TX_MCU_RING_SIZE, MT_TX_RING_BASE);
+	ret = mt76_init_mcu_queue(&dev->mt76, MT_MCUQ_WM, MT7902_TXQ_MCU_WM, MT7902_TX_MCU_RING_SIZE, MT_TX_RING_BASE); //mt76_init_mcu_queue(&dev->mt76, 0x0, 0x11, 0x100, 0xd4300);->ret: 0 
     printk(KERN_INFO "pci.c - mt7902_dma_init - mt76_init_mcu_queue(&dev->mt76, 0x%x, 0x%x, 0x%x, 0x%x);->ret: %d  (command to WM)", MT_MCUQ_WM, MT7902_TXQ_MCU_WM, MT7902_TX_MCU_RING_SIZE, MT_TX_RING_BASE, ret);
 	if (ret)
 		return ret;
 
 	/* firmware download */
-	ret = mt76_init_mcu_queue(&dev->mt76, MT_MCUQ_FWDL, MT7902_TXQ_FWDL, MT7902_TX_FWDL_RING_SIZE, MT_TX_RING_BASE);
+	ret = mt76_init_mcu_queue(&dev->mt76, MT_MCUQ_FWDL, MT7902_TXQ_FWDL, MT7902_TX_FWDL_RING_SIZE, MT_TX_RING_BASE); //mt76_init_mcu_queue(&dev->mt76, 0x2, 0x10, 0x80, 0xd4300)->ret: 0 
     printk(KERN_INFO "pci.c - mt7902_dma_init - mt76_init_mcu_queue(&dev->mt76, 0x%x, 0x%x, 0x%x, 0x%x)->ret: %d  (firmware download)", MT_MCUQ_FWDL, MT7902_TXQ_FWDL, MT7902_TX_FWDL_RING_SIZE, MT_TX_RING_BASE, ret);
 	if (ret)
 		return ret;
 
 	/* event from WM before firmware download */
-	ret = mt76_queue_alloc(dev, &dev->mt76.q_rx[MT_RXQ_MCU], MT7902_RXQ_MCU_WM, MT7902_RX_MCU_RING_SIZE, MT_RX_BUF_SIZE, MT_RX_EVENT_RING_BASE);
+	ret = mt76_queue_alloc(dev, &dev->mt76.q_rx[MT_RXQ_MCU], MT7902_RXQ_MCU_WM, MT7902_RX_MCU_RING_SIZE, MT_RX_BUF_SIZE, MT_RX_EVENT_RING_BASE); //mt76_queue_alloc(dev, &dev->mt76.q_rx[0x1], 0x0,  0x8, 0x800, 0xd4500)->ret: 0 
     printk(KERN_INFO "pci.c - mt7902_dma_init - mt76_queue_alloc(dev, &dev->mt76.q_rx[0x%x], 0x%x,  0x%x, 0x%x, 0x%x)->ret: %d (event from WM before firmware download)", MT_RXQ_MCU, MT7902_RXQ_MCU_WM, MT7902_RX_MCU_RING_SIZE, MT_RX_BUF_SIZE, MT_RX_EVENT_RING_BASE, ret);
 	if (ret)
 		return ret;
 
 	/* Change mcu queue after firmware download */
-	ret = mt76_queue_alloc(dev, &dev->mt76.q_rx[MT_RXQ_MCU_WA], MT7902_RXQ_MCU_WM, MT7902_RX_MCU_WA_RING_SIZE, MT_RX_BUF_SIZE, MT_WFDMA0(0x540));
+	ret = mt76_queue_alloc(dev, &dev->mt76.q_rx[MT_RXQ_MCU_WA], MT7902_RXQ_MCU_WM, MT7902_RX_MCU_WA_RING_SIZE, MT_RX_BUF_SIZE, MT_WFDMA0(0x540)); //mt76_queue_alloc(dev, &dev->mt76.q_rx[0x2], 0x0, 0x200, 0x800, 0xd4540)->ret: 0 
     printk(KERN_INFO "pci.c - mt7902_dma_init - mt76_queue_alloc(dev, &dev->mt76.q_rx[0x%x], 0x%x, 0x%x, 0x%x, 0x%x)->ret: %d /* Change mcu queue after firmware download */", MT_RXQ_MCU_WA, MT7902_RXQ_MCU_WM, MT7902_RX_MCU_WA_RING_SIZE, MT_RX_BUF_SIZE, MT_WFDMA0(0x540), ret);
 	if (ret)
 		return ret;
 
 	/* rx data */
-	ret = mt76_queue_alloc(dev, &dev->mt76.q_rx[MT_RXQ_MAIN], MT7902_RXQ_BAND0, MT7902_RX_RING_SIZE, MT_RX_BUF_SIZE, MT_RX_DATA_RING_BASE);
+	ret = mt76_queue_alloc(dev, &dev->mt76.q_rx[MT_RXQ_MAIN], MT7902_RXQ_BAND0, MT7902_RX_RING_SIZE, MT_RX_BUF_SIZE, MT_RX_DATA_RING_BASE); //mt76_queue_alloc(dev, &dev->mt76.q_rx[0x0], 0x0, 0x600, 0x800, 0xd4520)->ret: 0 
     printk(KERN_INFO "pci.c - mt7902_dma_init - mt76_queue_alloc(dev, &dev->mt76.q_rx[0x%x], 0x%x, 0x%x, 0x%x, 0x%x)->ret: %d  /* rx data */     ", MT_RXQ_MAIN, MT7902_RXQ_BAND0, MT7902_RX_RING_SIZE, MT_RX_BUF_SIZE, MT_RX_DATA_RING_BASE, ret);
 	if (ret)
 		return ret;

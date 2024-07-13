@@ -9,13 +9,13 @@ struct sk_buff *
 __mt76_mcu_msg_alloc(struct mt76_dev *dev, const void *data,
 		     int len, int data_len, gfp_t gfp)
 {
-	printk(KERN_INFO "mt76_mcu.c - __mt76_mcu_msg_alloc(struct mt76_dev *dev, %s=%d=0x%x=%s, %d, %d, gfp_t gfp)", data, data, data, &data, len, data_len);
+	printk(KERN_INFO "mt76_mcu.c - __mt76_mcu_msg_alloc(struct mt76_dev *dev, 0x%x, %d, %d, gfp_t gfp)", data, len, data_len);
 	const struct mt76_mcu_ops *ops = dev->mcu_ops;
 	struct sk_buff *skb;
-	printk(KERN_INFO "mt76_mcu.c - __mt76_mcu_msg_alloc - len = max_t(int, %d, %d)", len, data_len);
+	//printk(KERN_INFO "mt76_mcu.c - __mt76_mcu_msg_alloc - len = max_t(int, %d, %d)", len, data_len);
 	len = max_t(int, len, data_len);
-	printk(KERN_INFO "mt76_mcu.c - __mt76_mcu_msg_alloc - len: %d", len);
-	printk(KERN_INFO "mt76_mcu.c - __mt76_mcu_msg_alloc - len = ops->headroom: %d + len: %d + ops->tailroom: %d", ops->headroom, len, ops->tailroom);
+	//printk(KERN_INFO "mt76_mcu.c - __mt76_mcu_msg_alloc - len: %d", len);
+	//printk(KERN_INFO "mt76_mcu.c - __mt76_mcu_msg_alloc - len = ops->headroom: %d + len: %d + ops->tailroom: %d", ops->headroom, len, ops->tailroom);
 	len = ops->headroom + len + ops->tailroom;
 	printk(KERN_INFO "mt76_mcu.c - __mt76_mcu_msg_alloc - len: %d", len);
 	skb = alloc_skb(len, gfp);
