@@ -302,7 +302,7 @@ mt76_dma_add_buf(struct mt76_dev *dev, struct mt76_queue *q,
 		 struct mt76_queue_buf *buf, int nbufs, u32 info,
 		 struct sk_buff *skb, void *txwi)
 {
-	printk(KERN_INFO "mt76_dma.c - mt76_dma_add_buf(struct mt76_dev *dev, struct mt76_queue *q, struct mt76_queue_buf *buf, %d , 0x%x , struct sk_buff *skb, void *txwi)", nbufs, info);
+	//printk(KERN_INFO "mt76_dma.c - mt76_dma_add_buf(struct mt76_dev *dev, struct mt76_queue *q, struct mt76_queue_buf *buf, %d , 0x%x , struct sk_buff *skb, void *txwi)", nbufs, info);
 	struct mt76_queue_entry *entry;
 	struct mt76_desc *desc;
 	int i, idx = -1;
@@ -444,7 +444,7 @@ static void *
 mt76_dma_get_buf(struct mt76_dev *dev, struct mt76_queue *q, int idx,
 		 int *len, u32 *info, bool *more, bool *drop)
 {
-	printk(KERN_INFO "mt76_dma.c - mt76_dma_get_buf(struct mt76_dev *dev, struct mt76_queue *q, int idx:%d, int *len:%d, u32 *info:0x%x, bool *more:%d, bool *drop:%d)", idx, *len, *info, *more, *drop);
+	//printk(KERN_INFO "mt76_dma.c - mt76_dma_get_buf(struct mt76_dev *dev, struct mt76_queue *q, int idx:%d, int *len:%d, u32 *info:0x%x, bool *more:%d, bool *drop:%d)", idx, *len, *info, *more, *drop);
 	struct mt76_queue_entry *e = &q->entry[idx];
 	struct mt76_desc *desc = &q->desc[idx];
 	u32 ctrl, desc_info, buf1;
@@ -499,7 +499,7 @@ static void *
 mt76_dma_dequeue(struct mt76_dev *dev, struct mt76_queue *q, bool flush,
 		 int *len, u32 *info, bool *more, bool *drop)
 {
-	printk(KERN_INFO "mt76_dma.c - mt76_dma_dequeue(struct mt76_dev *dev, struct mt76_queue *q, bool flush:%d, int *len:%d, u32 *info:0x%x, bool *more:%d, bool *drop:%d)", flush, *len, *info, *more, *drop);
+	//printk(KERN_INFO "mt76_dma.c - mt76_dma_dequeue(struct mt76_dev *dev, struct mt76_queue *q, bool flush:%d, int *len:%d, u32 *info:0x%x, bool *more:%d, bool *drop:%d)", flush, *len, *info, *more, *drop);
 	int idx = q->tail;
 
 	*more = false;
@@ -668,7 +668,7 @@ mt76_dma_rx_fill(struct mt76_dev *dev, struct mt76_queue *q,
 
 	int len = SKB_WITH_OVERHEAD(q->buf_size);
 	int frames = 0;
-	printk(KERN_INFO "mt76_dma.c - mt76_dma_rx_fill(struct mt76_dev *dev, struct mt76_queue *q, %d) - q->ndesc:%d, q->queued:%d, len:%d", allow_direct, q->ndesc, q->queued, len);
+	//printk(KERN_INFO "mt76_dma.c - mt76_dma_rx_fill(struct mt76_dev *dev, struct mt76_queue *q, %d) - q->ndesc:%d, q->queued:%d, len:%d", allow_direct, q->ndesc, q->queued, len);
 	if (!q->ndesc)
 		return 0;
 
