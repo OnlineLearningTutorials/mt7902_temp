@@ -518,7 +518,7 @@ mt76_dma_dequeue(struct mt76_dev *dev, struct mt76_queue *q, bool flush,
 
 	q->tail = (q->tail + 1) % q->ndesc;
 	q->queued--;
-	printk(KERN_INFO "mt76_dma.c - mt76_dma_dequeue - mt76_dma_get_buf(dev, q, %d, %d, 0x%x, %d, %d) - q->tail:%d, q->queued:%d",idx, len, info, more, drop, q->tail, q->queued);
+	//printk(KERN_INFO "mt76_dma.c - mt76_dma_dequeue - mt76_dma_get_buf(dev, q, %d, %d, 0x%x, %d, %d) - q->tail:%d, q->queued:%d",idx, len, info, more, drop, q->tail, q->queued);
 	return mt76_dma_get_buf(dev, q, idx, len, info, more, drop);
 }
 
