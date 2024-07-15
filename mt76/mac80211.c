@@ -1813,7 +1813,7 @@ mt76_init_queue(struct mt76_dev *dev, int qid, int idx, int n_desc,
 
 	hwq->flags = flags;
 	hwq->wed = wed;
-	printk(KERN_INFO "mt76_mac80211.c - mt76_init_queue - queue_ops");
+	printk(KERN_INFO "mt76_mac80211.c - mt76_init_queue - queue_ops(dev, hwq, idx, n_desc, 0, ring_base)");
 	err = dev->queue_ops->alloc(dev, hwq, idx, n_desc, 0, ring_base);
 	if (err < 0)
 		return ERR_PTR(err);

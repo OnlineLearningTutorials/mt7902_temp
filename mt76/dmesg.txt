@@ -1,460 +1,273 @@
 
-[  915.840483] pci.c - mt7902_pci_probe starting the mt7902 driver from the pci probe function. This is the first function to display in dmesg  ============================================================================================================================================================================================
-[  915.840610] pci.c - mt7902_pci_probe pcim_enable_device->ret : 0
-[  915.840636] pci.c - mt7902_pci_probe pcim_iomap_regions(pdev, 1, 0000:03:00.0)->ret : 0
-[  915.840638] pci.c - mt7902_pci_probe - pci_read_config_word(pdev, 4, 0x8fa735be);
-[  915.840708] pci.c - mt7902_pci_probe pci_alloc_irq_vectors->ret : 1
-[  915.840710] pci.c - mt7902_pci_probe dma_set_mask(pdev, 0xffffffff)->ret: 0
-[  915.840711] pci.c - mt7902_pci_probe mt7902_disable_aspm: 0
-[  915.840713] mt792x_core.c - mt792x_get_mac80211_ops
-[  915.840715] mt792x_core.c - mt792x_get_offload_capability(dev, mediatek/WIFI_RAM_CODE_MT7922_1.bin)
-[  915.841550] mt792x_core.c - mt792x_get_offload_capability - request_firmware->ret:0
-[  915.841553] mt792x_core.c - mt792x_get_offload_capability - check firmware error
-[  915.841554] mt792x_core.c - mt792x_get_offload_capability - while(data:0x934a9874 < end:0x934a98e0)
-[  915.841556] mt792x_core.c - mt792x_get_offload_capability - while(data:0x934a9878 < end:0x934a98e0)
-[  915.841557] mt792x_core.c - mt792x_get_offload_capability - while(data:0x934a9878 < end:0x934a98e0)
-[  915.841559] mt792x_core.c - mt792x_get_offload_capability - while(data:0x934a98d0 < end:0x934a98e0)
-[  915.841560] mt792x_core.c - mt792x_get_offload_capability - MT792x_FW_TAG_FEATURE: 0x4
-[  915.841562] mt792x_core.c - mt792x_get_offload_capability - release_firmware
-[  915.841594] pci.c - mt7902_pci_probe mt792x_get_mac80211_ops: 0
-[  915.841595] mt76_mac80211.c - mt76_alloc_device
-[  915.841618] pci.c - mt7902_pci_probe mt76_alloc_device: 0
-[  915.841619] pci.c - mt7902_pci_probe pci_set_drvdata
-[  915.841620] pci.c - mt7902_pci_probe mt76_mmio_init
-[  915.841622] mt76_mmio.c - mt76_mmio_init
-[  915.841623] pci.c - mt7902_pci_probe devm_kmemdup
-[  915.841625] pci.c - mt7902_pci_probe devm_kmemdup: 0
-[  915.841638] pci.c - mt7902_pci_probe - rev - 0x7902  - 0x70010200
-[  915.841646] pci.c - mt7902_pci_probe - rev - 0x0  - 0x70010204
-[  915.841662] mt7902_pci 0000:03:00.0: ASIC revision: 79020000
-[  915.841665] mt792x_dma.c - mt792x_wfsys_reset
-[  915.841666] mt792x_dma.c - mt792x_wfsys_reset - mt76_clear(dev, 0x18000140, 0x1)
-[  915.841672] pci.c - __mt7902_reg_addr - mt7902_reg_map_l1(dev, 0x18000140)->0x18000140
-[  915.893305] mt792x_dma.c - mt792x_wfsys_reset - mt76_set(dev, 0x18000140, 0x1)
-[  915.893331] pci.c - __mt7902_reg_addr - mt7902_reg_map_l1(dev, 0x18000140)->0x18000140
-[  915.893345] mt792x_dma.c - mt792x_wfsys_reset - __mt76_poll_msec(&dev->mt76, 0x18000140, 0x10, 0x10, 500)
-[  915.893352] mt76_util.c - ____mt76_poll_msec(struct mt76_dev *dev, 0x18000140, 0x10, 0x10, 500, 10)
-[  915.893363] pci.c - __mt7902_reg_addr - mt7902_reg_map_l1(dev, 0x18000140)->0x18000140
-[  915.913454] pci.c - __mt7902_reg_addr - mt7902_reg_map_l1(dev, 0x18000140)->0x18000140
-[  915.913474] pci.c - mt7902_pci_probe mt792x_wfsys_reset->ret: 0
-[  915.913478] pci.c - mt7902_pci_probe 	mt76_wr(dev, 0xd4204, 0)
-[  915.913483] pci.c - mt7902_pci_probe mt76_wr(dev, 0x10188, 0xff)
-[  915.913565] pci.c - mt7902_pci_probe devm_request_irq->ret: 0
-[  915.913569] pci.c - mt7902_dma_init(struct mt792x_dev *dev)
-[  915.913573] mt76_dma.c - mt76_dma_attach
-[  915.913576] mt792x_dma.c - mt792x_dma_disable
-[  915.913580] mt792x_dma.c - mt792x_dma_disable - 	mt76_clear(dev, 0xd4208, 0x18208005)
-[  915.913587] mt792x_dma.c - mt792x_dma_disable - mt76_poll_msec_tick(dev, 0xd4208, 0xa, 0x0, 0x64, 0x1)
-[  915.913593] mt76_util.c - ____mt76_poll_msec(struct mt76_dev *dev, 0xd4208, 0xa, 0x0, 100, 1)
-[  915.913601] mt792x_dma.c - mt792x_dma_disable - mt76_clear(dev, 0xd42b0, 0x40)
-[  915.913608] mt792x_dma.c - mt792x_dma_disable - mt76_set(dev, 0x7c026004, 0x10000000)
-[  915.913612] pci.c - __mt7902_reg_addr(struct mt792x_dev *dev, 0x7c026004) - fixed_map[16].phys: 0x7c020000, fixed_map[16].maps: 0xd0000, fixed_map[16].size: 0x10000, ofs: 0x6004, return:0xd6004
-[  915.913628] pci.c - mt7902_dma_init - mt792x_dma_disable(dev, true)->ret: 0
-[  915.913633] mt76_connac_mac - mt76_connac_init_tx_queues
-[  915.913636] mt76_mac80211.c - mt76_init_queue(struct mt76_dev *dev, 0, 0, 2048, 869120, 0x0)
-[  915.913644] mt76_mac80211.c - mt76_init_queue - queue_ops
-[  915.913648] mt76_dma.c - mt76_dma_alloc_queue(struct mt76_dev *dev, struct mt76_queue *q, int idx:0, int n_desc:2048, int bufsize:0, u32 ring_base:0xd4300)
-[  915.913694] mt76_mac80211.c - mt76_create_page_pool - q:-2021436056
-[  915.913699] mt76_mac80211.c - mt76_create_page_pool - idx: -1271043812
-[  915.913703] mt76_mac80211.c - mt76_create_page_pool - pool_size: 16
-[  915.913707] mt76_mac80211.c - mt76_create_page_pool - mt76_is_mmio(dev)
-[  915.913727] mt76_mac80211.c - mt76_create_page_pool - return
-[  915.913731] mt76_dma.c - mt76_dma_wed_setup(struct mt76_dev *dev, struct mt76_queue *q, bool reset:0)
-[  915.913735] mt76_dma.c - mt76_dma_queue_reset
-[  915.913739] mt76_dma.c - __mt76_dma_queue_reset
-[  915.913749] mt76_dma.c - mt76_dma_sync_idx(struct mt76_dev *dev, struct mt76_queue *q)
-[  915.913756] mt76_mac80211.c - mt76_init_queue - return
-[  915.913759] pci.c - mt7902_dma_init - mt76_connac_init_tx_queues(dev->phy.mt76, 0x0, 0x800, 0xd4300, NULL, 0)->ret: 0  (init tx queue)
-[  915.913765] pci.c - mt7902_dma_init - mt76_wr(dev, 0xd4600, 0x4);
-[  915.913769] mt76_mac80211.c - mt76_init_queue(struct mt76_dev *dev, 0, 17, 256, 869120, 0x0)
-[  915.913776] mt76_mac80211.c - mt76_init_queue - queue_ops
-[  915.913779] mt76_dma.c - mt76_dma_alloc_queue(struct mt76_dev *dev, struct mt76_queue *q, int idx:17, int n_desc:256, int bufsize:0, u32 ring_base:0xd4300)
-[  915.913800] mt76_mac80211.c - mt76_create_page_pool - q:-2021434328
-[  915.913804] mt76_mac80211.c - mt76_create_page_pool - idx: -657477040
-[  915.913808] mt76_mac80211.c - mt76_create_page_pool - pool_size: 16
-[  915.913812] mt76_mac80211.c - mt76_create_page_pool - mt76_is_mmio(dev)
-[  915.913820] mt76_mac80211.c - mt76_create_page_pool - return
-[  915.913824] mt76_dma.c - mt76_dma_wed_setup(struct mt76_dev *dev, struct mt76_queue *q, bool reset:0)
-[  915.913828] mt76_dma.c - mt76_dma_queue_reset
-[  915.913831] mt76_dma.c - __mt76_dma_queue_reset
-[  915.913835] mt76_dma.c - mt76_dma_sync_idx(struct mt76_dev *dev, struct mt76_queue *q)
-[  915.913841] mt76_mac80211.c - mt76_init_queue - return
-[  915.913845] pci.c - mt7902_dma_init - mt76_init_mcu_queue(&dev->mt76, 0x0, 0x11, 0x100, 0xd4300);->ret: 0  (command to WM)
-[  915.913851] mt76_mac80211.c - mt76_init_queue(struct mt76_dev *dev, 2, 16, 128, 869120, 0x0)
-[  915.913857] mt76_mac80211.c - mt76_init_queue - queue_ops
-[  915.913860] mt76_dma.c - mt76_dma_alloc_queue(struct mt76_dev *dev, struct mt76_queue *q, int idx:16, int n_desc:128, int bufsize:0, u32 ring_base:0xd4300)
-[  915.913874] mt76_mac80211.c - mt76_create_page_pool - q:-2021435672
-[  915.913879] mt76_mac80211.c - mt76_create_page_pool - idx: -657477052
-[  915.913882] mt76_mac80211.c - mt76_create_page_pool - pool_size: 16
-[  915.913886] mt76_mac80211.c - mt76_create_page_pool - mt76_is_mmio(dev)
-[  915.913894] mt76_mac80211.c - mt76_create_page_pool - return
-[  915.913898] mt76_dma.c - mt76_dma_wed_setup(struct mt76_dev *dev, struct mt76_queue *q, bool reset:0)
-[  915.913901] mt76_dma.c - mt76_dma_queue_reset
-[  915.913905] mt76_dma.c - __mt76_dma_queue_reset
-[  915.913908] mt76_dma.c - mt76_dma_sync_idx(struct mt76_dev *dev, struct mt76_queue *q)
-[  915.913914] mt76_mac80211.c - mt76_init_queue - return
-[  915.913918] pci.c - mt7902_dma_init - mt76_init_mcu_queue(&dev->mt76, 0x2, 0x10, 0x80, 0xd4300)->ret: 0  (firmware download)
-[  915.913924] mt76_dma.c - mt76_dma_alloc_queue(struct mt76_dev *dev, struct mt76_queue *q, int idx:0, int n_desc:8, int bufsize:2048, u32 ring_base:0xd4500)
-[  915.913937] mt76_mac80211.c - mt76_create_page_pool - q:-1398449776
-[  915.913941] mt76_mac80211.c - mt76_create_page_pool - idx: 1
-[  915.913945] mt76_mac80211.c - mt76_create_page_pool - pool_size: 16
-[  915.913948] mt76_mac80211.c - mt76_create_page_pool - mt76_is_mmio(dev)
-[  915.913956] mt76_mac80211.c - mt76_create_page_pool - return
-[  915.913959] mt76_dma.c - mt76_dma_wed_setup(struct mt76_dev *dev, struct mt76_queue *q, bool reset:0)
-[  915.913963] mt76_dma.c - mt76_dma_queue_reset
-[  915.913966] mt76_dma.c - __mt76_dma_queue_reset
-[  915.913970] mt76_dma.c - mt76_dma_sync_idx(struct mt76_dev *dev, struct mt76_queue *q)
-[  915.913976] pci.c - mt7902_dma_init - mt76_queue_alloc(dev, &dev->mt76.q_rx[0x1], 0x0,  0x8, 0x800, 0xd4500)->ret: 0 (event from WM before firmware download)
-[  915.913983] mt76_dma.c - mt76_dma_alloc_queue(struct mt76_dev *dev, struct mt76_queue *q, int idx:0, int n_desc:512, int bufsize:2048, u32 ring_base:0xd4540)
-[  915.914001] mt76_mac80211.c - mt76_create_page_pool - q:-1398449664
-[  915.914005] mt76_mac80211.c - mt76_create_page_pool - idx: 2
-[  915.914009] mt76_mac80211.c - mt76_create_page_pool - pool_size: 16
-[  915.914013] mt76_mac80211.c - mt76_create_page_pool - mt76_is_mmio(dev)
-[  915.914021] mt76_mac80211.c - mt76_create_page_pool - return
-[  915.914024] mt76_dma.c - mt76_dma_wed_setup(struct mt76_dev *dev, struct mt76_queue *q, bool reset:0)
-[  915.914028] mt76_dma.c - mt76_dma_queue_reset
-[  915.914031] mt76_dma.c - __mt76_dma_queue_reset
-[  915.914035] mt76_dma.c - mt76_dma_sync_idx(struct mt76_dev *dev, struct mt76_queue *q)
-[  915.914041] pci.c - mt7902_dma_init - mt76_queue_alloc(dev, &dev->mt76.q_rx[0x2], 0x0, 0x200, 0x800, 0xd4540)->ret: 0 /* Change mcu queue after firmware download */
-[  915.914048] mt76_dma.c - mt76_dma_alloc_queue(struct mt76_dev *dev, struct mt76_queue *q, int idx:0, int n_desc:1536, int bufsize:2048, u32 ring_base:0xd4520)
-[  915.914082] mt76_mac80211.c - mt76_create_page_pool - q:-1398449888
-[  915.914086] mt76_mac80211.c - mt76_create_page_pool - idx: 0
-[  915.914089] mt76_mac80211.c - mt76_create_page_pool - pool_size: 256
-[  915.914093] mt76_mac80211.c - mt76_create_page_pool - mt76_is_mmio(dev)
-[  915.914101] mt76_mac80211.c - mt76_create_page_pool - return
-[  915.914105] mt76_dma.c - mt76_dma_wed_setup(struct mt76_dev *dev, struct mt76_queue *q, bool reset:0)
-[  915.914109] mt76_dma.c - mt76_dma_queue_reset
-[  915.914112] mt76_dma.c - __mt76_dma_queue_reset
-[  915.914118] mt76_dma.c - mt76_dma_sync_idx(struct mt76_dev *dev, struct mt76_queue *q)
-[  915.914125] pci.c - mt7902_dma_init - mt76_queue_alloc(dev, &dev->mt76.q_rx[0x0], 0x0, 0x600, 0x800, 0xd4520)->ret: 0  /* rx data */     
-[  915.914133] mt76_dma.c - mt76_dma_init(struct mt76_dev *dev, int (*poll)(struct napi_struct *napi, int budget))
-[  915.914140] mt76_dma.c - mt76_dma_init - napi_dev.name:phy2, wiphy_name:phy2
-[  915.914319] mt76_dma.c - mt76_dma_init - mt76_dma_rx_fill(dev, &dev->q_rx[0], false);
-[  915.915356] mt76_dma.c - mt76_dma_kick_queue(struct mt76_dev *dev, struct mt76_queue *q)
-[  915.915453] mt76_dma.c - mt76_dma_init - mt76_dma_rx_fill(dev, &dev->q_rx[1], false);
-[  915.915520] mt76_dma.c - mt76_dma_kick_queue(struct mt76_dev *dev, struct mt76_queue *q)
-[  915.915634] mt76_dma.c - mt76_dma_init - mt76_dma_rx_fill(dev, &dev->q_rx[2], false);
-[  915.915968] mt76_dma.c - mt76_dma_kick_queue(struct mt76_dev *dev, struct mt76_queue *q)
-[  915.915972] pci.c - mt7902_dma_init - mt76_init_queues(dev, mt792x_poll_rx)->ret: 0
-[  915.915976] mt792x_dma.c - mt792x_dma_enable
-[  915.915978] mt792x_dma.c - mt792x_dma_prefetch
-[  915.915984] mt792x_dma.c - mt792x_dma_enable - mt76_wr(dev, 0xd420c, 0xffffffff)
-[  915.915987] mt792x_dma.c - mt792x_dma_enable - mt76_wr(dev, 0xd42f0, 0x0)
-[  915.915990] mt792x_dma.c - mt792x_dma_enable - mt76_set(dev, 0xd4208, 0x5020b870)
-[  915.915994] mt792x_dma.c - mt792x_dma_enable - mt76_set(dev, 0xd4208, 0x5)
-[  915.915999] mt792x_dma.c - mt792x_dma_enable - mt76_set(dev, 0x54000120, 0x2)
-[  915.916001] pci.c - __mt7902_reg_addr(struct mt792x_dev *dev, 0x54000120) - fixed_map[11].phys: 0x54000000, fixed_map[11].maps: 0x2000, fixed_map[11].size: 0x1000, ofs: 0x120, return:0x2120
-[  915.916009] mt792x_dma.c - mt792x_dma_enable - mt76_connac_irq_enable(mt76_dev , 0x2847fff5)
-[  915.916011] mt76_mmio.c - mt76_set_irq_mask
-[  915.916017] mt792x_dma.c - mt792x_dma_enable - mt76_set(dev, 0xd41f4, 0x1)
-[  915.916021] pci.c - mt7902_pci_probe mt7902_dma_init->ret: 0
-[  915.916024] init.c - mt7902_register_device(struct mt792x_dev *dev)
-[  915.916027] mt792x_acpi_sar.c - mt792x_init_acpi_sar
-[  915.916035] mt792x_dma.c - mt792x_irq_tasklet(18446631226340351936)
-[  915.916038] mt792x_dma.c - mt792x_irq_tasklet - mt76_wr(dev, 0xd4204, 0x0)
-[  915.916042] mt792x_dma.c - mt792x_irq_tasklet - mt76_rr(dev, 0xd4200)->intr: 0x0
-[  915.916044] mt792x_dma.c - mt792x_irq_tasklet - mt76_wr(dev, 0xd4200, 0x0)
-[  915.916047] mt76_mmio.c - mt76_set_irq_mask
-[  915.916053] mt792x_acpi_sar.c - mt792x_asar_acpi_read_mtcl
-[  915.916055] mt792x_acpi_sar.c - mt792x_acpi_read
-[  915.916064] mt792x_acpi_sar.c - mt792x_asar_acpi_read_mtds
-[  915.916065] mt792x_acpi_sar.c - mt792x_acpi_read
-[  915.916068] mt792x_acpi_sar.c - mt792x_asar_acpi_read_mtgs
-[  915.916070] mt792x_acpi_sar.c - mt792x_acpi_read
-[  915.916073] mt792x_acpi_sar.c - mt792x_asar_acpi_read_mtfg
-[  915.916075] mt792x_acpi_sar.c - mt792x_acpi_read
-[  915.916078] mt792x_core.c - mt792x_init_wcid
-[  915.916079] mt76_util.c - mt76_wcid_alloc(0x0, 14)
-[  915.916082] mt792x_core.c - mt792x_init_wcid - idx:0
-[  915.916084] mt792x_core.c - mt792x_init_wiphy
-[  915.916086] mt792x_core.c - mt792x_init_wiphy - ieee80211_hw_set
-[  915.916091] pci.c - mt7902_pci_probe mt7902_register_device->ret: 0
-[  915.916913] init.c - mt7902_init_work(struct work_struct *work)
-[  915.916918] init.c - mt7902_init_hardware(struct mt792x_dev *dev)
-[  915.916920] init.c - __mt7902_init_hardware(struct mt792x_dev *dev)
-[  915.916922] init.c - __mt7902_init_hardware - mt76_wr(dev, 0x41f23c, 0x0);
-[  915.916926] pci.c - __mt7902_reg_addr(struct mt792x_dev *dev, 0x41f23c) - fixed_map[9].phys: 0x410000, fixed_map[9].maps: 0x90000, fixed_map[9].size: 0x10000, ofs: 0xf23c, return:0x9f23c
-[  915.916936] pci_mcu.c - mt7902e_mcu_init(struct mt792x_dev *dev)
-[  915.916939] pci_mcu.c - mt7902e_driver_own(struct mt792x_dev *dev)
-[  915.916946] pci_mcu.c - mt7902e_driver_own - mt7902_reg_map_l1(dev, 0x18060010)-> reg : 0x40010
-[  915.916949] pci_mcu.c - mt7902e_driver_own - mt76_wr(dev, 0x40010, 0x2)
-[  915.916952] mt76_util.c - ____mt76_poll_msec(struct mt76_dev *dev, 0x40010, 0x1, 0x0, 500, 10)
-[  915.916958] pci_mcu.c - mt7902e_mcu_init - mt7902e_driver_own(dev)->err: 0
-[  915.916960] pci_mcu.c - mt7902e_mcu_init - mt76_rmw_field(dev, 0x10194, 0x100, 1)
-[  915.916966] mcu.c - mt7902_run_firmware(struct mt792x_dev *dev)
-[  915.916969] mcu.c - mt7902_run_firmware - chip_id : 0x7902
-[  915.916971] mt792x_core.c - mt792x_load_firmware - mt792x_patch_name : mediatek/WIFI_MT7922_patch_mcu_1_1_hdr.bin
-[  915.917224] mt7902_pci 0000:03:00.0: HW/SW Version: 0x8a108a10, Build Time: 20240219103244a
+[  191.736257] pci.c - mt7902_pci_probe starting the mt7902 driver from the pci probe function. This is the first function to display in dmesg  ============================================================================================================================================================================================
+[  191.736274] mt7902_pci 0000:03:00.0: enabling device (0000 -> 0002)
+[  191.736390] pci.c - mt7902_pci_probe pcim_enable_device->ret : 0
+[  191.736412] pci.c - mt7902_pci_probe pcim_iomap_regions(pdev, 1, 0000:03:00.0)->ret : 0
+[  191.736413] pci.c - mt7902_pci_probe - pci_read_config_word(pdev, 4, 0xfdd371e);
+[  191.736498] pci.c - mt7902_pci_probe pci_alloc_irq_vectors->ret : 1
+[  191.736500] pci.c - mt7902_pci_probe dma_set_mask(pdev, 0xffffffff)->ret: 0
+[  191.736502] pci.c - mt7902_pci_probe mt7902_disable_aspm: 0
+[  191.736503] mt792x_core.c - mt792x_get_mac80211_ops
+[  191.736510] mt792x_core.c - mt792x_get_offload_capability(dev, mediatek/WIFI_RAM_CODE_MT7922_1.bin)
+[  191.740871] mt792x_core.c - mt792x_get_offload_capability - request_firmware->ret:0
+[  191.740875] mt792x_core.c - mt792x_get_offload_capability - check firmware error
+[  191.740876] mt792x_core.c - mt792x_get_offload_capability - while(data:0x11be1874 < end:0x11be18e0)
+[  191.740878] mt792x_core.c - mt792x_get_offload_capability - while(data:0x11be1878 < end:0x11be18e0)
+[  191.740880] mt792x_core.c - mt792x_get_offload_capability - while(data:0x11be1878 < end:0x11be18e0)
+[  191.740881] mt792x_core.c - mt792x_get_offload_capability - while(data:0x11be18d0 < end:0x11be18e0)
+[  191.740883] mt792x_core.c - mt792x_get_offload_capability - MT792x_FW_TAG_FEATURE: 0x4
+[  191.740884] mt792x_core.c - mt792x_get_offload_capability - release_firmware
+[  191.740919] pci.c - mt7902_pci_probe mt792x_get_mac80211_ops: 0
+[  191.740921] mt76_mac80211.c - mt76_alloc_device
+[  191.740945] pci.c - mt7902_pci_probe mt76_alloc_device: 0
+[  191.740947] pci.c - mt7902_pci_probe pci_set_drvdata
+[  191.740948] pci.c - mt7902_pci_probe mt76_mmio_init
+[  191.740950] mt76_mmio.c - mt76_mmio_init
+[  191.740951] pci.c - mt7902_pci_probe devm_kmemdup
+[  191.740953] pci.c - mt7902_pci_probe devm_kmemdup: 0
+[  191.740966] pci.c - mt7902_pci_probe - rev - 0x7902  - 0x70010200
+[  191.740974] pci.c - mt7902_pci_probe - rev - 0x0  - 0x70010204
+[  191.740989] mt7902_pci 0000:03:00.0: ASIC revision: 79020000
+[  191.740992] mt792x_dma.c - mt792x_wfsys_reset
+[  191.740993] mt792x_dma.c - mt792x_wfsys_reset - mt76_clear(dev, 0x18000140, 0x1)
+[  191.741000] pci.c - __mt7902_reg_addr - mt7902_reg_map_l1(dev, 0x18000140)->0x18000140
+[  191.792778] mt792x_dma.c - mt792x_wfsys_reset - mt76_set(dev, 0x18000140, 0x1)
+[  191.792805] pci.c - __mt7902_reg_addr - mt7902_reg_map_l1(dev, 0x18000140)->0x18000140
+[  191.792819] mt792x_dma.c - mt792x_wfsys_reset - __mt76_poll_msec(&dev->mt76, 0x18000140, 0x10, 0x10, 500)
+[  191.792825] mt76_util.c - ____mt76_poll_msec(struct mt76_dev *dev, 0x18000140, 0x10, 0x10, 500, 10)
+[  191.792836] pci.c - __mt7902_reg_addr - mt7902_reg_map_l1(dev, 0x18000140)->0x18000140
+[  191.813093] pci.c - __mt7902_reg_addr - mt7902_reg_map_l1(dev, 0x18000140)->0x18000140
+[  191.813115] pci.c - mt7902_pci_probe mt792x_wfsys_reset->ret: 0
+[  191.813119] pci.c - mt7902_pci_probe 	mt76_wr(dev, 0xd4204, 0)
+[  191.813125] pci.c - mt7902_pci_probe mt76_wr(dev, 0x10188, 0xff)
+[  191.813208] pci.c - mt7902_pci_probe devm_request_irq->ret: 0
+[  191.813212] pci.c - mt7902_dma_init(struct mt792x_dev *dev)
+[  191.813216] mt76_dma.c - mt76_dma_attach
+[  191.813220] mt792x_dma.c - mt792x_dma_disable
+[  191.813223] mt792x_dma.c - mt792x_dma_disable - 	mt76_clear(dev, 0xd4208, 0x18208005)
+[  191.813230] mt792x_dma.c - mt792x_dma_disable - mt76_poll_msec_tick(dev, 0xd4208, 0xa, 0x0, 0x64, 0x1)
+[  191.813236] mt76_util.c - ____mt76_poll_msec(struct mt76_dev *dev, 0xd4208, 0xa, 0x0, 100, 1)
+[  191.813244] mt792x_dma.c - mt792x_dma_disable - mt76_clear(dev, 0xd42b0, 0x40)
+[  191.813251] mt792x_dma.c - mt792x_dma_disable - mt76_set(dev, 0x7c026004, 0x10000000)
+[  191.813256] pci.c - __mt7902_reg_addr(struct mt792x_dev *dev, 0x7c026004) - fixed_map[16].phys: 0x7c020000, fixed_map[16].maps: 0xd0000, fixed_map[16].size: 0x10000, ofs: 0x6004, return:0xd6004
+[  191.813272] pci.c - mt7902_dma_init - mt792x_dma_disable(dev, true)->ret: 0
+[  191.813276] mt76_connac_mac - mt76_connac_init_tx_queues
+[  191.813279] mt76_mac80211.c - mt76_init_queue(struct mt76_dev *dev, 0, 0, 2048, 869120, 0x0)
+[  191.813287] mt76_mac80211.c - mt76_init_queue - queue_ops(dev, hwq, idx, n_desc, 0, ring_base)
+[  191.813291] mt76_dma.c - mt76_dma_alloc_queue(struct mt76_dev *dev, struct mt76_queue *q, int idx:0, int n_desc:2048, int bufsize:0, u32 ring_base:0xd4300)
+[  191.813356] mt76_mac80211.c - mt76_create_page_pool - q:-824157528
+[  191.813360] mt76_mac80211.c - mt76_create_page_pool - idx: -33568472
+[  191.813364] mt76_mac80211.c - mt76_create_page_pool - pool_size: 16
+[  191.813368] mt76_mac80211.c - mt76_create_page_pool - mt76_is_mmio(dev)
+[  191.813388] mt76_mac80211.c - mt76_create_page_pool - return
+[  191.813391] mt76_dma.c - mt76_dma_wed_setup(struct mt76_dev *dev, struct mt76_queue *q, bool reset:0)
+[  191.813395] mt76_dma.c - mt76_dma_queue_reset
+[  191.813399] mt76_dma.c - __mt76_dma_queue_reset
+[  191.813410] mt76_dma.c - mt76_dma_sync_idx(struct mt76_dev *dev, struct mt76_queue *q)
+[  191.813416] mt76_mac80211.c - mt76_init_queue - return
+[  191.813419] pci.c - mt7902_dma_init - mt76_connac_init_tx_queues(dev->phy.mt76, 0x0, 0x800, 0xd4300, NULL, 0)->ret: 0  (init tx queue)
+[  191.813425] pci.c - mt7902_dma_init - mt76_wr(dev, 0xd4600, 0x4);
+[  191.813428] mt76_mac80211.c - mt76_init_queue(struct mt76_dev *dev, 0, 17, 256, 869120, 0x0)
+[  191.813433] mt76_mac80211.c - mt76_init_queue - queue_ops(dev, hwq, idx, n_desc, 0, ring_base)
+[  191.813435] mt76_dma.c - mt76_dma_alloc_queue(struct mt76_dev *dev, struct mt76_queue *q, int idx:17, int n_desc:256, int bufsize:0, u32 ring_base:0xd4300)
+[  191.813480] mt76_mac80211.c - mt76_create_page_pool - q:-824159832
+[  191.813482] mt76_mac80211.c - mt76_create_page_pool - idx: 579998264
+[  191.813485] mt76_mac80211.c - mt76_create_page_pool - pool_size: 16
+[  191.813486] mt76_mac80211.c - mt76_create_page_pool - mt76_is_mmio(dev)
+[  191.813493] mt76_mac80211.c - mt76_create_page_pool - return
+[  191.813494] mt76_dma.c - mt76_dma_wed_setup(struct mt76_dev *dev, struct mt76_queue *q, bool reset:0)
+[  191.813496] mt76_dma.c - mt76_dma_queue_reset
+[  191.813498] mt76_dma.c - __mt76_dma_queue_reset
+[  191.813501] mt76_dma.c - mt76_dma_sync_idx(struct mt76_dev *dev, struct mt76_queue *q)
+[  191.813506] mt76_mac80211.c - mt76_init_queue - return
+[  191.813508] pci.c - mt7902_dma_init - mt76_init_mcu_queue(&dev->mt76, 0x0, 0x11, 0x100, 0xd4300);->ret: 0  (command to WM)
+[  191.813512] mt76_mac80211.c - mt76_init_queue(struct mt76_dev *dev, 2, 16, 128, 869120, 0x0)
+[  191.813516] mt76_mac80211.c - mt76_init_queue - queue_ops(dev, hwq, idx, n_desc, 0, ring_base)
+[  191.813518] mt76_dma.c - mt76_dma_alloc_queue(struct mt76_dev *dev, struct mt76_queue *q, int idx:16, int n_desc:128, int bufsize:0, u32 ring_base:0xd4300)
+[  191.813529] mt76_mac80211.c - mt76_create_page_pool - q:-824160024
+[  191.813531] mt76_mac80211.c - mt76_create_page_pool - idx: -1874268764
+[  191.813534] mt76_mac80211.c - mt76_create_page_pool - pool_size: 16
+[  191.813536] mt76_mac80211.c - mt76_create_page_pool - mt76_is_mmio(dev)
+[  191.813541] mt76_mac80211.c - mt76_create_page_pool - return
+[  191.813543] mt76_dma.c - mt76_dma_wed_setup(struct mt76_dev *dev, struct mt76_queue *q, bool reset:0)
+[  191.813546] mt76_dma.c - mt76_dma_queue_reset
+[  191.813548] mt76_dma.c - __mt76_dma_queue_reset
+[  191.813551] mt76_dma.c - mt76_dma_sync_idx(struct mt76_dev *dev, struct mt76_queue *q)
+[  191.813556] mt76_mac80211.c - mt76_init_queue - return
+[  191.813558] pci.c - mt7902_dma_init - mt76_init_mcu_queue(&dev->mt76, 0x2, 0x10, 0x80, 0xd4300)->ret: 0  (firmware download)
+[  191.813562] mt76_dma.c - mt76_dma_alloc_queue(struct mt76_dev *dev, struct mt76_queue *q, int idx:0, int n_desc:8, int bufsize:2048, u32 ring_base:0xd4500)
+[  191.813571] mt76_mac80211.c - mt76_create_page_pool - q:-1359455856
+[  191.813583] mt76_mac80211.c - mt76_create_page_pool - idx: 1
+[  191.813585] mt76_mac80211.c - mt76_create_page_pool - pool_size: 16
+[  191.813587] mt76_mac80211.c - mt76_create_page_pool - mt76_is_mmio(dev)
+[  191.813597] mt76_mac80211.c - mt76_create_page_pool - return
+[  191.813599] mt76_dma.c - mt76_dma_wed_setup(struct mt76_dev *dev, struct mt76_queue *q, bool reset:0)
+[  191.813602] mt76_dma.c - mt76_dma_queue_reset
+[  191.813603] mt76_dma.c - __mt76_dma_queue_reset
+[  191.813606] mt76_dma.c - mt76_dma_sync_idx(struct mt76_dev *dev, struct mt76_queue *q)
+[  191.813610] pci.c - mt7902_dma_init - mt76_queue_alloc(dev, &dev->mt76.q_rx[0x1], 0x0,  0x8, 0x800, 0xd4500)->ret: 0 (event from WM before firmware download)
+[  191.813614] mt76_dma.c - mt76_dma_alloc_queue(struct mt76_dev *dev, struct mt76_queue *q, int idx:0, int n_desc:512, int bufsize:2048, u32 ring_base:0xd4540)
+[  191.813628] mt76_mac80211.c - mt76_create_page_pool - q:-1359455744
+[  191.813630] mt76_mac80211.c - mt76_create_page_pool - idx: 2
+[  191.813632] mt76_mac80211.c - mt76_create_page_pool - pool_size: 16
+[  191.813634] mt76_mac80211.c - mt76_create_page_pool - mt76_is_mmio(dev)
+[  191.813638] mt76_mac80211.c - mt76_create_page_pool - return
+[  191.813640] mt76_dma.c - mt76_dma_wed_setup(struct mt76_dev *dev, struct mt76_queue *q, bool reset:0)
+[  191.813642] mt76_dma.c - mt76_dma_queue_reset
+[  191.813644] mt76_dma.c - __mt76_dma_queue_reset
+[  191.813647] mt76_dma.c - mt76_dma_sync_idx(struct mt76_dev *dev, struct mt76_queue *q)
+[  191.813651] pci.c - mt7902_dma_init - mt76_queue_alloc(dev, &dev->mt76.q_rx[0x2], 0x0, 0x200, 0x800, 0xd4540)->ret: 0 /* Change mcu queue after firmware download */
+[  191.813655] mt76_dma.c - mt76_dma_alloc_queue(struct mt76_dev *dev, struct mt76_queue *q, int idx:0, int n_desc:1536, int bufsize:2048, u32 ring_base:0xd4520)
+[  191.813670] mt76_mac80211.c - mt76_create_page_pool - q:-1359455968
+[  191.813672] mt76_mac80211.c - mt76_create_page_pool - idx: 0
+[  191.813675] mt76_mac80211.c - mt76_create_page_pool - pool_size: 256
+[  191.813677] mt76_mac80211.c - mt76_create_page_pool - mt76_is_mmio(dev)
+[  191.813681] mt76_mac80211.c - mt76_create_page_pool - return
+[  191.813683] mt76_dma.c - mt76_dma_wed_setup(struct mt76_dev *dev, struct mt76_queue *q, bool reset:0)
+[  191.813686] mt76_dma.c - mt76_dma_queue_reset
+[  191.813688] mt76_dma.c - __mt76_dma_queue_reset
+[  191.813691] mt76_dma.c - mt76_dma_sync_idx(struct mt76_dev *dev, struct mt76_queue *q)
+[  191.813695] pci.c - mt7902_dma_init - mt76_queue_alloc(dev, &dev->mt76.q_rx[0x0], 0x0, 0x600, 0x800, 0xd4520)->ret: 0  /* rx data */     
+[  191.813699] mt76_dma.c - mt76_dma_init(struct mt76_dev *dev, int (*poll)(struct napi_struct *napi, int budget))
+[  191.813702] mt76_dma.c - mt76_dma_init - napi_dev.name:phy0, wiphy_name:phy0
+[  191.813840] mt76_dma.c - mt76_dma_init - mt76_dma_rx_fill(dev, &dev->q_rx[0], false);
+[  191.815268] mt76_dma.c - mt76_dma_kick_queue(struct mt76_dev *dev, struct mt76_queue *q)
+[  191.815403] mt76_dma.c - mt76_dma_init - mt76_dma_rx_fill(dev, &dev->q_rx[1], false);
+[  191.815491] mt76_dma.c - mt76_dma_kick_queue(struct mt76_dev *dev, struct mt76_queue *q)
+[  191.815615] mt76_dma.c - mt76_dma_init - mt76_dma_rx_fill(dev, &dev->q_rx[2], false);
+[  191.815967] mt76_dma.c - mt76_dma_kick_queue(struct mt76_dev *dev, struct mt76_queue *q)
+[  191.815976] pci.c - mt7902_dma_init - mt76_init_queues(dev, mt792x_poll_rx)->ret: 0
+[  191.815983] mt792x_dma.c - mt792x_dma_enable
+[  191.815987] mt792x_dma.c - mt792x_dma_prefetch
+[  191.815996] mt792x_dma.c - mt792x_dma_enable - mt76_wr(dev, 0xd420c, 0xffffffff)
+[  191.816002] mt792x_dma.c - mt792x_dma_enable - mt76_wr(dev, 0xd42f0, 0x0)
+[  191.816007] mt792x_dma.c - mt792x_dma_enable - mt76_set(dev, 0xd4208, 0x5020b870)
+[  191.816014] mt792x_dma.c - mt792x_dma_enable - mt76_set(dev, 0xd4208, 0x5)
+[  191.816020] mt792x_dma.c - mt792x_dma_enable - mt76_set(dev, 0x54000120, 0x2)
+[  191.816025] pci.c - __mt7902_reg_addr(struct mt792x_dev *dev, 0x54000120) - fixed_map[11].phys: 0x54000000, fixed_map[11].maps: 0x2000, fixed_map[11].size: 0x1000, ofs: 0x120, return:0x2120
+[  191.816037] mt792x_dma.c - mt792x_dma_enable - mt76_connac_irq_enable(mt76_dev , 0x2847fff5)
+[  191.816042] mt76_mmio.c - mt76_set_irq_mask
+[  191.816050] mt792x_dma.c - mt792x_dma_enable - mt76_set(dev, 0xd41f4, 0x1)
+[  191.816057] pci.c - mt7902_pci_probe mt7902_dma_init->ret: 0
+[  191.816061] init.c - mt7902_register_device(struct mt792x_dev *dev)
+[  191.816065] mt792x_acpi_sar.c - mt792x_init_acpi_sar
+[  191.816070] mt792x_acpi_sar.c - mt792x_asar_acpi_read_mtcl
+[  191.816074] mt792x_acpi_sar.c - mt792x_acpi_read
+[  191.816085] mt792x_acpi_sar.c - mt792x_asar_acpi_read_mtds
+[  191.816089] mt792x_acpi_sar.c - mt792x_acpi_read
+[  191.816094] mt792x_acpi_sar.c - mt792x_asar_acpi_read_mtgs
+[  191.816097] mt792x_acpi_sar.c - mt792x_acpi_read
+[  191.816102] mt792x_acpi_sar.c - mt792x_asar_acpi_read_mtfg
+[  191.816106] mt792x_acpi_sar.c - mt792x_acpi_read
+[  191.816111] mt792x_core.c - mt792x_init_wcid
+[  191.816115] mt76_util.c - mt76_wcid_alloc(0x0, 14)
+[  191.816120] mt792x_core.c - mt792x_init_wcid - idx:0
+[  191.816124] mt792x_core.c - mt792x_init_wiphy
+[  191.816127] mt792x_core.c - mt792x_init_wiphy - ieee80211_hw_set
+[  191.816136] pci.c - mt7902_pci_probe mt7902_register_device->ret: 0
+[  191.816451] mt792x_dma.c - mt792x_irq_tasklet(18446635529936576448)
+[  191.816457] mt792x_dma.c - mt792x_irq_tasklet - mt76_wr(dev, 0xd4204, 0x0)
+[  191.816465] mt792x_dma.c - mt792x_irq_tasklet - mt76_rr(dev, 0xd4200)->intr: 0x0
+[  191.816469] mt792x_dma.c - mt792x_irq_tasklet - mt76_wr(dev, 0xd4200, 0x0)
+[  191.816474] mt76_mmio.c - mt76_set_irq_mask
+[  191.817096] init.c - mt7902_init_work(struct work_struct *work)
+[  191.817099] init.c - mt7902_init_hardware(struct mt792x_dev *dev)
+[  191.817101] init.c - __mt7902_init_hardware(struct mt792x_dev *dev)
+[  191.817103] init.c - __mt7902_init_hardware - mt76_wr(dev, 0x41f23c, 0x0);
+[  191.817105] pci.c - __mt7902_reg_addr(struct mt792x_dev *dev, 0x41f23c) - fixed_map[9].phys: 0x410000, fixed_map[9].maps: 0x90000, fixed_map[9].size: 0x10000, ofs: 0xf23c, return:0x9f23c
+[  191.817110] pci_mcu.c - mt7902e_mcu_init(struct mt792x_dev *dev)
+[  191.817112] pci_mcu.c - mt7902e_driver_own(struct mt792x_dev *dev)
+[  191.817119] pci_mcu.c - mt7902e_driver_own - mt7902_reg_map_l1(dev, 0x18060010)-> reg : 0x40010
+[  191.817122] pci_mcu.c - mt7902e_driver_own - mt76_wr(dev, 0x40010, 0x2)
+[  191.817124] mt76_util.c - ____mt76_poll_msec(struct mt76_dev *dev, 0x40010, 0x1, 0x0, 500, 10)
+[  191.817129] pci_mcu.c - mt7902e_mcu_init - mt7902e_driver_own(dev)->err: 0
+[  191.817131] pci_mcu.c - mt7902e_mcu_init - mt76_rmw_field(dev, 0x10194, 0x100, 1)
+[  191.817136] mcu.c - mt7902_run_firmware(struct mt792x_dev *dev)
+[  191.817138] mcu.c - mt7902_run_firmware - chip_id : 0x7902
+[  191.817140] mt792x_core.c - mt792x_load_firmware - mt792x_patch_name : mediatek/WIFI_MT7922_patch_mcu_1_1_hdr.bin
+[  191.820188] mt7902_pci 0000:03:00.0: HW/SW Version: 0x8a108a10, Build Time: 20240219103244a
                , Size: 0x219a0
-[  915.917230] mt76_connac_mcu - mt76_connac2_load_patch - loop 16777216
-[  915.917233] mt76_connac_mcu - mt76_connac2_load_patch - mt76_connac2_get_data_mode(dev, 0x1000000) - addr: 0x900000, len: 0x21900, dl: 0x91ba10a0
-[  915.917237] mt76_connac_mcu - mt76_connac2_get_data_mode(dev, 0x1000000) ==> 0xffffffff
-[  915.917240] mt76_connac_mcu - mt76_connac2_load_patch - mt76_connac_mcu_init_download(dev, 0x900000, 0x21900, 0x80000000)
-[  915.917243] mt76_connac_mcu -  mt76_connac_mcu_init_download(struct mt76_dev *dev, u32 0x900000, u32 0x21900, u32 0x80000000)
-[  915.917247] mt76_connac_mcu -  mt76_connac_mcu_init_download - if  1 && 0
-[  915.917249] mt76_connac_mcu -  mt76_connac_mcu_init_download - mt76_mcu_send_msg(dev, 5, 0x80657cb4, 12, 1) - req->addr: 0x900000
-[  915.917254] mt76_mcu.c - mt76_mcu_send_and_get_msg(struct mt76_dev *dev, cmd:5, data:0x80657cb4, len:12, wait_resp:1, struct sk_buff **ret_skb) 
-[  915.917258] mt76_mcu.c - __mt76_mcu_msg_alloc(struct mt76_dev *dev, 0x80657cb4, 12, 12, gfp_t gfp)
-[  915.917276] mt76_mcu.c - __mt76_mcu_msg_alloc - len: 76
-[  915.917280] mt76_mcu.c - __mt76_mcu_msg_alloc - data: 0x80657cb4, data_len: 12
-[  915.917283] mt76_mcu.c - __mt76_mcu_msg_alloc - skb_put_data - data: 0x80657cb4, data_len: 12
-[  915.917286] mt76_mcu.c - __mt76_mcu_msg_alloc - data: 0x80657cb4, skb_queue_empty: 1
-[  915.917288] mt76_mcu.c - mt76_mcu_send_and_get_msg - mt76_mcu_skb_send_and_get_msg(dev, skb, 5, 1, ret_skb)
-[  915.917291] mt76_mcu.c - mt76_mcu_skb_send_and_get_msg(struct mt76_dev *dev, struct sk_buff *skb, 5, 1, struct sk_buff **ret_skb)
-[  915.917294] mt76_mcu.c - mt76_mcu_skb_send_and_get_msg - mutex_lock - skb_queue_empty:1
-[  915.917297] pci_mcu.c - mt7902_mcu_send_message(struct mt76_dev *mdev, struct sk_buff *skb, 5, 0=)
-[  915.917301] mt76_connac_mcu - mt76_connac2_mcu_fill_message(struct mt76_dev *dev, struct sk_buff *skb, 5, 0=)
-[  915.917303] mt76_connac_mcu - mt76_connac2_mcu_fill_message - seq: 0x1
-[  915.917306] mt76_connac_mcu - mt76_connac2_mcu_fill_message - seq: 0x1
-[  915.917308] mt76_connac_mcu - mt76_connac2_mcu_fill_message - txd_len:64
-[  915.917311] mt76_connac_mcu - mt76_connac2_mcu_fill_message - seq: 0x1, wait_seq:0x80657c2c
-[  915.917314] pci_mcu.c - mt7902_mcu_send_message - mt76_connac2_mcu_fill_message->ret: 0
-[  915.917316] pci_mcu.c - mt7902_mcu_send_message - tx_queue_skb_raw(mdev, mdev->q_mcu[0], skb, 0)
-[  915.917319] mt76_dma.c - mt76_dma_tx_queue_skb_raw(struct mt76_dev *dev, struct mt76_queue *q, struct sk_buff *skb, 0x0)
-[  915.917322] mt76_dma.c - mt76_dma_tx_queue_skb_raw - q-> (queued:0, ndesc:256), skb_queue_empty:1
-[  915.917325] mt76_dma.c - mt76_dma_tx_queue_skb_raw - dma_map_single(dev->dma_dev, 0x9da38780, 76=0x4c, 0x1)
-[  915.917335] mt76_dma.c - mt76_dma_tx_queue_skb_raw - unlikely(dma_mapping_error(dev->dma_dev, 0xffa0f780))-> 0
-[  915.917338] mt76_dma.c - mt76_dma_tx_queue_skb_raw - dma_add_buf(dev, 0x87835c28, &buf, 1, 0x0, skb, NULL)
-[  915.917341] mt76_dma.c - mt76_dma_add_buf - idx:0, next:0x1, buf0:0xffa0f780, buf1:0x0
-[  915.917344] mt76_dma.c - mt76_dma_add_buf - buf->  addr:0xffa0f780, len:0x4c
-[  915.917347] mt76_dma.c - mt76_dma_add_buf - idx:0
-[  915.917350] mt76_dma.c - mt76_dma_tx_queue_skb_raw - dma_kick_queue(dev, 0x87835c28)
-[  915.917352] mt76_dma.c - mt76_dma_kick_queue(struct mt76_dev *dev, struct mt76_queue *q)
-[  915.917359] mt76_dma.c - mt76_dma_tx_queue_skb_raw - skb_queue_empty:1
-[  915.917362] mt76_mcu.c - mt76_mcu_skb_send_and_get_msg - mcu_skb_send_msg->ret:0, skb_queue_empty:1, seq:0x80657c2c
-[  915.917365] mt76_mcu.c - mt76_mcu_skb_send_and_get_msg - expires:4295586301
-[  915.917368] mt76_mcu.c - mt76_mcu_get_response(struct mt76_dev *dev, 4295586301)
-[  915.917371] mt76_mcu.c - mt76_mcu_get_response - timeout: 3000 - jiffies: 4295583301, skb_queue_empty: 1, - test_bit: 0, MT76_MCU_RESET: 0x9- phy.state: 0xaca51fd8 
-[  918.923106] mt76_mcu.c - mt76_mcu_get_response - timeout: 18446744073709551613 - jiffies: 4295586304, skb_queue_empty: 1, - test_bit: 0, MT76_MCU_RESET: 0x9- phy.state: 0xaca51fd8 
-[  918.923117] mt76_mcu.c - mt76_mcu_get_response - jiffies: 4295586304, skb_dequeue - phy.state: 0xaca51fd8
-[  918.923121] mt76_mcu.c - mt76_mcu_skb_send_and_get_msg - skb:0
-[  918.923123] mcu.c - mt7902_mcu_parse_response(struct mt76_dev *mdev, 5, struct sk_buff *skb, 1)
-[  918.923128] mt7902_pci 0000:03:00.0: Message 00000005 (seq 1) timeout
-[  918.923136] mt792x_mac.c - mt792x_reset(struct mt76_dev *mdev)
-[  918.923138] mt76_mcu.c - mt76_mcu_skb_send_and_get_msg - dev->mcu_ops->mcu_parse_response(dev, 5, skb, 1)->ret: -110
-[  918.923142] mt76_mcu.c - mt76_mcu_skb_send_and_get_msg - mutex_unlock
-[  918.923145] mt7902_pci 0000:03:00.0: Download request failed
-[  918.923150] mt76_connac_mcu - mt76_connac_mcu_patch_sem_ctrl(struct mt76_dev *dev, 0)
-[  918.923153] mt76_connac_mcu - mt76_connac_mcu_patch_sem_ctrl - op: 0x0
-[  918.923155] mt76_connac_mcu - mt76_connac_mcu_patch_sem_ctrl - mt76_mcu_send_msg(dev, 16, , 4, 1)
-[  918.923159] mt76_mcu.c - mt76_mcu_send_and_get_msg(struct mt76_dev *dev, cmd:16, data:0x80657ccc, len:4, wait_resp:1, struct sk_buff **ret_skb) 
-[  918.923163] mt76_mcu.c - __mt76_mcu_msg_alloc(struct mt76_dev *dev, 0x80657ccc, 4, 4, gfp_t gfp)
-[  918.923166] mt76_mcu.c - __mt76_mcu_msg_alloc - len: 68
-[  918.923171] mt76_mcu.c - __mt76_mcu_msg_alloc - data: 0x80657ccc, data_len: 4
-[  918.923174] mt76_mcu.c - __mt76_mcu_msg_alloc - skb_put_data - data: 0x80657ccc, data_len: 4
-[  918.923177] mt76_mcu.c - __mt76_mcu_msg_alloc - data: 0x80657ccc, skb_queue_empty: 1
-[  918.923180] mt76_mcu.c - mt76_mcu_send_and_get_msg - mt76_mcu_skb_send_and_get_msg(dev, skb, 16, 1, ret_skb)
-[  918.923183] mt76_mcu.c - mt76_mcu_skb_send_and_get_msg(struct mt76_dev *dev, struct sk_buff *skb, 16, 1, struct sk_buff **ret_skb)
-[  918.923186] mt76_mcu.c - mt76_mcu_skb_send_and_get_msg - mutex_lock - skb_queue_empty:1
-[  918.923189] pci_mcu.c - mt7902_mcu_send_message(struct mt76_dev *mdev, struct sk_buff *skb, 16, 0=)
-[  918.923192] mt76_connac_mcu - mt76_connac2_mcu_fill_message(struct mt76_dev *dev, struct sk_buff *skb, 16, 0=)
-[  918.923195] mt76_connac_mcu - mt76_connac2_mcu_fill_message - seq: 0x2
-[  918.923198] mt76_connac_mcu - mt76_connac2_mcu_fill_message - seq: 0x2
-[  918.923200] mt76_connac_mcu - mt76_connac2_mcu_fill_message - txd_len:64
-[  918.923203] mt76_connac_mcu - mt76_connac2_mcu_fill_message - seq: 0x2, wait_seq:0x80657c44
-[  918.923206] pci_mcu.c - mt7902_mcu_send_message - mt76_connac2_mcu_fill_message->ret: 0
-[  918.923208] pci_mcu.c - mt7902_mcu_send_message - tx_queue_skb_raw(mdev, mdev->q_mcu[0], skb, 0)
-[  918.923211] mt76_dma.c - mt76_dma_tx_queue_skb_raw(struct mt76_dev *dev, struct mt76_queue *q, struct sk_buff *skb, 0x0)
-[  918.923215] mt76_dma.c - mt76_dma_tx_queue_skb_raw - q-> (queued:1, ndesc:256), skb_queue_empty:1
-[  918.923218] mt76_dma.c - mt76_dma_tx_queue_skb_raw - dma_map_single(dev->dma_dev, 0x9da38c80, 68=0x44, 0x1)
-[  918.923228] mt76_dma.c - mt76_dma_tx_queue_skb_raw - unlikely(dma_mapping_error(dev->dma_dev, 0xffa0ec80))-> 0
-[  918.923231] mt76_dma.c - mt76_dma_tx_queue_skb_raw - dma_add_buf(dev, 0x87835c28, &buf, 1, 0x0, skb, NULL)
-[  918.923234] mt76_dma.c - mt76_dma_add_buf - idx:1, next:0x2, buf0:0xffa0ec80, buf1:0x0
-[  918.923238] mt76_dma.c - mt76_dma_add_buf - buf->  addr:0xffa0ec80, len:0x44
-[  918.923241] mt76_dma.c - mt76_dma_add_buf - idx:1
-[  918.923243] mt76_dma.c - mt76_dma_tx_queue_skb_raw - dma_kick_queue(dev, 0x87835c28)
-[  918.923246] mt76_dma.c - mt76_dma_kick_queue(struct mt76_dev *dev, struct mt76_queue *q)
-[  918.923253] mt76_dma.c - mt76_dma_tx_queue_skb_raw - skb_queue_empty:1
-[  918.923256] mt76_mcu.c - mt76_mcu_skb_send_and_get_msg - mcu_skb_send_msg->ret:0, skb_queue_empty:1, seq:0x80657c44
-[  918.923259] mt76_mcu.c - mt76_mcu_skb_send_and_get_msg - expires:4295589304
-[  918.923262] mt76_mcu.c - mt76_mcu_get_response(struct mt76_dev *dev, 4295589304)
-[  918.923265] mt76_mcu.c - mt76_mcu_get_response - timeout: 3000 - jiffies: 4295586304, skb_queue_empty: 1, - test_bit: 0, MT76_MCU_RESET: 0x9- phy.state: 0xaca51fd8 
-[  921.933552] mt76_mcu.c - mt76_mcu_get_response - timeout: 18446744073709551608 - jiffies: 4295589312, skb_queue_empty: 1, - test_bit: 0, MT76_MCU_RESET: 0x9- phy.state: 0xaca51fd8 
-[  921.933565] mt76_mcu.c - mt76_mcu_get_response - jiffies: 4295589312, skb_dequeue - phy.state: 0xaca51fd8
-[  921.933568] mt76_mcu.c - mt76_mcu_skb_send_and_get_msg - skb:0
-[  921.933571] mcu.c - mt7902_mcu_parse_response(struct mt76_dev *mdev, 16, struct sk_buff *skb, 2)
-[  921.933576] mt7902_pci 0000:03:00.0: Message 00000010 (seq 2) timeout
-[  921.933585] mt792x_mac.c - mt792x_reset(struct mt76_dev *mdev)
-[  921.933587] mt76_mcu.c - mt76_mcu_skb_send_and_get_msg - dev->mcu_ops->mcu_parse_response(dev, 16, skb, 2)->ret: -110
-[  921.933590] mt76_mcu.c - mt76_mcu_skb_send_and_get_msg - mutex_unlock
-[  921.933593] mt7902_pci 0000:03:00.0: Failed to release patch semaphore
-[  921.933624] mt792x_core.c - mt792x_load_firmware - mt76_connac2_load_patch->ret : -11
-[  921.933626] mcu.c - mt7902_run_firmware - mt792x_load_firmware(dev)->err : -11
-[  921.933628] pci_mcu.c - mt7902e_mcu_init - mt7902_run_firmware err : -11
-[  921.933632] mt76_dma.c - mt76_dma_tx_cleanup(struct mt76_dev *dev, struct mt76_queue *q, 0)
-[  921.933641] init.c - __mt7902_init_hardware mt792x_mcu_init(dev)->ret : -11
-[  921.933645] pci.c - mt7902e_init_reset(struct mt792x_dev *dev)
-[  921.933647] mt792x_dma.c - mt792x_wpdma_reset
-[  921.933649] mt76_dma.c - mt76_dma_tx_cleanup(struct mt76_dev *dev, struct mt76_queue *q, 1)
-[  921.933651] mt76_dma.c - mt76_dma_sync_idx(struct mt76_dev *dev, struct mt76_queue *q)
-[  921.933656] mt76_dma.c - mt76_dma_kick_queue(struct mt76_dev *dev, struct mt76_queue *q)
-[  921.933658] mt76_dma.c - mt76_dma_tx_cleanup(struct mt76_dev *dev, struct mt76_queue *q, 1)
-[  921.933660] mt76_dma.c - mt76_dma_sync_idx(struct mt76_dev *dev, struct mt76_queue *q)
-[  921.933665] mt76_dma.c - mt76_dma_kick_queue(struct mt76_dev *dev, struct mt76_queue *q)
-[  921.933667] mt76_dma.c - mt76_dma_tx_cleanup(struct mt76_dev *dev, struct mt76_queue *q, 1)
-[  921.933669] mt76_dma.c - mt76_dma_sync_idx(struct mt76_dev *dev, struct mt76_queue *q)
-[  921.933673] mt76_dma.c - mt76_dma_kick_queue(struct mt76_dev *dev, struct mt76_queue *q)
-[  921.933675] mt76_dma.c - mt76_dma_tx_cleanup(struct mt76_dev *dev, struct mt76_queue *q, 1)
-[  921.933677] mt76_dma.c - mt76_dma_sync_idx(struct mt76_dev *dev, struct mt76_queue *q)
-[  921.933682] mt76_dma.c - mt76_dma_kick_queue(struct mt76_dev *dev, struct mt76_queue *q)
-[  921.933684] mt76_dma.c - mt76_dma_tx_cleanup(struct mt76_dev *dev, struct mt76_queue *q, 1)
-[  921.933686] mt76_dma.c - mt76_dma_sync_idx(struct mt76_dev *dev, struct mt76_queue *q)
-[  921.933690] mt76_dma.c - mt76_dma_kick_queue(struct mt76_dev *dev, struct mt76_queue *q)
-[  921.933692] mt76_dma.c - mt76_dma_tx_cleanup(struct mt76_dev *dev, struct mt76_queue *q, 1)
-[  921.933694] mt76_dma.c - mt76_dma_tx_cleanup(struct mt76_dev *dev, struct mt76_queue *q, 1)
-[  921.933696] mt76_dma.c - mt76_dma_tx_cleanup(struct mt76_dev *dev, struct mt76_queue *q, 1)
-[  921.933698] mt76_dma.c - mt76_dma_tx_cleanup_idx(struct mt76_dev *dev, struct mt76_queue *q, 0, struct mt76_queue_entry *prev_e)
-[  921.933708] mt76_tx.c - mt76_queue_tx_complete
-[  921.933710] mt76_connac_mac - mt76_connac_tx_complete_skb
-[  921.933716] mt76_dma.c - mt76_dma_tx_cleanup_idx(struct mt76_dev *dev, struct mt76_queue *q, 1, struct mt76_queue_entry *prev_e)
-[  921.933719] mt76_tx.c - mt76_queue_tx_complete
-[  921.933720] mt76_connac_mac - mt76_connac_tx_complete_skb
-[  921.933723] mt76_dma.c - mt76_dma_sync_idx(struct mt76_dev *dev, struct mt76_queue *q)
-[  921.933728] mt76_dma.c - mt76_dma_kick_queue(struct mt76_dev *dev, struct mt76_queue *q)
-[  921.933730] mt76_dma.c - mt76_dma_tx_cleanup(struct mt76_dev *dev, struct mt76_queue *q, 1)
-[  921.933732] mt76_dma.c - mt76_dma_tx_cleanup(struct mt76_dev *dev, struct mt76_queue *q, 1)
-[  921.933734] mt76_dma.c - mt76_dma_sync_idx(struct mt76_dev *dev, struct mt76_queue *q)
-[  921.933738] mt76_dma.c - mt76_dma_kick_queue(struct mt76_dev *dev, struct mt76_queue *q)
-[  921.933740] mt76_dma.c - mt76_dma_rx_cleanup(struct mt76_dev *dev, struct mt76_queue *q)
-[  921.934563] mt76_dma.c - mt76_dma_rx_cleanup(struct mt76_dev *dev, struct mt76_queue *q)
-[  921.934568] mt76_dma.c - mt76_dma_rx_cleanup(struct mt76_dev *dev, struct mt76_queue *q)
-[  921.934798] mt792x_dma.c - mt792x_wfsys_reset
-[  921.934799] mt792x_dma.c - mt792x_wfsys_reset - mt76_clear(dev, 0x18000140, 0x1)
-[  921.934812] pci.c - __mt7902_reg_addr - mt7902_reg_map_l1(dev, 0x18000140)->0x18000140
-[  921.986785] mt792x_dma.c - mt792x_wfsys_reset - mt76_set(dev, 0x18000140, 0x1)
-[  921.986810] pci.c - __mt7902_reg_addr - mt7902_reg_map_l1(dev, 0x18000140)->0x18000140
-[  921.986822] mt792x_dma.c - mt792x_wfsys_reset - __mt76_poll_msec(&dev->mt76, 0x18000140, 0x10, 0x10, 500)
-[  921.986829] mt76_util.c - ____mt76_poll_msec(struct mt76_dev *dev, 0x18000140, 0x10, 0x10, 500, 10)
-[  921.986840] pci.c - __mt7902_reg_addr - mt7902_reg_map_l1(dev, 0x18000140)->0x18000140
-[  921.997660] pci.c - __mt7902_reg_addr - mt7902_reg_map_l1(dev, 0x18000140)->0x18000140
-[  921.997679] mt792x_dma.c - mt792x_dma_reset
-[  921.997683] mt792x_dma.c - mt792x_dma_disable
-[  921.997687] mt792x_dma.c - mt792x_dma_disable - 	mt76_clear(dev, 0xd4208, 0x18208005)
-[  921.997695] mt792x_dma.c - mt792x_dma_disable - mt76_poll_msec_tick(dev, 0xd4208, 0xa, 0x0, 0x64, 0x1)
-[  921.997700] mt76_util.c - ____mt76_poll_msec(struct mt76_dev *dev, 0xd4208, 0xa, 0x0, 100, 1)
-[  921.997709] mt792x_dma.c - mt792x_dma_disable - mt76_clear(dev, 0xd42b0, 0x40)
-[  921.997715] mt792x_dma.c - mt792x_dma_disable - mt76_set(dev, 0x7c026004, 0x10000000)
-[  921.997720] pci.c - __mt7902_reg_addr(struct mt792x_dev *dev, 0x7c026004) - fixed_map[16].phys: 0x7c020000, fixed_map[16].maps: 0xd0000, fixed_map[16].size: 0x10000, ofs: 0x6004, return:0xd6004
-[  921.997736] mt76_dma.c - mt76_dma_queue_reset
-[  921.997739] mt76_dma.c - __mt76_dma_queue_reset
-[  921.997747] mt76_dma.c - mt76_dma_sync_idx(struct mt76_dev *dev, struct mt76_queue *q)
-[  921.997753] mt76_dma.c - mt76_dma_queue_reset
-[  921.997756] mt76_dma.c - __mt76_dma_queue_reset
-[  921.997763] mt76_dma.c - mt76_dma_sync_idx(struct mt76_dev *dev, struct mt76_queue *q)
-[  921.998025] mt76_dma.c - mt76_dma_queue_reset
-[  921.998029] mt76_dma.c - __mt76_dma_queue_reset
-[  921.998038] mt76_dma.c - mt76_dma_sync_idx(struct mt76_dev *dev, struct mt76_queue *q)
-[  921.998045] mt76_dma.c - mt76_dma_queue_reset
-[  921.998049] mt76_dma.c - __mt76_dma_queue_reset
-[  921.998058] mt76_dma.c - mt76_dma_sync_idx(struct mt76_dev *dev, struct mt76_queue *q)
-[  921.998065] mt76_dma.c - mt76_dma_queue_reset
-[  921.998068] mt76_dma.c - __mt76_dma_queue_reset
-[  921.998077] mt76_dma.c - mt76_dma_sync_idx(struct mt76_dev *dev, struct mt76_queue *q)
-[  921.998084] mt76_dma.c - mt76_dma_queue_reset
-[  921.998087] mt76_dma.c - __mt76_dma_queue_reset
-[  921.998091] mt76_dma.c - mt76_dma_queue_reset
-[  921.998095] mt76_dma.c - __mt76_dma_queue_reset
-[  921.998099] mt76_dma.c - mt76_dma_queue_reset
-[  921.998102] mt76_dma.c - __mt76_dma_queue_reset
-[  921.998108] mt76_dma.c - mt76_dma_sync_idx(struct mt76_dev *dev, struct mt76_queue *q)
-[  921.998115] mt76_dma.c - mt76_dma_queue_reset
-[  921.998119] mt76_dma.c - __mt76_dma_queue_reset
-[  921.998123] mt76_dma.c - mt76_dma_queue_reset
-[  921.998127] mt76_dma.c - __mt76_dma_queue_reset
-[  921.998132] mt76_dma.c - mt76_dma_sync_idx(struct mt76_dev *dev, struct mt76_queue *q)
-[  921.998138] mt76_dma.c - mt76_dma_queue_reset
-[  921.998141] mt76_dma.c - __mt76_dma_queue_reset
-[  921.998147] mt76_dma.c - mt76_dma_sync_idx(struct mt76_dev *dev, struct mt76_queue *q)
-[  921.998153] mt76_dma.c - mt76_dma_queue_reset
-[  921.998156] mt76_dma.c - __mt76_dma_queue_reset
-[  921.998160] mt76_dma.c - mt76_dma_sync_idx(struct mt76_dev *dev, struct mt76_queue *q)
-[  921.998166] mt76_dma.c - mt76_dma_queue_reset
-[  921.998169] mt76_dma.c - __mt76_dma_queue_reset
-[  921.998173] mt76_dma.c - mt76_dma_sync_idx(struct mt76_dev *dev, struct mt76_queue *q)
-[  921.998180] mt76_tx.c - mt76_tx_status_check
-[  921.998183] mt76_tx.c - mt76_tx_status_lock
-[  921.998187] mt76_tx.c - mt76_tx_status_unlock
-[  921.998190] mt792x_dma.c - mt792x_dma_enable
-[  921.998194] mt792x_dma.c - mt792x_dma_prefetch
-[  921.998202] mt792x_dma.c - mt792x_dma_enable - mt76_wr(dev, 0xd420c, 0xffffffff)
-[  921.998207] mt792x_dma.c - mt792x_dma_enable - mt76_wr(dev, 0xd42f0, 0x0)
-[  921.998211] mt792x_dma.c - mt792x_dma_enable - mt76_set(dev, 0xd4208, 0x5020b870)
-[  921.998219] mt792x_dma.c - mt792x_dma_enable - mt76_set(dev, 0xd4208, 0x5)
-[  921.998226] mt792x_dma.c - mt792x_dma_enable - mt76_set(dev, 0x54000120, 0x2)
-[  921.998232] pci.c - __mt7902_reg_addr(struct mt792x_dev *dev, 0x54000120) - fixed_map[11].phys: 0x54000000, fixed_map[11].maps: 0x2000, fixed_map[11].size: 0x1000, ofs: 0x120, return:0x2120
-[  921.998244] mt792x_dma.c - mt792x_dma_enable - mt76_connac_irq_enable(mt76_dev , 0x2847fff5)
-[  921.998247] mt76_mmio.c - mt76_set_irq_mask
-[  921.998253] mt792x_dma.c - mt792x_dma_enable - mt76_set(dev, 0xd41f4, 0x1)
-[  921.998259] mt76_dma.c - mt76_dma_rx_reset(struct mt76_dev *dev, enum mt76_rxq_id qid)
-[  921.998263] mt76_dma.c - mt76_dma_rx_cleanup(struct mt76_dev *dev, struct mt76_queue *q)
-[  921.998265] mt792x_dma.c - mt792x_irq_tasklet(18446631226340351936)
-[  921.998268] mt792x_dma.c - mt792x_irq_tasklet - mt76_wr(dev, 0xd4204, 0x0)
-[  921.998272] mt792x_dma.c - mt792x_irq_tasklet - mt76_rr(dev, 0xd4200)->intr: 0x0
-[  921.998274] mt792x_dma.c - mt792x_irq_tasklet - mt76_wr(dev, 0xd4200, 0x0)
-[  921.998277] mt76_mmio.c - mt76_set_irq_mask
-[  921.998279] mt76_dma.c - mt76_dma_wed_setup(struct mt76_dev *dev, struct mt76_queue *q, bool reset:1)
-[  921.998281] mt76_dma.c - mt76_dma_sync_idx(struct mt76_dev *dev, struct mt76_queue *q)
-[  921.998824] mt76_dma.c - mt76_dma_kick_queue(struct mt76_dev *dev, struct mt76_queue *q)
-[  921.998833] mt76_dma.c - mt76_dma_rx_reset(struct mt76_dev *dev, enum mt76_rxq_id qid)
-[  921.998835] mt76_dma.c - mt76_dma_rx_cleanup(struct mt76_dev *dev, struct mt76_queue *q)
-[  921.998837] mt76_dma.c - mt76_dma_wed_setup(struct mt76_dev *dev, struct mt76_queue *q, bool reset:1)
-[  921.998839] mt76_dma.c - mt76_dma_sync_idx(struct mt76_dev *dev, struct mt76_queue *q)
-[  921.998845] mt76_dma.c - mt76_dma_kick_queue(struct mt76_dev *dev, struct mt76_queue *q)
-[  921.998847] mt76_dma.c - mt76_dma_rx_reset(struct mt76_dev *dev, enum mt76_rxq_id qid)
-[  921.998849] mt76_dma.c - mt76_dma_rx_cleanup(struct mt76_dev *dev, struct mt76_queue *q)
-[  921.998851] mt76_dma.c - mt76_dma_wed_setup(struct mt76_dev *dev, struct mt76_queue *q, bool reset:1)
-[  921.998853] mt76_dma.c - mt76_dma_sync_idx(struct mt76_dev *dev, struct mt76_queue *q)
-[  921.999131] mt76_dma.c - mt76_dma_kick_queue(struct mt76_dev *dev, struct mt76_queue *q)
-[  921.999134] init.c - __mt7902_init_hardware(struct mt792x_dev *dev)
-[  921.999136] init.c - __mt7902_init_hardware - mt76_wr(dev, 0x41f23c, 0x0);
-[  921.999138] pci.c - __mt7902_reg_addr(struct mt792x_dev *dev, 0x41f23c) - fixed_map[9].phys: 0x410000, fixed_map[9].maps: 0x90000, fixed_map[9].size: 0x10000, ofs: 0xf23c, return:0x9f23c
-[  921.999143] pci_mcu.c - mt7902e_mcu_init(struct mt792x_dev *dev)
-[  921.999145] pci_mcu.c - mt7902e_driver_own(struct mt792x_dev *dev)
-[  921.999152] pci_mcu.c - mt7902e_driver_own - mt7902_reg_map_l1(dev, 0x18060010)-> reg : 0x40010
-[  921.999155] pci_mcu.c - mt7902e_driver_own - mt76_wr(dev, 0x40010, 0x2)
-[  921.999157] mt76_util.c - ____mt76_poll_msec(struct mt76_dev *dev, 0x40010, 0x1, 0x0, 500, 10)
-[  921.999162] pci_mcu.c - mt7902e_mcu_init - mt7902e_driver_own(dev)->err: 0
-[  921.999164] pci_mcu.c - mt7902e_mcu_init - mt76_rmw_field(dev, 0x10194, 0x100, 1)
-[  921.999169] mcu.c - mt7902_run_firmware(struct mt792x_dev *dev)
-[  921.999171] mcu.c - mt7902_run_firmware - chip_id : 0x7902
-[  921.999173] mt792x_core.c - mt792x_load_firmware - mt792x_patch_name : mediatek/WIFI_MT7922_patch_mcu_1_1_hdr.bin
-[  921.999432] mt7902_pci 0000:03:00.0: HW/SW Version: 0x8a108a10, Build Time: 20240219103244a
-               , Size: 0x219a0
-[  921.999437] mt76_connac_mcu - mt76_connac2_load_patch - loop 16777216
-[  921.999439] mt76_connac_mcu - mt76_connac2_load_patch - mt76_connac2_get_data_mode(dev, 0x1000000) - addr: 0x900000, len: 0x21900, dl: 0x91d310a0
-[  921.999443] mt76_connac_mcu - mt76_connac2_get_data_mode(dev, 0x1000000) ==> 0xffffffff
-[  921.999445] mt76_connac_mcu - mt76_connac2_load_patch - mt76_connac_mcu_init_download(dev, 0x900000, 0x21900, 0x80000000)
-[  921.999448] mt76_connac_mcu -  mt76_connac_mcu_init_download(struct mt76_dev *dev, u32 0x900000, u32 0x21900, u32 0x80000000)
-[  921.999451] mt76_connac_mcu -  mt76_connac_mcu_init_download - if  1 && 0
-[  921.999453] mt76_connac_mcu -  mt76_connac_mcu_init_download - mt76_mcu_send_msg(dev, 5, 0x80657cb4, 12, 1) - req->addr: 0x900000
-[  921.999456] mt76_mcu.c - mt76_mcu_send_and_get_msg(struct mt76_dev *dev, cmd:5, data:0x80657cb4, len:12, wait_resp:1, struct sk_buff **ret_skb) 
-[  921.999460] mt76_mcu.c - __mt76_mcu_msg_alloc(struct mt76_dev *dev, 0x80657cb4, 12, 12, gfp_t gfp)
-[  921.999463] mt76_mcu.c - __mt76_mcu_msg_alloc - len: 76
-[  921.999466] mt76_mcu.c - __mt76_mcu_msg_alloc - data: 0x80657cb4, data_len: 12
-[  921.999469] mt76_mcu.c - __mt76_mcu_msg_alloc - skb_put_data - data: 0x80657cb4, data_len: 12
-[  921.999471] mt76_mcu.c - __mt76_mcu_msg_alloc - data: 0x80657cb4, skb_queue_empty: 1
-[  921.999473] mt76_mcu.c - mt76_mcu_send_and_get_msg - mt76_mcu_skb_send_and_get_msg(dev, skb, 5, 1, ret_skb)
-[  921.999476] mt76_mcu.c - mt76_mcu_skb_send_and_get_msg(struct mt76_dev *dev, struct sk_buff *skb, 5, 1, struct sk_buff **ret_skb)
-[  921.999478] mt76_mcu.c - mt76_mcu_skb_send_and_get_msg - mutex_lock - skb_queue_empty:1
-[  921.999481] pci_mcu.c - mt7902_mcu_send_message(struct mt76_dev *mdev, struct sk_buff *skb, 5, 0=)
-[  921.999484] mt76_connac_mcu - mt76_connac2_mcu_fill_message(struct mt76_dev *dev, struct sk_buff *skb, 5, 0=)
-[  921.999486] mt76_connac_mcu - mt76_connac2_mcu_fill_message - seq: 0x3
-[  921.999488] mt76_connac_mcu - mt76_connac2_mcu_fill_message - seq: 0x3
-[  921.999490] mt76_connac_mcu - mt76_connac2_mcu_fill_message - txd_len:64
-[  921.999492] mt76_connac_mcu - mt76_connac2_mcu_fill_message - seq: 0x3, wait_seq:0x80657c2c
-[  921.999495] pci_mcu.c - mt7902_mcu_send_message - mt76_connac2_mcu_fill_message->ret: 0
-[  921.999497] pci_mcu.c - mt7902_mcu_send_message - tx_queue_skb_raw(mdev, mdev->q_mcu[0], skb, 0)
-[  921.999499] mt76_dma.c - mt76_dma_tx_queue_skb_raw(struct mt76_dev *dev, struct mt76_queue *q, struct sk_buff *skb, 0x0)
-[  921.999501] mt76_dma.c - mt76_dma_tx_queue_skb_raw - q-> (queued:0, ndesc:256), skb_queue_empty:1
-[  921.999504] mt76_dma.c - mt76_dma_tx_queue_skb_raw - dma_map_single(dev->dma_dev, 0x9da38c80, 76=0x4c, 0x1)
-[  921.999508] mt76_dma.c - mt76_dma_tx_queue_skb_raw - unlikely(dma_mapping_error(dev->dma_dev, 0xff9fdc80))-> 0
-[  921.999511] mt76_dma.c - mt76_dma_tx_queue_skb_raw - dma_add_buf(dev, 0x87835c28, &buf, 1, 0x0, skb, NULL)
-[  921.999513] mt76_dma.c - mt76_dma_add_buf - idx:0, next:0x1, buf0:0xff9fdc80, buf1:0x0
-[  921.999516] mt76_dma.c - mt76_dma_add_buf - buf->  addr:0xff9fdc80, len:0x4c
-[  921.999519] mt76_dma.c - mt76_dma_add_buf - idx:0
-[  921.999521] mt76_dma.c - mt76_dma_tx_queue_skb_raw - dma_kick_queue(dev, 0x87835c28)
-[  921.999523] mt76_dma.c - mt76_dma_kick_queue(struct mt76_dev *dev, struct mt76_queue *q)
-[  921.999529] mt76_dma.c - mt76_dma_tx_queue_skb_raw - skb_queue_empty:1
-[  921.999531] mt76_mcu.c - mt76_mcu_skb_send_and_get_msg - mcu_skb_send_msg->ret:0, skb_queue_empty:1, seq:0x80657c2c
-[  921.999534] mt76_mcu.c - mt76_mcu_skb_send_and_get_msg - expires:4295592377
-[  921.999536] mt76_mcu.c - mt76_mcu_get_response(struct mt76_dev *dev, 4295592377)
+[  191.820203] mt76_connac_mcu - mt76_connac2_load_patch - loop 16777216
+[  191.820207] mt76_connac_mcu - mt76_connac2_load_patch - mt76_connac2_get_data_mode(dev, 0x1000000) - addr: 0x900000, len: 0x21900, dl: 0x110e10a0
+[  191.820213] mt76_connac_mcu - mt76_connac2_get_data_mode(dev, 0x1000000) ==> 0xffffffff
+[  191.820218] mt76_connac_mcu - mt76_connac2_load_patch - mt76_connac_mcu_init_download(dev, 0x900000, 0x21900, 0x80000000)
+[  191.820224] mt76_connac_mcu -  mt76_connac_mcu_init_download(struct mt76_dev *dev, u32 0x900000, u32 0x21900, u32 0x80000000)
+[  191.820230] mt76_connac_mcu -  mt76_connac_mcu_init_download - if  1 && 0
+[  191.820234] mt76_connac_mcu -  mt76_connac_mcu_init_download - mt76_mcu_send_msg(dev, 5, 0xf7c7cb4, 12, 1) - req->addr: 0x900000
+[  191.820241] mt76_mcu.c - mt76_mcu_send_and_get_msg(struct mt76_dev *dev, cmd:5, data:0xf7c7cb4, len:12, wait_resp:1, struct sk_buff **ret_skb) 
+[  191.820247] mt76_mcu.c - __mt76_mcu_msg_alloc(struct mt76_dev *dev, 0xf7c7cb4, 12, 12, gfp_t gfp)
+[  191.820253] mt76_mcu.c - __mt76_mcu_msg_alloc - len: 76
+[  191.820258] mt76_mcu.c - __mt76_mcu_msg_alloc - data: 0xf7c7cb4, data_len: 12
+[  191.820263] mt76_mcu.c - __mt76_mcu_msg_alloc - skb_put_data - data: 0xf7c7cb4, data_len: 12
+[  191.820267] mt76_mcu.c - __mt76_mcu_msg_alloc - data: 0xf7c7cb4, skb_queue_empty: 1
+[  191.820271] mt76_mcu.c - mt76_mcu_send_and_get_msg - mt76_mcu_skb_send_and_get_msg(dev, skb, 5, 1, ret_skb)
+[  191.820276] mt76_mcu.c - mt76_mcu_skb_send_and_get_msg(struct mt76_dev *dev, struct sk_buff *skb, 5, 1, struct sk_buff **ret_skb)
+[  191.820281] mt76_mcu.c - mt76_mcu_skb_send_and_get_msg - mutex_lock - skb_queue_empty:1
+[  191.820285] pci_mcu.c - mt7902_mcu_send_message(struct mt76_dev *mdev, struct sk_buff *skb, 5, 0=)
+[  191.820291] mt76_connac_mcu - mt76_connac2_mcu_fill_message(struct mt76_dev *dev, struct sk_buff *skb, 5, 0=)
+[  191.820296] mt76_connac_mcu - mt76_connac2_mcu_fill_message - seq: 0x1
+[  191.820299] mt76_connac_mcu - mt76_connac2_mcu_fill_message - seq: 0x1
+[  191.820303] mt76_connac_mcu - mt76_connac2_mcu_fill_message - txd_len:64
+[  191.820307] mt76_connac_mcu - mt76_connac2_mcu_fill_message - seq: 0x1, wait_seq:0xf7c7c2c
+[  191.820311] pci_mcu.c - mt7902_mcu_send_message - mt76_connac2_mcu_fill_message->ret: 0
+[  191.820315] pci_mcu.c - mt7902_mcu_send_message - tx_queue_skb_raw(mdev, mdev->q_mcu[0], skb, 0)
+[  191.820320] mt76_dma.c - mt76_dma_tx_queue_skb_raw(struct mt76_dev *dev, struct mt76_queue *q, struct sk_buff *skb, 0x0)
+[  191.820324] mt76_dma.c - mt76_dma_tx_queue_skb_raw - q-> (queued:0, ndesc:256), skb_queue_empty:1
+[  191.820329] mt76_dma.c - mt76_dma_tx_queue_skb_raw - dma_map_single(dev->dma_dev, 0xcf3a0000, 76=0x4c, 0x1)
+[  191.820340] mt76_dma.c - mt76_dma_tx_queue_skb_raw - unlikely(dma_mapping_error(dev->dma_dev, 0xffba7000))-> 0
+[  191.820345] mt76_dma.c - mt76_dma_tx_queue_skb_raw - dma_add_buf(dev, 0xcee051a8, &buf, 1, 0x0, skb, NULL)
+[  191.820349] mt76_dma.c - mt76_dma_add_buf - idx:0, next:0x1, buf0:0xffba7000, buf1:0x0
+[  191.820355] mt76_dma.c - mt76_dma_add_buf - buf->  addr:0xffba7000, len:0x4c
+[  191.820359] mt76_dma.c - mt76_dma_add_buf - idx:0
+[  191.820363] mt76_dma.c - mt76_dma_tx_queue_skb_raw - dma_kick_queue(dev, 0xcee051a8)
+[  191.820367] mt76_dma.c - mt76_dma_kick_queue(struct mt76_dev *dev, struct mt76_queue *q)
+[  191.820376] mt76_dma.c - mt76_dma_tx_queue_skb_raw - skb_queue_empty:1
+[  191.820380] mt76_mcu.c - mt76_mcu_skb_send_and_get_msg - mcu_skb_send_msg->ret:0, skb_queue_empty:1, seq:0xf7c7c2c
+[  191.820385] mt76_mcu.c - mt76_mcu_skb_send_and_get_msg - expires:4294862000
+[  191.820389] mt76_mcu.c - mt76_mcu_get_response(struct mt76_dev *dev, 4294862000)
+[  191.820393] mt76_mcu.c - mt76_mcu_get_response - timeout: 3000 - jiffies: 4294859000, skb_queue_empty: 1, - test_bit: 0, MT76_MCU_RESET: 0x9- phy.state: 0xaef81fd8 
+[  194.833653] mt76_mcu.c - mt76_mcu_get_response - timeout: 18446744073709551600 - jiffies: 4294862016, skb_queue_empty: 1, - test_bit: 0, MT76_MCU_RESET: 0x9- phy.state: 0xaef81fd8 
+[  194.833672] mt76_mcu.c - mt76_mcu_get_response - jiffies: 4294862016, skb_dequeue - phy.state: 0xaef81fd8
+[  194.833678] mt76_mcu.c - mt76_mcu_skb_send_and_get_msg - skb:0
+[  194.833682] mcu.c - mt7902_mcu_parse_response(struct mt76_dev *mdev, 5, struct sk_buff *skb, 1)
+[  194.833690] mt7902_pci 0000:03:00.0: Message 00000005 (seq 1) timeout
+[  194.833703] mt792x_mac.c - mt792x_reset(struct mt76_dev *mdev)
+[  194.833707] mt76_mcu.c - mt76_mcu_skb_send_and_get_msg - dev->mcu_ops->mcu_parse_response(dev, 5, skb, 1)->ret: -110
+[  194.833712] mt76_mcu.c - mt76_mcu_skb_send_and_get_msg - mutex_unlock
+[  194.833717] mt7902_pci 0000:03:00.0: Download request failed
+[  194.833725] mt76_connac_mcu - mt76_connac_mcu_patch_sem_ctrl(struct mt76_dev *dev, 0)
+[  194.833729] mt76_connac_mcu - mt76_connac_mcu_patch_sem_ctrl - op: 0x0
+[  194.833732] mt76_connac_mcu - mt76_connac_mcu_patch_sem_ctrl - mt76_mcu_send_msg(dev, 16, , 4, 1)
+[  194.833738] mt76_mcu.c - mt76_mcu_send_and_get_msg(struct mt76_dev *dev, cmd:16, data:0xf7c7ccc, len:4, wait_resp:1, struct sk_buff **ret_skb) 
+[  194.833744] mt76_mcu.c - __mt76_mcu_msg_alloc(struct mt76_dev *dev, 0xf7c7ccc, 4, 4, gfp_t gfp)
+[  194.833749] mt76_mcu.c - __mt76_mcu_msg_alloc - len: 68
+[  194.833756] mt76_mcu.c - __mt76_mcu_msg_alloc - data: 0xf7c7ccc, data_len: 4
+[  194.833760] mt76_mcu.c - __mt76_mcu_msg_alloc - skb_put_data - data: 0xf7c7ccc, data_len: 4
+[  194.833764] mt76_mcu.c - __mt76_mcu_msg_alloc - data: 0xf7c7ccc, skb_queue_empty: 1
+[  194.833768] mt76_mcu.c - mt76_mcu_send_and_get_msg - mt76_mcu_skb_send_and_get_msg(dev, skb, 16, 1, ret_skb)
+[  194.833773] mt76_mcu.c - mt76_mcu_skb_send_and_get_msg(struct mt76_dev *dev, struct sk_buff *skb, 16, 1, struct sk_buff **ret_skb)
+[  194.833778] mt76_mcu.c - mt76_mcu_skb_send_and_get_msg - mutex_lock - skb_queue_empty:1
+[  194.833782] pci_mcu.c - mt7902_mcu_send_message(struct mt76_dev *mdev, struct sk_buff *skb, 16, 0=)
+[  194.833787] mt76_connac_mcu - mt76_connac2_mcu_fill_message(struct mt76_dev *dev, struct sk_buff *skb, 16, 0=)
+[  194.833792] mt76_connac_mcu - mt76_connac2_mcu_fill_message - seq: 0x2
+[  194.833796] mt76_connac_mcu - mt76_connac2_mcu_fill_message - seq: 0x2
+[  194.833799] mt76_connac_mcu - mt76_connac2_mcu_fill_message - txd_len:64
+[  194.833803] mt76_connac_mcu - mt76_connac2_mcu_fill_message - seq: 0x2, wait_seq:0xf7c7c44
+[  194.833807] pci_mcu.c - mt7902_mcu_send_message - mt76_connac2_mcu_fill_message->ret: 0
+[  194.833811] pci_mcu.c - mt7902_mcu_send_message - tx_queue_skb_raw(mdev, mdev->q_mcu[0], skb, 0)
+[  194.833815] mt76_dma.c - mt76_dma_tx_queue_skb_raw(struct mt76_dev *dev, struct mt76_queue *q, struct sk_buff *skb, 0x0)
+[  194.833820] mt76_dma.c - mt76_dma_tx_queue_skb_raw - q-> (queued:1, ndesc:256), skb_queue_empty:1
+[  194.833824] mt76_dma.c - mt76_dma_tx_queue_skb_raw - dma_map_single(dev->dma_dev, 0xcf3a3200, 68=0x44, 0x1)
+[  194.833840] mt76_dma.c - mt76_dma_tx_queue_skb_raw - unlikely(dma_mapping_error(dev->dma_dev, 0xffba6200))-> 0
+[  194.833845] mt76_dma.c - mt76_dma_tx_queue_skb_raw - dma_add_buf(dev, 0xcee051a8, &buf, 1, 0x0, skb, NULL)
+[  194.833849] mt76_dma.c - mt76_dma_add_buf - idx:1, next:0x2, buf0:0xffba6200, buf1:0x0
+[  194.833855] mt76_dma.c - mt76_dma_add_buf - buf->  addr:0xffba6200, len:0x44
+[  194.833860] mt76_dma.c - mt76_dma_add_buf - idx:1
+[  194.833864] mt76_dma.c - mt76_dma_tx_queue_skb_raw - dma_kick_queue(dev, 0xcee051a8)
+[  194.833868] mt76_dma.c - mt76_dma_kick_queue(struct mt76_dev *dev, struct mt76_queue *q)
+[  194.833877] mt76_dma.c - mt76_dma_tx_queue_skb_raw - skb_queue_empty:1
+[  194.833880] mt76_mcu.c - mt76_mcu_skb_send_and_get_msg - mcu_skb_send_msg->ret:0, skb_queue_empty:1, seq:0xf7c7c44
+[  194.833885] mt76_mcu.c - mt76_mcu_skb_send_and_get_msg - expires:4294865016
+[  194.833889] mt76_mcu.c - mt76_mcu_get_response(struct mt76_dev *dev, 4294865016)
+
+

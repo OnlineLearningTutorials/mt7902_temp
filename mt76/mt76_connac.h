@@ -259,6 +259,7 @@ static inline bool is_mt76_fw_txp(struct mt76_dev *dev)
 {
 	switch (mt76_chip(dev)) {
 	case 0x7961:
+	case 0x7902:
 	case 0x7922:
 	case 0x7925:
 	case 0x7663:

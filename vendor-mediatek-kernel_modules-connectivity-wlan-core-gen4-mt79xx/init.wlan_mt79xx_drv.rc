@@ -1,0 +1,22 @@
+on boot
+    if [ -e /vendor/lib/modules/wlan_mt7902_sdio_mt8195.ko ];then
+        exec u:r:vendor_modprobe:s0 -- /vendor/bin/modprobe -d /vendor/lib/modules/ wlan_mt7902_sdio_mt8195.ko
+    fi
+    if [ -e /vendor/lib/modules/wlan_mt7961_pcie_mt8195.ko ];then
+        exec u:r:vendor_modprobe:s0 -- /vendor/bin/modprobe -d /vendor/lib/modules/ wlan_mt7961_pcie_mt8195.ko
+    fi
+    if [ -e /vendor/lib/modules/wlan_mt7902_sdio_mt8188.ko ];then
+        exec u:r:vendor_modprobe:s0 -- /vendor/bin/modprobe -d /vendor/lib/modules/ wlan_mt7902_sdio_mt8188.ko
+    fi
+    if [ -e /vendor/lib/modules/wlan_mt7961_pcie_mt8188.ko ];then
+        exec u:r:vendor_modprobe:s0 -- /vendor/bin/modprobe -d /vendor/lib/modules/ wlan_mt7961_pcie_mt8188.ko
+    fi
+    if [ -e /vendor/lib/modules/wlan_mt7902_sdio_mt6789.ko ];then
+    	exec u:r:vendor_modprobe:s0 -- /vendor/bin/modprobe -d /vendor/lib/modules/ wlan_mt7902_sdio_mt6789.ko
+    fi
+    if [ -e /vendor/lib/modules/wlan_mt7961_pcie ];then
+        exec u:r:vendor_modprobe:s0 -- /vendor/bin/modprobe -d /vendor/lib/modules/ wlan_mt7961_pcie.ko
+    fi
+    if [ -e /vendor/lib/modules/wlan_mt7902_sdio.ko ];then
+        exec u:r:vendor_modprobe:s0 -- /vendor/bin/modprobe -d /vendor/lib/modules/ wlan_mt7902_sdio.ko
+    fi
