@@ -15,11 +15,13 @@ irqreturn_t mt792x_irq_handler(int irq, void *dev_instance)
 
 	if (test_bit(MT76_REMOVED, &dev->mt76.phy.state))
 		return IRQ_NONE;
+	printk(KERN_INFO "mt792x_dma.c - mt792x_irq_handler - mt76_wr(dev, dev->irq_map->host_irq_enable: 0x%x, 0);", dev->irq_map->host_irq_enable);
 	mt76_wr(dev, dev->irq_map->host_irq_enable, 0);
 
 	if (!test_bit(MT76_STATE_INITIALIZED, &dev->mphy.state))
 		return IRQ_NONE;
 
+	printk(KERN_INFO "mt792x_dma.c - mt792x_irq_handler - tasklet_schedule(&dev->mt76.irq_tasklet);");
 	tasklet_schedule(&dev->mt76.irq_tasklet);
 
 	return IRQ_HANDLED;
@@ -100,21 +102,34 @@ static void mt792x_dma_prefetch(struct mt792x_dev *dev)
 	printk(KERN_INFO "mt792x_dma.c - mt792x_dma_prefetch");
 	if (is_mt7902(&dev->mt76)) {
 		/* rx ring */
-	mt76_wr(dev, MT_WFDMA0_RX_RING0_EXT_CTRL, PREFETCH(0x0000, 0x4));
-	mt76_wr(dev, MT_WFDMA0_RX_RING1_EXT_CTRL, PREFETCH(0x0040, 0x4));
-	mt76_wr(dev, MT_WFDMA0_RX_RING2_EXT_CTRL, PREFETCH(0x0080, 0x4));
-	mt76_wr(dev, MT_WFDMA0_RX_RING3_EXT_CTRL, PREFETCH(0x00c0, 0x4));
+	mt76_wr(dev, MT_WFDMA0_RX_RING0_EXT_CTRL, PREFETCH(0x0000, 0x4));  	
+	printk(KERN_INFO "mt792x_dma.c - mt76_wr(dev, 0x%x, 0x%x", MT_WFDMA0_RX_RING0_EXT_CTRL, PREFETCH(0x0000, 0x4));
+	mt76_wr(dev, MT_WFDMA0_RX_RING1_EXT_CTRL, PREFETCH(0x0040, 0x4)); 
+	printk(KERN_INFO "mt792x_dma.c - mt76_wr(dev, 0x%x, 0x%x", MT_WFDMA0_RX_RING1_EXT_CTRL, PREFETCH(0x0040, 0x4));
+	mt76_wr(dev, MT_WFDMA0_RX_RING2_EXT_CTRL, PREFETCH(0x0080, 0x4)); 
+	printk(KERN_INFO "mt792x_dma.c - mt76_wr(dev, 0x%x, 0x%x", MT_WFDMA0_RX_RING2_EXT_CTRL, PREFETCH(0x0080, 0x4));
+	mt76_wr(dev, MT_WFDMA0_RX_RING3_EXT_CTRL, PREFETCH(0x00c0, 0x4)); 
+	printk(KERN_INFO "mt792x_dma.c - mt76_wr(dev, 0x%x, 0x%x", MT_WFDMA0_RX_RING3_EXT_CTRL, PREFETCH(0x00c0, 0x4));
 	
 	/* tx ring */
-	mt76_wr(dev, MT_WFDMA0_TX_RING0_EXT_CTRL, PREFETCH(0x0100, 0x4));
-	mt76_wr(dev, MT_WFDMA0_TX_RING1_EXT_CTRL, PREFETCH(0x0140, 0x4));
-	mt76_wr(dev, MT_WFDMA0_TX_RING2_EXT_CTRL, PREFETCH(0x0180, 0x4));
-	mt76_wr(dev, MT_WFDMA0_TX_RING3_EXT_CTRL, PREFETCH(0x01c0, 0x4));
-	mt76_wr(dev, MT_WFDMA0_TX_RING4_EXT_CTRL, PREFETCH(0x0200, 0x4));
-	mt76_wr(dev, MT_WFDMA0_TX_RING5_EXT_CTRL, PREFETCH(0x0240, 0x4));
-	mt76_wr(dev, MT_WFDMA0_TX_RING6_EXT_CTRL, PREFETCH(0x0280, 0x4));
-	mt76_wr(dev, MT_WFDMA0_TX_RING15_EXT_CTRL, PREFETCH(0x02c0, 0x4));
-	mt76_wr(dev, MT_WFDMA0_TX_RING16_EXT_CTRL, PREFETCH(0x0300, 0x4));
+	mt76_wr(dev, MT_WFDMA0_TX_RING0_EXT_CTRL, PREFETCH(0x0100, 0x4)); 
+	printk(KERN_INFO "mt792x_dma.c - mt76_wr(dev, 0x%x, 0x%x", MT_WFDMA0_TX_RING0_EXT_CTRL, PREFETCH(0x0100, 0x4));
+	mt76_wr(dev, MT_WFDMA0_TX_RING1_EXT_CTRL, PREFETCH(0x0140, 0x4)); 
+	printk(KERN_INFO "mt792x_dma.c - mt76_wr(dev, 0x%x, 0x%x", MT_WFDMA0_TX_RING1_EXT_CTRL, PREFETCH(0x0140, 0x4));
+	mt76_wr(dev, MT_WFDMA0_TX_RING2_EXT_CTRL, PREFETCH(0x0180, 0x4)); 
+	printk(KERN_INFO "mt792x_dma.c - mt76_wr(dev, 0x%x, 0x%x", MT_WFDMA0_TX_RING2_EXT_CTRL, PREFETCH(0x0180, 0x4));
+	mt76_wr(dev, MT_WFDMA0_TX_RING3_EXT_CTRL, PREFETCH(0x01c0, 0x4)); 
+	printk(KERN_INFO "mt792x_dma.c - mt76_wr(dev, 0x%x, 0x%x", MT_WFDMA0_TX_RING3_EXT_CTRL, PREFETCH(0x01c0, 0x4));
+	mt76_wr(dev, MT_WFDMA0_TX_RING4_EXT_CTRL, PREFETCH(0x0200, 0x4)); 
+	printk(KERN_INFO "mt792x_dma.c - mt76_wr(dev, 0x%x, 0x%x", MT_WFDMA0_TX_RING4_EXT_CTRL, PREFETCH(0x0200, 0x4));
+	mt76_wr(dev, MT_WFDMA0_TX_RING5_EXT_CTRL, PREFETCH(0x0240, 0x4)); 
+	printk(KERN_INFO "mt792x_dma.c - mt76_wr(dev, 0x%x, 0x%x", MT_WFDMA0_TX_RING5_EXT_CTRL, PREFETCH(0x0240, 0x4));
+	mt76_wr(dev, MT_WFDMA0_TX_RING6_EXT_CTRL, PREFETCH(0x0280, 0x4)); 
+	printk(KERN_INFO "mt792x_dma.c - mt76_wr(dev, 0x%x, 0x%x", MT_WFDMA0_TX_RING6_EXT_CTRL, PREFETCH(0x0280, 0x4));
+	mt76_wr(dev, MT_WFDMA0_TX_RING15_EXT_CTRL, PREFETCH(0x02c0, 0x4)); 
+	printk(KERN_INFO "mt792x_dma.c - mt76_wr(dev, 0x%x, 0x%x", MT_WFDMA0_TX_RING15_EXT_CTRL, PREFETCH(0x02c0, 0x4));
+	mt76_wr(dev, MT_WFDMA0_TX_RING16_EXT_CTRL, PREFETCH(0x0300, 0x4)); 
+	printk(KERN_INFO "mt792x_dma.c - mt76_wr(dev, 0x%x, 0x%x", MT_WFDMA0_TX_RING16_EXT_CTRL, PREFETCH(0x0300, 0x4));
 	} else {
 		/* rx ring */
 		printk(KERN_INFO "mt792x_dma.c - mt792x_dma_prefetch - mt76_wr(dev, 0x%x, 0x%x)", MT_WFDMA0_RX_RING0_EXT_CTRL, PREFETCH(0x0, 0x4));
@@ -158,7 +173,7 @@ int mt792x_dma_enable(struct mt792x_dev *dev)
 	/* reset dma idx */
 	printk(KERN_INFO "mt792x_dma.c - mt792x_dma_enable - mt76_wr(dev, 0x%x, 0x%x)", MT_WFDMA0_RST_DTX_PTR, ~0);
 	mt76_wr(dev, MT_WFDMA0_RST_DTX_PTR, ~0);
-	if (is_mt7925(&dev->mt76))
+	if (is_mt7902(&dev->mt76))
 		mt76_wr(dev, MT_WFDMA0_RST_DRX_PTR, ~0);
 
 	/* configure delay interrupt */
@@ -179,7 +194,7 @@ int mt792x_dma_enable(struct mt792x_dev *dev)
 	mt76_set(dev, MT_WFDMA0_GLO_CFG,
 		 MT_WFDMA0_GLO_CFG_TX_DMA_EN | MT_WFDMA0_GLO_CFG_RX_DMA_EN);
 
-	if (is_mt7925(&dev->mt76)) {
+	if (is_mt7902(&dev->mt76)) {
 		mt76_rmw(dev, MT_UWFDMA0_GLO_CFG_EXT1, BIT(28), BIT(28));
 		mt76_set(dev, MT_WFDMA0_INT_RX_PRI, 0x0F00);
 		mt76_set(dev, MT_WFDMA0_INT_TX_PRI, 0x7F00);
@@ -290,6 +305,7 @@ int mt792x_dma_disable(struct mt792x_dev *dev, bool force)
 	printk(KERN_INFO "mt792x_dma.c - mt792x_dma_disable");
 	/* disable WFDMA0 */
 	printk(KERN_INFO "mt792x_dma.c - mt792x_dma_disable - 	mt76_clear(dev, 0x%x, 0x%x)", MT_WFDMA0_GLO_CFG, MT_WFDMA0_GLO_CFG_TX_DMA_EN | MT_WFDMA0_GLO_CFG_RX_DMA_EN | MT_WFDMA0_GLO_CFG_CSR_DISP_BASE_PTR_CHAIN_EN | MT_WFDMA0_GLO_CFG_OMIT_TX_INFO | MT_WFDMA0_GLO_CFG_OMIT_RX_INFO | MT_WFDMA0_GLO_CFG_OMIT_RX_INFO_PFET2);
+	//mt792x_dma_disable - 	mt76_clear(dev, 0xd4208, 0x18208005)
 	mt76_clear(dev, MT_WFDMA0_GLO_CFG,
 		   MT_WFDMA0_GLO_CFG_TX_DMA_EN | MT_WFDMA0_GLO_CFG_RX_DMA_EN |
 		   MT_WFDMA0_GLO_CFG_CSR_DISP_BASE_PTR_CHAIN_EN |
@@ -297,6 +313,7 @@ int mt792x_dma_disable(struct mt792x_dev *dev, bool force)
 		   MT_WFDMA0_GLO_CFG_OMIT_RX_INFO |
 		   MT_WFDMA0_GLO_CFG_OMIT_RX_INFO_PFET2);
 	printk(KERN_INFO "mt792x_dma.c - mt792x_dma_disable - mt76_poll_msec_tick(dev, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x)", MT_WFDMA0_GLO_CFG, MT_WFDMA0_GLO_CFG_TX_DMA_BUSY | MT_WFDMA0_GLO_CFG_RX_DMA_BUSY, 0, 100, 1);
+	//mt792x_dma_disable - mt76_poll_msec_tick(dev, 0xd4208, 0xa, 0x0, 0x64, 0x1)
 	if (!mt76_poll_msec_tick(dev, MT_WFDMA0_GLO_CFG,
 				 MT_WFDMA0_GLO_CFG_TX_DMA_BUSY |
 				 MT_WFDMA0_GLO_CFG_RX_DMA_BUSY, 0, 100, 1))
@@ -304,9 +321,12 @@ int mt792x_dma_disable(struct mt792x_dev *dev, bool force)
 
 	/* disable dmashdl */
 	printk(KERN_INFO "mt792x_dma.c - mt792x_dma_disable - mt76_clear(dev, 0x%x, 0x%x)", MT_WFDMA0_GLO_CFG_EXT0, MT_WFDMA0_CSR_TX_DMASHDL_ENABLE);
+	//mt792x_dma_disable - 	mt76_clear(dev, 0xd4208, 0x18208005)
 	mt76_clear(dev, MT_WFDMA0_GLO_CFG_EXT0,
 		   MT_WFDMA0_CSR_TX_DMASHDL_ENABLE);
 	printk(KERN_INFO "mt792x_dma.c - mt792x_dma_disable - mt76_set(dev, 0x%x, 0x%x)", MT_DMASHDL_SW_CONTROL, MT_DMASHDL_DMASHDL_BYPASS);
+	//mt792x_dma.c - mt792x_dma_disable - mt76_set(dev, 0x7c026004, 0x10000000)
+	 /* CONN_INFRA, WFDMA */
 	mt76_set(dev, MT_DMASHDL_SW_CONTROL, MT_DMASHDL_DMASHDL_BYPASS);
 
 	if (force) {

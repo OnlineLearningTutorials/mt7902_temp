@@ -273,21 +273,24 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 	int ret;
 	u16 cmd;
 
-	ret = pcim_enable_device(pdev);
+	printk(KERN_INFO "pci.c - mt7902_pci_probe pcim_enable_device");
+	ret = pcim_enable_device(pdev);         //mt7902e 0000:03:00.0: enabling device (0000 -> 0002)
     printk(KERN_INFO "pci.c - mt7902_pci_probe pcim_enable_device->ret : %d", ret);
 	if (ret)
 		return ret;
 
-	ret = pcim_iomap_regions(pdev, BIT(0), pci_name(pdev));
+	ret = pcim_iomap_regions(pdev, BIT(0), pci_name(pdev));  //pcim_iomap_regions(pdev, 1, 0000:03:00.0)->ret : 0
     printk(KERN_INFO "pci.c - mt7902_pci_probe pcim_iomap_regions(pdev, %d, %s)->ret : %d", BIT(0), pci_name(pdev), ret);
 	if (ret)
 		return ret;
     printk(KERN_INFO "pci.c - mt7902_pci_probe - pci_read_config_word(pdev, %d, 0x%x);", PCI_COMMAND, &cmd);
-	pci_read_config_word(pdev, PCI_COMMAND, &cmd);
+	pci_read_config_word(pdev, PCI_COMMAND, &cmd);   //pci_read_config_word(pdev, 4, 0x1158b61e);
 	if (!(cmd & PCI_COMMAND_MEMORY)) {
 		cmd |= PCI_COMMAND_MEMORY;
+		printk(KERN_INFO "pci.c - mt7902_pci_probe - pci_write_config_word(pdev, %d, 0x%x);", PCI_COMMAND, &cmd);
 		pci_write_config_word(pdev, PCI_COMMAND, cmd);
 	}
+	printk(KERN_INFO "pci.c - mt7902_pci_probe - pci_set_master(pdev);");
 	pci_set_master(pdev);
 
 	ret = pci_alloc_irq_vectors(pdev, 1, 1, PCI_IRQ_ALL_TYPES);
@@ -295,7 +298,7 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 	if (ret < 0)
 		return ret;
 
-	ret = dma_set_mask(&pdev->dev, DMA_BIT_MASK(32));
+	ret = dma_set_mask(&pdev->dev, DMA_BIT_MASK(32));      //dma_set_mask(pdev, 0xffffffff)->ret: 0
     printk(KERN_INFO "pci.c - mt7902_pci_probe dma_set_mask(pdev, 0x%x)->ret: %d", DMA_BIT_MASK(32), ret);
 	if (ret)
 		goto err_free_pci_vec;
@@ -305,7 +308,7 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 		mt76_pci_disable_aspm(pdev);
 
 	ops = mt792x_get_mac80211_ops(&pdev->dev, &mt7902_ops,
-				      (void *)id->driver_data, &features);
+				      (void *)id->driver_data, &features);       //mt792x_core.c - mt792x_get_mac80211_ops
 	printk(KERN_INFO "pci.c - mt7902_pci_probe mt792x_get_mac80211_ops: %d", !ops);
 	if (!ops) {
 		ret = -ENOMEM;
@@ -320,11 +323,13 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 	}
 	printk(KERN_INFO "pci.c - mt7902_pci_probe pci_set_drvdata");
 	pci_set_drvdata(pdev, mdev);
+
 	printk(KERN_INFO "pci.c - mt7902_pci_probe mt76_mmio_init");
 	dev = container_of(mdev, struct mt792x_dev, mt76);
 	dev->fw_features = features;
 	dev->hif_ops = &mt7902_pcie_ops;
 	dev->irq_map = &irq_map;
+
 	mt76_mmio_init(&dev->mt76, pcim_iomap_table(pdev)[0]);
 	tasklet_init(&mdev->irq_tasklet, mt792x_irq_tasklet, (unsigned long)dev);
 	printk(KERN_INFO "pci.c - mt7902_pci_probe devm_kmemdup");
@@ -332,6 +337,7 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 	dev->phy.mt76 = &dev->mt76.phy;
 	dev->mt76.phy.priv = &dev->phy;
 	dev->bus_ops = dev->mt76.bus;
+
 	bus_ops = devm_kmemdup(dev->mt76.dev, dev->bus_ops, sizeof(*bus_ops),
 			       GFP_KERNEL);
 	printk(KERN_INFO "pci.c - mt7902_pci_probe devm_kmemdup: %d", !bus_ops);
@@ -356,19 +362,19 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 		goto err_free_dev;
 */
 
-	printk(KERN_INFO "pci.c - mt7902_pci_probe - rev - 0x%x  - 0x%x", mt7902_l1_rr(dev, MT_HW_CHIPID), MT_HW_CHIPID);
-	printk(KERN_INFO "pci.c - mt7902_pci_probe - rev - 0x%x  - 0x%x", (mt7902_l1_rr(dev, MT_HW_REV) & 0xff), MT_HW_REV);
+	printk(KERN_INFO "pci.c - mt7902_pci_probe - rev - 0x%x  - 0x%x", mt7902_l1_rr(dev, MT_HW_CHIPID), MT_HW_CHIPID);  // mt7902_pci_probe - rev - 0x7902  - 0x70010200
+	printk(KERN_INFO "pci.c - mt7902_pci_probe - rev - 0x%x  - 0x%x", (mt7902_l1_rr(dev, MT_HW_REV) & 0xff), MT_HW_REV); //mt7902_pci_probe - rev - 0x0  - 0x70010204
 	mdev->rev = (mt7902_l1_rr(dev, MT_HW_CHIPID) << 16) |
 		    (mt7902_l1_rr(dev, MT_HW_REV) & 0xff);
-	dev_info(mdev->dev, "ASIC revision: %04x\n", mdev->rev);
+	dev_info(mdev->dev, "ASIC revision: %04x\n", mdev->rev);  //mt7902e 0000:03:00.0: ASIC revision: 79020000
 
-	ret = mt792x_wfsys_reset(dev);
+	ret = mt792x_wfsys_reset(dev);  //mt792x_dma.c - mt792x_wfsys_reset
 	printk(KERN_INFO "pci.c - mt7902_pci_probe mt792x_wfsys_reset->ret: %d", ret);
 	if (ret)
 		goto err_free_dev;
-	printk(KERN_INFO "pci.c - mt7902_pci_probe 	mt76_wr(dev, 0x%x, 0)", irq_map.host_irq_enable);
+	printk(KERN_INFO "pci.c - mt7902_pci_probe 	mt76_wr(dev, 0x%x, 0)", irq_map.host_irq_enable);  //mt76_wr(dev, 0xd4204, 0)
 	mt76_wr(dev, irq_map.host_irq_enable, 0);
-	printk(KERN_INFO "pci.c - mt7902_pci_probe mt76_wr(dev, 0x%x, 0xff)", MT_PCIE_MAC_INT_ENABLE);
+	printk(KERN_INFO "pci.c - mt7902_pci_probe mt76_wr(dev, 0x%x, 0xff)", MT_PCIE_MAC_INT_ENABLE);  //mt76_wr(dev, 0x10188, 0xff)
 	mt76_wr(dev, MT_PCIE_MAC_INT_ENABLE, 0xff);
 
 	ret = devm_request_irq(mdev->dev, pdev->irq, mt792x_irq_handler,
@@ -377,12 +383,12 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 	if (ret)
 		goto err_free_dev;
 
-	ret = mt7902_dma_init(dev);
+	ret = mt7902_dma_init(dev);  //mt76_dma.c - mt76_dma_attach
 	printk(KERN_INFO "pci.c - mt7902_pci_probe mt7902_dma_init->ret: %d", ret);
 	if (ret)
 		goto err_free_irq;
 
-	ret = mt7902_register_device(dev);
+	ret = mt7902_register_device(dev);  // init.c - mt7902_register_device(struct mt792x_dev *dev)
 	printk(KERN_INFO "pci.c - mt7902_pci_probe mt7902_register_device->ret: %d", ret);
 	if (ret)
 		goto err_free_irq;
