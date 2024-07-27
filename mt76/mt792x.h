@@ -333,7 +333,7 @@ static inline char *mt792x_ram_name(struct mt792x_dev *dev)
 	case 0x7925:
 		return MT7925_FIRMWARE_WM;
 	default:
-		return MT7921_FIRMWARE_WM;
+		return MT7902_FIRMWARE_WM;
 	}
 }
 
@@ -347,7 +347,7 @@ static inline char *mt792x_patch_name(struct mt792x_dev *dev)
 	case 0x7925:
 		return MT7925_ROM_PATCH;
 	default:
-		return MT7921_ROM_PATCH;
+		return MT7902_ROM_PATCH;
 	}
 }
 

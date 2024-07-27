@@ -60,7 +60,7 @@
 
 #define MT_RX_DATA_RING_BASE		MT_WFDMA0(0x520)
 
-#define MT_INFRA_CFG_BASE		0xfe000
+#define MT_INFRA_CFG_BASE		0x7C060000  /* 0xfe000 */
 #define MT_INFRA(ofs)			(MT_INFRA_CFG_BASE + (ofs))
 
 #define MT_HIF_REMAP_L1			MT_INFRA(0x24c)
