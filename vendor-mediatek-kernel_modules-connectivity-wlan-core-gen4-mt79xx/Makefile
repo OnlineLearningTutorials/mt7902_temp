@@ -5,9 +5,10 @@ ifeq ($(CONFIG_MTK_COMBO_WIFI_HIF),)
 ifneq ($(src),)
 ifneq ($(srctree),)
 hif=pcie
+MTK_COMBO_WIFI_HIF=pcie
 include $(srctree)/$(src)/Makefile.x86
 src:=$(srctree)/$(shell echo ${src})
-MTK_COMBO_CHIP=MT7961
+MTK_COMBO_CHIP=MT7902
 $(info Kbuild chip: $(MTK_COMBO_CHIP))
 $(info Kbuild hif : $(CONFIG_MTK_COMBO_WIFI_HIF))
 endif
@@ -63,10 +64,11 @@ WLAN_CHIP_LIST:=-UMT6620 -UMT6628 -UMT5931 -UMT6630 -UMT6632 -UMT7663 -UCONNAC -
 ccflags-y += $(WLAN_CHIP_LIST)
 
 ifeq ($(MTK_COMBO_CHIP),)
-MTK_COMBO_CHIP = MT6632
+MTK_COMBO_CHIP = MT7902
 endif
 
-MTK_PLATFORM := $(subst ",,$(CONFIG_MTK_PLATFORM))
+#MTK_PLATFORM := $(subst ",,$(CONFIG_MTK_PLATFORM))
+MTK_PLATFORM := $(CONFIG_MTK_PLATFORM)
 $(info $$MTK_PLATFORM is [${MTK_PLATFORM}])
 
 ifeq ($(WLAN_CHIP_ID),)
