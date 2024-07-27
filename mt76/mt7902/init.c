@@ -171,7 +171,7 @@ EXPORT_SYMBOL_GPL(mt7902_mac_init);
 
 static int __mt7902_init_hardware(struct mt792x_dev *dev)
 {
-    printk(KERN_INFO "init.c - __mt7902_init_hardware(struct mt792x_dev *dev)");
+    //printk(KERN_INFO "init.c - __mt7902_init_hardware(struct mt792x_dev *dev)");
 	int ret;
 
 	/* force firmware operation mode into normal state,
@@ -184,7 +184,7 @@ static int __mt7902_init_hardware(struct mt792x_dev *dev)
 	if (ret)
 		goto out;
 
-
+	printk(KERN_INFO "init.c - __mt7902_init_hardware mt792x_mcu_init - mt76_eeprom_override(&dev->mphy);");
 	mt76_eeprom_override(&dev->mphy);
 
 	ret = mt7902_mcu_set_eeprom(dev);
