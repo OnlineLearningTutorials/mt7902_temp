@@ -3083,7 +3083,7 @@ int mt76_connac2_load_patch(struct mt76_dev *dev, const char *fw_name)
 	int i, ret, sem, max_len = 4096;
 	const struct mt76_connac2_patch_hdr *hdr;
 	const struct firmware *fw = NULL;
-
+/*
 	sem = mt76_connac_mcu_patch_sem_ctrl(dev, true);
 	printk(KERN_INFO "mt76_connac_mcu - mt76_connac2_load_patch(struct mt76_dev *dev, %s) - mt76_connac_mcu_patch_sem_ctrl->sem %d", fw_name, sem);
 	switch (sem) {
@@ -3095,7 +3095,7 @@ int mt76_connac2_load_patch(struct mt76_dev *dev, const char *fw_name)
 		dev_err(dev->dev, "Failed to get patch semaphore\n");
 		return -EAGAIN;
 	}
- 
+ */
 	ret = request_firmware(&fw, fw_name, dev->dev);
 	if (ret)
 		goto out;

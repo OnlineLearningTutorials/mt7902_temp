@@ -13,7 +13,7 @@
 #include "mcu.h"
 
 static const struct pci_device_id mt7902_pci_device_table[] = {
-	{ PCI_DEVICE(PCI_VENDOR_ID_MEDIATEK, 0x7902), .driver_data = (kernel_ulong_t)MT7922_FIRMWARE_WM },
+	{ PCI_DEVICE(PCI_VENDOR_ID_MEDIATEK, 0x7902), .driver_data = (kernel_ulong_t)MT7902_FIRMWARE_WM },
 	{ },
 };
 
@@ -350,7 +350,7 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 	bus_ops->wr = mt7902_wr;
 	bus_ops->rmw = mt7902_rmw;
 	dev->mt76.bus = bus_ops;
-/*
+
 	ret = mt792xe_mcu_fw_pmctrl(dev);
 	printk(KERN_INFO "pci.c - mt7902_pci_probe mt792xe_mcu_fw_pmctrl->ret: %d", ret);
 	if (ret)
@@ -360,7 +360,7 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 	printk(KERN_INFO "pci.c - mt7902_pci_probe __mt792xe_mcu_drv_pmctrl->ret: %d", ret);
 	if (ret)
 		goto err_free_dev;
-*/
+
 
 	printk(KERN_INFO "pci.c - mt7902_pci_probe - rev - 0x%x  - 0x%x", mt7902_l1_rr(dev, MT_HW_CHIPID), MT_HW_CHIPID);  // mt7902_pci_probe - rev - 0x7902  - 0x70010200
 	printk(KERN_INFO "pci.c - mt7902_pci_probe - rev - 0x%x  - 0x%x", (mt7902_l1_rr(dev, MT_HW_REV) & 0xff), MT_HW_REV); //mt7902_pci_probe - rev - 0x0  - 0x70010204
@@ -568,8 +568,8 @@ module_pci_driver(mt7902_pci_driver);
 
 MODULE_DEVICE_TABLE(pci, mt7902_pci_device_table);
 
-MODULE_FIRMWARE(MT7922_FIRMWARE_WM);
-MODULE_FIRMWARE(MT7922_ROM_PATCH);
+MODULE_FIRMWARE(MT7902_FIRMWARE_WM);
+MODULE_FIRMWARE(MT7902_ROM_PATCH);
 MODULE_AUTHOR("Sean Wang <sean.wang@mediatek.com>");
 MODULE_AUTHOR("Lorenzo Bianconi <lorenzo@kernel.org>");
 MODULE_DESCRIPTION("MediaTek MT7902E (PCIe) wireless driver");

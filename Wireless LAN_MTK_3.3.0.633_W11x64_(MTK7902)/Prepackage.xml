@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ModuleInfo xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ModulePN>MOD01?????00??????</ModulePN>
+  <Creator PN="01" Name="Acer-HQ1" />
+  <Type PN="" Name="Drivers" />
+  <Module PN="" Name="MTK Wireless LAN_M MTK7902" Alias="" GUID="" Serial="MTK7902" Provider="MTK" Class="Wireless LAN_M" />
+  <WOS PN="93" Sku="WN All" CPU="X64" />
+  <Lang>All language</Lang>
+  <ModuleVersion>v3.3.0.633_SV2</ModuleVersion>
+  <DriverVersion>v3.3.0.633</DriverVersion>
+  <OptionVersion>Install.cmd</OptionVersion>
+  <ProjectCodeName>NULL</ProjectCodeName>
+  <OdmName>NBHUAQ</OdmName>
+  <ModuleTimeout>0</ModuleTimeout>
+  <InstallPreiod>UserAlaunch</InstallPreiod>
+  <Reboot>False</Reboot>
+  <Delete>False</Delete>
+  <ReinstallProcessList>
+    <Process Country="" OS-Language="" OS-Sku="" Check="" Timeout="0" RetCode="-" Params="" Exec="%RELATIVE_PATH%\Install.cmd" Order="00" Period="" />
+  </ReinstallProcessList>
+  <AutoRun>True</AutoRun>
+  <InstallPath />
+  <Description />
+  <ProcessList>
+    <Process Country="" OS-Language="" OS-Sku="" Check="False" Timeout="10" RetCode="-" Params="" Exec="%RELATIVE_PATH%\Install.cmd" Order="00" Period="" />
+  </ProcessList>
+  <RegItemList />
+  <ModuleProperty>RCD,STCD,RSCD</ModuleProperty>
+  <HWIDs>PCI\VEN_14C3&amp;DEV_7902&amp;SUBSYS_55211A3B</HWIDs>
+  <AutoCheckHWID>True</AutoCheckHWID>
+  <CheckRemove>True</CheckRemove>
+  <MVPKernelVersion>2.0.7.4</MVPKernelVersion>
+  <MVPUIVersion>2.0.8.6</MVPUIVersion>
+  <LOB>Notebook</LOB>
+</ModuleInfo>

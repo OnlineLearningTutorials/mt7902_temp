@@ -1,0 +1,13 @@
+[INFORMATION]
+Projects=Evelyne_MDU;
+OSs=Windows Next All X64;
+WHQL=Y,
+ProviderFullName=MTK
+SelectedDriverType=Use Inf
+Installer=%RELATIVE_PATH%\Install.cmd
+Parameters=
+InfFiles=%RELATIVE_PATH%\mtkwl6ex.inf;
+DriverUtilityInstaller=
+DriverUtilityParameters=
+UWPSourceFolder=
+UWPInstaller=

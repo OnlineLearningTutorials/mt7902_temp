@@ -592,7 +592,7 @@ EXPORT_SYMBOL_GPL(mt76_unregister_phy);
 
 int mt76_create_page_pool(struct mt76_dev *dev, struct mt76_queue *q)
 {
-	printk(KERN_INFO "mt76_mac80211.c - mt76_create_page_pool - q:%d", q);
+	printk(KERN_INFO "mt76_mac80211.c - mt76_create_page_pool - q:0x%x", q);
 	struct page_pool_params pp_params = {
 		.order = 0,
 		.flags = 0,
@@ -600,7 +600,7 @@ int mt76_create_page_pool(struct mt76_dev *dev, struct mt76_queue *q)
 		.dev = dev->dma_dev,
 	};
 	int idx = q - dev->q_rx;
-	printk(KERN_INFO "mt76_mac80211.c - mt76_create_page_pool - idx: %d", idx);
+	printk(KERN_INFO "mt76_mac80211.c - mt76_create_page_pool - idx: %d = q:%d - dev->q_rx:%d", idx, q, dev->q_rx);
 	switch (idx) {
 	case MT_RXQ_MAIN:
 	case MT_RXQ_BAND1:
@@ -623,6 +623,7 @@ int mt76_create_page_pool(struct mt76_dev *dev, struct mt76_queue *q)
 	}
 
 	q->page_pool = page_pool_create(&pp_params);
+	printk(KERN_INFO "mt76_mac80211.c - mt76_create_page_pool - page_pool_create(&pp_params);");
 	if (IS_ERR(q->page_pool)) {
 		int err = PTR_ERR(q->page_pool);
 		printk(KERN_INFO "mt76_mac80211.c - mt76_create_page_pool - is_err(q->page_pool)");
@@ -639,7 +640,7 @@ mt76_alloc_device(struct device *pdev, unsigned int size,
 		  const struct ieee80211_ops *ops,
 		  const struct mt76_driver_ops *drv_ops)
 {
-	printk(KERN_INFO "mt76_mac80211.c - mt76_alloc_device");
+	printk(KERN_INFO "mt76_mac80211.c - mt76_alloc_device(*pdev, size:%d, *ops, *drv_ops)", size);
 	struct ieee80211_hw *hw;
 	struct mt76_phy *phy;
 	struct mt76_dev *dev;
@@ -660,7 +661,7 @@ mt76_alloc_device(struct device *pdev, unsigned int size,
 	phy->hw = hw;
 	phy->band_idx = MT_BAND0;
 	dev->phys[phy->band_idx] = phy;
-
+	printk(KERN_INFO "mt76_mac80211.c - mt76_alloc_device - phy->band_idx: %d", MT_BAND0);
 	spin_lock_init(&dev->rx_lock);
 	spin_lock_init(&dev->lock);
 	spin_lock_init(&dev->cc_lock);
@@ -668,12 +669,12 @@ mt76_alloc_device(struct device *pdev, unsigned int size,
 	spin_lock_init(&dev->wed_lock);
 	mutex_init(&dev->mutex);
 	init_waitqueue_head(&dev->tx_wait);
-
+	printk(KERN_INFO "mt76_mac80211.c - mt76_alloc_device - skb_queue_head_init(&dev->mcu.res_q)");
 	skb_queue_head_init(&dev->mcu.res_q);
 	init_waitqueue_head(&dev->mcu.wait);
 	mutex_init(&dev->mcu.mutex);
 	dev->tx_worker.fn = mt76_tx_worker;
-
+	printk(KERN_INFO "mt76_mac80211.c - mt76_alloc_device - dev->tx_worker.fn = mt76_tx_worker");
 	hw->wiphy->flags |= WIPHY_FLAG_IBSS_RSN;
 	hw->wiphy->interface_modes =
 		BIT(NL80211_IFTYPE_STATION) |
@@ -684,7 +685,7 @@ mt76_alloc_device(struct device *pdev, unsigned int size,
 		BIT(NL80211_IFTYPE_P2P_CLIENT) |
 		BIT(NL80211_IFTYPE_P2P_GO) |
 		BIT(NL80211_IFTYPE_ADHOC);
-
+	printk(KERN_INFO "mt76_mac80211.c - mt76_alloc_device - hw->wiphy->(flags:0x%x, interface_modes:0x%x)", hw->wiphy->flags, hw->wiphy->interface_modes);
 	spin_lock_init(&dev->token_lock);
 	idr_init(&dev->token);
 
@@ -698,9 +699,11 @@ mt76_alloc_device(struct device *pdev, unsigned int size,
 	INIT_LIST_HEAD(&dev->txwi_cache);
 	INIT_LIST_HEAD(&dev->rxwi_cache);
 	dev->token_size = dev->drv->token_size;
-
-	for (i = 0; i < ARRAY_SIZE(dev->q_rx); i++)
+	printk(KERN_INFO "mt76_mac80211.c - mt76_alloc_device - dev->token_size:0x%x", dev->token_size);
+	for (i = 0; i < ARRAY_SIZE(dev->q_rx); i++) {
 		skb_queue_head_init(&dev->rx_skb[i]);
+		printk(KERN_INFO "mt76_mac80211.c - mt76_alloc_device - skb_queue_head_init(&dev->rx_skb[%d]);", i);
+	}
 
 	dev->wq = alloc_ordered_workqueue("mt76", 0);
 	if (!dev->wq) {
@@ -1803,7 +1806,7 @@ struct mt76_queue *
 mt76_init_queue(struct mt76_dev *dev, int qid, int idx, int n_desc,
 		int ring_base, void *wed, u32 flags)
 {
-	printk(KERN_INFO "mt76_mac80211.c - mt76_init_queue(struct mt76_dev *dev, %d, %d, %d, %d, 0x%x)", qid, idx, n_desc, ring_base, flags);
+	printk(KERN_INFO "mt76_mac80211.c - mt76_init_queue(struct mt76_dev *dev, qid:%d, idx:%d, n_desc:%d, ring_base:%d, void *wed, flags:0x%x)", qid, idx, n_desc, ring_base, flags);
 	struct mt76_queue *hwq;
 	int err;
 
@@ -1813,7 +1816,7 @@ mt76_init_queue(struct mt76_dev *dev, int qid, int idx, int n_desc,
 
 	hwq->flags = flags;
 	hwq->wed = wed;
-	printk(KERN_INFO "mt76_mac80211.c - mt76_init_queue - queue_ops(dev, hwq, idx, n_desc, 0, ring_base)");
+	printk(KERN_INFO "mt76_mac80211.c - mt76_init_queue - queue_ops(dev, hwq, idx:%d, n_desc:%d, 0, ring_base:%d)", idx, n_desc, ring_base);
 	err = dev->queue_ops->alloc(dev, hwq, idx, n_desc, 0, ring_base);
 	if (err < 0)
 		return ERR_PTR(err);
