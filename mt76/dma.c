@@ -824,11 +824,13 @@ mt76_dma_alloc_queue(struct mt76_dev *dev, struct mt76_queue *q,
 	if (!q->desc)
 		return -ENOMEM;
 
+	printk(KERN_INFO "mt76_dma.c - mt76_dma_alloc_queue - size:%d", size);
 	if (mt76_queue_is_wed_rro_ind(q)) {
 		struct mt76_wed_rro_desc *rro_desc;
 		int i;
 
 		rro_desc = (struct mt76_wed_rro_desc *)q->desc;
+		printk(KERN_INFO "mt76_dma.c - mt76_dma_alloc_queue - 	if (mt76_queue_is_wed_rro_ind(q))  for i= 0 to %d", q->ndesc);
 		for (i = 0; i < q->ndesc; i++) {
 			struct mt76_wed_rro_ind *cmd;
 
@@ -842,20 +844,24 @@ mt76_dma_alloc_queue(struct mt76_dev *dev, struct mt76_queue *q,
 	if (!q->entry)
 		return -ENOMEM;
 
+printk(KERN_INFO "mt76_dma.c - mt76_dma_alloc_queue - ret = mt76_create_page_pool(dev, q);");
 	ret = mt76_create_page_pool(dev, q);
 	if (ret)
 		return ret;
 
+	printk(KERN_INFO "mt76_dma.c - mt76_dma_alloc_queue - ret = mt76_dma_wed_setup(dev, q, false);");
 	ret = mt76_dma_wed_setup(dev, q, false);
 	if (ret)
 		return ret;
 
 	if (mtk_wed_device_active(&dev->mmio.wed)) {
+		printk(KERN_INFO "mt76_dma.c - mt76_dma_alloc_queue - if (mtk_wed_device_active(&dev->mmio.wed))");
 		if ((mtk_wed_get_rx_capa(&dev->mmio.wed) && mt76_queue_is_wed_rro(q)) ||
 		    mt76_queue_is_wed_tx_free(q))
 			return 0;
 	}
 
+	printk(KERN_INFO "mt76_dma.c - mt76_dma_alloc_queue - mt76_dma_queue_reset(dev, q);");
 	mt76_dma_queue_reset(dev, q);
 
 	return 0;

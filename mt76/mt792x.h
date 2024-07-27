@@ -327,6 +327,7 @@ static inline char *mt792x_ram_name(struct mt792x_dev *dev)
 {
 	switch (mt76_chip(&dev->mt76)) {
 	case 0x7902:
+		return MT7902_FIRMWARE_WM;
 	case 0x7922:
 		return MT7922_FIRMWARE_WM;
 	case 0x7925:
@@ -340,6 +341,7 @@ static inline char *mt792x_patch_name(struct mt792x_dev *dev)
 {
 	switch (mt76_chip(&dev->mt76)) {
 	case 0x7902:
+		return MT7902_ROM_PATCH;
 	case 0x7922:
 		return MT7922_ROM_PATCH;
 	case 0x7925:

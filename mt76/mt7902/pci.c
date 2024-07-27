@@ -350,12 +350,12 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 	bus_ops->wr = mt7902_wr;
 	bus_ops->rmw = mt7902_rmw;
 	dev->mt76.bus = bus_ops;
-
+/*
 	ret = mt792xe_mcu_fw_pmctrl(dev);
 	printk(KERN_INFO "pci.c - mt7902_pci_probe mt792xe_mcu_fw_pmctrl->ret: %d", ret);
 	if (ret)
 		goto err_free_dev;
-
+*/
 	ret = __mt792xe_mcu_drv_pmctrl(dev);
 	printk(KERN_INFO "pci.c - mt7902_pci_probe __mt792xe_mcu_drv_pmctrl->ret: %d", ret);
 	if (ret)
@@ -367,11 +367,12 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 	mdev->rev = (mt7902_l1_rr(dev, MT_HW_CHIPID) << 16) |
 		    (mt7902_l1_rr(dev, MT_HW_REV) & 0xff);
 	dev_info(mdev->dev, "ASIC revision: %04x\n", mdev->rev);  //mt7902e 0000:03:00.0: ASIC revision: 79020000
-
+/*
 	ret = mt792x_wfsys_reset(dev);  //mt792x_dma.c - mt792x_wfsys_reset
 	printk(KERN_INFO "pci.c - mt7902_pci_probe mt792x_wfsys_reset->ret: %d", ret);
 	if (ret)
 		goto err_free_dev;
+		*/
 	printk(KERN_INFO "pci.c - mt7902_pci_probe 	mt76_wr(dev, 0x%x, 0)", irq_map.host_irq_enable);  //mt76_wr(dev, 0xd4204, 0)
 	mt76_wr(dev, irq_map.host_irq_enable, 0);
 	printk(KERN_INFO "pci.c - mt7902_pci_probe mt76_wr(dev, 0x%x, 0xff)", MT_PCIE_MAC_INT_ENABLE);  //mt76_wr(dev, 0x10188, 0xff)

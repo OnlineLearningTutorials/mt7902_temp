@@ -280,8 +280,10 @@ int mt76_connac_init_tx_queues(struct mt76_phy *phy, int idx, int n_desc,
 	if (err < 0)
 		return err;
 
-	for (i = 1; i <= MT_TXQ_PSD; i++)
+	for (i = 1; i <= MT_TXQ_PSD; i++) {
+		printk(KERN_INFO "mt76_connac_mac - mt76_connac_init_tx_queues - phy->q_tx[%d] = phy->q_tx[0];", i);
 		phy->q_tx[i] = phy->q_tx[0];
+	}
 
 	return 0;
 }
