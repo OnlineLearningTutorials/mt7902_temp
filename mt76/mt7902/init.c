@@ -205,15 +205,20 @@ static int mt7902_init_hardware(struct mt792x_dev *dev)
 
 	set_bit(MT76_STATE_INITIALIZED, &dev->mphy.state);
 
-	for (i = 0; i < 1; i++) {             //   MT792x_MCU_INIT_RETRY_COUNT
+	/*
+	for (i = 0; i < MT792x_MCU_INIT_RETRY_COUNT; i++) {             
 		ret = __mt7902_init_hardware(dev);
 		if (!ret)
 			break;
 
 		mt792x_init_reset(dev);
-	}
+	} 
 
 	if (i == MT792x_MCU_INIT_RETRY_COUNT) {
+	*/
+	
+	ret = __mt7902_init_hardware(dev);
+	if(!ret) {
 		dev_err(dev->mt76.dev, "hardware init failed\n");
 		return ret;
 	}
