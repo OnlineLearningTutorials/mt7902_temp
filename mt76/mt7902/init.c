@@ -171,14 +171,14 @@ EXPORT_SYMBOL_GPL(mt7902_mac_init);
 
 static int __mt7902_init_hardware(struct mt792x_dev *dev)
 {
-    //printk(KERN_INFO "init.c - __mt7902_init_hardware(struct mt792x_dev *dev)");
+    printk(KERN_INFO "init.c - __mt7902_init_hardware(struct mt792x_dev *dev)");
 	int ret;
 
 	/* force firmware operation mode into normal state,
 	 * which should be set before firmware download stage.
 	 */
-	printk(KERN_INFO "init.c - __mt7902_init_hardware - mt76_wr(dev, 0x%x, 0x%x);", MT_SWDEF_MODE, MT_SWDEF_NORMAL_MODE);
-	mt76_wr(dev, MT_SWDEF_MODE, MT_SWDEF_NORMAL_MODE);
+	//printk(KERN_INFO "init.c - __mt7902_init_hardware - mt76_wr(dev, 0x%x, 0x%x);", MT_SWDEF_MODE, MT_SWDEF_NORMAL_MODE);
+	//mt76_wr(dev, MT_SWDEF_MODE, MT_SWDEF_NORMAL_MODE);
 	ret = mt792x_mcu_init(dev);
 	printk(KERN_INFO "init.c - __mt7902_init_hardware mt792x_mcu_init(dev)->ret : %d", ret);
 	if (ret)
