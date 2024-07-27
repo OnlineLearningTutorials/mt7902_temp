@@ -205,7 +205,7 @@ static int mt7902_init_hardware(struct mt792x_dev *dev)
 
 	set_bit(MT76_STATE_INITIALIZED, &dev->mphy.state);
 
-	for (i = 0; i < MT792x_MCU_INIT_RETRY_COUNT; i++) {
+	for (i = 0; i < 1; i++) {             //   MT792x_MCU_INIT_RETRY_COUNT
 		ret = __mt7902_init_hardware(dev);
 		if (!ret)
 			break;
@@ -286,16 +286,21 @@ int mt7902_register_device(struct mt792x_dev *dev)
 	INIT_WORK(&dev->ipv6_ns_work, mt7902_set_ipv6_ns_work);
 	skb_queue_head_init(&dev->ipv6_ns_list);
 #endif
+    printk(KERN_INFO "init.c - mt7902_register_device - skb_queue_head_init(&dev->phy.scan_event_list);");
 	skb_queue_head_init(&dev->phy.scan_event_list);
 	skb_queue_head_init(&dev->coredump.msg_list);
 
+    printk(KERN_INFO "init.c - mt7902_register_device - INIT_WORK(&dev->reset_work, mt7902_mac_reset_work);");
 	INIT_WORK(&dev->reset_work, mt7902_mac_reset_work);
+    printk(KERN_INFO "init.c - mt7902_register_device - INIT_WORK(&dev->init_work, mt7902_init_work);");
 	INIT_WORK(&dev->init_work, mt7902_init_work);
 
+    printk(KERN_INFO "init.c - mt7902_register_device - INIT_WORK(&dev->phy.roc_work, mt7902_roc_work);");
 	INIT_WORK(&dev->phy.roc_work, mt7902_roc_work);
 	timer_setup(&dev->phy.roc_timer, mt792x_roc_timer, 0);
 	init_waitqueue_head(&dev->phy.roc_wait);
 
+    printk(KERN_INFO "init.c - mt7902_register_device - dev->pm.idle_timeout = MT792x_PM_TIMEOUT;");
 	dev->pm.idle_timeout = MT792x_PM_TIMEOUT;
 	dev->pm.stats.last_wake_event = jiffies;
 	dev->pm.stats.last_doze_event = jiffies;
@@ -309,16 +314,20 @@ int mt7902_register_device(struct mt792x_dev *dev)
 	if (!mt76_is_mmio(&dev->mt76))
 		hw->extra_tx_headroom += MT_SDIO_TXD_SIZE + MT_SDIO_HDR_SIZE;
 
+    printk(KERN_INFO "init.c - mt7902_register_device - mt792x_init_acpi_sar(dev);");
 	mt792x_init_acpi_sar(dev);
 
+    printk(KERN_INFO "init.c - mt7902_register_device - ret = mt792x_init_wcid(dev);");
 	ret = mt792x_init_wcid(dev);
 	if (ret)
 		return ret;
 
+    printk(KERN_INFO "init.c - mt7902_register_device - ret = mt792x_init_wiphy(hw);");
 	ret = mt792x_init_wiphy(hw);
 	if (ret)
 		return ret;
 
+    printk(KERN_INFO "init.c - mt7902_register_device - hw->wiphy->reg_notifier = mt7902_regd_notifier;");
 	hw->wiphy->reg_notifier = mt7902_regd_notifier;
 	dev->mphy.sband_2g.sband.ht_cap.cap |=
 			IEEE80211_HT_CAP_LDPC_CODING |
@@ -337,6 +346,7 @@ int mt7902_register_device(struct mt792x_dev *dev)
 			IEEE80211_VHT_CAP_SUPP_CHAN_WIDTH_160MHZ |
 			IEEE80211_VHT_CAP_SHORT_GI_160;
 
+    printk(KERN_INFO "init.c - mt7902_register_device - dev->mphy.hw->wiphy->available_antennas_rx = dev->mphy.chainmask;");
 	dev->mphy.hw->wiphy->available_antennas_rx = dev->mphy.chainmask;
 	dev->mphy.hw->wiphy->available_antennas_tx = dev->mphy.chainmask;
 
