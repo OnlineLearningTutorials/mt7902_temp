@@ -154,12 +154,15 @@ void mt76_connac_tx_complete_skb(struct mt76_dev *mdev,
 {
 	printk(KERN_INFO "mt76_connac_mac - mt76_connac_tx_complete_skb");
 	if (!e->txwi) {
+	printk(KERN_INFO "mt76_connac_mac - mt76_connac_tx_complete_skb - dev_kfree_skb_any(e->skb);");
 		dev_kfree_skb_any(e->skb);
 		return;
 	}
 
-	if (e->skb)
+	if (e->skb) {
+		printk(KERN_INFO "mt76_connac_mac - mt76_connac_tx_complete_skb - mt76_tx_complete_skb(mdev, e->wcid, e->skb);");
 		mt76_tx_complete_skb(mdev, e->wcid, e->skb);
+	}
 }
 EXPORT_SYMBOL_GPL(mt76_connac_tx_complete_skb);
 
