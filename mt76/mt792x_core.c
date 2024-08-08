@@ -733,10 +733,11 @@ int mt792x_init_wcid(struct mt792x_dev *dev)
 	if (idx)
 		return -ENOSPC;
 
-	printk(KERN_INFO "mt792x_core.c - mt792x_init_wcid - idx:%d", idx);
+
 	dev->mt76.global_wcid.idx = idx;
 	dev->mt76.global_wcid.hw_key_idx = -1;
 	dev->mt76.global_wcid.tx_info |= MT_WCID_TX_INFO_SET;
+	printk(KERN_INFO "mt792x_core.c - mt792x_init_wcid - dev->mt76.global_wcid(idx:0x%04x, hw_key_idx:0x%02x, tx_info:0x%08x)", idx);
 	rcu_assign_pointer(dev->mt76.wcid[idx], &dev->mt76.global_wcid);
 
 	return 0;

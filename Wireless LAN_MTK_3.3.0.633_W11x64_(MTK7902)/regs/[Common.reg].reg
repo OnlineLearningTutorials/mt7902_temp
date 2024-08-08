@@ -1,0 +1,162 @@
+[Common.reg]
+HKR,,CCXPktLossLimitTime,0,"30"
+HKR,,CCXDbmOffset,0,"4"
+HKR,,CACDropPeriod,0,"0"
+HKR,,CACDropCriteria,0,"1700"
+HKR,,ConnIdleTimeForL1,0,"0"
+HKR,,LowPowerEnable,0,"1"
+HKR,,WirelessMode,0,"11"
+HKR,,TXBurst,0,"1"
+HKR,,BinMode,0,"0"
+HKR,,DowngradeTxStreamFeatureEnable,0,"1"
+HKR,,DowngradeTxStreamLowTempEnable,0,"1"
+HKR,,DowngradeTxStreamLowTemp,0,"110"
+HKR,,DowngradeTxStreamHighTempEnable,0,"1"
+HKR,,DowngradeTxStreamHighTemp,0,"120"
+HKR,,ShortSlot,0,"1"
+HKR,,AdhocOfdm,0,"1"
+HKR,,Adhoc5GDisable,0,"0"
+HKR,,AdhocN40MHzAllowed,0,"0"
+HKR,,WSCVersion2,0x00010001,0x00000020
+HKR,,WSC20Testbed,0x00010001,0x0000000C
+HKR,,MFPC,0,"1"
+HKR,,InBoxMode,0,"0"
+HKR,,Channel,0,%CHANNEL%
+HKR,Default,Channel,0,%CHANNEL%
+HKR,,RDG,0,"0"
+HKR,,WMMCapable,0,"1"
+HKR,,CarrierDetect,0,"0"
+HKR,,MFPM3,0,"0"
+HKR,,Radio,0x10001,0x7
+;
+; CurrPhyMode
+;
+HKR, ,                              CurrPhyMode,     0, "0"
+HKR, NDI\params\CurrPhyMode,        ParamDesc,       0, %CurrPhyMode%
+HKR, NDI\params\CurrPhyMode,        type,            0, "enum"
+HKR, NDI\params\CurrPhyMode,        default,         0, "0"
+HKR, NDI\params\CurrPhyMode\enum,   "0",             0, "1. "%Phy_11ax%
+HKR, NDI\params\CurrPhyMode\enum,   "1",             0, "2. "%Phy_11ac%
+HKR, NDI\params\CurrPhyMode\enum,   "2",             0, "3. "%Phy_11n%
+HKR, NDI\params\CurrPhyMode\enum,   "3",             0, "4. "%Phy_11abg%
+;
+; BWSelection24G
+;
+HKR, ,                                 BWSelection24G,          0, "0"
+HKR, NDI\params\BWSelection24G,        ParamDesc,               0, %BWSelection24G%
+HKR, NDI\params\BWSelection24G,        type,                    0, "enum"
+HKR, NDI\params\BWSelection24G,        default,                 0, "0"
+HKR, NDI\params\BWSelection24G\enum,   "0",                     0, "1. "%BW_Auto%
+HKR, NDI\params\BWSelection24G\enum,   "1",                     0, "2. "%BW_20%
+;
+; BWSelection5G
+;
+HKR, ,                                 BWSelection5G,           0, "0"
+HKR, NDI\params\BWSelection5G,         ParamDesc,               0, %BWSelection5G%
+HKR, NDI\params\BWSelection5G,         type,                    0, "enum"
+HKR, NDI\params\BWSelection5G,         default,                 0, "0"
+HKR, NDI\params\BWSelection5G\enum,    "0",                     0, "1. "%BW_Auto%
+HKR, NDI\params\BWSelection5G\enum,    "1",                     0, "2. "%BW_20%
+;
+; BWSelection6G
+;
+HKR, ,                                 BWSelection6G,           0, "0"
+HKR, NDI\params\BWSelection6G,         ParamDesc,               0, %BWSelection6G%
+HKR, NDI\params\BWSelection6G,         type,                    0, "enum"
+HKR, NDI\params\BWSelection6G,         default,                 0, "0"
+HKR, NDI\params\BWSelection6G\enum,    "0",                     0, "1. "%BW_Auto%
+HKR, NDI\params\BWSelection6G\enum,    "1",                     0, "2. "%BW_20%
+;
+; BandSelection
+;
+HKR, ,                                 BandSelection,          0, "0"
+HKR, NDI\params\BandSelection,         ParamDesc,              0, %BandSelection%
+HKR, NDI\params\BandSelection,         type,                   0, "enum"
+HKR, NDI\params\BandSelection,         default,                0, "0"
+HKR, NDI\params\BandSelection\enum,    "0",                    0, "1. "%Band_Dual%
+HKR, NDI\params\BandSelection\enum,    "1",                    0, "2. "%Band24G%
+HKR, NDI\params\BandSelection\enum,    "2",                    0, "3. "%Band5G%
+;
+; DisableWakeOnMagic
+;
+HKR, NDI\params\DisableWakeOnMagic,        ParamDesc,           0, %DisableWakeOnMagic%
+HKR, NDI\params\DisableWakeOnMagic,        type,                0, "enum"
+HKR, NDI\params\DisableWakeOnMagic,        default,             0, "0"
+HKR, NDI\params\DisableWakeOnMagic\enum,   "1",                 0, %Disable%
+HKR, NDI\params\DisableWakeOnMagic\enum,   "0",                 0, %Enable%
+;
+; DisableWakeOnPattern
+;
+HKR, NDI\params\DisableWakeOnPattern,        ParamDesc,               0, %DisableWakeOnPattern%
+HKR, NDI\params\DisableWakeOnPattern,        type,                    0, "enum"
+HKR, NDI\params\DisableWakeOnPattern,        default,                 0, "0"
+HKR, NDI\params\DisableWakeOnPattern\enum,   "1",                     0, %Disable%
+HKR, NDI\params\DisableWakeOnPattern\enum,   "0",                     0, %Enable%
+;
+; DisableARPOffload
+;
+HKR, NDI\params\DisableARPOffload,        ParamDesc,               0, %DisableARPOffload%
+HKR, NDI\params\DisableARPOffload,        type,                    0, "enum"
+HKR, NDI\params\DisableARPOffload,        default,                 0, "0"
+HKR, NDI\params\DisableARPOffload\enum,   "1",                     0, %Disable%
+HKR, NDI\params\DisableARPOffload\enum,   "0",                     0, %Enable%
+;
+; DisableGTKRekey
+;
+HKR, NDI\params\DisableGTKRekey,        ParamDesc,               0, %DisableGTKRekey%
+HKR, NDI\params\DisableGTKRekey,        type,                    0, "enum"
+HKR, NDI\params\DisableGTKRekey,        default,                 0, "0"
+HKR, NDI\params\DisableGTKRekey\enum,   "1",                     0, %Disable%
+HKR, NDI\params\DisableGTKRekey\enum,   "0",                     0, %Enable%
+;
+; UAPSDSupport
+;
+HKR, ,                               UAPSDSupport,            0, "0"
+HKR, NDI\params\UAPSDSupport,        ParamDesc,               0, %UAPSDSupport%
+HKR, NDI\params\UAPSDSupport,        type,                    0, "enum"
+HKR, NDI\params\UAPSDSupport,        default,                 0, "0"
+HKR, NDI\params\UAPSDSupport\enum,   "1",                     0, %Enable%
+HKR, NDI\params\UAPSDSupport\enum,   "0",                     0, %Disable%
+
+HKR,,BACapability,0x10001,"0x0b834040"
+HKR,Default,BACapability,0x10001,"0x0b834040"
+HKR,,WifiDirectControl,0x10001,"0x84368078"
+HKR,Default,WifiDirectControl,0x10001,"0x84368078"
+HKR,,WfdListenChannel,0,"11"
+HKR,Default,WfdListenChannel,0,"11"
+HKR,,WfdPhyMode,0,"1"
+HKR,Default,WfdPhyMode,0,"1"
+;
+; Miracast prefer band
+;
+HKR,,WfdGOOperatingChannel,0,"0"
+HKR,NDI\params\WfdGOOperatingChannel,ParamDesc,0, "Miracast prefer band"
+HKR,NDI\params\WfdGOOperatingChannel,type,     0, "enum"
+HKR,NDI\params\WfdGOOperatingChannel,default,  0, "0"
+HKR,NDI\params\WfdGOOperatingChannel\enum,     0,0, %WirelessModeAuto%
+HKR,NDI\params\WfdGOOperatingChannel\enum,     11,0, %WirelessMode24G%
+HKR,NDI\params\WfdGOOperatingChannel\enum,     36,0, %WirelessMode5G%
+HKR,,P2P_GO_Band,0,"2"
+HKR,Default,P2P_GO_Band,0,"2"
+HKR,,Enable_U4TVBOX_FIX,0,"1"
+HKR,Default,Enable_U4TVBOX_FIX,0,"1"
+HKR,,P2PAckCheck,0,"1"
+HKR,Default,P2PAckCheck,0,"1"
+HKR,,P2PVideoBoost,0,"0"
+HKR,,TransmitSetting,0x10001,"0x22d8f9"
+HKR,Default,TransmitSetting,0x10001,"0x22d8f9"
+HKR,,WPSDevName,0,%WPS_DEVNAME_DEF_STR%
+HKR,Default,WPSDevName,0,%WPS_DEVNAME_DEF_STR%
+HKR,,ProhibitTKIPonHT,0,"1"
+HKR,,LinkSpeedStatus,0,"0"
+;
+; TxPowerLevel
+;
+HKR, ,                                 TxPowerLevel0, "0"
+HKR, NDI\params\TxPowerLevel,         ParamDesc,              0, %TxPowerLevel%
+HKR, NDI\params\TxPowerLevel,         type,                   0, "enum"
+HKR, NDI\params\TxPowerLevel,         default,                0, "0"
+HKR, NDI\params\TxPowerLevel\enum,    "0",                    0, "1. "%Highest%
+HKR, NDI\params\TxPowerLevel\enum,    "1",                    0, "2. "%Medium%
+HKR, NDI\params\TxPowerLevel\enum,    "2",                    0, "3. "%Lowest%
+

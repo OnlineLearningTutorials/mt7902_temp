@@ -454,7 +454,7 @@ static void *
 mt76_dma_get_buf(struct mt76_dev *dev, struct mt76_queue *q, int idx,
 		 int *len, u32 *info, bool *more, bool *drop)
 {
-	//printk(KERN_INFO "mt76_dma.c - mt76_dma_get_buf(struct mt76_dev *dev, struct mt76_queue *q, int idx:%d, int *len:%d, u32 *info:0x%x, bool *more, bool *drop)", idx, len, info);
+	printk(KERN_DEBUG "mt76_dma.c - mt76_dma_get_buf(struct mt76_dev *dev, struct mt76_queue *q, int idx:%d, int *len:%d, u32 *info:0x%x, bool *more, bool *drop)", idx, len, info);
 	struct mt76_queue_entry *e = &q->entry[idx];
 	struct mt76_desc *desc = &q->desc[idx];
 	u32 ctrl, desc_info, buf1;
@@ -496,7 +496,7 @@ mt76_dma_get_buf(struct mt76_dev *dev, struct mt76_queue *q, int idx,
 		if (drop)
 			*drop |= !!(buf1 & MT_DMA_CTL_WO_DROP);
 	} else {
-		//printk(KERN_INFO "mt76_dma.c - mt76_dma_get_buf - else-> dma_sync_single_for_cpu(dev->dma_dev, e->dma_addr[0]: 0x%x, SKB_WITH_OVERHEAD(q->buf_size): 0x%x, page_pool_get_dma_dir(q->page_pool): %d)", e->dma_addr[0], SKB_WITH_OVERHEAD(q->buf_size), page_pool_get_dma_dir(q->page_pool));
+		printk(KERN_DEBUG "mt76_dma.c - mt76_dma_get_buf - else-> dma_sync_single_for_cpu(dev->dma_dev, e->dma_addr[0]: 0x%x, SKB_WITH_OVERHEAD(q->buf_size): 0x%x, page_pool_get_dma_dir(q->page_pool): %d)", e->dma_addr[0], SKB_WITH_OVERHEAD(q->buf_size), page_pool_get_dma_dir(q->page_pool));
 		dma_sync_single_for_cpu(dev->dma_dev, e->dma_addr[0],
 				SKB_WITH_OVERHEAD(q->buf_size),
 				page_pool_get_dma_dir(q->page_pool));
@@ -511,7 +511,7 @@ static void *
 mt76_dma_dequeue(struct mt76_dev *dev, struct mt76_queue *q, bool flush,
 		 int *len, u32 *info, bool *more, bool *drop)
 {
-	//printk(KERN_INFO "mt76_dma.c - mt76_dma_dequeue(struct mt76_dev *dev, struct mt76_queue *q, bool flush:%d, int *len:%d, u32 *info:0x%x, bool *more:%d, bool *drop:%d)", flush, *len, *info, *more, *drop);
+	printk(KERN_DEBUG "mt76_dma.c - mt76_dma_dequeue(struct mt76_dev *dev, struct mt76_queue *q, bool flush, int *len, u32 *info, bool *more, bool *drop)");
 	int idx = q->tail;
 
 	*more = false;
@@ -527,10 +527,10 @@ mt76_dma_dequeue(struct mt76_dev *dev, struct mt76_queue *q, bool flush,
 		else if (!(q->desc[idx].ctrl & cpu_to_le32(MT_DMA_CTL_DMA_DONE)))
 			return NULL;
 	}
-
+	printk(KERN_DEBUG "mt76_dma.c - mt76_dma_dequeue - q->tail:%d, q->queued:%d", q->tail, q->queued);
 	q->tail = (q->tail + 1) % q->ndesc;
 	q->queued--;
-	//printk(KERN_INFO "mt76_dma.c - mt76_dma_dequeue - mt76_dma_get_buf(dev, q, %d, %d, 0x%x, %d, %d) - q->tail:%d, q->queued:%d",idx, len, info, more, drop, q->tail, q->queued);
+	printk(KERN_DEBUG "mt76_dma.c - mt76_dma_dequeue - mt76_dma_get_buf(dev, q, idx:%d, len:%d, info, more, drop) - q->tail:%d, q->queued:%d",idx, len, q->tail, q->queued);
 	return mt76_dma_get_buf(dev, q, idx, len, info, more, drop);
 }
 
