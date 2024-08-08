@@ -52,7 +52,7 @@ static void mt7902e_unregister_device(struct mt792x_dev *dev)
 
 static u32 __mt7902_reg_addr(struct mt792x_dev *dev, u32 addr)
 {
-    //printk(KERN_INFO "pci.c - __mt7902_reg_addr - addr: %d = 0x%x", addr, addr);
+    //printk(KERN_INFO "pci.c - __mt7902_reg_addr - addr: %d = 0x%08x", addr, addr);
 	static const struct mt76_connac_reg_map fixed_map[] = {
 	    /* chip addr, bus addr, range */
 	    /* phys, maps, size */
@@ -108,20 +108,20 @@ static u32 __mt7902_reg_addr(struct mt792x_dev *dev, u32 addr)
 
 	for (i = 0; i < ARRAY_SIZE(fixed_map); i++) {
 		u32 ofs;
-    	//printk(KERN_INFO "pci.c - __mt7902_reg_addr - addr: 0x%x, fixed_map[%d].phys: 0x%x", addr, i, fixed_map[i].phys);
+    	//printk(KERN_INFO "pci.c - __mt7902_reg_addr - addr: 0x%08x, fixed_map[%d].phys: 0x%08x", addr, i, fixed_map[i].phys);
 		if (addr < fixed_map[i].phys)
 			continue;
 
 		ofs = addr - fixed_map[i].phys;
-    	//printk(KERN_INFO "pci.c - __mt7902_reg_addr - ofs: 0x%x, fixed_map[%d].size: 0x%x", ofs, i, fixed_map[i].size);
+    	//printk(KERN_INFO "pci.c - __mt7902_reg_addr - ofs: 0x%08x, fixed_map[%d].size: 0x%08x", ofs, i, fixed_map[i].size);
 		if (ofs > fixed_map[i].size)
 			continue;
 
-    	printk(KERN_INFO "pci.c - __mt7902_reg_addr(struct mt792x_dev *dev, 0x%x) - fixed_map[%d].phys: 0x%x, fixed_map[%d].maps: 0x%x, fixed_map[%d].size: 0x%x, ofs: 0x%x, return:0x%x", addr, i, fixed_map[i].phys, i, fixed_map[i].maps, i, fixed_map[i].size, ofs, ofs+fixed_map[i].maps);
+    	printk(KERN_INFO "pci.c - __mt7902_reg_addr(struct mt792x_dev *dev, 0x%08x) - fixed_map[%d].phys: 0x%08x, fixed_map[%d].maps: 0x%08x, fixed_map[%d].size: 0x%08x, ofs: 0x%08x, return:0x%08x", addr, i, fixed_map[i].phys, i, fixed_map[i].maps, i, fixed_map[i].size, ofs, ofs+fixed_map[i].maps);
 		return fixed_map[i].maps + ofs;
 	}
 
-    	printk(KERN_INFO "pci.c - __mt7902_reg_addr - mt7902_reg_map_l1(dev, 0x%x)->0x%x", addr, addr, mt7902_reg_map_l1(dev, addr));
+    	printk(KERN_INFO "pci.c - __mt7902_reg_addr - mt7902_reg_map_l1(dev, 0x%08x)->0x%08x", addr, addr, mt7902_reg_map_l1(dev, addr));
 	if ((addr >= 0x18000000 && addr < 0x18c00000) ||
 	    (addr >= 0x70000000 && addr < 0x78000000) ||
 	    (addr >= 0x7c000000 && addr < 0x7c400000))
@@ -135,28 +135,28 @@ static u32 __mt7902_reg_addr(struct mt792x_dev *dev, u32 addr)
 
 static u32 mt7902_rr(struct mt76_dev *mdev, u32 offset)
 {
-    //printk(KERN_INFO "pci.c - mt7902_rr(struct mt76_dev *mdev, 0x%x)", offset);
+    //printk(KERN_INFO "pci.c - mt7902_rr(struct mt76_dev *mdev, 0x%08x)", offset);
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
 	u32 addr = __mt7902_reg_addr(dev, offset);
-    //printk(KERN_INFO "pci.c - mt7902_rr - addr: 0x%x, offset: 0x%x", addr, offset);
+    //printk(KERN_INFO "pci.c - mt7902_rr - addr: 0x%08x, offset: 0x%08x", addr, offset);
 	return dev->bus_ops->rr(mdev, addr);
 }
 
 static void mt7902_wr(struct mt76_dev *mdev, u32 offset, u32 val)
 {
-    //printk(KERN_INFO "pci.c - mt7902_wr(struct mt76_dev *mdev, 0x%x, 0x%x)", offset, val);
+    //printk(KERN_INFO "pci.c - mt7902_wr(struct mt76_dev *mdev, 0x%08x, 0x%08x)", offset, val);
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
 	u32 addr = __mt7902_reg_addr(dev, offset);
-    //printk(KERN_INFO "pci.c - mt7902_wr - addr: 0x%x, offset: 0x%x, val: 0x%x", addr, offset, val);
+    //printk(KERN_INFO "pci.c - mt7902_wr - addr: 0x%08x, offset: 0x%08x, val: 0x%08x", addr, offset, val);
 	dev->bus_ops->wr(mdev, addr, val);
 }
 
 static u32 mt7902_rmw(struct mt76_dev *mdev, u32 offset, u32 mask, u32 val)
 {
-    //printk(KERN_INFO "pci.c - mt7902_rmw(struct mt76_dev *mdev, 0x%x, 0x%x, 0x%x)", offset, mask, val);
+    //printk(KERN_INFO "pci.c - mt7902_rmw(struct mt76_dev *mdev, 0x%08x, 0x%08x, 0x%08x)", offset, mask, val);
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
 	u32 addr = __mt7902_reg_addr(dev, offset);
-    //printk(KERN_INFO "pci.c - mt7902_rmw - addr : 0x%x, mask: 0x%x, val: 0x%x", addr, mask, val);
+    //printk(KERN_INFO "pci.c - mt7902_rmw - addr : 0x%08x, mask: 0x%08x, val: 0x%08x", addr, mask, val);
 	return dev->bus_ops->rmw(mdev, addr, mask, val);
 }
 
@@ -174,40 +174,40 @@ static int mt7902_dma_init(struct mt792x_dev *dev)
 
 	/* init tx queue */
 	ret = mt76_connac_init_tx_queues(dev->phy.mt76, MT7902_TXQ_BAND0, MT7902_TX_RING_SIZE, MT_TX_RING_BASE, NULL, 0); //mt76_connac_init_tx_queues(dev->phy.mt76, 0x0, 0x800, 0xd4300, NULL, 0)->ret: 0 
-    printk(KERN_INFO "pci.c - mt7902_dma_init - mt76_connac_init_tx_queues(dev->phy.mt76, 0x%x, 0x%x, 0x%x, NULL, 0)->ret: %d  (init tx queue)", MT7902_TXQ_BAND0, MT7902_TX_RING_SIZE, MT_TX_RING_BASE, ret);
+    printk(KERN_INFO "pci.c - mt7902_dma_init - mt76_connac_init_tx_queues(dev->phy.mt76, 0x%08x, 0x%08x, 0x%08x, NULL, 0)->ret: %d  (init tx queue)", MT7902_TXQ_BAND0, MT7902_TX_RING_SIZE, MT_TX_RING_BASE, ret);
 	if (ret)
 		return ret;
 
-    printk(KERN_INFO "pci.c - mt7902_dma_init - mt76_wr(dev, 0x%x, 0x4);", MT_WFDMA0_TX_RING0_EXT_CTRL);
+    printk(KERN_INFO "pci.c - mt7902_dma_init - mt76_wr(dev, 0x%08x, 0x4);", MT_WFDMA0_TX_RING0_EXT_CTRL);
 	mt76_wr(dev, MT_WFDMA0_TX_RING0_EXT_CTRL, 0x4); //mt76_wr(dev, 0xd4600, 0x4);
 
 	/* command to WM */
 	ret = mt76_init_mcu_queue(&dev->mt76, MT_MCUQ_WM, MT7902_TXQ_MCU_WM, MT7902_TX_MCU_RING_SIZE, MT_TX_RING_BASE); //mt76_init_mcu_queue(&dev->mt76, 0x0, 0x11, 0x100, 0xd4300);->ret: 0 
-    printk(KERN_INFO "pci.c - mt7902_dma_init - mt76_init_mcu_queue(&dev->mt76, 0x%x, 0x%x, 0x%x, 0x%x);->ret: %d  (command to WM)", MT_MCUQ_WM, MT7902_TXQ_MCU_WM, MT7902_TX_MCU_RING_SIZE, MT_TX_RING_BASE, ret);
+    printk(KERN_INFO "pci.c - mt7902_dma_init - mt76_init_mcu_queue(&dev->mt76, 0x%08x, 0x%08x, 0x%08x, 0x%08x);->ret: %d  (command to WM)", MT_MCUQ_WM, MT7902_TXQ_MCU_WM, MT7902_TX_MCU_RING_SIZE, MT_TX_RING_BASE, ret);
 	if (ret)
 		return ret;
 
 	/* firmware download */
 	ret = mt76_init_mcu_queue(&dev->mt76, MT_MCUQ_FWDL, MT7902_TXQ_FWDL, MT7902_TX_FWDL_RING_SIZE, MT_TX_RING_BASE); //mt76_init_mcu_queue(&dev->mt76, 0x2, 0x10, 0x80, 0xd4300)->ret: 0 
-    printk(KERN_INFO "pci.c - mt7902_dma_init - mt76_init_mcu_queue(&dev->mt76, 0x%x, 0x%x, 0x%x, 0x%x)->ret: %d  (firmware download)", MT_MCUQ_FWDL, MT7902_TXQ_FWDL, MT7902_TX_FWDL_RING_SIZE, MT_TX_RING_BASE, ret);
+    printk(KERN_INFO "pci.c - mt7902_dma_init - mt76_init_mcu_queue(&dev->mt76, 0x%08x, 0x%08x, 0x%08x, 0x%08x)->ret: %d  (firmware download)", MT_MCUQ_FWDL, MT7902_TXQ_FWDL, MT7902_TX_FWDL_RING_SIZE, MT_TX_RING_BASE, ret);
 	if (ret)
 		return ret;
 
 	/* event from WM before firmware download */
 	ret = mt76_queue_alloc(dev, &dev->mt76.q_rx[MT_RXQ_MCU], MT7902_RXQ_MCU_WM, MT7902_RX_MCU_RING_SIZE, MT_RX_BUF_SIZE, MT_RX_EVENT_RING_BASE); //mt76_queue_alloc(dev, &dev->mt76.q_rx[0x1], 0x0,  0x8, 0x800, 0xd4500)->ret: 0 
-    printk(KERN_INFO "pci.c - mt7902_dma_init - mt76_queue_alloc(dev, &dev->mt76.q_rx[0x%x], 0x%x,  0x%x, 0x%x, 0x%x)->ret: %d (event from WM before firmware download)", MT_RXQ_MCU, MT7902_RXQ_MCU_WM, MT7902_RX_MCU_RING_SIZE, MT_RX_BUF_SIZE, MT_RX_EVENT_RING_BASE, ret);
+    printk(KERN_INFO "pci.c - mt7902_dma_init - mt76_queue_alloc(dev, &dev->mt76.q_rx[0x%08x], 0x%08x,  0x%08x, 0x%08x, 0x%08x)->ret: %d (event from WM before firmware download)", MT_RXQ_MCU, MT7902_RXQ_MCU_WM, MT7902_RX_MCU_RING_SIZE, MT_RX_BUF_SIZE, MT_RX_EVENT_RING_BASE, ret);
 	if (ret)
 		return ret;
 
 	/* Change mcu queue after firmware download */
 	ret = mt76_queue_alloc(dev, &dev->mt76.q_rx[MT_RXQ_MCU_WA], MT7902_RXQ_MCU_WM, MT7902_RX_MCU_WA_RING_SIZE, MT_RX_BUF_SIZE, MT_WFDMA0(0x540)); //mt76_queue_alloc(dev, &dev->mt76.q_rx[0x2], 0x0, 0x200, 0x800, 0xd4540)->ret: 0 
-    printk(KERN_INFO "pci.c - mt7902_dma_init - mt76_queue_alloc(dev, &dev->mt76.q_rx[0x%x], 0x%x, 0x%x, 0x%x, 0x%x)->ret: %d /* Change mcu queue after firmware download */", MT_RXQ_MCU_WA, MT7902_RXQ_MCU_WM, MT7902_RX_MCU_WA_RING_SIZE, MT_RX_BUF_SIZE, MT_WFDMA0(0x540), ret);
+    printk(KERN_INFO "pci.c - mt7902_dma_init - mt76_queue_alloc(dev, &dev->mt76.q_rx[0x%08x], 0x%08x, 0x%08x, 0x%08x, 0x%08x)->ret: %d /* Change mcu queue after firmware download */", MT_RXQ_MCU_WA, MT7902_RXQ_MCU_WM, MT7902_RX_MCU_WA_RING_SIZE, MT_RX_BUF_SIZE, MT_WFDMA0(0x540), ret);
 	if (ret)
 		return ret;
 
 	/* rx data */
 	ret = mt76_queue_alloc(dev, &dev->mt76.q_rx[MT_RXQ_MAIN], MT7902_RXQ_BAND0, MT7902_RX_RING_SIZE, MT_RX_BUF_SIZE, MT_RX_DATA_RING_BASE); //mt76_queue_alloc(dev, &dev->mt76.q_rx[0x0], 0x0, 0x600, 0x800, 0xd4520)->ret: 0 
-    printk(KERN_INFO "pci.c - mt7902_dma_init - mt76_queue_alloc(dev, &dev->mt76.q_rx[0x%x], 0x%x, 0x%x, 0x%x, 0x%x)->ret: %d  /* rx data */     ", MT_RXQ_MAIN, MT7902_RXQ_BAND0, MT7902_RX_RING_SIZE, MT_RX_BUF_SIZE, MT_RX_DATA_RING_BASE, ret);
+    printk(KERN_INFO "pci.c - mt7902_dma_init - mt76_queue_alloc(dev, &dev->mt76.q_rx[0x%08x], 0x%08x, 0x%08x, 0x%08x, 0x%08x)->ret: %d  /* rx data */     ", MT_RXQ_MAIN, MT7902_RXQ_BAND0, MT7902_RX_RING_SIZE, MT_RX_BUF_SIZE, MT_RX_DATA_RING_BASE, ret);
 	if (ret)
 		return ret;
 
@@ -283,11 +283,11 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
     printk(KERN_INFO "pci.c - mt7902_pci_probe pcim_iomap_regions(pdev, %d, %s)->ret : %d", BIT(0), pci_name(pdev), ret);
 	if (ret)
 		return ret;
-    printk(KERN_INFO "pci.c - mt7902_pci_probe - pci_read_config_word(pdev, %d, 0x%x);", PCI_COMMAND, &cmd);
+    printk(KERN_INFO "pci.c - mt7902_pci_probe - pci_read_config_word(pdev, %d, 0x%08x);", PCI_COMMAND, &cmd);
 	pci_read_config_word(pdev, PCI_COMMAND, &cmd);   //pci_read_config_word(pdev, 4, 0x1158b61e);
 	if (!(cmd & PCI_COMMAND_MEMORY)) {
 		cmd |= PCI_COMMAND_MEMORY;
-		printk(KERN_INFO "pci.c - mt7902_pci_probe - pci_write_config_word(pdev, %d, 0x%x);", PCI_COMMAND, &cmd);
+		printk(KERN_INFO "pci.c - mt7902_pci_probe - pci_write_config_word(pdev, %d, 0x%08x);", PCI_COMMAND, &cmd);
 		pci_write_config_word(pdev, PCI_COMMAND, cmd);
 	}
 	printk(KERN_INFO "pci.c - mt7902_pci_probe - pci_set_master(pdev);");
@@ -299,7 +299,7 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 		return ret;
 
 	ret = dma_set_mask(&pdev->dev, DMA_BIT_MASK(32));      //dma_set_mask(pdev, 0xffffffff)->ret: 0
-    printk(KERN_INFO "pci.c - mt7902_pci_probe dma_set_mask(pdev, 0x%x)->ret: %d", DMA_BIT_MASK(32), ret);
+    printk(KERN_INFO "pci.c - mt7902_pci_probe dma_set_mask(pdev, 0x%08x)->ret: %d", DMA_BIT_MASK(32), ret);
 	if (ret)
 		goto err_free_pci_vec;
 
@@ -362,8 +362,8 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 		goto err_free_dev;
 
 
-	printk(KERN_INFO "pci.c - mt7902_pci_probe - rev - 0x%x  - 0x%x", mt7902_l1_rr(dev, MT_HW_CHIPID), MT_HW_CHIPID);  // mt7902_pci_probe - rev - 0x7902  - 0x70010200
-	printk(KERN_INFO "pci.c - mt7902_pci_probe - rev - 0x%x  - 0x%x", (mt7902_l1_rr(dev, MT_HW_REV) & 0xff), MT_HW_REV); //mt7902_pci_probe - rev - 0x0  - 0x70010204
+	printk(KERN_INFO "pci.c - mt7902_pci_probe - rev - 0x%08x  - 0x%08x", mt7902_l1_rr(dev, MT_HW_CHIPID), MT_HW_CHIPID);  // mt7902_pci_probe - rev - 0x7902  - 0x70010200
+	printk(KERN_INFO "pci.c - mt7902_pci_probe - rev - 0x%08x  - 0x%08x", (mt7902_l1_rr(dev, MT_HW_REV) & 0xff), MT_HW_REV); //mt7902_pci_probe - rev - 0x0  - 0x70010204
 	mdev->rev = (mt7902_l1_rr(dev, MT_HW_CHIPID) << 16) |
 		    (mt7902_l1_rr(dev, MT_HW_REV) & 0xff);
 	dev_info(mdev->dev, "ASIC revision: %04x\n", mdev->rev);  //mt7902e 0000:03:00.0: ASIC revision: 79020000
@@ -373,9 +373,9 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 	if (ret)
 		goto err_free_dev;
 		*/
-	printk(KERN_INFO "pci.c - mt7902_pci_probe 	mt76_wr(dev, 0x%x, 0)", irq_map.host_irq_enable);  //mt76_wr(dev, 0xd4204, 0)
+	printk(KERN_INFO "pci.c - mt7902_pci_probe 	mt76_wr(dev, 0x%08x, 0)", irq_map.host_irq_enable);  //mt76_wr(dev, 0xd4204, 0)
 	mt76_wr(dev, irq_map.host_irq_enable, 0);
-	printk(KERN_INFO "pci.c - mt7902_pci_probe mt76_wr(dev, 0x%x, 0xff)", MT_PCIE_MAC_INT_ENABLE);  //mt76_wr(dev, 0x10188, 0xff)
+	printk(KERN_INFO "pci.c - mt7902_pci_probe mt76_wr(dev, 0x%08x, 0xff)", MT_PCIE_MAC_INT_ENABLE);  //mt76_wr(dev, 0x10188, 0xff)
 	mt76_wr(dev, MT_PCIE_MAC_INT_ENABLE, 0xff);
 
 	ret = devm_request_irq(mdev->dev, pdev->irq, mt792x_irq_handler,
