@@ -645,11 +645,11 @@ mt792x_get_offload_capability(struct device *dev, const char *fw_wm)
 	u8 offload_caps = 0;
 
 	ret = request_firmware(&fw, fw_wm, dev);
-	printk(KERN_INFO "mt792x_core.c - mt792x_get_offload_capability - request_firmware->ret:%d", ret);
+	printk(KERN_INFO "mt792x_core.c - mt792x_get_offload_capability - fw->size: %d", fw->size);
 	if (ret)
 		return ret;
 
-	printk(KERN_INFO "mt792x_core.c - mt792x_get_offload_capability - check firmware error");
+	//printk(KERN_INFO "mt792x_core.c - mt792x_get_offload_capability - check firmware error");
 	if (!fw || !fw->data || fw->size < sizeof(*hdr)) {
 		dev_err(dev, "Invalid firmware\n");
 		goto out;
@@ -658,7 +658,7 @@ mt792x_get_offload_capability(struct device *dev, const char *fw_wm)
 	data = fw->data;
 	hdr = (const void *)(fw->data + fw->size - sizeof(*hdr));
 
-
+	printk(KERN_DEBUG "mt792x_core.c - mt792x_get_offload_capability - hdr->n_region: %d", hdr->n_region);
 	for (i = 0; i < hdr->n_region; i++) {
 		const struct mt76_connac2_fw_region *region;
 

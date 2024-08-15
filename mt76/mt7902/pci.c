@@ -272,6 +272,7 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 	u8 features;
 	int ret;
 	u16 cmd;
+	u32 pci_header;
 
 	printk(KERN_INFO "pci.c - mt7902_pci_probe pcim_enable_device");
 	ret = pcim_enable_device(pdev);         //mt7902e 0000:03:00.0: enabling device (0000 -> 0002)
@@ -279,7 +280,9 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 	if (ret)
 		return ret;
 
-	ret = pcim_iomap_regions(pdev, BIT(0), pci_name(pdev));  //pcim_iomap_regions(pdev, 1, 0000:03:00.0)->ret : 0
+
+	//printk(KERN_INFO "pci.c - mt7902_pci_probe - pcim_iomap(bar0): 0x%08x, pcim_iomap(bar1): 0x%08x, pcim_iomap(bar2): 0x%08x", pcim_iomap(pdev, 0, 32000), pcim_iomap(pdev, 1, 32000), pcim_iomap(pdev, 2, 32000));
+	ret = pcim_iomap_regions_request_all(pdev, BIT(0), pci_name(pdev));  //pcim_iomap_regions(pdev, 1, 0000:03:00.0)->ret : 0
     printk(KERN_INFO "pci.c - mt7902_pci_probe pcim_iomap_regions(pdev, %d, %s)->ret : %d", BIT(0), pci_name(pdev), ret);
 	if (ret)
 		return ret;
@@ -290,7 +293,26 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 		printk(KERN_INFO "pci.c - mt7902_pci_probe - pci_write_config_word(pdev, %d, 0x%08x);", PCI_COMMAND, &cmd);
 		pci_write_config_word(pdev, PCI_COMMAND, cmd);
 	}
-	printk(KERN_INFO "pci.c - mt7902_pci_probe - pci_set_master(pdev);");
+	
+	pci_read_config_dword(pdev, 0, &pci_header); printk(KERN_DEBUG "pci.c - mt7902_pci_probe - pci_header - 0x%08x", pci_header);
+	pci_read_config_dword(pdev, 4, &pci_header); printk(KERN_DEBUG "pci.c - mt7902_pci_probe - pci_header - 0x%08x", pci_header);
+	pci_read_config_dword(pdev, 8, &pci_header); printk(KERN_DEBUG "pci.c - mt7902_pci_probe - pci_header - 0x%08x", pci_header);
+	pci_read_config_dword(pdev, 12, &pci_header); printk(KERN_DEBUG "pci.c - mt7902_pci_probe - pci_header - 0x%08x", pci_header);
+	pci_read_config_dword(pdev, 16, &pci_header); printk(KERN_DEBUG "pci.c - mt7902_pci_probe - pci_header - 0x%08x", pci_header);
+	pci_read_config_dword(pdev, 20, &pci_header); printk(KERN_DEBUG "pci.c - mt7902_pci_probe - pci_header - 0x%08x", pci_header);
+	pci_read_config_dword(pdev, 24, &pci_header); printk(KERN_DEBUG "pci.c - mt7902_pci_probe - pci_header - 0x%08x", pci_header);
+	pci_read_config_dword(pdev, 28, &pci_header); printk(KERN_DEBUG "pci.c - mt7902_pci_probe - pci_header - 0x%08x", pci_header);
+	pci_read_config_dword(pdev, 32, &pci_header); printk(KERN_DEBUG "pci.c - mt7902_pci_probe - pci_header - 0x%08x", pci_header);
+	pci_read_config_dword(pdev, 36, &pci_header); printk(KERN_DEBUG "pci.c - mt7902_pci_probe - pci_header - 0x%08x", pci_header);
+	pci_read_config_dword(pdev, 40, &pci_header); printk(KERN_DEBUG "pci.c - mt7902_pci_probe - pci_header - 0x%08x", pci_header);
+	pci_read_config_dword(pdev, 44, &pci_header); printk(KERN_DEBUG "pci.c - mt7902_pci_probe - pci_header - 0x%08x", pci_header);
+	pci_read_config_dword(pdev, 48, &pci_header); printk(KERN_DEBUG "pci.c - mt7902_pci_probe - pci_header - 0x%08x", pci_header);
+	pci_read_config_dword(pdev, 52, &pci_header); printk(KERN_DEBUG "pci.c - mt7902_pci_probe - pci_header - 0x%08x", pci_header);
+	pci_read_config_dword(pdev, 56, &pci_header); printk(KERN_DEBUG "pci.c - mt7902_pci_probe - pci_header - 0x%08x", pci_header);
+	pci_read_config_dword(pdev, 60, &pci_header); printk(KERN_DEBUG "pci.c - mt7902_pci_probe - pci_header - 0x%08x", pci_header);
+	
+	
+	printk(KERN_INFO "pci.c - mt7902_pci_probe - pci_set_master(pdev);  cmd: 0x%04x", cmd);
 	pci_set_master(pdev);
 
 	ret = pci_alloc_irq_vectors(pdev, 1, 1, PCI_IRQ_ALL_TYPES);
@@ -329,7 +351,7 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 	dev->fw_features = features;
 	dev->hif_ops = &mt7902_pcie_ops;
 	dev->irq_map = &irq_map;
-
+	printk(KERN_INFO "pci.c - mt7902_pci_probe mt76_mmio_init(&dev->mt76, pcim_iomap_table(pdev)[0]: 0x%08x, pcim_iomap_table(pdev)[1]: 0x%08x, pcim_iomap(bar0): 0x%08x, pcim_iomap(bar1): 0x%08x);",  pcim_iomap_table(pdev)[0], pcim_iomap_table(pdev)[1], pcim_iomap(pdev, 0, 32000), pcim_iomap(pdev, 1, 32000));
 	mt76_mmio_init(&dev->mt76, pcim_iomap_table(pdev)[0]);
 	tasklet_init(&mdev->irq_tasklet, mt792x_irq_tasklet, (unsigned long)dev);
 	printk(KERN_INFO "pci.c - mt7902_pci_probe devm_kmemdup");
@@ -350,12 +372,12 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 	bus_ops->wr = mt7902_wr;
 	bus_ops->rmw = mt7902_rmw;
 	dev->mt76.bus = bus_ops;
-/*
+
 	ret = mt792xe_mcu_fw_pmctrl(dev);
 	printk(KERN_INFO "pci.c - mt7902_pci_probe mt792xe_mcu_fw_pmctrl->ret: %d", ret);
 	if (ret)
 		goto err_free_dev;
-*/
+
 	ret = __mt792xe_mcu_drv_pmctrl(dev);
 	printk(KERN_INFO "pci.c - mt7902_pci_probe __mt792xe_mcu_drv_pmctrl->ret: %d", ret);
 	if (ret)
@@ -367,12 +389,12 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 	mdev->rev = (mt7902_l1_rr(dev, MT_HW_CHIPID) << 16) |
 		    (mt7902_l1_rr(dev, MT_HW_REV) & 0xff);
 	dev_info(mdev->dev, "ASIC revision: %04x\n", mdev->rev);  //mt7902e 0000:03:00.0: ASIC revision: 79020000
-/*
+
 	ret = mt792x_wfsys_reset(dev);  //mt792x_dma.c - mt792x_wfsys_reset
 	printk(KERN_INFO "pci.c - mt7902_pci_probe mt792x_wfsys_reset->ret: %d", ret);
 	if (ret)
 		goto err_free_dev;
-		*/
+		
 	printk(KERN_INFO "pci.c - mt7902_pci_probe 	mt76_wr(dev, 0x%08x, 0)", irq_map.host_irq_enable);  //mt76_wr(dev, 0xd4204, 0)
 	mt76_wr(dev, irq_map.host_irq_enable, 0);
 	printk(KERN_INFO "pci.c - mt7902_pci_probe mt76_wr(dev, 0x%08x, 0xff)", MT_PCIE_MAC_INT_ENABLE);  //mt76_wr(dev, 0x10188, 0xff)

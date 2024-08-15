@@ -169,6 +169,167 @@ int mt7902_mac_init(struct mt792x_dev *dev)
 }
 EXPORT_SYMBOL_GPL(mt7902_mac_init);
 
+
+int mt7902_load_patch(struct mt792x_dev *dev, u32 addr, const char *name)
+{
+    printk(KERN_INFO "init.c - mt7902_load_patch(struct mt7902_dev *dev, addr: 0x%08x, name: %s)", addr, name);
+
+	const struct mt7902_patch_hdr *hdr;
+	const struct firmware *fw = NULL;
+	int len, ret, sem;
+
+	ret = firmware_request_nowarn(&fw, name, dev->mt76.dev);
+	if (ret)
+		return ret;
+
+	if (!fw || !fw->data || fw->size < sizeof(*hdr)) {
+		dev_err(dev->mt76.dev, "Invalid firmware\n");
+		ret = -EINVAL;
+		goto release_fw;
+	}
+
+/*	sem = mt76_connac_mcu_patch_sem_ctrl(&dev->mt76, true);
+	switch (sem) {
+	case PATCH_IS_DL:
+		goto release_fw;
+	case PATCH_NOT_DL_SEM_SUCCESS:
+		break;
+	default:
+		dev_err(dev->mt76.dev, "Failed to get patch semaphore\n");
+		ret = -EAGAIN;
+		goto release_fw;
+	} */
+
+	hdr = (const struct mt7902_patch_hdr *)(fw->data);
+
+	dev_info(dev->mt76.dev, "HW/SW Version: 0x%x, Build Time: %.16s\n",
+		 be32_to_cpu(hdr->hw_sw_ver), hdr->build_date);
+
+	len = fw->size - sizeof(*hdr);
+
+	ret = mt76_connac_mcu_init_download(&dev->mt76, addr, len,
+					    DL_MODE_NEED_RSP);
+	if (ret) {
+		dev_err(dev->mt76.dev, "Download request failed\n");
+		goto out;
+	}
+
+	ret = mt76_mcu_send_firmware(&dev->mt76, MCU_CMD(FW_SCATTER),
+				     fw->data + sizeof(*hdr), len);
+	if (ret) {
+		dev_err(dev->mt76.dev, "Failed to send firmware to device\n");
+		goto out;
+	}
+
+	ret = mt76_connac_mcu_start_patch(&dev->mt76);
+	if (ret)
+		dev_err(dev->mt76.dev, "Failed to start patch\n");
+
+out:
+/*	sem = mt76_connac_mcu_patch_sem_ctrl(&dev->mt76, false);
+	switch (sem) {
+	case PATCH_REL_SEM_SUCCESS:
+		break;
+	default:
+		ret = -EAGAIN;
+		dev_err(dev->mt76.dev, "Failed to release patch semaphore\n");
+		break;
+	} */
+
+release_fw:
+	release_firmware(fw);
+
+	return ret;
+}
+
+
+
+int mt7902_load_ram(struct mt792x_dev *dev) 
+{
+    printk(KERN_INFO "init.c - mt7902_load_firmware(struct mt792x_dev *dev)");
+
+	const struct mt7902_fw_trailer *hdr;
+	const struct firmware *fw;
+	int ret;
+	u32 len;
+	char name;
+
+	ret = request_firmware(&fw, name, dev->mt76.dev);
+	if (ret)
+		return ret;
+
+	if (!fw || !fw->data || fw->size <  sizeof(*hdr)) {
+		dev_err(dev->mt76.dev, "Invalid firmware\n");
+		ret = -EINVAL;
+		goto out;
+	}
+
+	hdr = (const struct mt7902_fw_trailer *)(fw->data + fw->size -
+					 sizeof(*hdr));
+
+	dev_info(dev->mt76.dev, "Firmware Version: %.10s, Build Time: %.15s\n",
+		 hdr->fw_ver, hdr->build_date);
+
+	ret = mt76_mcu_send_firmware(&dev->mt76, MCU_CMD(FW_SCATTER),
+				     fw->data + sizeof(*hdr), len);
+	if (ret)
+		goto out;
+
+	ret = mt76_connac_mcu_start_firmware(&dev->mt76,
+					     le32_to_cpu(hdr->addr),
+					     FW_START_OVERRIDE);
+	if (ret) {
+		dev_err(dev->mt76.dev, "Failed to start firmware\n");
+		goto out;
+	}
+
+	snprintf(dev->mt76.hw->wiphy->fw_version,
+		 sizeof(dev->mt76.hw->wiphy->fw_version),
+		 "%.10s-%.15s", hdr->fw_ver, hdr->build_date);
+
+
+
+out:
+	release_firmware(fw);
+	return ret;
+}
+
+
+int mt7902_load_firmware(struct mt792x_dev *dev)
+{
+    printk(KERN_INFO "init.c - mt7902_load_firmware(struct mt792x_dev *dev)");
+	int ret;
+	u32 val;
+
+/*	val = mt76_get_field(dev, MT_TOP_MISC2, MT_TOP_MISC2_FW_STATE);
+
+	if (val != FW_STATE_FW_DOWNLOAD) {
+		dev_err(dev->mt76.dev, "Firmware is not ready for download\n");
+		return -EIO;
+	} */
+
+	ret = mt7902_load_patch(dev, 0x200000, MT7902_ROM_PATCH);
+	if (ret)
+		return ret;
+
+	ret = mt7902_load_ram(dev);
+	if (ret)
+		return ret;
+
+/*	if (!mt76_poll_msec(dev, MT_TOP_MISC2, MT_TOP_MISC2_FW_STATE,
+			    FIELD_PREP(MT_TOP_MISC2_FW_STATE,
+				       FW_STATE_RDY), 500)) {
+		dev_err(dev->mt76.dev, "Timeout for initializing firmware\n");
+		return -EIO;
+	} */
+
+	return 0;
+}
+
+
+
+
+
 static int __mt7902_init_hardware(struct mt792x_dev *dev)
 {
     printk(KERN_INFO "init.c - __mt7902_init_hardware(struct mt792x_dev *dev)");
@@ -180,6 +341,7 @@ static int __mt7902_init_hardware(struct mt792x_dev *dev)
 	printk(KERN_INFO "init.c - __mt7902_init_hardware - mt76_wr(dev, 0x%x, 0x%x);", MT_SWDEF_MODE, MT_SWDEF_NORMAL_MODE);
 	mt76_wr(dev, MT_SWDEF_MODE, MT_SWDEF_NORMAL_MODE);
 	ret = mt792x_mcu_init(dev);
+	//ret = mt7902_load_firmware(dev);
 	printk(KERN_INFO "init.c - __mt7902_init_hardware mt792x_mcu_init(dev)->ret : %d", ret);
 	if (ret)
 		goto out;

@@ -7,6 +7,9 @@
 #include "../mt792x.h"
 #include "regs.h"
 
+#define MT7902_FIRMWARE_WM	"mediatek/WIFI_RAM_CODE_MT7902_1.bin"
+#define MT7902_ROM_PATCH	"mediatek/WIFI_MT7902_patch_mcu_1_1_hdr.bin"
+
 #define MT7902_TX_RING_SIZE		2048
 #define MT7902_TX_MCU_RING_SIZE		256
 #define MT7902_TX_FWDL_RING_SIZE	128
@@ -200,13 +203,15 @@ int mt7902_mcu_set_rxfilter(struct mt792x_dev *dev, u32 fif,
 static inline u32
 mt7902_reg_map_l1(struct mt792x_dev *dev, u32 addr)
 {
+	printk(KERN_INFO "mt7902.h - mt7902_reg_map_l1(struct mt792x_dev *dev, u32 addr: 0x%08x)", addr);
 	u32 offset = FIELD_GET(MT_HIF_REMAP_L1_OFFSET, addr);
 	u32 base = FIELD_GET(MT_HIF_REMAP_L1_BASE, addr);
-
+	printk(KERN_INFO "mt7902.h - mt7902_reg_map_l1 - mt76_rmw_field(dev, MT_HIF_REMAP_L1: 0x%08x, MT_HIF_REMAP_L1_MASK: 0x%08x, base: 0x%08x); addr:0x%08x", MT_HIF_REMAP_L1, MT_HIF_REMAP_L1_MASK, base , addr);
 	mt76_rmw_field(dev, MT_HIF_REMAP_L1, MT_HIF_REMAP_L1_MASK, base);
 	/* use read to push write */
+	printk(KERN_INFO "mt7902.h - mt7902_reg_map_l1 - mt76_rr(dev, MT_HIF_REMAP_L1: 0x%08x);", MT_HIF_REMAP_L1);
 	mt76_rr(dev, MT_HIF_REMAP_L1);
-
+	printk(KERN_INFO "mt7902.h - mt7902_reg_map_l1 - MT_HIF_REMAP_BASE_L1: 0x%08x + offset: 0x%08x = 0x%08x;", MT_HIF_REMAP_BASE_L1, offset, MT_HIF_REMAP_BASE_L1 + offset);
 	return MT_HIF_REMAP_BASE_L1 + offset;
 }
 
@@ -322,4 +327,31 @@ int mt7902_mcu_set_roc(struct mt792x_phy *phy, struct mt792x_vif *vif,
 		       enum mt7902_roc_req type, u8 token_id);
 int mt7902_mcu_abort_roc(struct mt792x_phy *phy, struct mt792x_vif *vif,
 			 u8 token_id);
+int mt7902_load_firmware(struct mt792x_dev *dev);
+int mt7902_load_ram(struct mt792x_dev *dev);
+int mt7902_load_patch(struct mt792x_dev *dev, u32 addr, const char *name);
+
+struct mt7902_patch_hdr {
+	char build_date[16];
+	char platform[4];
+	__be32 hw_sw_ver;
+	__be32 patch_ver;
+	__be16 checksum;
+} __packed;
+
+struct mt7902_fw_trailer {
+	__le32 addr;
+	u8 chip_id;
+	u8 feature_set;
+	u8 eco_code;
+	char fw_ver[10];
+	char build_date[15];
+	__le32 len;
+} __packed;
 #endif
+
+
+#define MT7902_PATCH_ADDRESS 0x200000
+//#define MT_TOP_MISC2			((dev)->reg_map[MT_TOP_CFG_BASE] + 0x134)
+//#define MT_TOP_MISC2_FW_STATE		GENMASK(2, 0)
+

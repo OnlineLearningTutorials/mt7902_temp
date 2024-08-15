@@ -454,7 +454,7 @@ static void *
 mt76_dma_get_buf(struct mt76_dev *dev, struct mt76_queue *q, int idx,
 		 int *len, u32 *info, bool *more, bool *drop)
 {
-	printk(KERN_DEBUG "mt76_dma.c - mt76_dma_get_buf(struct mt76_dev *dev, struct mt76_queue *q, int idx:%d, int *len:%d, u32 *info:0x%x, bool *more, bool *drop)", idx, len, info);
+	//printk(KERN_DEBUG "mt76_dma.c - mt76_dma_get_buf(struct mt76_dev *dev, struct mt76_queue *q, int idx:%d, int *len:%d, u32 *info:0x%x, bool *more, bool *drop)", idx, len, info);
 	struct mt76_queue_entry *e = &q->entry[idx];
 	struct mt76_desc *desc = &q->desc[idx];
 	u32 ctrl, desc_info, buf1;
