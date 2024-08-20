@@ -133,43 +133,41 @@
 #include "twt.h"
 #endif /* CFG_SUPPORT_802_11AX */
 
-#include "hem_mbox.h"
+#include "mgmt/hem_mbox.h"
 
-#include "scan.h"
+#include "mgmt/scan.h"
 
 #include "wlan_lib.h"
 //#include "wlan_oid.h"
 #include "wlan_bow.h"
 
-#include "fw_dl.h"
+#include "chips/fw_dl.h"
 
 #if CFG_ENABLE_WIFI_DIRECT
 #include "wlan_p2p.h"
 #endif
 
-#include "hal.h"
+#include "nic/hal.h"
 
-#include "mt66xx_reg.h"
+#include "nic/mt66xx_reg.h"
 
-#include "connac_reg.h"
-#include "connac_dmashdl.h"
-#include "cmm_asic_connac.h"
-#include "cmm_asic_connac2x.h"
-#if (CFG_SUPPORT_CONNAC3X == 1)
-#include "cmm_asic_connac3x.h"
-#include "cmm_asic_common.h"
-#endif
+#include "nic/connac_reg.h"
+#include "nic/connac_dmashdl.h"
+#include "chips/cmm_asic_connac.h"
+#include "chips/cmm_asic_connac2x.h"
 
+/*
 #if (CFG_SUPPORT_802_11AX == 1)
 #include "he_rlm.h"
 #include "wlan_he.h"
 #endif /* CFG_SUPPORT_802_11AX == 1 */
-
+/*
 #if (CFG_SUPPORT_TWT == 1)
 #include "twt_req_fsm.h"
 #include "twt_planner.h"
-#endif
+#endif */
 
+/*
 #include "rlm.h"
 #include "rlm_domain.h"
 #include "rlm_protection.h"
@@ -198,10 +196,14 @@
 #include "stats.h"
 #endif /* CFG_SUPPORT_STATISTICS */
 
-#include "cnm.h"
+#include "mgmt/cnm.h"
 /* Dependency:  aa_fsm.h (ENUM_AA_STATE_T), p2p_fsm.h
  *   (WPS_ATTRI_MAX_LEN_DEVICE_NAME)
  */
+
+
+
+/*
 #include "cnm_mem.h"
 #include "cnm_scan.h"
 
@@ -244,7 +246,7 @@
 #if CFG_SUPPORT_ROAMING
 #include "roaming_fsm.h"
 #endif /* CFG_SUPPORT_ROAMING */
-
+/*
 #include "ais_fsm.h"
 
 #include "adapter.h"
@@ -258,13 +260,14 @@
 #include "wapi.h"
 #endif
 
-/* Support AP Selection */
+/* Support AP Selection * /
 #include "ap_selection.h"
 
 /*------------------------------------------------------------------------------
  * NVRAM structure
  *------------------------------------------------------------------------------
  */
+/*
 #include "CFG_Wifi_File.h"
 
 #if CFG_ENABLE_WIFI_DIRECT
@@ -296,7 +299,7 @@
  *------------------------------------------------------------------------------
  */
 #ifdef CFG_PREALLOC_MEMORY
-#include "prealloc.h"
+#include "../prealloc/include/prealloc.h"
 #endif
 
 /*------------------------------------------------------------------------------
@@ -304,7 +307,7 @@
  *------------------------------------------------------------------------------
  */
 #ifdef CFG_CHIP_RESET_KO_SUPPORT
-#include "reset.h"
+#include "../reset/include/reset.h"
 #endif
 
 
