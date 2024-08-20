@@ -89,8 +89,10 @@ Insert the module in your kernel by
     WIFI_MT7961_patch_mcu_1_2_hdr.bin
     WIFI_RAM_CODE_MT7922_1.bin
     WIFI_RAM_CODE_MT7961_1.bin
+    WIFI_MT7902_patch_mcu_1_1_hdr.bin
+    WIFI_RAM_CODE_MT7902_1.bin
     
-these files are already present in the `linux-firmware` package in Ubuntu 24.04 (Noble Numbat) as
+some files are already present in the `linux-firmware` package in Ubuntu 24.04 (Noble Numbat) as
 
     linux-firmware: /lib/firmware/mediatek/WIFI_MT7922_patch_mcu_1_1_hdr.bin.zst
     linux-firmware: /lib/firmware/mediatek/WIFI_MT7961_patch_mcu_1_2_hdr.bin.zst
