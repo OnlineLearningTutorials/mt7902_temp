@@ -7,7 +7,7 @@ mt7902e-y := mmio.o util.o trace.o dma.o mac80211.o debugfs.o eeprom.o tx.o agg-
 	 
 mt7902e-y += mt7902/mac.o mt7902/mcu.o mt7902/main.o mt7902/init.o mt7902/debugfs.o mt7902/pci.o mt7902/pci_mac.o mt7902/pci_mcu.o
 
-
+export CONFIG_NET_MEDIATEK_SOC_WED=1
 
 CFLAGS_trace.o := -I$(src)
 CFLAGS_usb_trace.o := -I$(src)
