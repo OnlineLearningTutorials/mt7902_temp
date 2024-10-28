@@ -1,0 +1,37 @@
+# SPDX-License-Identifier: ISC
+config MT7902_COMMON
+	tristate
+	select MT792x_LIB
+	select WANT_DEV_COREDUMP
+
+config MT7902E
+	tristate "MediaTek MT7902E (PCIe) support"
+	select MT7902_COMMON
+	depends on MAC80211
+	depends on PCI
+	help
+	  This adds support for MT7902E 802.11ax 2x2:2SS wireless devices.
+
+	  To compile this driver as a module, choose M here.
+
+config MT7902S
+	tristate "MediaTek MT7902S (SDIO) support"
+	select MT76_SDIO
+	select MT7902_COMMON
+	depends on MAC80211
+	depends on MMC
+	help
+	  This adds support for MT7902S 802.11ax 2x2:2SS wireless devices.
+
+	  To compile this driver as a module, choose M here.
+
+config MT7902U
+	tristate "MediaTek MT7902U (USB) support"
+	select MT792x_USB
+	select MT7902_COMMON
+	depends on MAC80211
+	depends on USB
+	help
+	  This adds support for MT7902U 802.11ax 2x2:2SS wireless devices.
+
+	  To compile this driver as a module, choose M here.
