@@ -1,5 +1,5 @@
 # mt7902 driver development
-As mediatek wifi mt7902 wifi 6E works fine in windows 11, however linux does not implemented its driver as it is new and mediatek does not respond to making a driver for linux. We try to take mediatek driver code from kernel `linux-6.8.9` from folder `linux-6.8.9/drivers/net/wireless/mediatek` and trying to make a driver for 7902. 
+As mediatek wifi mt7902 wifi 6E works fine in windows 11, however linux does not implemented its driver as it is new and mediatek does not respond to making a driver for linux. We try to take mediatek driver code in mt76 from kernel `linux-6.8.9`  and in mt76_new from kernel `linux-6.11.0` from folder `drivers/net/wireless/mediatek`.
 
 ## Compile and Build
 Clone the repository to your local pc

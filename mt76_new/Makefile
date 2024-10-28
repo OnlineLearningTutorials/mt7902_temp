@@ -41,7 +41,18 @@ obj-$(CONFIG_MT76x0_COMMON) += mt76x0/
 obj-$(CONFIG_MT76x2_COMMON) += mt76x2/
 obj-$(CONFIG_MT7603E) += mt7603/
 obj-$(CONFIG_MT7615_COMMON) += mt7615/
+obj-$(CONFIG_MT7902_COMMON) += mt7902/
 obj-$(CONFIG_MT7915E) += mt7915/
 obj-$(CONFIG_MT7921_COMMON) += mt7921/
 obj-$(CONFIG_MT7996E) += mt7996/
 obj-$(CONFIG_MT7925_COMMON) += mt7925/
+
+
+
+all: 
+	$(MAKE) -C /lib/modules/`uname -r`/build/ M=`pwd` modules
+
+
+clean: 
+	$(MAKE) -C /lib/modules/`uname -r`/build/ M=`pwd` clean
+	
