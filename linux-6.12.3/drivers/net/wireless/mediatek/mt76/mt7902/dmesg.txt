@@ -1,0 +1,24 @@
+mt7902e 0000:03:00.0: enabling device (0000 -> 0002)
+mt7902e 0000:03:00.0: ASIC revision: 79020000
+mt7902e 0000:03:00.0: Message 00000010 (seq 1) timeout
+mt7902e 0000:03:00.0: Failed to get patch semaphore
+mt7902e 0000:03:00.0: Message 00000010 (seq 2) timeout
+mt7902e 0000:03:00.0: Failed to get patch semaphore
+mt7902e 0000:03:00.0: Message 00000010 (seq 3) timeout
+mt7902e 0000:03:00.0: Failed to get patch semaphore
+mt7902e 0000:03:00.0: Message 00000010 (seq 4) timeout
+mt7902e 0000:03:00.0: Failed to get patch semaphore
+mt7902e 0000:03:00.0: Message 00000010 (seq 5) timeout
+mt7902e 0000:03:00.0: Failed to get patch semaphore
+mt7902e 0000:03:00.0: Message 00000010 (seq 6) timeout
+mt7902e 0000:03:00.0: Failed to get patch semaphore
+mt7902e 0000:03:00.0: Message 00000010 (seq 7) timeout
+mt7902e 0000:03:00.0: Failed to get patch semaphore
+mt7902e 0000:03:00.0: Message 00000010 (seq 8) timeout
+mt7902e 0000:03:00.0: Failed to get patch semaphore
+mt7902e 0000:03:00.0: Message 00000010 (seq 9) timeout
+mt7902e 0000:03:00.0: Failed to get patch semaphore
+mt7902e 0000:03:00.0: Message 00000010 (seq 10) timeout
+mt7902e 0000:03:00.0: Failed to get patch semaphore
+mt7902e 0000:03:00.0: hardware init failed
+
