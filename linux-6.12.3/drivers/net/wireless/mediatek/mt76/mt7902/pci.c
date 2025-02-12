@@ -335,7 +335,7 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 
 	ret = mt792xe_mcu_fw_pmctrl(dev);
 	if (ret)
-		goto err_free_dev;
+		goto err_free_dev; 
 
 	ret = __mt792xe_mcu_drv_pmctrl(dev);
 	if (ret)
@@ -350,7 +350,7 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 
 	ret = mt792x_wfsys_reset(dev);
 	if (ret)
-		goto err_free_dev;
+		goto err_free_dev; 
 
 	mt76_wr(dev, irq_map.host_irq_enable, 0);
 

@@ -173,6 +173,8 @@ EXPORT_SYMBOL_GPL(mt7902_mac_init);
 static int __mt7902_init_hardware(struct mt792x_dev *dev)
 {
 	int ret;
+	
+	
 
 	/* force firmware operation mode into normal state,
 	 * which should be set before firmware download stage.
@@ -186,7 +188,7 @@ static int __mt7902_init_hardware(struct mt792x_dev *dev)
 
 	ret = mt7902_mcu_set_eeprom(dev);
 	if (ret)
-		goto out;
+		goto out; 
 
 	ret = mt7902_mac_init(dev);
 out:
@@ -199,7 +201,7 @@ static int mt7902_init_hardware(struct mt792x_dev *dev)
 
 	set_bit(MT76_STATE_INITIALIZED, &dev->mphy.state);
 
-	for (i = 0; i < MT792x_MCU_INIT_RETRY_COUNT; i++) {
+	for (i = 0; i < MT792x_MCU_INIT_RETRY_COUNT; i++) {   // MT792x_MCU_INIT_RETRY_COUNT
 		ret = __mt7902_init_hardware(dev);
 		if (!ret)
 			break;

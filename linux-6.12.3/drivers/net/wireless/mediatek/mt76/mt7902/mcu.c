@@ -28,7 +28,7 @@ int mt7902_mcu_parse_response(struct mt76_dev *mdev, int cmd,
 		mt792x_reset(mdev);
 
 		return -ETIMEDOUT;
-	}
+	} 
 
 	rxd = (struct mt76_connac2_mcu_rxd *)skb->data;
 	if (seq != rxd->seq)
@@ -629,9 +629,12 @@ int mt7902_run_firmware(struct mt792x_dev *dev)
 {
 	int err;
 
+	int ret = mt76_get_field(dev, MT_CONN_ON_MISC, MT_TOP_MISC2_FW_N9_RDY);
+	printk(KERN_INFO "Firmware download state: %d\n", ret);
+
 	err = mt792x_load_firmware(dev);
 	if (err)
-		return err;
+		return err; 
 
 	err = mt7902_mcu_get_nic_capability(&dev->phy);
 	if (err)

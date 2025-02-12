@@ -26,6 +26,7 @@ mt7902_mcu_send_message(struct mt76_dev *mdev, struct sk_buff *skb,
 	enum mt76_mcuq_id txq = MT_MCUQ_WM;
 	int ret;
 
+	//printk(KERN_INFO "mt7902_mcu_send_message - txq: 0x%x, cmd: 0x%x, seq: 0x%x, skb: 0x%x", txq, cmd, seq, skb->len);
 	ret = mt76_connac2_mcu_fill_message(mdev, skb, cmd, seq);
 	if (ret)
 		return ret;
@@ -35,6 +36,7 @@ mt7902_mcu_send_message(struct mt76_dev *mdev, struct sk_buff *skb,
 	if (cmd == MCU_CMD(FW_SCATTER))
 		txq = MT_MCUQ_FWDL;
 
+	//printk(KERN_INFO "mt7902_mcu_send_message - txq: 0x%x, cmd: 0x%x, seq: 0x%x", txq, cmd, seq);
 	return mt76_tx_queue_skb_raw(dev, mdev->q_mcu[txq], skb, 0);
 }
 

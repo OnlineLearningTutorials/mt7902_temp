@@ -2,6 +2,7 @@
 
 #include "mt7902.h"
 #include "mcu.h"
+// #include "../testmode.h"
 
 enum mt7902_testmode_attr {
 	MT7902_TM_ATTR_UNSPEC,
