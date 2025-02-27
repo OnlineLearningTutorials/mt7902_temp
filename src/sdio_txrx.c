@@ -85,7 +85,7 @@ mt76s_rx_run_queue(struct mt76_dev *dev, enum mt76_rxq_id qid,
 	struct mt76_sdio *sdio = &dev->sdio;
 	int len = 0, err, i;
 	struct page *page;
-	u8 *buf;
+	u8 *buf, *end;
 
 	for (i = 0; i < intr->rx.num[qid]; i++)
 		len += round_up(intr->rx.len[qid][i] + 4, 4);
@@ -112,20 +112,29 @@ mt76s_rx_run_queue(struct mt76_dev *dev, enum mt76_rxq_id qid,
 		return err;
 	}
 
-	for (i = 0; i < intr->rx.num[qid]; i++) {
+	end = buf + len;
+	i = 0;
+
+	while (i < intr->rx.num[qid] && buf < end) {
 		int index = (q->head + i) % q->ndesc;
 		struct mt76_queue_entry *e = &q->entry[index];
 		__le32 *rxd = (__le32 *)buf;
 
 		/* parse rxd to get the actual packet length */
 		len = le32_get_bits(rxd[0], GENMASK(15, 0));
-		e->skb = mt76s_build_rx_skb(buf, len, round_up(len + 4, 4));
-		if (!e->skb)
-			break;
 
+		/* Optimized path for TXS */
+		if (!dev->drv->rx_check || dev->drv->rx_check(dev, buf, len)) {
+			e->skb = mt76s_build_rx_skb(buf, len,
+						    round_up(len + 4, 4));
+			if (!e->skb)
+				break;
+
+			if (q->queued + i + 1 == q->ndesc)
+				break;
+			i++;
+		}
 		buf += round_up(len + 4, 4);
-		if (q->queued + i + 1 == q->ndesc)
-			break;
 	}
 	put_page(page);
 
@@ -245,6 +254,10 @@ static int mt76s_tx_run_queue(struct mt76_dev *dev, struct mt76_queue *q)
 
 		if (!test_bit(MT76_STATE_MCU_RUNNING, &dev->phy.state)) {
 			__skb_put_zero(e->skb, 4);
+			err = __skb_grow(e->skb, roundup(e->skb->len,
+							 sdio->func->cur_blksize));
+			if (err)
+				return err;
 			err = __mt76s_xmit_queue(dev, e->skb->data,
 						 e->skb->len);
 			if (err)
