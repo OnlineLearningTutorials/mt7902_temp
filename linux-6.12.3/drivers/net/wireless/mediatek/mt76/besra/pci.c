@@ -10,7 +10,7 @@
 
 #include "besra.h"
 #include "mac.h"
-//#include "../trace.h"
+#include "../trace.h"
 
 static LIST_HEAD(hif_list);
 static DEFINE_SPINLOCK(hif_lock);

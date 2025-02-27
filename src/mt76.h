@@ -16,7 +16,7 @@
 #include <linux/soc/mediatek/mtk_wed.h>
 #include <net/mac80211.h>
 #include "util.h"
-#include "testmode.h"
+//#include "testmode.h"
 
 #define MT_MCU_RING_SIZE	32
 #define MT_RX_BUF_SIZE		2048
@@ -613,15 +613,15 @@ struct mt76_freq_range_power {
 	const struct cfg80211_sar_freq_ranges *range;
 	s8 power;
 };
-
+/*
 struct mt76_testmode_ops {
 	int (*set_state)(struct mt76_phy *phy, enum mt76_testmode_state state);
 	int (*set_params)(struct mt76_phy *phy, struct nlattr **tb,
 			  enum mt76_testmode_state new_state);
 	int (*dump_stats)(struct mt76_phy *phy, struct sk_buff *msg);
-};
+}; */
 
-struct mt76_testmode_data {
+/* struct mt76_testmode_data {
 	enum mt76_testmode_state state;
 
 	u32 param_set[DIV_ROUND_UP(NUM_MT76_TM_ATTRS, 32)];
@@ -660,7 +660,7 @@ struct mt76_testmode_data {
 		u64 packets[__MT_RXQ_MAX];
 		u64 fcs_error[__MT_RXQ_MAX];
 	} rx_stats;
-};
+}; */
 
 struct mt76_vif {
 	u8 idx;
@@ -1270,6 +1270,7 @@ void mt76_sw_scan(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
 void mt76_sw_scan_complete(struct ieee80211_hw *hw,
 			   struct ieee80211_vif *vif);
 enum mt76_dfs_state mt76_phy_dfs_state(struct mt76_phy *phy);
+/*
 int mt76_testmode_cmd(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
 		      void *data, int len);
 int mt76_testmode_dump(struct ieee80211_hw *hw, struct sk_buff *skb,
@@ -1287,7 +1288,7 @@ static inline void mt76_testmode_reset(struct mt76_phy *phy, bool disable)
 
 	mt76_testmode_set_state(phy, state);
 #endif
-}
+} */
 
 
 /* internal */

@@ -6,16 +6,34 @@
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/pci.h>
-#include <linux/of.h>
 
 #include "mt7902.h"
+//#include "mac.h"
+//#include "regs.h"
+
+#include <linux/of.h>
+
+
 #include "../mt76_connac2_mac.h"
 #include "../dma.h"
 #include "mcu.h"
 
+#define MT_WFDMA0_BASE			0xd4000
+#define MT_WFDMA0(ofs)			(MT_WFDMA0_BASE + (ofs))
+#define MT_INT_MASK_CSR			MT_WFDMA0(0x204)
+
+static LIST_HEAD(hif_list);
+static DEFINE_SPINLOCK(hif_lock); 
+static u32 hif_idx;
+
+
 static const struct pci_device_id mt7902_pci_device_table[] = {
 	{ PCI_DEVICE(PCI_VENDOR_ID_MEDIATEK, 0x7902),
 		.driver_data = (kernel_ulong_t)MT7902_FIRMWARE_WM },
+	{ },
+};
+
+static const struct pci_device_id mt7902_hif_device_table[] = {
 	{ },
 };
 
@@ -273,17 +291,14 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 	ret = pcim_iomap_regions(pdev, BIT(0), pci_name(pdev));
 	if (ret)
 		return ret;
-
+/*
 	pci_read_config_word(pdev, PCI_COMMAND, &cmd);
 	if (!(cmd & PCI_COMMAND_MEMORY)) {
 		cmd |= PCI_COMMAND_MEMORY;
 		pci_write_config_word(pdev, PCI_COMMAND, cmd);
-	}
+	} */
+	
 	pci_set_master(pdev);
-
-	ret = pci_alloc_irq_vectors(pdev, 1, 1, PCI_IRQ_ALL_TYPES);
-	if (ret < 0)
-		return ret;
 
 	ret = dma_set_mask(&pdev->dev, DMA_BIT_MASK(32));
 	if (ret)
@@ -291,6 +306,11 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 
 	if (mt7902_disable_aspm)
 		mt76_pci_disable_aspm(pdev);
+
+
+	ret = pci_alloc_irq_vectors(pdev, 1, 1, PCI_IRQ_ALL_TYPES);
+	if (ret < 0)
+		return ret;
 
 	ops = mt792x_get_mac80211_ops(&pdev->dev, &mt7902_ops,
 				      (void *)id->driver_data, &features);
@@ -330,6 +350,7 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 	bus_ops->rmw = mt7902_rmw;
 	dev->mt76.bus = bus_ops;
 
+/*
 	if (!mt7902_disable_aspm && mt76_pci_aspm_supported(pdev))
 		dev->aspm_supported = true;
 
@@ -339,7 +360,7 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 
 	ret = __mt792xe_mcu_drv_pmctrl(dev);
 	if (ret)
-		goto err_free_dev;
+		goto err_free_dev; */
 
 	chipid = mt7902_l1_rr(dev, MT_HW_CHIPID);
 	if (chipid == 0x7961 && (mt7902_l1_rr(dev, MT_HW_BOUND) & BIT(7)))
@@ -348,6 +369,7 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 		    (mt7902_l1_rr(dev, MT_HW_REV) & 0xff);
 	dev_info(mdev->dev, "ASIC revision: %04x\n", mdev->rev);
 
+/*
 	ret = mt792x_wfsys_reset(dev);
 	if (ret)
 		goto err_free_dev; 
@@ -363,14 +385,18 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 
 	ret = mt7902_dma_init(dev);
 	if (ret)
-		goto err_free_irq;
+		goto err_free_irq; */
+
+	mt76_wr(dev, MT_INT_MASK_CSR, 0);
+
 
 	ret = mt7902_register_device(dev);
 	if (ret)
 		goto err_free_irq;
 
+/*
 	if (of_property_read_bool(dev->mt76.dev->of_node, "wakeup-source"))
-		device_init_wakeup(dev->mt76.dev, true);
+		device_init_wakeup(dev->mt76.dev, true); */
 
 	return 0;
 
