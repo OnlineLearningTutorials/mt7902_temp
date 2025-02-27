@@ -25,7 +25,7 @@ void mt76x02_mac_reset_counters(struct mt76x02_dev *dev)
 	for (i = 0; i < 16; i++)
 		mt76_rr(dev, MT_TX_STAT_FIFO);
 
-	memset(dev->mphy.aggr_stats, 0, sizeof(dev->mphy.aggr_stats));
+	memset(dev->mt76.aggr_stats, 0, sizeof(dev->mt76.aggr_stats));
 }
 EXPORT_SYMBOL_GPL(mt76x02_mac_reset_counters);
 
@@ -404,7 +404,7 @@ void mt76x02_mac_write_txwi(struct mt76x02_dev *dev, struct mt76x02_txwi *txwi,
 		txwi->rate |= cpu_to_le16(MT_RXWI_RATE_LDPC);
 	if ((info->flags & IEEE80211_TX_CTL_STBC) && nss == 1)
 		txwi->rate |= cpu_to_le16(MT_RXWI_RATE_STBC);
-	if (nss > 1 && sta && sta->deflink.smps_mode == IEEE80211_SMPS_DYNAMIC)
+	if (nss > 1 && sta && sta->smps_mode == IEEE80211_SMPS_DYNAMIC)
 		txwi_flags |= MT_TXWI_FLAGS_MMPS;
 	if (!(info->flags & IEEE80211_TX_CTL_NO_ACK))
 		txwi->ack_ctl |= MT_TXWI_ACK_CTL_REQ;
@@ -412,9 +412,9 @@ void mt76x02_mac_write_txwi(struct mt76x02_dev *dev, struct mt76x02_txwi *txwi,
 		txwi->ack_ctl |= MT_TXWI_ACK_CTL_NSEQ;
 	if ((info->flags & IEEE80211_TX_CTL_AMPDU) && sta) {
 		u8 ba_size = IEEE80211_MIN_AMPDU_BUF;
-		u8 ampdu_density = sta->deflink.ht_cap.ampdu_density;
+		u8 ampdu_density = sta->ht_cap.ampdu_density;
 
-		ba_size <<= sta->deflink.ht_cap.ampdu_factor;
+		ba_size <<= sta->ht_cap.ampdu_factor;
 		ba_size = min_t(int, 63, ba_size - 1);
 		if (info->flags & IEEE80211_TX_CTL_RATE_CTRL_PROBE)
 			ba_size = 0;
@@ -631,11 +631,8 @@ void mt76x02_send_tx_status(struct mt76x02_dev *dev,
 
 	mt76_tx_status_unlock(mdev, &list);
 
-	if (!status.skb) {
-		spin_lock_bh(&dev->mt76.rx_lock);
+	if (!status.skb)
 		ieee80211_tx_status_ext(mt76_hw(dev), &status);
-		spin_unlock_bh(&dev->mt76.rx_lock);
-	}
 
 	if (!len)
 		goto out;
@@ -853,8 +850,7 @@ int mt76x02_mac_process_rx(struct mt76x02_dev *dev, struct sk_buff *skb,
 	if (WARN_ON_ONCE(len > skb->len))
 		return -EINVAL;
 
-	if (pskb_trim(skb, len))
-		return -EINVAL;
+	pskb_trim(skb, len);
 
 	status->chains = BIT(0);
 	signal = mt76x02_mac_get_rssi(dev, rxwi->rssi[0], 0);
@@ -1048,9 +1044,10 @@ static void mt76x02_check_mac_err(struct mt76x02_dev *dev)
 			return;
 		}
 
-		if (dev->beacon_hang_check < 10)
+		if (++dev->beacon_hang_check < 10)
 			return;
 
+		dev->beacon_hang_check = 0;
 	} else {
 		u32 val = mt76_rr(dev, 0x10f4);
 		if (!(val & BIT(29)) || !(val & (BIT(7) | BIT(5))))
@@ -1060,16 +1057,10 @@ static void mt76x02_check_mac_err(struct mt76x02_dev *dev)
 	dev_err(dev->mt76.dev, "MAC error detected\n");
 
 	mt76_wr(dev, MT_MAC_SYS_CTRL, 0);
-	if (!mt76x02_wait_for_txrx_idle(&dev->mt76)) {
-		dev_err(dev->mt76.dev, "MAC stop failed\n");
-		goto out;
-	}
+	mt76x02_wait_for_txrx_idle(&dev->mt76);
 
-	dev->beacon_hang_check = 0;
 	mt76_set(dev, MT_MAC_SYS_CTRL, MT_MAC_SYS_CTRL_RESET_CSR);
 	udelay(10);
-
-out:
 	mt76_wr(dev, MT_MAC_SYS_CTRL,
 		MT_MAC_SYS_CTRL_ENABLE_TX | MT_MAC_SYS_CTRL_ENABLE_RX);
 }
@@ -1195,8 +1186,8 @@ void mt76x02_mac_work(struct work_struct *work)
 	for (i = 0, idx = 0; i < 16; i++) {
 		u32 val = mt76_rr(dev, MT_TX_AGG_CNT(i));
 
-		dev->mphy.aggr_stats[idx++] += val & 0xffff;
-		dev->mphy.aggr_stats[idx++] += val >> 16;
+		dev->mt76.aggr_stats[idx++] += val & 0xffff;
+		dev->mt76.aggr_stats[idx++] += val >> 16;
 	}
 
 	mt76x02_check_mac_err(dev);

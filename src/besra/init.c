@@ -5,17 +5,10 @@
 #include <linux/hwmon.h>
 #include <linux/hwmon-sysfs.h>
 #include <linux/thermal.h>
-#include <linux/ieee80211.h>
 #include "besra.h"
 #include "mac.h"
 #include "mcu.h"
 #include "eeprom.h"
-
-#define IEEE80211_MIN_AMPDU_BUF		0x8
-#define IEEE80211_MAX_AMPDU_BUF_HT	0x40
-#define IEEE80211_MAX_AMPDU_BUF		0x100
-#define IEEE80211_HE_PHY_CAP9_NOMIMAL_PKT_PADDING_16US			0x80
-
 
 static const struct ieee80211_iface_limit if_limits[] = {
 	{

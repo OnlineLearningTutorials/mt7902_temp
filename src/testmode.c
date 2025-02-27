@@ -1,14 +1,11 @@
 // SPDX-License-Identifier: ISC
 /* Copyright (C) 2020 Felix Fietkau <nbd@nbd.name> */
-
-#include <linux/random.h>
 #include "mt76.h"
 
 const struct nla_policy mt76_tm_policy[NUM_MT76_TM_ATTRS] = {
 	[MT76_TM_ATTR_RESET] = { .type = NLA_FLAG },
 	[MT76_TM_ATTR_STATE] = { .type = NLA_U8 },
 	[MT76_TM_ATTR_TX_COUNT] = { .type = NLA_U32 },
-	[MT76_TM_ATTR_TX_LENGTH] = { .type = NLA_U32 },
 	[MT76_TM_ATTR_TX_RATE_MODE] = { .type = NLA_U8 },
 	[MT76_TM_ATTR_TX_RATE_NSS] = { .type = NLA_U8 },
 	[MT76_TM_ATTR_TX_RATE_IDX] = { .type = NLA_U8 },
@@ -53,8 +50,8 @@ void mt76_testmode_tx_pending(struct mt76_phy *phy)
 	       q->queued < q->ndesc / 2) {
 		int ret;
 
-		ret = dev->queue_ops->tx_queue_skb(phy, q, qid, skb_get(skb),
-						   wcid, NULL);
+		ret = dev->queue_ops->tx_queue_skb(dev, q, skb_get(skb), wcid,
+						   NULL);
 		if (ret < 0)
 			break;
 
@@ -104,6 +101,7 @@ int mt76_testmode_alloc_skb(struct mt76_phy *phy, u32 len)
 	u16 fc = IEEE80211_FTYPE_DATA | IEEE80211_STYPE_DATA |
 		 IEEE80211_FCTL_FROMDS;
 	struct mt76_testmode_data *td = &phy->test;
+	u8 phy_idx = mt76_get_phy_id(phy);
 	struct sk_buff **frag_tail, *head;
 	struct ieee80211_tx_info *info;
 	struct ieee80211_hdr *hdr;
@@ -126,21 +124,20 @@ int mt76_testmode_alloc_skb(struct mt76_phy *phy, u32 len)
 	if (!head)
 		return -ENOMEM;
 
-	hdr = __skb_put_zero(head, sizeof(*hdr));
+	hdr = __skb_put_zero(head, head_len);
 	hdr->frame_control = cpu_to_le16(fc);
 	memcpy(hdr->addr1, td->addr[0], ETH_ALEN);
 	memcpy(hdr->addr2, td->addr[1], ETH_ALEN);
 	memcpy(hdr->addr3, td->addr[2], ETH_ALEN);
 	skb_set_queue_mapping(head, IEEE80211_AC_BE);
-	get_random_bytes(__skb_put(head, head_len - sizeof(*hdr)),
-			 head_len - sizeof(*hdr));
 
 	info = IEEE80211_SKB_CB(head);
 	info->flags = IEEE80211_TX_CTL_INJECTED |
 		      IEEE80211_TX_CTL_NO_ACK |
 		      IEEE80211_TX_CTL_NO_PS_BUFFER;
 
-	info->hw_queue |= FIELD_PREP(MT_TX_HW_QUEUE_PHY, phy->band_idx);
+	info->hw_queue |= FIELD_PREP(MT_TX_HW_QUEUE_PHY, phy_idx);
+
 	frag_tail = &skb_shinfo(head)->frag_list;
 
 	for (i = 0; i < nfrags; i++) {
@@ -159,7 +156,7 @@ int mt76_testmode_alloc_skb(struct mt76_phy *phy, u32 len)
 			return -ENOMEM;
 		}
 
-		get_random_bytes(__skb_put(frag, frag_len), frag_len);
+		__skb_put_zero(frag, frag_len);
 		head->len += frag->len;
 		head->data_len += frag->len;
 
