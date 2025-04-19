@@ -17,7 +17,7 @@
 #define MT_RXD0_SW_PKT_TYPE_MASK	GENMASK(31, 16)
 #define MT_RXD0_SW_PKT_TYPE_MAP		0x380F
 #define MT_RXD0_SW_PKT_TYPE_FRAME	0x3801
-
+/*
 enum rx_pkt_type {
 	PKT_TYPE_TXS,
 	PKT_TYPE_TXRXV,
@@ -28,7 +28,7 @@ enum rx_pkt_type {
 	PKT_TYPE_TXRX_NOTIFY,
 	PKT_TYPE_RX_EVENT,
 	PKT_TYPE_RX_FW_MONITOR = 0x0c,
-};
+}; */
 
 /* RXD DW1 */
 #define MT_RXD1_NORMAL_WLAN_IDX		GENMASK(11, 0)

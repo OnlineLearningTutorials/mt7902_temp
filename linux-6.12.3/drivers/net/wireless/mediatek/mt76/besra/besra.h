@@ -361,7 +361,7 @@ besra_hw_dev(struct ieee80211_hw *hw)
 
 	return container_of(phy->dev, struct besra_dev, mt76);
 }
-
+/*
 static inline struct besra_phy *
 besra_ext_phy(struct besra_dev *dev)
 {
@@ -394,7 +394,7 @@ besra_get_phy_id(struct besra_phy *phy)
 		return MT_EXT_PHY;
 
 	return MT_TRI_PHY;
-}
+} */
 
 extern const struct ieee80211_ops besra_ops;
 extern const struct mt76_testmode_ops besra_testmode_ops;

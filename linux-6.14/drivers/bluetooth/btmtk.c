@@ -1381,6 +1381,53 @@ int btmtk_usb_setup(struct hci_dev *hdev)
 		}
 
 		goto done;
+	case 0x7902:
+		if (!test_bit(BTMTK_FIRMWARE_LOADED, &btmtk_data->flags))
+			btmtk_usb_subsys_reset(hdev, dev_id);
+
+		btmtk_fw_get_filename(fw_bin_name, sizeof(fw_bin_name), dev_id,
+				      fw_version, fw_flavor);
+
+		err = btmtk_setup_firmware_79xx(hdev, fw_bin_name,
+						btmtk_usb_hci_wmt_sync);
+		if (err < 0) {
+			bt_dev_err(hdev, "Failed to set up firmware (%d)", err);
+			clear_bit(BTMTK_FIRMWARE_LOADED, &btmtk_data->flags);
+			return err;
+		}
+
+		set_bit(BTMTK_FIRMWARE_LOADED, &btmtk_data->flags);
+
+		/* It's Device EndPoint Reset Option Register */
+		err = btmtk_usb_uhw_reg_write(hdev, MTK_EP_RST_OPT,
+					      MTK_EP_RST_IN_OUT_OPT);
+		if (err < 0)
+			return err;
+
+		/* Enable Bluetooth protocol */
+		param = 1;
+		wmt_params.op = BTMTK_WMT_FUNC_CTRL;
+		wmt_params.flag = 0;
+		wmt_params.dlen = sizeof(param);
+		wmt_params.data = &param;
+		wmt_params.status = NULL;
+
+		err = btmtk_usb_hci_wmt_sync(hdev, &wmt_params);
+		if (err < 0) {
+			bt_dev_err(hdev, "Failed to send wmt func ctrl (%d)", err);
+			return err;
+		}
+
+		hci_set_msft_opcode(hdev, 0xFD30);
+		hci_set_aosp_capable(hdev);
+
+		/* Set up ISO interface after protocol enabled */
+		if (test_bit(BTMTK_ISOPKT_OVER_INTR, &btmtk_data->flags)) {
+			if (!btmtk_usb_isointf_init(hdev))
+				set_bit(BTMTK_ISOPKT_RUNNING, &btmtk_data->flags);
+		}
+
+		goto done;
 	default:
 		bt_dev_err(hdev, "Unsupported hardware variant (%08x)",
 			   dev_id);
