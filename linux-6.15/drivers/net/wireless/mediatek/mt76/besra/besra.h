@@ -9,6 +9,11 @@
 #include "../mt76_connac.h"
 #include "regs.h"
 
+static inline bool is_mt7902(struct mt76_dev *dev)
+{
+	return mt76_chip(dev) == 0x7902;
+}
+
 #define BESRA_MAX_INTERFACES		19
 #define BESRA_MAX_WMM_SETS		4
 #define BESRA_WTBL_SIZE			544
@@ -127,7 +132,7 @@ struct besra_vif_cap {
 };
 
 struct besra_vif {
-	struct mt76_vif mt76; /* must be first */
+	struct mt76_vif_link mt76; /* must be first */
 
 	struct besra_vif_cap cap;
 	struct besra_sta sta;
@@ -365,7 +370,7 @@ besra_hw_dev(struct ieee80211_hw *hw)
 static inline struct besra_phy *
 besra_ext_phy(struct besra_dev *dev)
 {
-	struct mt76_phy *phy = dev->mt76.phy2;
+	struct mt76_phy *phy = dev->mt76.phys[2];
 
 	if (!phy)
 		return NULL;
@@ -376,7 +381,7 @@ besra_ext_phy(struct besra_dev *dev)
 static inline struct besra_phy *
 besra_tri_phy(struct besra_dev *dev)
 {
-	struct mt76_phy *phy = dev->mt76.phy3;
+	struct mt76_phy *phy = dev->mt76.phys[3];
 
 	if (!phy)
 		return NULL;
@@ -388,12 +393,12 @@ static inline u8
 besra_get_phy_id(struct besra_phy *phy)
 {
 	if (phy->mt76 == &phy->dev->mphy)
-		return MT_MAIN_PHY;
+		return MT_BAND0;
 
-	if (phy->mt76 == phy->dev->mt76.phy2)
-		return MT_EXT_PHY;
+	if (phy->mt76 == phy->dev->mt76.phys[1])
+		return MT_BAND1;
 
-	return MT_TRI_PHY;
+	return MT_BAND2;
 }
 
 extern const struct ieee80211_ops besra_ops;

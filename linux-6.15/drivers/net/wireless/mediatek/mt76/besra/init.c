@@ -203,7 +203,7 @@ static int besra_thermal_init(struct besra_phy *phy)
 	return besra_mcu_set_thermal_throttling(phy,
 						 BESRA_THERMAL_THROTTLE_MAX);
 }
-
+/*
 static void besra_led_set_config(struct led_classdev *led_cdev,
 				  u8 delay_on, u8 delay_off)
 {
@@ -214,21 +214,21 @@ static void besra_led_set_config(struct led_classdev *led_cdev,
 	mt76 = container_of(led_cdev, struct mt76_dev, led_cdev);
 	dev = container_of(mt76, struct besra_dev, mt76);
 
-	/* select TX blink mode, 2: only data frames */
+	/* select TX blink mode, 2: only data frames * /
 	mt76_rmw_field(dev, MT_TMAC_TCR0(0), MT_TMAC_TCR0_TX_BLINK, 2);
 
-	/* enable LED */
+	/* enable LED * /
 	mt76_wr(dev, MT_LED_EN(0), 1);
 
-	/* set LED Tx blink on/off time */
+	/* set LED Tx blink on/off time * /
 	val = FIELD_PREP(MT_LED_TX_BLINK_ON_MASK, delay_on) |
 	      FIELD_PREP(MT_LED_TX_BLINK_OFF_MASK, delay_off);
 	mt76_wr(dev, MT_LED_TX_BLINK(0), val);
 
-	/* control LED */
+	/* control LED * /
 	val = MT_LED_CTRL_BLINK_MODE | MT_LED_CTRL_KICK;
-	if (dev->mt76.led_al)
-		val |= MT_LED_CTRL_POLARITY;
+	/*if (dev->mt76.led_al)
+		val |= MT_LED_CTRL_POLARITY; * /
 
 	mt76_wr(dev, MT_LED_CTRL(0), val);
 	mt76_clear(dev, MT_LED_CTRL(0), MT_LED_CTRL_KICK);
@@ -261,6 +261,8 @@ static void besra_led_set_brightness(struct led_classdev *led_cdev,
 	else
 		besra_led_set_config(led_cdev, 0xff, 0);
 }
+*/
+
 
 static void
 besra_init_txpower(struct besra_dev *dev,
@@ -325,8 +327,8 @@ besra_init_wiphy(struct ieee80211_hw *hw)
 	struct wiphy *wiphy = hw->wiphy;
 
 	hw->queues = 4;
-	hw->max_rx_aggregation_subframes = IEEE80211_MAX_AMPDU_BUF;
-	hw->max_tx_aggregation_subframes = IEEE80211_MAX_AMPDU_BUF;
+	hw->max_rx_aggregation_subframes = IEEE80211_MAX_AMPDU_BUF_HE;
+	hw->max_tx_aggregation_subframes = IEEE80211_MAX_AMPDU_BUF_HE;
 	hw->netdev_features = NETIF_F_RXCSUM;
 
 	hw->radiotap_timestamp.units_pos =
@@ -447,12 +449,12 @@ static void besra_mac_init(struct besra_dev *dev)
 				       MT_WTBL_UPDATE_ADM_COUNT_CLEAR);
 	/* TODO: to be checked which are necessary */
 	/* for (i = 0; i < __MT_MAX_BAND; i++) */
-	/* 	besra_mac_init_band(dev, i); */
+	/* 	besra_mac_init_band(dev, i); * /
 
 	if (IS_ENABLED(CONFIG_MT76_LEDS)) {
 		i = dev->mt76.led_pin ? MT_LED_GPIO_MUX3 : MT_LED_GPIO_MUX2;
 		mt76_rmw_field(dev, i, MT_LED_GPIO_SEL_MASK, 4);
-	}
+	} */
 }
 
 static int besra_txbf_init(struct besra_dev *dev)
@@ -494,7 +496,7 @@ static int besra_register_ext_phy(struct besra_dev *dev)
 	phy->dev = dev;
 	phy->mt76 = mphy;
 	phy->band_idx = MT_BAND1;
-	mphy->dev->phy2 = mphy;
+	mphy->dev->phys[1] = mphy;
 
 	INIT_DELAYED_WORK(&mphy->mac_work, besra_mac_work);
 
@@ -537,7 +539,7 @@ static int besra_register_ext_phy(struct besra_dev *dev)
 	return 0;
 
 error:
-	mphy->dev->phy2 = NULL;
+	mphy->dev->phys[1] = NULL;
 	ieee80211_free_hw(mphy->hw);
 	return ret;
 }
@@ -562,7 +564,7 @@ static int besra_register_tri_phy(struct besra_dev *dev)
 	phy->dev = dev;
 	phy->mt76 = mphy;
 	phy->band_idx = MT_BAND2;
-	mphy->dev->phy3 = mphy;
+	mphy->dev->phys[2] = mphy;
 
 	INIT_DELAYED_WORK(&mphy->mac_work, besra_mac_work);
 
@@ -604,7 +606,7 @@ static int besra_register_tri_phy(struct besra_dev *dev)
 	return 0;
 
 error:
-	mphy->dev->phy3 = NULL;
+	mphy->dev->phys[2] = NULL;
 	ieee80211_free_hw(mphy->hw);
 	return ret;
 }
@@ -960,7 +962,7 @@ besra_init_he_caps(struct besra_phy *phy, enum nl80211_band band,
 			besra_gen_ppe_thresh(he_cap->ppe_thres, nss);
 		} else {
 			he_cap_elem->phy_cap_info[9] |=
-				IEEE80211_HE_PHY_CAP9_NOMIMAL_PKT_PADDING_16US;
+				IEEE80211_HE_PHY_CAP9_NOMINAL_PKT_PADDING_16US;
 		}
 
 		if (band == NL80211_BAND_6GHZ) {
@@ -1020,7 +1022,7 @@ void besra_set_stream_he_caps(struct besra_phy *phy)
 static void besra_unregister_ext_phy(struct besra_dev *dev)
 {
 	struct besra_phy *phy = besra_ext_phy(dev);
-	struct mt76_phy *mphy = dev->mt76.phy2;
+	struct mt76_phy *mphy = dev->mt76.phys[1];
 
 	if (!phy)
 		return;
@@ -1028,13 +1030,13 @@ static void besra_unregister_ext_phy(struct besra_dev *dev)
 	besra_unregister_thermal(phy);
 	mt76_unregister_phy(mphy);
 	ieee80211_free_hw(mphy->hw);
-	dev->mt76.phy2 = NULL;
+	dev->mt76.phys[1] = NULL;
 }
 
 static void besra_unregister_tri_phy(struct besra_dev *dev)
 {
 	struct besra_phy *phy = besra_tri_phy(dev);
-	struct mt76_phy *mphy = dev->mt76.phy3;
+	struct mt76_phy *mphy = dev->mt76.phys[2];
 
 	if (!phy)
 		return;
@@ -1042,7 +1044,7 @@ static void besra_unregister_tri_phy(struct besra_dev *dev)
 	besra_unregister_thermal(phy);
 	mt76_unregister_phy(mphy);
 	ieee80211_free_hw(mphy->hw);
-	dev->mt76.phy3 = NULL;
+	dev->mt76.phys[2] = NULL;
 }
 
 int besra_register_device(struct besra_dev *dev)
@@ -1073,11 +1075,11 @@ int besra_register_device(struct besra_dev *dev)
 	dev->mt76.test_ops = &besra_testmode_ops;
 #endif
 
-	/* init led callbacks */
+	/* init led callbacks * /
 	if (IS_ENABLED(CONFIG_MT76_LEDS)) {
 		dev->mt76.led_cdev.brightness_set = besra_led_set_brightness;
 		dev->mt76.led_cdev.blink_set = besra_led_set_blink;
-	}
+	} */
 
 	ret = mt76_register_device(&dev->mt76, true, mt76_rates,
 				   ARRAY_SIZE(mt76_rates));

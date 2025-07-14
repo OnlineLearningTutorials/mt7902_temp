@@ -294,8 +294,7 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 	if (ret)
 		goto err_free_pci_vec;
 
-	if (mt7902_disable_aspm)
-		mt76_pci_disable_aspm(pdev);
+	mt76_pci_disable_aspm(pdev);
 
 	ops = mt792x_get_mac80211_ops(&pdev->dev, &mt7902_ops,
 				      (void *)id->driver_data, &features);
@@ -357,10 +356,26 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 	if (ret)
 		goto err_free_dev;
 
-	mt76_wr(dev, irq_map.host_irq_enable, 0);
+	mt76_wr(dev, MT_INT_MASK_CSR, 0);
 
 	mt76_wr(dev, MT_PCIE_MAC_INT_ENABLE, 0xff);
+/*
+		if (hif2) {
+		dev->hif2 = hif2;
 
+		mt76_wr(dev, MT_INT1_MASK_CSR, 0);
+		/* master switch of PCIe tnterrupt enable * /
+		mt76_wr(dev, MT_PCIE1_MAC_INT_ENABLE, 0xff);
+
+		ret = devm_request_irq(mdev->dev, dev->hif2->irq,
+				       besra_irq_handler, IRQF_SHARED,
+				       KBUILD_MODNAME "-hif", dev);
+		if (ret)
+			goto free_hif2;
+	}
+*/
+
+	/*
 	ret = devm_request_irq(mdev->dev, pdev->irq, mt792x_irq_handler,
 			       IRQF_SHARED, KBUILD_MODNAME, dev);
 	if (ret)
@@ -369,7 +384,8 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 	ret = mt7902_dma_init(dev);
 	if (ret)
 		goto err_free_irq;
-
+*/
+	
 	ret = mt7902_register_device(dev);
 	if (ret)
 		goto err_free_irq;

@@ -10,6 +10,17 @@
 #define MT7902_FIRMWARE_WM	"mediatek/WIFI_RAM_CODE_MT7902_1.bin"
 #define MT7902_ROM_PATCH	"mediatek/WIFI_MT7902_patch_mcu_1_2_hdr.bin"
 
+/* WFDMA0 */
+#define MT_WFDMA0_BASE			0xd4000
+#define MT_WFDMA0(ofs)			(MT_WFDMA0_BASE + (ofs))
+
+#define MT_INT_SOURCE_CSR		MT_WFDMA0(0x200)
+#define MT_INT_MASK_CSR			MT_WFDMA0(0x204)
+
+#define MT_INT1_SOURCE_CSR		MT_WFDMA0_PCIE1(0x200)
+#define MT_INT1_MASK_CSR		MT_WFDMA0_PCIE1(0x204)
+
+
 
 #define MT7902_TX_RING_SIZE		2048
 #define MT7902_TX_MCU_RING_SIZE		256
