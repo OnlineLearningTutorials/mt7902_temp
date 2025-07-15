@@ -549,7 +549,7 @@ int besra_tx_prepare_skb(struct mt76_dev *mdev, void *txwi_ptr,
 			  struct mt76_tx_info *tx_info);
 void besra_tx_complete_skb(struct mt76_dev *mdev, struct mt76_queue_entry *e);
 void besra_tx_token_put(struct besra_dev *dev);
-int besra_init_tx_queues(struct besra_phy *phy, int idx, int n_desc, int ring_base);
+int besra_init_tx_queues(struct besra_phy *phy, int idx, int n_desc, int ring_base,  void *wed, u32 flags);
 void besra_queue_rx_skb(struct mt76_dev *mdev, enum mt76_rxq_id q,
 			 struct sk_buff *skb);
 bool besra_rx_check(struct mt76_dev *mdev, enum mt76_rxq_id q, void *data, int len);

@@ -7,6 +7,13 @@
 #include "../mt792x.h"
 #include "regs.h"
 
+static inline bool is_mt7902(struct mt76_dev *dev)
+{
+	return mt76_chip(dev) == 0x7902;
+}
+int mt7902_wfsys_reset(struct mt792x_dev *dev);
+
+
 #define MT7902_FIRMWARE_WM	"mediatek/WIFI_RAM_CODE_MT7902_1.bin"
 #define MT7902_ROM_PATCH	"mediatek/WIFI_MT7902_patch_mcu_1_2_hdr.bin"
 
@@ -30,7 +37,7 @@
 #define MT7902_RX_MCU_RING_SIZE		8
 #define MT7902_RX_MCU_WA_RING_SIZE	512
 
-#define MT7902_EEPROM_SIZE		3584
+#define MT7902_EEPROM_SIZE		4096
 #define MT7902_TOKEN_SIZE		8192
 
 #define MT7902_EEPROM_BLOCK_SIZE	16

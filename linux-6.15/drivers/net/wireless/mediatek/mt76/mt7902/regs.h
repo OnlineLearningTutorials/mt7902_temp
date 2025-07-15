@@ -6,7 +6,19 @@
 
 #include "../mt792x_regs.h"
 
-#define MT_MDP_BASE			0x820cd000
+/* TMAC: band 0(0x820e4000), band 1(0x820f4000), band 3(0x830e4000) */
+/* WF DMA TOP: band 0(0x820e7000),band 1(0x820f7000),band 3(0x830e7000) */
+/* ETBF: band 0(0x820ea000), band 1(0x820fa000), band 3(0x830ea000) */
+/* LPON: band 0(0x820eb000), band 1(0x820fb000), band 3(0x830eb000) */
+/* MIB: band 0(0x820ed000), band 1(0x820fd000) band 3(0x830ed000)*/
+/* These counters are (mostly?) clear-on-read.  So, some should not
+ * be read at all in case firmware is already reading them.  These
+ * are commented with 'DNR' below.  The DNR stats will be read by querying
+ * the firmware API for the appropriate message.  For counters the driver
+ * does read, the driver should accumulate the counters.
+ */
+
+#define MT_MDP_BASE			0x820cc000
 #define MT_MDP(ofs)			(MT_MDP_BASE + (ofs))
 
 #define MT_MDP_DCR0			MT_MDP(0x000)
@@ -16,12 +28,12 @@
 #define MT_MDP_DCR1			MT_MDP(0x004)
 #define MT_MDP_DCR1_MAX_RX_LEN		GENMASK(15, 3)
 
-#define MT_MDP_BNRCFR0(_band)		MT_MDP(0x070 + ((_band) << 8))
+#define MT_MDP_BNRCFR0(_band)		MT_MDP(0x090 + ((_band) << 8))
 #define MT_MDP_RCFR0_MCU_RX_MGMT	GENMASK(5, 4)
 #define MT_MDP_RCFR0_MCU_RX_CTL_NON_BAR	GENMASK(7, 6)
 #define MT_MDP_RCFR0_MCU_RX_CTL_BAR	GENMASK(9, 8)
 
-#define MT_MDP_BNRCFR1(_band)		MT_MDP(0x074 + ((_band) << 8))
+#define MT_MDP_BNRCFR1(_band)		MT_MDP(0x094 + ((_band) << 8))
 #define MT_MDP_RCFR1_MCU_RX_BYPASS	GENMASK(23, 22)
 #define MT_MDP_RCFR1_RX_DROPPED_UCAST	GENMASK(28, 27)
 #define MT_MDP_RCFR1_RX_DROPPED_MCAST	GENMASK(30, 29)
@@ -63,7 +75,7 @@
 #define MT_INFRA_CFG_BASE		0xfe000
 #define MT_INFRA(ofs)			(MT_INFRA_CFG_BASE + (ofs))
 
-#define MT_HIF_REMAP_L1			MT_INFRA(0x24c)
+#define MT_HIF_REMAP_L1			0xfe418
 #define MT_HIF_REMAP_L1_MASK		GENMASK(15, 0)
 #define MT_HIF_REMAP_L1_OFFSET		GENMASK(15, 0)
 #define MT_HIF_REMAP_L1_BASE		GENMASK(31, 16)

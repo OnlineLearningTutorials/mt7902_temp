@@ -286,10 +286,6 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 	}
 	pci_set_master(pdev);
 
-	ret = pci_alloc_irq_vectors(pdev, 1, 1, PCI_IRQ_ALL_TYPES);
-	if (ret < 0)
-		return ret;
-
 	ret = dma_set_mask(&pdev->dev, DMA_BIT_MASK(32));
 	if (ret)
 		goto err_free_pci_vec;
@@ -334,9 +330,11 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 	bus_ops->rmw = mt7902_rmw;
 	dev->mt76.bus = bus_ops;
 
+
+
 	if (!mt7902_disable_aspm && mt76_pci_aspm_supported(pdev))
 		dev->aspm_supported = true;
-
+/*
 	ret = mt792xe_mcu_fw_pmctrl(dev);
 	if (ret)
 		goto err_free_dev;
@@ -344,17 +342,22 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 	ret = __mt792xe_mcu_drv_pmctrl(dev);
 	if (ret)
 		goto err_free_dev;
-
+*/
 	chipid = mt7902_l1_rr(dev, MT_HW_CHIPID);
-	if (chipid == 0x7961 && (mt7902_l1_rr(dev, MT_HW_BOUND) & BIT(7)))
-		chipid = 0x7920;
+	
 	mdev->rev = (chipid << 16) |
 		    (mt7902_l1_rr(dev, MT_HW_REV) & 0xff);
 	dev_info(mdev->dev, "ASIC revision: %04x\n", mdev->rev);
 
-	ret = mt792x_wfsys_reset(dev);
+	ret = mt7902_wfsys_reset(dev);
 	if (ret)
 		goto err_free_dev;
+
+
+	ret = pci_alloc_irq_vectors(pdev, 1, 1, PCI_IRQ_ALL_TYPES);
+	if (ret < 0)
+		return ret;
+
 
 	mt76_wr(dev, MT_INT_MASK_CSR, 0);
 
@@ -375,7 +378,7 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 	}
 */
 
-	/*
+	
 	ret = devm_request_irq(mdev->dev, pdev->irq, mt792x_irq_handler,
 			       IRQF_SHARED, KBUILD_MODNAME, dev);
 	if (ret)
@@ -384,7 +387,7 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 	ret = mt7902_dma_init(dev);
 	if (ret)
 		goto err_free_irq;
-*/
+
 	
 	ret = mt7902_register_device(dev);
 	if (ret)
@@ -403,6 +406,21 @@ err_free_pci_vec:
 	pci_free_irq_vectors(pdev);
 
 	return ret;
+}
+
+int mt7902_wfsys_reset(struct mt792x_dev *dev)
+{
+	u32 addr = is_mt7902(&dev->mt76) ? 0x18000140 : 0x7c000140;
+
+	mt76_clear(dev, addr, WFSYS_SW_RST_B);
+	msleep(50);
+	mt76_set(dev, addr, WFSYS_SW_RST_B);
+
+	if (!__mt76_poll_msec(&dev->mt76, addr, WFSYS_SW_INIT_DONE,
+			      WFSYS_SW_INIT_DONE, 500))
+		return -ETIMEDOUT;
+
+	return 0;
 }
 
 static void mt7902_pci_remove(struct pci_dev *pdev)

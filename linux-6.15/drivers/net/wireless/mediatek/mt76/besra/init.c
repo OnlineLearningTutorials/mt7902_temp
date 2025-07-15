@@ -475,7 +475,7 @@ static int besra_txbf_init(struct besra_dev *dev)
 	/* enable eBF */
 	return besra_mcu_set_txbf(dev, MT_BF_TYPE_UPDATE);
 }
-
+/*
 static int besra_register_ext_phy(struct besra_dev *dev)
 {
 	struct besra_phy *phy = besra_ext_phy(dev);
@@ -506,7 +506,7 @@ static int besra_register_ext_phy(struct besra_dev *dev)
 	       ETH_ALEN);
 	/* Make the secondary PHY MAC address local without overlapping with
 	 * the usual MAC address allocation scheme on multiple virtual interfaces
-	 */
+	 * /
 	if (!is_valid_ether_addr(mphy->macaddr)) {
 		memcpy(mphy->macaddr, dev->mt76.eeprom.data + MT_EE_MAC_ADDR,
 		       ETH_ALEN);
@@ -515,11 +515,11 @@ static int besra_register_ext_phy(struct besra_dev *dev)
 	}
 	mt76_eeprom_override(mphy);
 
-	/* init wiphy according to mphy and phy */
+	/* init wiphy according to mphy and phy * /
 	besra_init_wiphy(mphy->hw);
 	ret = besra_init_tx_queues(phy, MT_TXQ_ID(phy->band_idx),
 				    BESRA_TX_RING_SIZE,
-				    MT_TXQ_RING_BASE(1));
+				    MT_TXQ_RING_BASE(1), wed, flags);
 	if (ret)
 		goto error;
 
@@ -543,7 +543,7 @@ error:
 	ieee80211_free_hw(mphy->hw);
 	return ret;
 }
-
+/*
 static int besra_register_tri_phy(struct besra_dev *dev)
 {
 	struct besra_phy *phy = besra_tri_phy(dev);
@@ -572,7 +572,7 @@ static int besra_register_tri_phy(struct besra_dev *dev)
 
 	/* Make the secondary PHY MAC address local without overlapping with
 	 * the usual MAC address allocation scheme on multiple virtual interfaces
-	 */
+	 * /
 	if (!is_valid_ether_addr(mphy->macaddr)) {
 		memcpy(mphy->macaddr, dev->mt76.eeprom.data + MT_EE_MAC_ADDR,
 		       ETH_ALEN);
@@ -582,11 +582,11 @@ static int besra_register_tri_phy(struct besra_dev *dev)
 	}
 	mt76_eeprom_override(mphy);
 
-	/* init wiphy according to mphy and phy */
+	/* init wiphy according to mphy and phy * /
 	besra_init_wiphy(mphy->hw);
 	ret = besra_init_tx_queues(phy, MT_TXQ_ID(phy->band_idx),
 				    BESRA_TX_RING_SIZE,
-				    MT_TXQ_RING_BASE(2));
+				    MT_TXQ_RING_BASE(2), wed, flags);
 	if (ret)
 		goto error;
 
@@ -609,7 +609,7 @@ error:
 	mphy->dev->phys[2] = NULL;
 	ieee80211_free_hw(mphy->hw);
 	return ret;
-}
+} */
 
 static void besra_init_work(struct work_struct *work)
 {
@@ -1091,7 +1091,7 @@ int besra_register_device(struct besra_dev *dev)
 		return ret;
 
 	ieee80211_queue_work(mt76_hw(dev), &dev->init_work);
-
+/*
 	ret = besra_register_ext_phy(dev);
 	if (ret)
 		return ret;
@@ -1099,7 +1099,7 @@ int besra_register_device(struct besra_dev *dev)
 	ret = besra_register_tri_phy(dev);
 	if (ret)
 		return ret;
-
+*/
 	return besra_init_debugfs(&dev->phy);
 }
 
