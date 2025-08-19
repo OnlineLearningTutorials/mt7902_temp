@@ -111,8 +111,8 @@ struct mt7902_sdio_intr {
 enum mt7902_txq_id {
 	mt7902_TXQ_BAND0,
 	mt7902_TXQ_BAND1,
-	mt7902_TXQ_FWDL,
-	mt7902_TXQ_MCU_WM=15,
+	mt7902_TXQ_FWDL=16,
+	mt7902_TXQ_MCU_WM,
 };
 
 enum mt7902_rxq_id {

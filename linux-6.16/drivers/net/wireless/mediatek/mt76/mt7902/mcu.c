@@ -641,6 +641,8 @@ int mt7902_firmware_state(struct mt792x_dev *dev, bool wa)
 	u32 state = FIELD_PREP(MT_TOP_MISC_FW_STATE,
 			       wa ? FW_STATE_RDY : FW_STATE_FW_DOWNLOAD);
 
+	printk(KERN_DEBUG "m_mcu.c - mt7902_firmware_state - state : %u", state);
+
 	if (!mt76_poll_msec(dev, MT_TOP_MISC, MT_TOP_MISC_FW_STATE,
 			    state, 1000)) {
 		dev_err(dev->mt76.dev, "Timeout for initializing firmware\n");
@@ -651,6 +653,7 @@ int mt7902_firmware_state(struct mt792x_dev *dev, bool wa)
 
 int mt7902_load_firmware(struct mt792x_dev *dev)
 {
+	printk(KERN_DEBUG "m_mcu.c - mt7902_load_firmware");
 	int ret;
     
     /* make sure fw is download state */
@@ -665,6 +668,7 @@ int mt7902_load_firmware(struct mt792x_dev *dev)
 		}
 	}
 
+	printk(KERN_DEBUG "m_mcu.c - mt7902_load_firmware - patch");
 	ret = mt76_connac2_load_patch(&dev->mt76, mt792x_patch_name(dev));
 	if (ret)
 		return ret;
@@ -676,6 +680,7 @@ int mt7902_load_firmware(struct mt792x_dev *dev)
 			ret = __mt792x_mcu_drv_pmctrl(dev);
 	}
 
+	printk(KERN_DEBUG "m_mcu.c - mt7902_load_firmware - ram");
 	ret = mt76_connac2_load_ram(&dev->mt76, mt792x_ram_name(dev), NULL);
 	if (ret)
 		return ret;
