@@ -7,8 +7,8 @@
 #include "../mt792x.h"
 #include "regs.h"
 
-#define MT7902_FIRMWARE_WM	"mediatek/WIFI_RAM_CODE_MT7902_1.bin"
-#define MT7902_ROM_PATCH	"mediatek/WIFI_MT7902_patch_mcu_1_2_hdr.bin"
+//#define MT7902_FIRMWARE_WM	"mediatek/WIFI_RAM_CODE_MT7902_1.bin"
+//#define MT7902_ROM_PATCH	"mediatek/WIFI_MT7902_patch_mcu_1_2_hdr.bin"
 
 
 #define mt7902_TX_RING_SIZE		2048
@@ -111,8 +111,8 @@ struct mt7902_sdio_intr {
 enum mt7902_txq_id {
 	mt7902_TXQ_BAND0,
 	mt7902_TXQ_BAND1,
-	mt7902_TXQ_FWDL = 16,
-	mt7902_TXQ_MCU_WM,
+	mt7902_TXQ_FWDL,
+	mt7902_TXQ_MCU_WM=15,
 };
 
 enum mt7902_rxq_id {
@@ -188,6 +188,9 @@ struct mt7902_txpwr {
 extern const struct ieee80211_ops mt7902_ops;
 
 u32 mt7902_reg_map(struct mt792x_dev *dev, u32 addr);
+
+int mt7902_firmware_state(struct mt792x_dev *dev, bool wa);
+int mt7902_load_firmware(struct mt792x_dev *dev);
 
 int __mt7902_start(struct mt792x_phy *phy);
 int mt7902_register_device(struct mt792x_dev *dev);
