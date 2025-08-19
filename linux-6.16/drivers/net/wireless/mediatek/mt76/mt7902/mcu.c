@@ -701,7 +701,7 @@ int mt7902_run_firmware(struct mt792x_dev *dev)
 {
 	int err;
 
-	err = mt792x_load_firmware(dev);
+	err = mt7902_load_firmware(dev);
 	if (err)
 		return err;
 
