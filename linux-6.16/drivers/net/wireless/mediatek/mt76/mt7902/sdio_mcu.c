@@ -6,18 +6,18 @@
 #include <linux/module.h>
 #include <linux/iopoll.h>
 
-#include "mt7921.h"
+#include "mt7902.h"
 #include "../sdio.h"
 #include "../mt76_connac2_mac.h"
 #include "mcu.h"
 #include "regs.h"
 
 static int
-mt7921s_mcu_send_message(struct mt76_dev *mdev, struct sk_buff *skb,
+mt7902s_mcu_send_message(struct mt76_dev *mdev, struct sk_buff *skb,
 			 int cmd, int *seq)
 {
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
-	enum mt7921_sdio_pkt_type type = MT7921_SDIO_CMD;
+	enum mt7902_sdio_pkt_type type = mt7902_SDIO_CMD;
 	enum mt76_mcuq_id txq = MT_MCUQ_WM;
 	int ret, pad;
 
@@ -36,7 +36,7 @@ mt7921s_mcu_send_message(struct mt76_dev *mdev, struct sk_buff *skb,
 	mdev->mcu.timeout = 3 * HZ;
 
 	if (cmd == MCU_CMD(FW_SCATTER))
-		type = MT7921_SDIO_FWDL;
+		type = mt7902_SDIO_FWDL;
 
 	mt792x_skb_add_usb_sdio_hdr(dev, skb, type);
 	pad = round_up(skb->len, 4) - skb->len;
@@ -51,14 +51,14 @@ mt7921s_mcu_send_message(struct mt76_dev *mdev, struct sk_buff *skb,
 	return ret;
 }
 
-static u32 mt7921s_read_rm3r(struct mt792x_dev *dev)
+static u32 mt7902s_read_rm3r(struct mt792x_dev *dev)
 {
 	struct mt76_sdio *sdio = &dev->mt76.sdio;
 
 	return sdio_readl(sdio->func, MCR_D2HRM3R, NULL);
 }
 
-static u32 mt7921s_clear_rm3r_drv_own(struct mt792x_dev *dev)
+static u32 mt7902s_clear_rm3r_drv_own(struct mt792x_dev *dev)
 {
 	struct mt76_sdio *sdio = &dev->mt76.sdio;
 	u32 val;
@@ -71,24 +71,24 @@ static u32 mt7921s_clear_rm3r_drv_own(struct mt792x_dev *dev)
 	return val;
 }
 
-int mt7921s_mcu_init(struct mt792x_dev *dev)
+int mt7902s_mcu_init(struct mt792x_dev *dev)
 {
-	static const struct mt76_mcu_ops mt7921s_mcu_ops = {
+	static const struct mt76_mcu_ops mt7902s_mcu_ops = {
 		.headroom = MT_SDIO_HDR_SIZE +
 			    sizeof(struct mt76_connac2_mcu_txd),
 		.tailroom = MT_SDIO_TAIL_SIZE,
-		.mcu_skb_send_msg = mt7921s_mcu_send_message,
-		.mcu_parse_response = mt7921_mcu_parse_response,
+		.mcu_skb_send_msg = mt7902s_mcu_send_message,
+		.mcu_parse_response = mt7902_mcu_parse_response,
 		.mcu_rr = mt76_connac_mcu_reg_rr,
 		.mcu_wr = mt76_connac_mcu_reg_wr,
 	};
 	int ret;
 
-	mt7921s_mcu_drv_pmctrl(dev);
+	mt7902s_mcu_drv_pmctrl(dev);
 
-	dev->mt76.mcu_ops = &mt7921s_mcu_ops;
+	dev->mt76.mcu_ops = &mt7902s_mcu_ops;
 
-	ret = mt7921_run_firmware(dev);
+	ret = mt7902_run_firmware(dev);
 	if (ret)
 		return ret;
 
@@ -97,7 +97,7 @@ int mt7921s_mcu_init(struct mt792x_dev *dev)
 	return 0;
 }
 
-int mt7921s_mcu_drv_pmctrl(struct mt792x_dev *dev)
+int mt7902s_mcu_drv_pmctrl(struct mt792x_dev *dev)
 {
 	struct sdio_func *func = dev->mt76.sdio.func;
 	struct mt76_phy *mphy = &dev->mt76.phy;
@@ -113,7 +113,7 @@ int mt7921s_mcu_drv_pmctrl(struct mt792x_dev *dev)
 				 status & WHLPCR_IS_DRIVER_OWN, 2000, 1000000);
 
 	if (!err && test_bit(MT76_STATE_MCU_RUNNING, &dev->mphy.state))
-		err = readx_poll_timeout(mt7921s_read_rm3r, dev, status,
+		err = readx_poll_timeout(mt7902s_read_rm3r, dev, status,
 					 status & D2HRM3R_IS_DRIVER_OWN,
 					 2000, 1000000);
 
@@ -133,7 +133,7 @@ int mt7921s_mcu_drv_pmctrl(struct mt792x_dev *dev)
 	return 0;
 }
 
-int mt7921s_mcu_fw_pmctrl(struct mt792x_dev *dev)
+int mt7902s_mcu_fw_pmctrl(struct mt792x_dev *dev)
 {
 	struct sdio_func *func = dev->mt76.sdio.func;
 	struct mt76_phy *mphy = &dev->mt76.phy;
@@ -144,7 +144,7 @@ int mt7921s_mcu_fw_pmctrl(struct mt792x_dev *dev)
 	sdio_claim_host(func);
 
 	if (test_bit(MT76_STATE_MCU_RUNNING, &dev->mphy.state)) {
-		err = readx_poll_timeout(mt7921s_clear_rm3r_drv_own,
+		err = readx_poll_timeout(mt7902s_clear_rm3r_drv_own,
 					 dev, status,
 					 !(status & D2HRM3R_IS_DRIVER_OWN),
 					 2000, 1000000);

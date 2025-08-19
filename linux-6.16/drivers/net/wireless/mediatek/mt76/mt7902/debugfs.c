@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: ISC
 /* Copyright (C) 2020 MediaTek Inc. */
 
-#include "mt7921.h"
+#include "mt7902.h"
 
 static int
-mt7921_reg_set(void *data, u64 val)
+mt7902_reg_set(void *data, u64 val)
 {
 	struct mt792x_dev *dev = data;
 
@@ -16,7 +16,7 @@ mt7921_reg_set(void *data, u64 val)
 }
 
 static int
-mt7921_reg_get(void *data, u64 *val)
+mt7902_reg_get(void *data, u64 *val)
 {
 	struct mt792x_dev *dev = data;
 
@@ -27,17 +27,17 @@ mt7921_reg_get(void *data, u64 *val)
 	return 0;
 }
 
-DEFINE_DEBUGFS_ATTRIBUTE(fops_regval, mt7921_reg_get, mt7921_reg_set,
+DEFINE_DEBUGFS_ATTRIBUTE(fops_regval, mt7902_reg_get, mt7902_reg_set,
 			 "0x%08llx\n");
 static int
-mt7921_fw_debug_set(void *data, u64 val)
+mt7902_fw_debug_set(void *data, u64 val)
 {
 	struct mt792x_dev *dev = data;
 
 	mt792x_mutex_acquire(dev);
 
 	dev->fw_debug = (u8)val;
-	mt7921_mcu_fw_log_2_host(dev, dev->fw_debug);
+	mt7902_mcu_fw_log_2_host(dev, dev->fw_debug);
 
 	mt792x_mutex_release(dev);
 
@@ -45,7 +45,7 @@ mt7921_fw_debug_set(void *data, u64 val)
 }
 
 static int
-mt7921_fw_debug_get(void *data, u64 *val)
+mt7902_fw_debug_get(void *data, u64 *val)
 {
 	struct mt792x_dev *dev = data;
 
@@ -54,13 +54,13 @@ mt7921_fw_debug_get(void *data, u64 *val)
 	return 0;
 }
 
-DEFINE_DEBUGFS_ATTRIBUTE(fops_fw_debug, mt7921_fw_debug_get,
-			 mt7921_fw_debug_set, "%lld\n");
+DEFINE_DEBUGFS_ATTRIBUTE(fops_fw_debug, mt7902_fw_debug_get,
+			 mt7902_fw_debug_set, "%lld\n");
 
 DEFINE_SHOW_ATTRIBUTE(mt792x_tx_stats);
 
 static void
-mt7921_seq_puts_array(struct seq_file *file, const char *str,
+mt7902_seq_puts_array(struct seq_file *file, const char *str,
 		      s8 *val, int len)
 {
 	int i;
@@ -74,28 +74,28 @@ mt7921_seq_puts_array(struct seq_file *file, const char *str,
 	seq_puts(file, "\n");
 }
 
-#define mt7921_print_txpwr_entry(prefix, rate)				\
+#define mt7902_print_txpwr_entry(prefix, rate)				\
 ({									\
-	mt7921_seq_puts_array(s, #prefix " (user)",			\
+	mt7902_seq_puts_array(s, #prefix " (user)",			\
 			      txpwr.data[TXPWR_USER].rate,		\
 			      ARRAY_SIZE(txpwr.data[TXPWR_USER].rate)); \
-	mt7921_seq_puts_array(s, #prefix " (eeprom)",			\
+	mt7902_seq_puts_array(s, #prefix " (eeprom)",			\
 			      txpwr.data[TXPWR_EEPROM].rate,		\
 			      ARRAY_SIZE(txpwr.data[TXPWR_EEPROM].rate)); \
-	mt7921_seq_puts_array(s, #prefix " (tmac)",			\
+	mt7902_seq_puts_array(s, #prefix " (tmac)",			\
 			      txpwr.data[TXPWR_MAC].rate,		\
 			      ARRAY_SIZE(txpwr.data[TXPWR_MAC].rate));	\
 })
 
 static int
-mt7921_txpwr(struct seq_file *s, void *data)
+mt7902_txpwr(struct seq_file *s, void *data)
 {
 	struct mt792x_dev *dev = dev_get_drvdata(s->private);
-	struct mt7921_txpwr txpwr;
+	struct mt7902_txpwr txpwr;
 	int ret;
 
 	mt792x_mutex_acquire(dev);
-	ret = mt7921_get_txpwr_info(dev, &txpwr);
+	ret = mt7902_get_txpwr_info(dev, &txpwr);
 	mt792x_mutex_release(dev);
 
 	if (ret)
@@ -104,43 +104,43 @@ mt7921_txpwr(struct seq_file *s, void *data)
 	seq_printf(s, "Tx power table (channel %d)\n", txpwr.ch);
 	seq_printf(s, "%-16s  %6s %6s %6s %6s\n",
 		   " ", "1m", "2m", "5m", "11m");
-	mt7921_print_txpwr_entry(CCK, cck);
+	mt7902_print_txpwr_entry(CCK, cck);
 
 	seq_printf(s, "%-16s  %6s %6s %6s %6s %6s %6s %6s %6s\n",
 		   " ", "6m", "9m", "12m", "18m", "24m", "36m",
 		   "48m", "54m");
-	mt7921_print_txpwr_entry(OFDM, ofdm);
+	mt7902_print_txpwr_entry(OFDM, ofdm);
 
 	seq_printf(s, "%-16s  %6s %6s %6s %6s %6s %6s %6s %6s\n",
 		   " ", "mcs0", "mcs1", "mcs2", "mcs3", "mcs4", "mcs5",
 		   "mcs6", "mcs7");
-	mt7921_print_txpwr_entry(HT20, ht20);
+	mt7902_print_txpwr_entry(HT20, ht20);
 
 	seq_printf(s, "%-16s  %6s %6s %6s %6s %6s %6s %6s %6s %6s\n",
 		   " ", "mcs0", "mcs1", "mcs2", "mcs3", "mcs4", "mcs5",
 		   "mcs6", "mcs7", "mcs32");
-	mt7921_print_txpwr_entry(HT40, ht40);
+	mt7902_print_txpwr_entry(HT40, ht40);
 
 	seq_printf(s, "%-16s  %6s %6s %6s %6s %6s %6s %6s %6s %6s %6s %6s %6s\n",
 		   " ", "mcs0", "mcs1", "mcs2", "mcs3", "mcs4", "mcs5",
 		   "mcs6", "mcs7", "mcs8", "mcs9", "mcs10", "mcs11");
-	mt7921_print_txpwr_entry(VHT20, vht20);
-	mt7921_print_txpwr_entry(VHT40, vht40);
-	mt7921_print_txpwr_entry(VHT80, vht80);
-	mt7921_print_txpwr_entry(VHT160, vht160);
-	mt7921_print_txpwr_entry(HE26, he26);
-	mt7921_print_txpwr_entry(HE52, he52);
-	mt7921_print_txpwr_entry(HE106, he106);
-	mt7921_print_txpwr_entry(HE242, he242);
-	mt7921_print_txpwr_entry(HE484, he484);
-	mt7921_print_txpwr_entry(HE996, he996);
-	mt7921_print_txpwr_entry(HE996x2, he996x2);
+	mt7902_print_txpwr_entry(VHT20, vht20);
+	mt7902_print_txpwr_entry(VHT40, vht40);
+	mt7902_print_txpwr_entry(VHT80, vht80);
+	mt7902_print_txpwr_entry(VHT160, vht160);
+	mt7902_print_txpwr_entry(HE26, he26);
+	mt7902_print_txpwr_entry(HE52, he52);
+	mt7902_print_txpwr_entry(HE106, he106);
+	mt7902_print_txpwr_entry(HE242, he242);
+	mt7902_print_txpwr_entry(HE484, he484);
+	mt7902_print_txpwr_entry(HE996, he996);
+	mt7902_print_txpwr_entry(HE996x2, he996x2);
 
 	return 0;
 }
 
 static int
-mt7921_pm_set(void *data, u64 val)
+mt7902_pm_set(void *data, u64 val)
 {
 	struct mt792x_dev *dev = data;
 	struct mt76_connac_pm *pm = &dev->pm;
@@ -164,7 +164,7 @@ mt7921_pm_set(void *data, u64 val)
 	mt76_connac_pm_wake(&dev->mphy, pm);
 
 	pm->enable_user = val;
-	mt7921_set_runtime_pm(dev);
+	mt7902_set_runtime_pm(dev);
 	mt76_connac_power_save_sched(&dev->mphy, pm);
 out:
 	mutex_unlock(&dev->mt76.mutex);
@@ -173,7 +173,7 @@ out:
 }
 
 static int
-mt7921_pm_get(void *data, u64 *val)
+mt7902_pm_get(void *data, u64 *val)
 {
 	struct mt792x_dev *dev = data;
 
@@ -182,10 +182,10 @@ mt7921_pm_get(void *data, u64 *val)
 	return 0;
 }
 
-DEFINE_DEBUGFS_ATTRIBUTE(fops_pm, mt7921_pm_get, mt7921_pm_set, "%lld\n");
+DEFINE_DEBUGFS_ATTRIBUTE(fops_pm, mt7902_pm_get, mt7902_pm_set, "%lld\n");
 
 static int
-mt7921_deep_sleep_set(void *data, u64 val)
+mt7902_deep_sleep_set(void *data, u64 val)
 {
 	struct mt792x_dev *dev = data;
 	struct mt76_connac_pm *pm = &dev->pm;
@@ -209,7 +209,7 @@ out:
 }
 
 static int
-mt7921_deep_sleep_get(void *data, u64 *val)
+mt7902_deep_sleep_get(void *data, u64 *val)
 {
 	struct mt792x_dev *dev = data;
 
@@ -218,13 +218,13 @@ mt7921_deep_sleep_get(void *data, u64 *val)
 	return 0;
 }
 
-DEFINE_DEBUGFS_ATTRIBUTE(fops_ds, mt7921_deep_sleep_get,
-			 mt7921_deep_sleep_set, "%lld\n");
+DEFINE_DEBUGFS_ATTRIBUTE(fops_ds, mt7902_deep_sleep_get,
+			 mt7902_deep_sleep_set, "%lld\n");
 
 DEFINE_DEBUGFS_ATTRIBUTE(fops_pm_idle_timeout, mt792x_pm_idle_timeout_get,
 			 mt792x_pm_idle_timeout_set, "%lld\n");
 
-static int mt7921_chip_reset(void *data, u64 val)
+static int mt7902_chip_reset(void *data, u64 val)
 {
 	struct mt792x_dev *dev = data;
 	int ret = 0;
@@ -245,10 +245,10 @@ static int mt7921_chip_reset(void *data, u64 val)
 	return ret;
 }
 
-DEFINE_DEBUGFS_ATTRIBUTE(fops_reset, NULL, mt7921_chip_reset, "%lld\n");
+DEFINE_DEBUGFS_ATTRIBUTE(fops_reset, NULL, mt7902_chip_reset, "%lld\n");
 
 static int
-mt7921s_sched_quota_read(struct seq_file *s, void *data)
+mt7902s_sched_quota_read(struct seq_file *s, void *data)
 {
 	struct mt792x_dev *dev = dev_get_drvdata(s->private);
 	struct mt76_sdio *sdio = &dev->mt76.sdio;
@@ -261,7 +261,7 @@ mt7921s_sched_quota_read(struct seq_file *s, void *data)
 	return 0;
 }
 
-int mt7921_init_debugfs(struct mt792x_dev *dev)
+int mt7902_init_debugfs(struct mt792x_dev *dev)
 {
 	struct dentry *dir;
 
@@ -279,7 +279,7 @@ int mt7921_init_debugfs(struct mt792x_dev *dev)
 	debugfs_create_devm_seqfile(dev->mt76.dev, "acq", dir,
 				    mt792x_queues_acq);
 	debugfs_create_devm_seqfile(dev->mt76.dev, "txpower_sku", dir,
-				    mt7921_txpwr);
+				    mt7902_txpwr);
 	debugfs_create_file("tx_stats", 0400, dir, dev, &mt792x_tx_stats_fops);
 	debugfs_create_file("fw_debug", 0600, dir, dev, &fops_fw_debug);
 	debugfs_create_file("runtime-pm", 0600, dir, dev, &fops_pm);
@@ -291,6 +291,6 @@ int mt7921_init_debugfs(struct mt792x_dev *dev)
 	debugfs_create_file("deep-sleep", 0600, dir, dev, &fops_ds);
 	if (mt76_is_sdio(&dev->mt76))
 		debugfs_create_devm_seqfile(dev->mt76.dev, "sched-quota", dir,
-					    mt7921s_sched_quota_read);
+					    mt7902s_sched_quota_read);
 	return 0;
 }

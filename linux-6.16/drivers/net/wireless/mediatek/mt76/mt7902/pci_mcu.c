@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: ISC
 /* Copyright (C) 2021 MediaTek Inc. */
 
-#include "mt7921.h"
+#include "mt7902.h"
 #include "mcu.h"
 
-int mt7921e_driver_own(struct mt792x_dev *dev)
+int mt7902e_driver_own(struct mt792x_dev *dev)
 {
-	u32 reg = mt7921_reg_map_l1(dev, MT_TOP_LPCR_HOST_BAND0);
+	u32 reg = mt7902_reg_map_l1(dev, MT_TOP_LPCR_HOST_BAND0);
 
 	mt76_wr(dev, reg, MT_TOP_LPCR_HOST_DRV_OWN);
 	if (!mt76_poll_msec(dev, reg, MT_TOP_LPCR_HOST_FW_OWN,
@@ -19,7 +19,7 @@ int mt7921e_driver_own(struct mt792x_dev *dev)
 }
 
 static int
-mt7921_mcu_send_message(struct mt76_dev *mdev, struct sk_buff *skb,
+mt7902_mcu_send_message(struct mt76_dev *mdev, struct sk_buff *skb,
 			int cmd, int *seq)
 {
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
@@ -38,24 +38,24 @@ mt7921_mcu_send_message(struct mt76_dev *mdev, struct sk_buff *skb,
 	return mt76_tx_queue_skb_raw(dev, mdev->q_mcu[txq], skb, 0);
 }
 
-int mt7921e_mcu_init(struct mt792x_dev *dev)
+int mt7902e_mcu_init(struct mt792x_dev *dev)
 {
-	static const struct mt76_mcu_ops mt7921_mcu_ops = {
+	static const struct mt76_mcu_ops mt7902_mcu_ops = {
 		.headroom = sizeof(struct mt76_connac2_mcu_txd),
-		.mcu_skb_send_msg = mt7921_mcu_send_message,
-		.mcu_parse_response = mt7921_mcu_parse_response,
+		.mcu_skb_send_msg = mt7902_mcu_send_message,
+		.mcu_parse_response = mt7902_mcu_parse_response,
 	};
 	int err;
 
-	dev->mt76.mcu_ops = &mt7921_mcu_ops;
+	dev->mt76.mcu_ops = &mt7902_mcu_ops;
 
-	err = mt7921e_driver_own(dev);
+	err = mt7902e_driver_own(dev);
 	if (err)
 		return err;
 
 	mt76_rmw_field(dev, MT_PCIE_MAC_PM, MT_PCIE_MAC_PM_L0S_DIS, 1);
 
-	err = mt7921_run_firmware(dev);
+	err = mt7902_run_firmware(dev);
 
 	mt76_queue_tx_cleanup(dev, dev->mt76.q_mcu[MT_MCUQ_FWDL], false);
 

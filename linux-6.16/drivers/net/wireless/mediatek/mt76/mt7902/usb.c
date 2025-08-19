@@ -8,27 +8,27 @@
 #include <linux/module.h>
 #include <linux/usb.h>
 
-#include "mt7921.h"
+#include "mt7902.h"
 #include "mcu.h"
 #include "../mt76_connac2_mac.h"
 
-static const struct usb_device_id mt7921u_device_table[] = {
+static const struct usb_device_id mt7902u_device_table[] = {
 	{ USB_DEVICE_AND_INTERFACE_INFO(0x0e8d, 0x7961, 0xff, 0xff, 0xff),
-		.driver_info = (kernel_ulong_t)MT7921_FIRMWARE_WM },
+		.driver_info = (kernel_ulong_t)mt7902_FIRMWARE_WM },
 	/* Comfast CF-952AX */
 	{ USB_DEVICE_AND_INTERFACE_INFO(0x3574, 0x6211, 0xff, 0xff, 0xff),
-		.driver_info = (kernel_ulong_t)MT7921_FIRMWARE_WM },
+		.driver_info = (kernel_ulong_t)mt7902_FIRMWARE_WM },
 	/* Netgear, Inc. [A8000,AXE3000] */
 	{ USB_DEVICE_AND_INTERFACE_INFO(0x0846, 0x9060, 0xff, 0xff, 0xff),
-		.driver_info = (kernel_ulong_t)MT7921_FIRMWARE_WM },
+		.driver_info = (kernel_ulong_t)mt7902_FIRMWARE_WM },
 	/* TP-Link TXE50UH */
 	{ USB_DEVICE_AND_INTERFACE_INFO(0x35bc, 0x0107, 0xff, 0xff, 0xff),
-		.driver_info = (kernel_ulong_t)MT7921_FIRMWARE_WM },
+		.driver_info = (kernel_ulong_t)mt7902_FIRMWARE_WM },
 	{ },
 };
 
 static int
-mt7921u_mcu_send_message(struct mt76_dev *mdev, struct sk_buff *skb,
+mt7902u_mcu_send_message(struct mt76_dev *mdev, struct sk_buff *skb,
 			 int cmd, int *seq)
 {
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
@@ -57,21 +57,21 @@ mt7921u_mcu_send_message(struct mt76_dev *mdev, struct sk_buff *skb,
 	return ret;
 }
 
-static int mt7921u_mcu_init(struct mt792x_dev *dev)
+static int mt7902u_mcu_init(struct mt792x_dev *dev)
 {
 	static const struct mt76_mcu_ops mcu_ops = {
 		.headroom = MT_SDIO_HDR_SIZE +
 			    sizeof(struct mt76_connac2_mcu_txd),
 		.tailroom = MT_USB_TAIL_SIZE,
-		.mcu_skb_send_msg = mt7921u_mcu_send_message,
-		.mcu_parse_response = mt7921_mcu_parse_response,
+		.mcu_skb_send_msg = mt7902u_mcu_send_message,
+		.mcu_parse_response = mt7902_mcu_parse_response,
 	};
 	int ret;
 
 	dev->mt76.mcu_ops = &mcu_ops;
 
 	mt76_set(dev, MT_UDMA_TX_QSEL, MT_FW_DL_EN);
-	ret = mt7921_run_firmware(dev);
+	ret = mt7902_run_firmware(dev);
 	if (ret)
 		return ret;
 
@@ -81,7 +81,7 @@ static int mt7921u_mcu_init(struct mt792x_dev *dev)
 	return 0;
 }
 
-static int mt7921u_mac_reset(struct mt792x_dev *dev)
+static int mt7902u_mac_reset(struct mt792x_dev *dev)
 {
 	int err;
 
@@ -115,21 +115,21 @@ static int mt7921u_mac_reset(struct mt792x_dev *dev)
 	mt76_wr(dev, MT_SWDEF_MODE, MT_SWDEF_NORMAL_MODE);
 	mt76_set(dev, MT_UDMA_TX_QSEL, MT_FW_DL_EN);
 
-	err = mt7921_run_firmware(dev);
+	err = mt7902_run_firmware(dev);
 	if (err)
 		goto out;
 
 	mt76_clear(dev, MT_UDMA_TX_QSEL, MT_FW_DL_EN);
 
-	err = mt7921_mcu_set_eeprom(dev);
+	err = mt7902_mcu_set_eeprom(dev);
 	if (err)
 		goto out;
 
-	err = mt7921_mac_init(dev);
+	err = mt7902_mac_init(dev);
 	if (err)
 		goto out;
 
-	err = __mt7921_start(&dev->phy);
+	err = __mt7902_start(&dev->phy);
 out:
 	clear_bit(MT76_RESET, &dev->mphy.state);
 
@@ -138,7 +138,7 @@ out:
 	return err;
 }
 
-static int mt7921u_probe(struct usb_interface *usb_intf,
+static int mt7902u_probe(struct usb_interface *usb_intf,
 			 const struct usb_device_id *id)
 {
 	static const struct mt76_driver_ops drv_ops = {
@@ -148,21 +148,21 @@ static int mt7921u_probe(struct usb_interface *usb_intf,
 		.survey_flags = SURVEY_INFO_TIME_TX |
 				SURVEY_INFO_TIME_RX |
 				SURVEY_INFO_TIME_BSS_RX,
-		.tx_prepare_skb = mt7921_usb_sdio_tx_prepare_skb,
-		.tx_complete_skb = mt7921_usb_sdio_tx_complete_skb,
-		.tx_status_data = mt7921_usb_sdio_tx_status_data,
-		.rx_skb = mt7921_queue_rx_skb,
-		.rx_check = mt7921_rx_check,
-		.sta_add = mt7921_mac_sta_add,
-		.sta_event = mt7921_mac_sta_event,
-		.sta_remove = mt7921_mac_sta_remove,
+		.tx_prepare_skb = mt7902_usb_sdio_tx_prepare_skb,
+		.tx_complete_skb = mt7902_usb_sdio_tx_complete_skb,
+		.tx_status_data = mt7902_usb_sdio_tx_status_data,
+		.rx_skb = mt7902_queue_rx_skb,
+		.rx_check = mt7902_rx_check,
+		.sta_add = mt7902_mac_sta_add,
+		.sta_event = mt7902_mac_sta_event,
+		.sta_remove = mt7902_mac_sta_remove,
 		.update_survey = mt792x_update_channel,
-		.set_channel = mt7921_set_channel,
+		.set_channel = mt7902_set_channel,
 	};
 	static const struct mt792x_hif_ops hif_ops = {
-		.mcu_init = mt7921u_mcu_init,
+		.mcu_init = mt7902u_mcu_init,
 		.init_reset = mt792xu_init_reset,
-		.reset = mt7921u_mac_reset,
+		.reset = mt7902u_mac_reset,
 	};
 	static struct mt76_bus_ops bus_ops = {
 		.rr = mt792xu_rr,
@@ -180,7 +180,7 @@ static int mt7921u_probe(struct usb_interface *usb_intf,
 	u8 features;
 	int ret;
 
-	ops = mt792x_get_mac80211_ops(&usb_intf->dev, &mt7921_ops,
+	ops = mt792x_get_mac80211_ops(&usb_intf->dev, &mt7902_ops,
 				      (void *)id->driver_info, &features);
 	if (!ops)
 		return -ENOMEM;
@@ -233,7 +233,7 @@ static int mt7921u_probe(struct usb_interface *usb_intf,
 	/* check hw sg support in order to enable AMSDU */
 	hw->max_tx_fragments = mdev->usb.sg_en ? MT_HW_TXP_MAX_BUF_NUM : 1;
 
-	ret = mt7921_register_device(dev);
+	ret = mt7902_register_device(dev);
 	if (ret)
 		goto error;
 
@@ -251,7 +251,7 @@ error:
 }
 
 #ifdef CONFIG_PM
-static int mt7921u_suspend(struct usb_interface *intf, pm_message_t state)
+static int mt7902u_suspend(struct usb_interface *intf, pm_message_t state)
 {
 	struct mt792x_dev *dev = usb_get_intfdata(intf);
 	struct mt76_connac_pm *pm = &dev->pm;
@@ -278,7 +278,7 @@ failed:
 	return err;
 }
 
-static int mt7921u_resume(struct usb_interface *intf)
+static int mt7902u_resume(struct usb_interface *intf)
 {
 	struct mt792x_dev *dev = usb_get_intfdata(intf);
 	struct mt76_connac_pm *pm = &dev->pm;
@@ -321,25 +321,25 @@ failed:
 }
 #endif /* CONFIG_PM */
 
-MODULE_DEVICE_TABLE(usb, mt7921u_device_table);
-MODULE_FIRMWARE(MT7921_FIRMWARE_WM);
-MODULE_FIRMWARE(MT7921_ROM_PATCH);
+MODULE_DEVICE_TABLE(usb, mt7902u_device_table);
+MODULE_FIRMWARE(mt7902_FIRMWARE_WM);
+MODULE_FIRMWARE(mt7902_ROM_PATCH);
 
-static struct usb_driver mt7921u_driver = {
+static struct usb_driver mt7902u_driver = {
 	.name		= KBUILD_MODNAME,
-	.id_table	= mt7921u_device_table,
-	.probe		= mt7921u_probe,
+	.id_table	= mt7902u_device_table,
+	.probe		= mt7902u_probe,
 	.disconnect	= mt792xu_disconnect,
 #ifdef CONFIG_PM
-	.suspend	= mt7921u_suspend,
-	.resume		= mt7921u_resume,
-	.reset_resume	= mt7921u_resume,
+	.suspend	= mt7902u_suspend,
+	.resume		= mt7902u_resume,
+	.reset_resume	= mt7902u_resume,
 #endif /* CONFIG_PM */
 	.soft_unbind	= 1,
 	.disable_hub_initiated_lpm = 1,
 };
-module_usb_driver(mt7921u_driver);
+module_usb_driver(mt7902u_driver);
 
-MODULE_DESCRIPTION("MediaTek MT7921U (USB) wireless driver");
+MODULE_DESCRIPTION("MediaTek mt7902U (USB) wireless driver");
 MODULE_AUTHOR("Lorenzo Bianconi <lorenzo@kernel.org>");
 MODULE_LICENSE("Dual BSD/GPL");

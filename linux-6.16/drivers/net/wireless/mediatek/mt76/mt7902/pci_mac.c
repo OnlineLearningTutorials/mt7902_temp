@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: ISC
 /* Copyright (C) 2021 MediaTek Inc. */
 
-#include "mt7921.h"
+#include "mt7902.h"
 #include "../dma.h"
 #include "../mt76_connac2_mac.h"
 
-int mt7921e_tx_prepare_skb(struct mt76_dev *mdev, void *txwi_ptr,
+int mt7902e_tx_prepare_skb(struct mt76_dev *mdev, void *txwi_ptr,
 			   enum mt76_txq_id qid, struct mt76_wcid *wcid,
 			   struct ieee80211_sta *sta,
 			   struct mt76_tx_info *tx_info)
@@ -53,7 +53,7 @@ int mt7921e_tx_prepare_skb(struct mt76_dev *mdev, void *txwi_ptr,
 	return 0;
 }
 
-int mt7921e_mac_reset(struct mt792x_dev *dev)
+int mt7902e_mac_reset(struct mt792x_dev *dev)
 {
 	int i, err;
 
@@ -99,23 +99,23 @@ int mt7921e_mac_reset(struct mt792x_dev *dev)
 		MT_INT_RX_DONE_ALL | MT_INT_MCU_CMD);
 	mt76_wr(dev, MT_PCIE_MAC_INT_ENABLE, 0xff);
 
-	err = mt7921e_driver_own(dev);
+	err = mt7902e_driver_own(dev);
 	if (err)
 		goto out;
 
-	err = mt7921_run_firmware(dev);
+	err = mt7902_run_firmware(dev);
 	if (err)
 		goto out;
 
-	err = mt7921_mcu_set_eeprom(dev);
+	err = mt7902_mcu_set_eeprom(dev);
 	if (err)
 		goto out;
 
-	err = mt7921_mac_init(dev);
+	err = mt7902_mac_init(dev);
 	if (err)
 		goto out;
 
-	err = __mt7921_start(&dev->phy);
+	err = __mt7902_start(&dev->phy);
 out:
 
 	napi_enable(&dev->mt76.tx_napi);

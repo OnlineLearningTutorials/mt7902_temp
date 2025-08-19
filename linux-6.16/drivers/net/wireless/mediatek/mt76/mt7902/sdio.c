@@ -11,18 +11,18 @@
 #include <linux/mmc/sdio_ids.h>
 #include <linux/mmc/sdio_func.h>
 
-#include "mt7921.h"
+#include "mt7902.h"
 #include "../sdio.h"
 #include "../mt76_connac2_mac.h"
 #include "mcu.h"
 
-static const struct sdio_device_id mt7921s_table[] = {
+static const struct sdio_device_id mt7902s_table[] = {
 	{ SDIO_DEVICE(SDIO_VENDOR_ID_MEDIATEK, 0x7901),
-		.driver_data = (kernel_ulong_t)MT7921_FIRMWARE_WM },
+		.driver_data = (kernel_ulong_t)mt7902_FIRMWARE_WM },
 	{ }	/* Terminating entry */
 };
 
-static void mt7921s_txrx_worker(struct mt76_worker *w)
+static void mt7902s_txrx_worker(struct mt76_worker *w)
 {
 	struct mt76_sdio *sdio = container_of(w, struct mt76_sdio,
 					      txrx_worker);
@@ -38,7 +38,7 @@ static void mt7921s_txrx_worker(struct mt76_worker *w)
 	mt76_connac_pm_unref(&dev->mphy, &dev->pm);
 }
 
-static void mt7921s_unregister_device(struct mt792x_dev *dev)
+static void mt7902s_unregister_device(struct mt792x_dev *dev)
 {
 	struct mt76_connac_pm *pm = &dev->pm;
 
@@ -48,16 +48,16 @@ static void mt7921s_unregister_device(struct mt792x_dev *dev)
 	cancel_work_sync(&pm->wake_work);
 
 	mt76s_deinit(&dev->mt76);
-	mt7921s_wfsys_reset(dev);
+	mt7902s_wfsys_reset(dev);
 	skb_queue_purge(&dev->mt76.mcu.res_q);
 
 	mt76_free_device(&dev->mt76);
 }
 
-static int mt7921s_parse_intr(struct mt76_dev *dev, struct mt76s_intr *intr)
+static int mt7902s_parse_intr(struct mt76_dev *dev, struct mt76s_intr *intr)
 {
 	struct mt76_sdio *sdio = &dev->sdio;
-	struct mt7921_sdio_intr *irq_data = sdio->intr_data;
+	struct mt7902_sdio_intr *irq_data = sdio->intr_data;
 	int i, err;
 
 	sdio_claim_host(sdio->func);
@@ -85,7 +85,7 @@ static int mt7921s_parse_intr(struct mt76_dev *dev, struct mt76s_intr *intr)
 	return 0;
 }
 
-static int mt7921s_probe(struct sdio_func *func,
+static int mt7902s_probe(struct sdio_func *func,
 			 const struct sdio_device_id *id)
 {
 	static const struct mt76_driver_ops drv_ops = {
@@ -94,18 +94,18 @@ static int mt7921s_probe(struct sdio_func *func,
 		.survey_flags = SURVEY_INFO_TIME_TX |
 				SURVEY_INFO_TIME_RX |
 				SURVEY_INFO_TIME_BSS_RX,
-		.tx_prepare_skb = mt7921_usb_sdio_tx_prepare_skb,
-		.tx_complete_skb = mt7921_usb_sdio_tx_complete_skb,
-		.tx_status_data = mt7921_usb_sdio_tx_status_data,
-		.rx_skb = mt7921_queue_rx_skb,
-		.rx_check = mt7921_rx_check,
-		.sta_add = mt7921_mac_sta_add,
-		.sta_event = mt7921_mac_sta_event,
-		.sta_remove = mt7921_mac_sta_remove,
+		.tx_prepare_skb = mt7902_usb_sdio_tx_prepare_skb,
+		.tx_complete_skb = mt7902_usb_sdio_tx_complete_skb,
+		.tx_status_data = mt7902_usb_sdio_tx_status_data,
+		.rx_skb = mt7902_queue_rx_skb,
+		.rx_check = mt7902_rx_check,
+		.sta_add = mt7902_mac_sta_add,
+		.sta_event = mt7902_mac_sta_event,
+		.sta_remove = mt7902_mac_sta_remove,
 		.update_survey = mt792x_update_channel,
-		.set_channel = mt7921_set_channel,
+		.set_channel = mt7902_set_channel,
 	};
-	static const struct mt76_bus_ops mt7921s_ops = {
+	static const struct mt76_bus_ops mt7902s_ops = {
 		.rr = mt76s_rr,
 		.rmw = mt76s_rmw,
 		.wr = mt76s_wr,
@@ -115,12 +115,12 @@ static int mt7921s_probe(struct sdio_func *func,
 		.rd_rp = mt76s_rd_rp,
 		.type = MT76_BUS_SDIO,
 	};
-	static const struct mt792x_hif_ops mt7921_sdio_ops = {
-		.init_reset = mt7921s_init_reset,
-		.reset = mt7921s_mac_reset,
-		.mcu_init = mt7921s_mcu_init,
-		.drv_own = mt7921s_mcu_drv_pmctrl,
-		.fw_own = mt7921s_mcu_fw_pmctrl,
+	static const struct mt792x_hif_ops mt7902_sdio_ops = {
+		.init_reset = mt7902s_init_reset,
+		.reset = mt7902s_mac_reset,
+		.mcu_init = mt7902s_mcu_init,
+		.drv_own = mt7902s_mcu_drv_pmctrl,
+		.fw_own = mt7902s_mcu_fw_pmctrl,
 	};
 	struct ieee80211_ops *ops;
 	struct mt792x_dev *dev;
@@ -128,7 +128,7 @@ static int mt7921s_probe(struct sdio_func *func,
 	u8 features;
 	int ret;
 
-	ops = mt792x_get_mac80211_ops(&func->dev, &mt7921_ops,
+	ops = mt792x_get_mac80211_ops(&func->dev, &mt7902_ops,
 				      (void *)id->driver_data, &features);
 	if (!ops)
 		return -ENOMEM;
@@ -139,10 +139,10 @@ static int mt7921s_probe(struct sdio_func *func,
 
 	dev = container_of(mdev, struct mt792x_dev, mt76);
 	dev->fw_features = features;
-	dev->hif_ops = &mt7921_sdio_ops;
+	dev->hif_ops = &mt7902_sdio_ops;
 	sdio_set_drvdata(func, dev);
 
-	ret = mt76s_init(mdev, func, &mt7921s_ops);
+	ret = mt76s_init(mdev, func, &mt7902s_ops);
 	if (ret < 0)
 		goto error;
 
@@ -154,9 +154,9 @@ static int mt7921s_probe(struct sdio_func *func,
 		    (mt76_rr(dev, MT_HW_REV) & 0xff);
 	dev_dbg(mdev->dev, "ASIC revision: %04x\n", mdev->rev);
 
-	mdev->sdio.parse_irq = mt7921s_parse_intr;
+	mdev->sdio.parse_irq = mt7902s_parse_intr;
 	mdev->sdio.intr_data = devm_kmalloc(mdev->dev,
-					    sizeof(struct mt7921_sdio_intr),
+					    sizeof(struct mt7902_sdio_intr),
 					    GFP_KERNEL);
 	if (!mdev->sdio.intr_data) {
 		ret = -ENOMEM;
@@ -176,13 +176,13 @@ static int mt7921s_probe(struct sdio_func *func,
 		goto error;
 
 	ret = mt76_worker_setup(mt76_hw(dev), &mdev->sdio.txrx_worker,
-				mt7921s_txrx_worker, "sdio-txrx");
+				mt7902s_txrx_worker, "sdio-txrx");
 	if (ret)
 		goto error;
 
 	sched_set_fifo_low(mdev->sdio.txrx_worker.task);
 
-	ret = mt7921_register_device(dev);
+	ret = mt7902_register_device(dev);
 	if (ret)
 		goto error;
 
@@ -195,14 +195,14 @@ error:
 	return ret;
 }
 
-static void mt7921s_remove(struct sdio_func *func)
+static void mt7902s_remove(struct sdio_func *func)
 {
 	struct mt792x_dev *dev = sdio_get_drvdata(func);
 
-	mt7921s_unregister_device(dev);
+	mt7902s_unregister_device(dev);
 }
 
-static int mt7921s_suspend(struct device *__dev)
+static int mt7902s_suspend(struct device *__dev)
 {
 	struct sdio_func *func = dev_to_sdio_func(__dev);
 	struct mt792x_dev *dev = sdio_get_drvdata(func);
@@ -217,7 +217,7 @@ static int mt7921s_suspend(struct device *__dev)
 	cancel_delayed_work_sync(&pm->ps_work);
 	cancel_work_sync(&pm->wake_work);
 
-	mt7921_roc_abort_sync(dev);
+	mt7902_roc_abort_sync(dev);
 
 	err = mt792x_mcu_drv_pmctrl(dev);
 	if (err < 0)
@@ -278,7 +278,7 @@ restore_suspend:
 	return err;
 }
 
-static int mt7921s_resume(struct device *__dev)
+static int mt7902s_resume(struct device *__dev)
 {
 	struct sdio_func *func = dev_to_sdio_func(__dev);
 	struct mt792x_dev *dev = sdio_get_drvdata(func);
@@ -312,20 +312,20 @@ failed:
 	return err;
 }
 
-MODULE_DEVICE_TABLE(sdio, mt7921s_table);
-MODULE_FIRMWARE(MT7921_FIRMWARE_WM);
-MODULE_FIRMWARE(MT7921_ROM_PATCH);
+MODULE_DEVICE_TABLE(sdio, mt7902s_table);
+MODULE_FIRMWARE(mt7902_FIRMWARE_WM);
+MODULE_FIRMWARE(mt7902_ROM_PATCH);
 
-static DEFINE_SIMPLE_DEV_PM_OPS(mt7921s_pm_ops, mt7921s_suspend, mt7921s_resume);
+static DEFINE_SIMPLE_DEV_PM_OPS(mt7902s_pm_ops, mt7902s_suspend, mt7902s_resume);
 
-static struct sdio_driver mt7921s_driver = {
+static struct sdio_driver mt7902s_driver = {
 	.name		= KBUILD_MODNAME,
-	.probe		= mt7921s_probe,
-	.remove		= mt7921s_remove,
-	.id_table	= mt7921s_table,
-	.drv.pm		= pm_sleep_ptr(&mt7921s_pm_ops),
+	.probe		= mt7902s_probe,
+	.remove		= mt7902s_remove,
+	.id_table	= mt7902s_table,
+	.drv.pm		= pm_sleep_ptr(&mt7902s_pm_ops),
 };
-module_sdio_driver(mt7921s_driver);
-MODULE_DESCRIPTION("MediaTek MT7921S (SDIO) wireless driver");
+module_sdio_driver(mt7902s_driver);
+MODULE_DESCRIPTION("MediaTek mt7902S (SDIO) wireless driver");
 MODULE_AUTHOR("Sean Wang <sean.wang@mediatek.com>");
 MODULE_LICENSE("Dual BSD/GPL");

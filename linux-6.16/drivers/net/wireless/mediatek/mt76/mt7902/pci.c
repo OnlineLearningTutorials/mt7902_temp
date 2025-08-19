@@ -8,27 +8,27 @@
 #include <linux/pci.h>
 #include <linux/of.h>
 
-#include "mt7921.h"
+#include "mt7902.h"
 #include "../mt76_connac2_mac.h"
 #include "../dma.h"
 #include "mcu.h"
 
-static const struct pci_device_id mt7921_pci_device_table[] = {
+static const struct pci_device_id mt7902_pci_device_table[] = {
 	{ PCI_DEVICE(PCI_VENDOR_ID_MEDIATEK, 0x7902),
 		.driver_data = (kernel_ulong_t)MT7902_FIRMWARE_WM },
 	{ },
 };
 
-static bool mt7921_disable_aspm;
-module_param_named(disable_aspm, mt7921_disable_aspm, bool, 0644);
+static bool mt7902_disable_aspm;
+module_param_named(disable_aspm, mt7902_disable_aspm, bool, 0644);
 MODULE_PARM_DESC(disable_aspm, "disable PCI ASPM support");
 
-static int mt7921e_init_reset(struct mt792x_dev *dev)
+static int mt7902e_init_reset(struct mt792x_dev *dev)
 {
 	return mt792x_wpdma_reset(dev, true);
 }
 
-static void mt7921e_unregister_device(struct mt792x_dev *dev)
+static void mt7902e_unregister_device(struct mt792x_dev *dev)
 {
 	int i;
 	struct mt76_connac_pm *pm = &dev->pm;
@@ -54,7 +54,7 @@ static void mt7921e_unregister_device(struct mt792x_dev *dev)
 	tasklet_disable(&dev->mt76.irq_tasklet);
 }
 
-static u32 __mt7921_reg_addr(struct mt792x_dev *dev, u32 addr)
+static u32 __mt7902_reg_addr(struct mt792x_dev *dev, u32 addr)
 {
 	static const struct mt76_connac_reg_map fixed_map[] = {
 		{ 0x820d0000, 0x30000, 0x10000 }, /* WF_LMAC_TOP (WF_WTBLON) */
@@ -123,7 +123,7 @@ static u32 __mt7921_reg_addr(struct mt792x_dev *dev, u32 addr)
 	if ((addr >= 0x18000000 && addr < 0x18c00000) ||
 	    (addr >= 0x70000000 && addr < 0x78000000) ||
 	    (addr >= 0x7c000000 && addr < 0x7c400000))
-		return mt7921_reg_map_l1(dev, addr);
+		return mt7902_reg_map_l1(dev, addr);
 
 	dev_err(dev->mt76.dev, "Access currently unsupported address %08x\n",
 		addr);
@@ -131,31 +131,31 @@ static u32 __mt7921_reg_addr(struct mt792x_dev *dev, u32 addr)
 	return 0;
 }
 
-static u32 mt7921_rr(struct mt76_dev *mdev, u32 offset)
+static u32 mt7902_rr(struct mt76_dev *mdev, u32 offset)
 {
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
-	u32 addr = __mt7921_reg_addr(dev, offset);
+	u32 addr = __mt7902_reg_addr(dev, offset);
 
 	return dev->bus_ops->rr(mdev, addr);
 }
 
-static void mt7921_wr(struct mt76_dev *mdev, u32 offset, u32 val)
+static void mt7902_wr(struct mt76_dev *mdev, u32 offset, u32 val)
 {
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
-	u32 addr = __mt7921_reg_addr(dev, offset);
+	u32 addr = __mt7902_reg_addr(dev, offset);
 
 	dev->bus_ops->wr(mdev, addr, val);
 }
 
-static u32 mt7921_rmw(struct mt76_dev *mdev, u32 offset, u32 mask, u32 val)
+static u32 mt7902_rmw(struct mt76_dev *mdev, u32 offset, u32 mask, u32 val)
 {
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
-	u32 addr = __mt7921_reg_addr(dev, offset);
+	u32 addr = __mt7902_reg_addr(dev, offset);
 
 	return dev->bus_ops->rmw(mdev, addr, mask, val);
 }
 
-static int mt7921_dma_init(struct mt792x_dev *dev)
+static int mt7902_dma_init(struct mt792x_dev *dev)
 {
 	int ret;
 
@@ -166,8 +166,8 @@ static int mt7921_dma_init(struct mt792x_dev *dev)
 		return ret;
 
 	/* init tx queue */
-	ret = mt76_connac_init_tx_queues(dev->phy.mt76, MT7921_TXQ_BAND0,
-					 MT7921_TX_RING_SIZE,
+	ret = mt76_connac_init_tx_queues(dev->phy.mt76, mt7902_TXQ_BAND0,
+					 mt7902_TX_RING_SIZE,
 					 MT_TX_RING_BASE, NULL, 0);
 	if (ret)
 		return ret;
@@ -175,36 +175,36 @@ static int mt7921_dma_init(struct mt792x_dev *dev)
 	mt76_wr(dev, MT_WFDMA0_TX_RING0_EXT_CTRL, 0x4);
 
 	/* command to WM */
-	ret = mt76_init_mcu_queue(&dev->mt76, MT_MCUQ_WM, MT7921_TXQ_MCU_WM,
-				  MT7921_TX_MCU_RING_SIZE, MT_TX_RING_BASE);
+	ret = mt76_init_mcu_queue(&dev->mt76, MT_MCUQ_WM, mt7902_TXQ_MCU_WM,
+				  mt7902_TX_MCU_RING_SIZE, MT_TX_RING_BASE);
 	if (ret)
 		return ret;
 
 	/* firmware download */
-	ret = mt76_init_mcu_queue(&dev->mt76, MT_MCUQ_FWDL, MT7921_TXQ_FWDL,
-				  MT7921_TX_FWDL_RING_SIZE, MT_TX_RING_BASE);
+	ret = mt76_init_mcu_queue(&dev->mt76, MT_MCUQ_FWDL, mt7902_TXQ_FWDL,
+				  mt7902_TX_FWDL_RING_SIZE, MT_TX_RING_BASE);
 	if (ret)
 		return ret;
 
 	/* event from WM before firmware download */
 	ret = mt76_queue_alloc(dev, &dev->mt76.q_rx[MT_RXQ_MCU],
-			       MT7921_RXQ_MCU_WM,
-			       MT7921_RX_MCU_RING_SIZE,
+			       mt7902_RXQ_MCU_WM,
+			       mt7902_RX_MCU_RING_SIZE,
 			       MT_RX_BUF_SIZE, MT_RX_EVENT_RING_BASE);
 	if (ret)
 		return ret;
 
 	/* Change mcu queue after firmware download */
 	ret = mt76_queue_alloc(dev, &dev->mt76.q_rx[MT_RXQ_MCU_WA],
-			       MT7921_RXQ_MCU_WM,
-			       MT7921_RX_MCU_WA_RING_SIZE,
+			       mt7902_RXQ_MCU_WM,
+			       mt7902_RX_MCU_WA_RING_SIZE,
 			       MT_RX_BUF_SIZE, MT_WFDMA0(0x540));
 	if (ret)
 		return ret;
 
 	/* rx data */
 	ret = mt76_queue_alloc(dev, &dev->mt76.q_rx[MT_RXQ_MAIN],
-			       MT7921_RXQ_BAND0, MT7921_RX_RING_SIZE,
+			       mt7902_RXQ_BAND0, mt7902_RX_RING_SIZE,
 			       MT_RX_BUF_SIZE, MT_RX_DATA_RING_BASE);
 	if (ret)
 		return ret;
@@ -220,7 +220,7 @@ static int mt7921_dma_init(struct mt792x_dev *dev)
 	return mt792x_dma_enable(dev);
 }
 
-static int mt7921_pci_probe(struct pci_dev *pdev,
+static int mt7902_pci_probe(struct pci_dev *pdev,
 			    const struct pci_device_id *id)
 {
 	static const struct mt76_driver_ops drv_ops = {
@@ -231,22 +231,22 @@ static int mt7921_pci_probe(struct pci_dev *pdev,
 		.survey_flags = SURVEY_INFO_TIME_TX |
 				SURVEY_INFO_TIME_RX |
 				SURVEY_INFO_TIME_BSS_RX,
-		.token_size = MT7921_TOKEN_SIZE,
-		.tx_prepare_skb = mt7921e_tx_prepare_skb,
+		.token_size = mt7902_TOKEN_SIZE,
+		.tx_prepare_skb = mt7902e_tx_prepare_skb,
 		.tx_complete_skb = mt76_connac_tx_complete_skb,
-		.rx_check = mt7921_rx_check,
-		.rx_skb = mt7921_queue_rx_skb,
+		.rx_check = mt7902_rx_check,
+		.rx_skb = mt7902_queue_rx_skb,
 		.rx_poll_complete = mt792x_rx_poll_complete,
-		.sta_add = mt7921_mac_sta_add,
-		.sta_event = mt7921_mac_sta_event,
-		.sta_remove = mt7921_mac_sta_remove,
+		.sta_add = mt7902_mac_sta_add,
+		.sta_event = mt7902_mac_sta_event,
+		.sta_remove = mt7902_mac_sta_remove,
 		.update_survey = mt792x_update_channel,
-		.set_channel = mt7921_set_channel,
+		.set_channel = mt7902_set_channel,
 	};
-	static const struct mt792x_hif_ops mt7921_pcie_ops = {
-		.init_reset = mt7921e_init_reset,
-		.reset = mt7921e_mac_reset,
-		.mcu_init = mt7921e_mcu_init,
+	static const struct mt792x_hif_ops mt7902_pcie_ops = {
+		.init_reset = mt7902e_init_reset,
+		.reset = mt7902e_mac_reset,
+		.mcu_init = mt7902e_mcu_init,
 		.drv_own = mt792xe_mcu_drv_pmctrl,
 		.fw_own = mt792xe_mcu_fw_pmctrl,
 	};
@@ -293,10 +293,10 @@ static int mt7921_pci_probe(struct pci_dev *pdev,
 	if (ret)
 		goto err_free_pci_vec;
 
-	if (mt7921_disable_aspm)
+	if (mt7902_disable_aspm)
 		mt76_pci_disable_aspm(pdev);
 
-	ops = mt792x_get_mac80211_ops(&pdev->dev, &mt7921_ops,
+	ops = mt792x_get_mac80211_ops(&pdev->dev, &mt7902_ops,
 				      (void *)id->driver_data, &features);
 	if (!ops) {
 		ret = -ENOMEM;
@@ -313,7 +313,7 @@ static int mt7921_pci_probe(struct pci_dev *pdev,
 
 	dev = container_of(mdev, struct mt792x_dev, mt76);
 	dev->fw_features = features;
-	dev->hif_ops = &mt7921_pcie_ops;
+	dev->hif_ops = &mt7902_pcie_ops;
 	dev->irq_map = &irq_map;
 	mt76_mmio_init(&dev->mt76, pcim_iomap_table(pdev)[0]);
 	tasklet_init(&mdev->irq_tasklet, mt792x_irq_tasklet, (unsigned long)dev);
@@ -329,12 +329,12 @@ static int mt7921_pci_probe(struct pci_dev *pdev,
 		goto err_free_dev;
 	}
 
-	bus_ops->rr = mt7921_rr;
-	bus_ops->wr = mt7921_wr;
-	bus_ops->rmw = mt7921_rmw;
+	bus_ops->rr = mt7902_rr;
+	bus_ops->wr = mt7902_wr;
+	bus_ops->rmw = mt7902_rmw;
 	dev->mt76.bus = bus_ops;
 
-	if (!mt7921_disable_aspm && mt76_pci_aspm_supported(pdev))
+	if (!mt7902_disable_aspm && mt76_pci_aspm_supported(pdev))
 		dev->aspm_supported = true;
 
 	ret = mt792xe_mcu_fw_pmctrl(dev);
@@ -345,11 +345,11 @@ static int mt7921_pci_probe(struct pci_dev *pdev,
 	if (ret)
 		goto err_free_dev;
 
-	chipid = mt7921_l1_rr(dev, MT_HW_CHIPID);
-	if (chipid == 0x7961 && (mt7921_l1_rr(dev, MT_HW_BOUND) & BIT(7)))
+	chipid = mt7902_l1_rr(dev, MT_HW_CHIPID);
+	if (chipid == 0x7961 && (mt7902_l1_rr(dev, MT_HW_BOUND) & BIT(7)))
 		chipid = 0x7920;
 	mdev->rev = (chipid << 16) |
-		    (mt7921_l1_rr(dev, MT_HW_REV) & 0xff);
+		    (mt7902_l1_rr(dev, MT_HW_REV) & 0xff);
 	dev_info(mdev->dev, "ASIC revision: %04x\n", mdev->rev);
 
 	ret = mt792x_wfsys_reset(dev);
@@ -365,11 +365,11 @@ static int mt7921_pci_probe(struct pci_dev *pdev,
 	if (ret)
 		goto err_free_dev;
 
-	ret = mt7921_dma_init(dev);
+	ret = mt7902_dma_init(dev);
 	if (ret)
 		goto err_free_irq;
 
-	ret = mt7921_register_device(dev);
+	ret = mt7902_register_device(dev);
 	if (ret)
 		goto err_free_irq;
 
@@ -388,7 +388,7 @@ err_free_pci_vec:
 	return ret;
 }
 
-static void mt7921_pci_remove(struct pci_dev *pdev)
+static void mt7902_pci_remove(struct pci_dev *pdev)
 {
 	struct mt76_dev *mdev = pci_get_drvdata(pdev);
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
@@ -396,14 +396,14 @@ static void mt7921_pci_remove(struct pci_dev *pdev)
 	if (of_property_read_bool(dev->mt76.dev->of_node, "wakeup-source"))
 		device_init_wakeup(dev->mt76.dev, false);
 
-	mt7921e_unregister_device(dev);
+	mt7902e_unregister_device(dev);
 	set_bit(MT76_REMOVED, &mdev->phy.state);
 	devm_free_irq(&pdev->dev, pdev->irq, dev);
 	mt76_free_device(&dev->mt76);
 	pci_free_irq_vectors(pdev);
 }
 
-static int mt7921_pci_suspend(struct device *device)
+static int mt7902_pci_suspend(struct device *device)
 {
 	struct pci_dev *pdev = to_pci_dev(device);
 	struct mt76_dev *mdev = pci_get_drvdata(pdev);
@@ -416,7 +416,7 @@ static int mt7921_pci_suspend(struct device *device)
 	cancel_delayed_work_sync(&pm->ps_work);
 	cancel_work_sync(&pm->wake_work);
 
-	mt7921_roc_abort_sync(dev);
+	mt7902_roc_abort_sync(dev);
 
 	err = mt792x_mcu_drv_pmctrl(dev);
 	if (err < 0)
@@ -425,7 +425,7 @@ static int mt7921_pci_suspend(struct device *device)
 	wait_event_timeout(dev->wait,
 			   !dev->regd_in_progress, 5 * HZ);
 
-	err = mt7921_mcu_radio_led_ctrl(dev, EXT_CMD_RADIO_OFF_LED);
+	err = mt7902_mcu_radio_led_ctrl(dev, EXT_CMD_RADIO_OFF_LED);
 	if (err < 0)
 		goto restore_suspend;
 
@@ -486,7 +486,7 @@ restore_suspend:
 	return err;
 }
 
-static int mt7921_pci_resume(struct device *device)
+static int mt7902_pci_resume(struct device *device)
 {
 	struct pci_dev *pdev = to_pci_dev(device);
 	struct mt76_dev *mdev = pci_get_drvdata(pdev);
@@ -533,8 +533,8 @@ static int mt7921_pci_resume(struct device *device)
 	if (err < 0)
 		goto failed;
 
-	mt7921_regd_update(dev);
-	err = mt7921_mcu_radio_led_ctrl(dev, EXT_CMD_RADIO_ON_LED);
+	mt7902_regd_update(dev);
+	err = mt7902_mcu_radio_led_ctrl(dev, EXT_CMD_RADIO_ON_LED);
 failed:
 	pm->suspended = false;
 
@@ -544,28 +544,28 @@ failed:
 	return err;
 }
 
-static void mt7921_pci_shutdown(struct pci_dev *pdev)
+static void mt7902_pci_shutdown(struct pci_dev *pdev)
 {
-	mt7921_pci_remove(pdev);
+	mt7902_pci_remove(pdev);
 }
 
-static DEFINE_SIMPLE_DEV_PM_OPS(mt7921_pm_ops, mt7921_pci_suspend, mt7921_pci_resume);
+static DEFINE_SIMPLE_DEV_PM_OPS(mt7902_pm_ops, mt7902_pci_suspend, mt7902_pci_resume);
 
-static struct pci_driver mt7921_pci_driver = {
+static struct pci_driver mt7902_pci_driver = {
 	.name		= KBUILD_MODNAME,
-	.id_table	= mt7921_pci_device_table,
-	.probe		= mt7921_pci_probe,
-	.remove		= mt7921_pci_remove,
-	.shutdown	= mt7921_pci_shutdown,
-	.driver.pm	= pm_sleep_ptr(&mt7921_pm_ops),
+	.id_table	= mt7902_pci_device_table,
+	.probe		= mt7902_pci_probe,
+	.remove		= mt7902_pci_remove,
+	.shutdown	= mt7902_pci_shutdown,
+	.driver.pm	= pm_sleep_ptr(&mt7902_pm_ops),
 };
 
-module_pci_driver(mt7921_pci_driver);
+module_pci_driver(mt7902_pci_driver);
 
-MODULE_DEVICE_TABLE(pci, mt7921_pci_device_table);
+MODULE_DEVICE_TABLE(pci, mt7902_pci_device_table);
 MODULE_FIRMWARE(MT7902_FIRMWARE_WM);
 MODULE_FIRMWARE(MT7902_ROM_PATCH);
 MODULE_AUTHOR("Sean Wang <sean.wang@mediatek.com>");
 MODULE_AUTHOR("Lorenzo Bianconi <lorenzo@kernel.org>");
-MODULE_DESCRIPTION("MediaTek MT7921E (PCIe) wireless driver");
+MODULE_DESCRIPTION("MediaTek mt7902E (PCIe) wireless driver");
 MODULE_LICENSE("Dual BSD/GPL");

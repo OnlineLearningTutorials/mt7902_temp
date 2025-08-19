@@ -1,37 +1,37 @@
 # SPDX-License-Identifier: ISC
-config MT7921_COMMON
+config mt7902_COMMON
 	tristate
 	select MT792x_LIB
 	select WANT_DEV_COREDUMP
 
-config MT7921E
-	tristate "MediaTek MT7921E (PCIe) support"
-	select MT7921_COMMON
+config mt7902E
+	tristate "MediaTek mt7902E (PCIe) support"
+	select mt7902_COMMON
 	depends on MAC80211
 	depends on PCI
 	help
-	  This adds support for MT7921E 802.11ax 2x2:2SS wireless devices.
+	  This adds support for mt7902E 802.11ax 2x2:2SS wireless devices.
 
 	  To compile this driver as a module, choose M here.
 
-config MT7921S
-	tristate "MediaTek MT7921S (SDIO) support"
+config mt7902S
+	tristate "MediaTek mt7902S (SDIO) support"
 	select MT76_SDIO
-	select MT7921_COMMON
+	select mt7902_COMMON
 	depends on MAC80211
 	depends on MMC
 	help
-	  This adds support for MT7921S 802.11ax 2x2:2SS wireless devices.
+	  This adds support for mt7902S 802.11ax 2x2:2SS wireless devices.
 
 	  To compile this driver as a module, choose M here.
 
-config MT7921U
-	tristate "MediaTek MT7921U (USB) support"
+config mt7902U
+	tristate "MediaTek mt7902U (USB) support"
 	select MT792x_USB
-	select MT7921_COMMON
+	select mt7902_COMMON
 	depends on MAC80211
 	depends on USB
 	help
-	  This adds support for MT7921U 802.11ax 2x2:2SS wireless devices.
+	  This adds support for mt7902U 802.11ax 2x2:2SS wireless devices.
 
 	  To compile this driver as a module, choose M here.
