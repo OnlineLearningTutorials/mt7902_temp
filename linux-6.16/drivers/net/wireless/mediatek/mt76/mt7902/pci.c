@@ -166,8 +166,8 @@ static int mt7902_dma_init(struct mt792x_dev *dev)
 		return ret;
 
 	/* init tx queue */
-	ret = mt76_connac_init_tx_queues(dev->phy.mt76, mt7902_TXQ_BAND0,
-					 mt7902_TX_RING_SIZE,
+	ret = mt76_connac_init_tx_queues(dev->phy.mt76, MT7902_TXQ_BAND0,
+					 MT7902_TX_RING_SIZE,
 					 MT_TX_RING_BASE, NULL, 0);
 	if (ret)
 		return ret;
@@ -175,36 +175,36 @@ static int mt7902_dma_init(struct mt792x_dev *dev)
 	mt76_wr(dev, MT_WFDMA0_TX_RING0_EXT_CTRL, 0x4);
 
 	/* command to WM */
-	ret = mt76_init_mcu_queue(&dev->mt76, MT_MCUQ_WM, mt7902_TXQ_MCU_WM,
-				  mt7902_TX_MCU_RING_SIZE, MT_TX_RING_BASE);
+	ret = mt76_init_mcu_queue(&dev->mt76, MT_MCUQ_WM, MT7902_TXQ_MCU_WM,
+				  MT7902_TX_MCU_RING_SIZE, MT_TX_RING_BASE);
 	if (ret)
 		return ret;
 
 	/* firmware download */
-	ret = mt76_init_mcu_queue(&dev->mt76, MT_MCUQ_FWDL, mt7902_TXQ_FWDL,
-				  mt7902_TX_FWDL_RING_SIZE, MT_TX_RING_BASE);
+	ret = mt76_init_mcu_queue(&dev->mt76, MT_MCUQ_FWDL, MT7902_TXQ_FWDL,
+				  MT7902_TX_FWDL_RING_SIZE, MT_TX_RING_BASE);
 	if (ret)
 		return ret;
 
 	/* event from WM before firmware download */
 	ret = mt76_queue_alloc(dev, &dev->mt76.q_rx[MT_RXQ_MCU],
-			       mt7902_RXQ_MCU_WM,
-			       mt7902_RX_MCU_RING_SIZE,
+			       MT7902_RXQ_MCU_WM,
+			       MT7902_RX_MCU_RING_SIZE,
 			       MT_RX_BUF_SIZE, MT_RX_EVENT_RING_BASE);
 	if (ret)
 		return ret;
 
 	/* Change mcu queue after firmware download */
 	ret = mt76_queue_alloc(dev, &dev->mt76.q_rx[MT_RXQ_MCU_WA],
-			       mt7902_RXQ_MCU_WM,
-			       mt7902_RX_MCU_WA_RING_SIZE,
+			       MT7902_RXQ_MCU_WM,
+			       MT7902_RX_MCU_WA_RING_SIZE,
 			       MT_RX_BUF_SIZE, MT_WFDMA0(0x540));
 	if (ret)
 		return ret;
 
 	/* rx data */
 	ret = mt76_queue_alloc(dev, &dev->mt76.q_rx[MT_RXQ_MAIN],
-			       mt7902_RXQ_BAND0, mt7902_RX_RING_SIZE,
+			       MT7902_RXQ_BAND0, MT7902_RX_RING_SIZE,
 			       MT_RX_BUF_SIZE, MT_RX_DATA_RING_BASE);
 	if (ret)
 		return ret;
@@ -231,7 +231,7 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 		.survey_flags = SURVEY_INFO_TIME_TX |
 				SURVEY_INFO_TIME_RX |
 				SURVEY_INFO_TIME_BSS_RX,
-		.token_size = mt7902_TOKEN_SIZE,
+		.token_size = MT7902_TOKEN_SIZE,
 		.tx_prepare_skb = mt7902e_tx_prepare_skb,
 		.tx_complete_skb = mt76_connac_tx_complete_skb,
 		.rx_check = mt7902_rx_check,
@@ -567,5 +567,5 @@ MODULE_FIRMWARE(MT7902_FIRMWARE_WM);
 MODULE_FIRMWARE(MT7902_ROM_PATCH);
 MODULE_AUTHOR("Sean Wang <sean.wang@mediatek.com>");
 MODULE_AUTHOR("Lorenzo Bianconi <lorenzo@kernel.org>");
-MODULE_DESCRIPTION("MediaTek mt7902E (PCIe) wireless driver");
+MODULE_DESCRIPTION("MediaTek MT7902E (PCIe) wireless driver");
 MODULE_LICENSE("Dual BSD/GPL");

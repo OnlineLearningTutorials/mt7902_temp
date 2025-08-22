@@ -1,8 +1,8 @@
 /* SPDX-License-Identifier: ISC */
 /* Copyright (C) 2020 MediaTek Inc. */
 
-#ifndef __mt7902_H
-#define __mt7902_H
+#ifndef __MT7902_H
+#define __MT7902_H
 
 #include "../mt792x.h"
 #include "regs.h"
@@ -11,22 +11,22 @@
 //#define MT7902_ROM_PATCH	"mediatek/WIFI_MT7902_patch_mcu_1_2_hdr.bin"
 
 
-#define mt7902_TX_RING_SIZE		2048
-#define mt7902_TX_MCU_RING_SIZE		256
-#define mt7902_TX_FWDL_RING_SIZE	128
+#define MT7902_TX_RING_SIZE		2048
+#define MT7902_TX_MCU_RING_SIZE		256
+#define MT7902_TX_FWDL_RING_SIZE	128
 
-#define mt7902_RX_RING_SIZE		1536
-#define mt7902_RX_MCU_RING_SIZE		8
-#define mt7902_RX_MCU_WA_RING_SIZE	512
+#define MT7902_RX_RING_SIZE		1536
+#define MT7902_RX_MCU_RING_SIZE		8
+#define MT7902_RX_MCU_WA_RING_SIZE	512
 
-#define mt7902_EEPROM_SIZE		3584
-#define mt7902_TOKEN_SIZE		8192
+#define MT7902_EEPROM_SIZE		3584
+#define MT7902_TOKEN_SIZE		8192
 
-#define mt7902_EEPROM_BLOCK_SIZE	16
+#define MT7902_EEPROM_BLOCK_SIZE	16
 
-#define mt7902_SKU_RATE_NUM		161
-#define mt7902_SKU_MAX_DELTA_IDX	mt7902_SKU_RATE_NUM
-#define mt7902_SKU_TABLE_SIZE		(mt7902_SKU_RATE_NUM + 1)
+#define MT7902_SKU_RATE_NUM		161
+#define MT7902_SKU_MAX_DELTA_IDX	MT7902_SKU_RATE_NUM
+#define MT7902_SKU_TABLE_SIZE		(MT7902_SKU_RATE_NUM + 1)
 
 #define MCU_UNI_EVENT_ROC  0x27
 #define MCU_UNI_EVENT_CLC  0x80
@@ -45,9 +45,9 @@ enum {
 };
 
 enum mt7902_roc_req {
-	mt7902_ROC_REQ_JOIN,
-	mt7902_ROC_REQ_ROC,
-	mt7902_ROC_REQ_NUM
+	MT7902_ROC_REQ_JOIN,
+	MT7902_ROC_REQ_ROC,
+	MT7902_ROC_REQ_NUM
 };
 
 enum {
@@ -86,10 +86,10 @@ struct mt7902_roc_grant_tlv {
 } __packed;
 
 enum mt7902_sdio_pkt_type {
-	mt7902_SDIO_TXD,
-	mt7902_SDIO_DATA,
-	mt7902_SDIO_CMD,
-	mt7902_SDIO_FWDL,
+	MT7902_SDIO_TXD,
+	MT7902_SDIO_DATA,
+	MT7902_SDIO_CMD,
+	MT7902_SDIO_FWDL,
 };
 
 struct mt7902_sdio_intr {
@@ -109,22 +109,22 @@ struct mt7902_sdio_intr {
 #define to_rcpi(rssi)			(2 * (rssi) + 220)
 
 enum mt7902_txq_id {
-	mt7902_TXQ_BAND0,
-	mt7902_TXQ_BAND1,
-	mt7902_TXQ_FWDL=16,
-	mt7902_TXQ_MCU_WM,
+	MT7902_TXQ_BAND0,
+	MT7902_TXQ_BAND1,
+	MT7902_TXQ_MCU_WM = 15,
+	MT7902_TXQ_FWDL = 16,
 };
 
 enum mt7902_rxq_id {
-	mt7902_RXQ_BAND0 = 0,
-	mt7902_RXQ_BAND1,
-	mt7902_RXQ_MCU_WM = 0,
+	MT7902_RXQ_BAND0 = 0,
+	MT7902_RXQ_BAND1,
+	MT7902_RXQ_MCU_WM = 0,
 };
 
 enum {
-	mt7902_CLC_POWER,
-	mt7902_CLC_CHAN,
-	mt7902_CLC_MAX_NUM,
+	MT7902_CLC_POWER,
+	MT7902_CLC_CHAN,
+	MT7902_CLC_MAX_NUM,
 };
 
 struct mt7902_clc_rule {
@@ -342,4 +342,9 @@ int mt7902_mcu_abort_roc(struct mt792x_phy *phy, struct mt792x_vif *vif,
 			 u8 token_id);
 void mt7902_roc_abort_sync(struct mt792x_dev *dev);
 int mt7902_mcu_set_rssimonitor(struct mt792x_dev *dev, struct ieee80211_vif *vif);
+int mt7902_mcu_add_dev_info(struct mt76_phy *phy,
+			    struct ieee80211_bss_conf *bss_conf,
+                struct mt76_vif_link *mvif, bool enable);
+int mt7902_mcu_add_bss_info(struct mt792x_phy *phy,
+			    struct ieee80211_vif *vif, int enable);
 #endif

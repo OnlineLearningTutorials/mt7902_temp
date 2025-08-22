@@ -1,8 +1,8 @@
 /* SPDX-License-Identifier: ISC */
 /* Copyright (C) 2020 MediaTek Inc. */
 
-#ifndef __mt7902_MCU_H
-#define __mt7902_MCU_H
+#ifndef __MT7902_MCU_H
+#define __MT7902_MCU_H
 
 #include "../mt76_connac_mcu.h"
 
@@ -41,7 +41,7 @@ enum {
 struct mt7902_mcu_eeprom_info {
 	__le32 addr;
 	__le32 valid;
-	u8 data[mt7902_EEPROM_BLOCK_SIZE];
+	u8 data[MT7902_EEPROM_BLOCK_SIZE];
 } __packed;
 
 #define MT_RA_RATE_NSS			GENMASK(8, 6)
@@ -86,11 +86,11 @@ enum {
 };
 
 enum {
-	mt7902_TM_NORMAL,
-	mt7902_TM_TESTMODE,
-	mt7902_TM_ICAP,
-	mt7902_TM_ICAP_OVERLAP,
-	mt7902_TM_WIFISPECTRUM,
+	MT7902_TM_NORMAL,
+	MT7902_TM_TESTMODE,
+	MT7902_TM_ICAP,
+	MT7902_TM_ICAP_OVERLAP,
+	MT7902_TM_WIFISPECTRUM,
 };
 
 struct mt7902_rftest_cmd {
@@ -117,4 +117,75 @@ struct mt7902_clc_info_tlv {
 		       */
 	u8 rsv[63];
 } __packed;
+
+
+struct bss_info_bmc_rate {
+	__le16 tag;
+	__le16 len;
+	__le16 bc_trans;
+	__le16 mc_trans;
+	u8 short_preamble;
+	u8 rsv[7];
+} __packed;
+
+struct bss_info_ra {
+	__le16 tag;
+	__le16 len;
+	u8 op_mode;
+	u8 adhoc_en;
+	u8 short_preamble;
+	u8 tx_streams;
+	u8 rx_streams;
+	u8 algo;
+	u8 force_sgi;
+	u8 force_gf;
+	u8 ht_mode;
+	u8 has_20_sta;		/* Check if any sta support GF. */
+	u8 bss_width_trigger_events;
+	u8 vht_nss_cap;
+	u8 vht_bw_signal;	/* not use */
+	u8 vht_force_sgi;	/* not use */
+	u8 se_off;
+	u8 antenna_idx;
+	u8 train_up_rule;
+	u8 rsv[3];
+	unsigned short train_up_high_thres;
+	short train_up_rule_rssi;
+	unsigned short low_traffic_thres;
+	__le16 max_phyrate;
+	__le32 phy_cap;
+	__le32 interval;
+	__le32 fast_interval;
+} __packed;
+
+struct bss_info_hw_amsdu {
+	__le16 tag;
+	__le16 len;
+	__le32 cmp_bitmap_0;
+	__le32 cmp_bitmap_1;
+	__le16 trig_thres;
+	u8 enable;
+	u8 rsv;
+} __packed;
+
+struct bss_info_he {
+	__le16 tag;
+	__le16 len;
+	u8 he_pe_duration;
+	u8 vht_op_info_present;
+	__le16 he_rts_thres;
+	__le16 max_nss_mcs[CMD_HE_MCS_BW_NUM];
+	u8 rsv[6];
+} __packed;
+
+#define MT7902_BSS_UPDATE_MAX_SIZE	(sizeof(struct sta_req_hdr) +	\
+					 sizeof(struct bss_info_omac) +	\
+					 sizeof(struct bss_info_basic) +\
+					 sizeof(struct bss_info_rf_ch) +\
+					 sizeof(struct bss_info_ra) +	\
+					 sizeof(struct bss_info_hw_amsdu) +\
+					 sizeof(struct bss_info_he) +	\
+					 sizeof(struct bss_info_bmc_rate) +\
+					 sizeof(struct bss_info_ext_bss))
+
 #endif

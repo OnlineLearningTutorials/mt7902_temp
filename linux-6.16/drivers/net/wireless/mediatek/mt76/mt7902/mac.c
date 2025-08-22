@@ -630,22 +630,32 @@ mt7902_vif_connect_iter(void *priv, u8 *mac,
 {
 	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
 	struct mt792x_dev *dev = mvif->phy->dev;
-	struct ieee80211_hw *hw = mt76_hw(dev);
+	//struct ieee80211_hw *hw = mt76_hw(dev);
 
 	if (vif->type == NL80211_IFTYPE_STATION)
 		ieee80211_disconnect(vif, true);
 
-	mt76_connac_mcu_uni_add_dev(&dev->mphy, &vif->bss_conf,
-				    &mvif->bss_conf.mt76,
-				    &mvif->sta.deflink.wcid, true);
+	// mt76_connac_mcu_uni_add_dev(&dev->mphy, &vif->bss_conf,
+	// 			    &mvif->bss_conf.mt76,
+	// 			    &mvif->sta.deflink.wcid, true);
+
+    u32 ret = mt7902_mcu_add_dev_info(&dev->mphy, &vif->bss_conf, &mvif->bss_conf.mt76,
+                    true);
+
+    printk(KERN_DEBUG "vif_connect_iter: add dev info ret = %d\n", ret);
+    
+
 	mt7902_mcu_set_tx(dev, vif);
 
 	if (vif->type == NL80211_IFTYPE_AP) {
-		mt76_connac_mcu_uni_add_bss(dev->phy.mt76, vif, &mvif->sta.deflink.wcid,
-					    true, NULL);
+		//mt76_connac_mcu_uni_add_bss(dev->phy.mt76, vif, &mvif->sta.deflink.wcid,
+		//			    true, NULL);
+
+		ret = mt7902_mcu_add_bss_info(mvif->phy, vif, true);
+		printk(KERN_DEBUG "vif_connect_iter: add bss info ret = %d\n", ret);
 		mt7902_mcu_sta_update(dev, NULL, vif, true,
 				      MT76_STA_INFO_STATE_NONE);
-		mt7902_mcu_uni_add_beacon_offload(dev, hw, vif, true);
+		//mt7902_mcu_uni_add_beacon_offload(dev, hw, vif, true);
 	}
 }
 
@@ -791,7 +801,7 @@ int mt7902_usb_sdio_tx_prepare_skb(struct mt76_dev *mdev, void *txwi_ptr,
 	pktid = mt76_tx_status_skb_add(&dev->mt76, wcid, skb);
 	mt7902_usb_sdio_write_txwi(dev, wcid, qid, sta, key, pktid, skb);
 
-	type = mt76_is_sdio(mdev) ? mt7902_SDIO_DATA : 0;
+	type = mt76_is_sdio(mdev) ? MT7902_SDIO_DATA : 0;
 	mt792x_skb_add_usb_sdio_hdr(dev, skb, type);
 	pad = round_up(skb->len, 4) - skb->len;
 	if (mt76_is_usb(mdev))
@@ -840,6 +850,7 @@ bool mt7902_usb_sdio_tx_status_data(struct mt76_dev *mdev, u8 *update)
 EXPORT_SYMBOL_GPL(mt7902_usb_sdio_tx_status_data);
 
 #if IS_ENABLED(CONFIG_IPV6)
+/*
 void mt7902_set_ipv6_ns_work(struct work_struct *work)
 {
 	struct mt792x_dev *dev = container_of(work, struct mt792x_dev,
@@ -862,5 +873,5 @@ void mt7902_set_ipv6_ns_work(struct work_struct *work)
 
 	if (ret)
 		skb_queue_purge(&dev->ipv6_ns_list);
-}
+}*/
 #endif
