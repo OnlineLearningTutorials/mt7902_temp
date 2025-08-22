@@ -65,7 +65,7 @@ int mt76_connac_mcu_init_download(struct mt76_dev *dev, u32 addr, u32 len,
 	int cmd;
 
 	if ((!is_connac_v1(dev) && addr == MCU_PATCH_ADDRESS) ||
-	    (is_mt7902(dev) && addr == 0x900000) ||
+        (is_mt7902(dev) && addr == 0x900000) ||
 	    (is_mt7921(dev) && addr == 0x900000) ||
 	    (is_mt7925(dev) && (addr == 0x900000 || addr == 0xe0002800)) ||
 	    (is_mt799x(dev) && addr == 0x900000))
@@ -1145,6 +1145,7 @@ int mt76_connac_mcu_uni_add_dev(struct mt76_phy *phy,
 				struct mt76_wcid *wcid,
 				bool enable)
 {
+	printk(KERN_INFO "uni add dev\n");
 	struct mt76_dev *dev = phy->dev;
 	struct {
 		struct {
@@ -1460,6 +1461,7 @@ mt76_connac_mcu_uni_bss_he_tlv(struct mt76_phy *phy, struct ieee80211_vif *vif,
 int mt76_connac_mcu_uni_set_chctx(struct mt76_phy *phy, struct mt76_vif_link *mvif,
 				  struct ieee80211_chanctx_conf *ctx)
 {
+	printk(KERN_INFO "uni set chctx\n");
 	struct cfg80211_chan_def *chandef = ctx ? &ctx->def : &phy->chandef;
 	int freq1 = chandef->center_freq1, freq2 = chandef->center_freq2;
 	enum nl80211_band band = chandef->chan->band;
@@ -1545,6 +1547,7 @@ int mt76_connac_mcu_uni_add_bss(struct mt76_phy *phy,
 				bool enable,
 				struct ieee80211_chanctx_conf *ctx)
 {
+	printk(KERN_INFO "uni add bss\n");
 	struct mt76_vif_link *mvif = (struct mt76_vif_link *)vif->drv_priv;
 	struct cfg80211_chan_def *chandef = ctx ? &ctx->def : &phy->chandef;
 	enum nl80211_band band = chandef->chan->band;
@@ -3074,8 +3077,6 @@ static u32 mt76_connac2_get_data_mode(struct mt76_dev *dev, u32 info)
 
 int mt76_connac2_load_patch(struct mt76_dev *dev, const char *fw_name)
 {
-	printk(KERN_DEBUG "mt76_connac_mcu.c - mt76_connac2_load_patch(dev, %s)", fw_name);
-
 	int i, ret, sem, max_len = mt76_is_sdio(dev) ? 2048 : 4096;
 	const struct mt76_connac2_patch_hdr *hdr;
 	const struct firmware *fw = NULL;
@@ -3091,7 +3092,6 @@ int mt76_connac2_load_patch(struct mt76_dev *dev, const char *fw_name)
 		return -EAGAIN;
 	}
 
-	printk(KERN_DEBUG "mt76_connac_mcu.c - mt76_connac2_load_patch - request_firmware");
 	ret = request_firmware(&fw, fw_name, dev->dev);
 	if (ret)
 		goto out;
@@ -3102,7 +3102,6 @@ int mt76_connac2_load_patch(struct mt76_dev *dev, const char *fw_name)
 		goto out;
 	}
 
-	printk(KERN_DEBUG "mt76_connac_mcu.c - mt76_connac2_load_patch(dev, %s)", fw_name);
 	hdr = (const void *)fw->data;
 	dev_info(dev->dev, "HW/SW Version: 0x%x, Build Time: %.16s\n",
 		 be32_to_cpu(hdr->hw_sw_ver), hdr->build_date);
