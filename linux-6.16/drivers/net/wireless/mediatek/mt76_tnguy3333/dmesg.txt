@@ -1,30 +1,32 @@
-/net/ipv6/conf/all/disable_ipv6" pid=5690 comm="cups-browsed" requested_mask="r" denied_mask="r" fsuid=139 ouid=0
+
 pci.c - mt7902_pci_probe  =============================================================================================================================================================================================================================
 mt7902e 0000:03:00.0: ASIC revision: 79020000
 mt792x_wfsys_reset
-pci.c - mt7902_dma_init
-init.c - mt7902_register_device
-init.c - mt7902_init_work
-init.c - mt7902_init_hardware
-init.c - __mt7902_init_hardware
-pci_mcu.c - mt7902e_mcu_init
-pci_mcu.c - mt7902e_driver_own
-mcu.c - mt7902_run_firmware
-mcu.c - mt7902_load_firmware
-mcu.c - mt7902_firmware_state
+pci.c - mt7902_dma_init(dev)
+init.c - mt7902_register_device(dev)
+init.c - mt7902_init_work(work)
+init.c - mt7902_init_hardware(dev)
+init.c - __mt7902_init_hardware(dev)
+pci_mcu.c - mt7902e_mcu_init(dev)
+pci_mcu.c - mt7902e_driver_own(dev)
+mcu.c - mt7902_run_firmware(dev)
+mcu.c - mt7902_load_firmware(dev)
+mcu.c - mt7902_firmware_state(dev, wa: 0
 mcu.c - mt7902_load_firmware - load_patch
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 16, seq)
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
-mcu.c - mt7902_mcu_rx_event
-mcu.c - mt7902_mcu_parse_response
+mac.c - mt7902_rx_check(mdev, data, len: 36)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 16, skb, seq: 1)
 mt7902e 0000:03:00.0: HW/SW Version: 0x8a108a10, Build Time: 20220729160652a
 
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 5, seq)
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
-mcu.c - mt7902_mcu_rx_event
-mcu.c - mt7902_mcu_parse_response
+mac.c - mt7902_rx_check(mdev, data, len: 36)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 5, skb, seq: 2)
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 238, seq)
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 238, seq)
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 238, seq)
@@ -55,22 +57,25 @@ pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 238, seq)
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 238, seq)
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 238, seq)
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 7, seq)
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
-mcu.c - mt7902_mcu_rx_event
-mcu.c - mt7902_mcu_parse_response
+mac.c - mt7902_rx_check(mdev, data, len: 36)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 7, skb, seq: 2)
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 16, seq)
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
-mcu.c - mt7902_mcu_rx_event
-mcu.c - mt7902_mcu_parse_response
+mac.c - mt7902_rx_check(mdev, data, len: 36)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 16, skb, seq: 3)
 mcu.c - mt7902_load_firmware - load_ram
 mt7902e 0000:03:00.0: WM Firmware Version: ____000000, Build Time: 20220729160729
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 1, seq)
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
-mcu.c - mt7902_mcu_rx_event
-mcu.c - mt7902_mcu_parse_response
+mac.c - mt7902_rx_check(mdev, data, len: 36)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 4)
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 238, seq)
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 238, seq)
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 238, seq)
@@ -172,10 +177,11 @@ pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 238, seq)
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 238, seq)
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 238, seq)
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 1, seq)
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
-mcu.c - mt7902_mcu_rx_event
-mcu.c - mt7902_mcu_parse_response
+mac.c - mt7902_rx_check(mdev, data, len: 36)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 15)
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 238, seq)
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 238, seq)
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 238, seq)
@@ -248,40 +254,45 @@ pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 238, seq)
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 238, seq)
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 238, seq)
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 1, seq)
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
-mcu.c - mt7902_mcu_rx_event
-mcu.c - mt7902_mcu_parse_response
+mac.c - mt7902_rx_check(mdev, data, len: 36)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 12)
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 238, seq)
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 238, seq)
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 238, seq)
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 2, seq)
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
-mcu.c - mt7902_mcu_rx_event
-mcu.c - mt7902_mcu_parse_response
+mac.c - mt7902_rx_check(mdev, data, len: 36)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2, skb, seq: 1)
 mcu.c - mt7902_mcu_get_nic_capability
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 262282, seq)
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
-mcu.c - mt7902_mcu_rx_event
-mcu.c - mt7902_mcu_parse_response
+mac.c - mt7902_rx_check(mdev, data, len: 508)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 262282, skb, seq: 2)
 mcu.c - mt7902_mcu_parse_phy_cap
 mcu.c - mt7902_load_clc
 mcu.c - mt7902_mcu_read_eeprom
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 66029, seq)
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
-mcu.c - mt7902_mcu_rx_event
-mcu.c - mt7902_mcu_parse_response
+mac.c - mt7902_rx_check(mdev, data, len: 60)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 66029, skb, seq: 3)
 mcu.c - mt7902_mcu_fw_log_2_host
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 262341, seq)
 mcu.c - mt7902_mcu_set_eeprom
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 8685, seq)
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
-mcu.c - mt7902_mcu_rx_event
-mcu.c - mt7902_mcu_parse_response
+mac.c - mt7902_rx_check(mdev, data, len: 44)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 8685, skb, seq: 5)
 init.c - mt7902_mac_init
 mac.c - mt7902_mac_wtbl_update
 mac.c - mt7902_mac_wtbl_update
@@ -304,10 +315,11 @@ mac.c - mt7902_mac_wtbl_update
 mac.c - mt7902_mac_wtbl_update
 mac.c - mt7902_mac_wtbl_update
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 16109, seq)
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
-mcu.c - mt7902_mcu_rx_event
-mcu.c - mt7902_mcu_parse_response
+mac.c - mt7902_rx_check(mdev, data, len: 44)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 16109, skb, seq: 6)
 main.c - mt7902_set_stream_he_caps
 main.c - mt7902_init_he_caps
 main.c - mt7902_init_he_caps
@@ -338,17 +350,19 @@ pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 262346, seq)
 main.c - mt7902_start
 main.c - __mt7902_start
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 18157, seq)
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
-mcu.c - mt7902_mcu_rx_event
-mcu.c - mt7902_mcu_parse_response
+mac.c - mt7902_rx_check(mdev, data, len: 44)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 18157, skb, seq: 5)
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 262159, seq)
 mcu.c - mt7902_mcu_set_chan_info
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 20205, seq)
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
-mcu.c - mt7902_mcu_rx_event
-mcu.c - mt7902_mcu_parse_response
+mac.c - mt7902_rx_check(mdev, data, len: 44)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 20205, skb, seq: 7)
 main.c - mt7902_set_tx_sar_pwr
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 262237, seq)
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 262237, seq)
@@ -368,23 +382,27 @@ pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 1517, seq)
 main.c - mt7902_add_interface
 mcu.c - mt7902_mcu_add_dev_info
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 10989, seq)
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
-mcu.c - mt7902_mcu_rx_event
+mac.c - mt7902_rx_check(mdev, data, len: 40)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
 mcu.c - mt7902_mcu_rx_unsolicited_event
 mcu.c - mt7902_mcu_low_power_event
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
-mcu.c - mt7902_mcu_rx_event
-mcu.c - mt7902_mcu_parse_response
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
-mcu.c - mt7902_mcu_rx_event
-mcu.c - mt7902_mcu_parse_response
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
-mcu.c - mt7902_mcu_rx_event
-mcu.c - mt7902_mcu_parse_response
+mac.c - mt7902_rx_check(mdev, data, len: 44)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10989, skb, seq: 6)
+mac.c - mt7902_rx_check(mdev, data, len: 44)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10989, skb, seq: 6)
+mac.c - mt7902_rx_check(mdev, data, len: 44)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10989, skb, seq: 6)
 add_interface: add dev info, ret=0
 mac.c - mt7902_mac_wtbl_update
 main.c - mt7902_bss_info_changed
@@ -395,10 +413,11 @@ main.c - mt7902_config
 main.c - mt7902_set_channel
 mcu.c - mt7902_mcu_set_chan_info
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 2285, seq)
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
-mcu.c - mt7902_mcu_rx_event
-mcu.c - mt7902_mcu_parse_response
+mac.c - mt7902_rx_check(mdev, data, len: 44)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2285, skb, seq: 8)
 main.c - mt7902_set_tx_sar_pwr
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 262237, seq)
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 262237, seq)
@@ -414,13 +433,14 @@ pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 262237, seq)
 main.c - mt7902_configure_filter
 mcu.c - mt7902_mcu_set_rxfilter
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 262154, seq)
+main.c - mt7902_configure_filter
+mcu.c - mt7902_mcu_set_rxfilter
+pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 262154, seq)
 main.c - mt7902_config
-main.c - mt7902_configure_filter
-mcu.c - mt7902_mcu_set_rxfilter
-pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 262154, seq)
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
-mcu.c - mt7902_mcu_rx_event
+mac.c - mt7902_rx_check(mdev, data, len: 40)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
 mcu.c - mt7902_mcu_rx_unsolicited_event
 mcu.c - mt7902_mcu_low_power_event
 main.c - mt7902_hw_scan
@@ -428,62 +448,43 @@ pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 262147, seq)
 main.c - mt7902_configure_filter
 mcu.c - mt7902_mcu_set_rxfilter
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 262154, seq)
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
-mcu.c - mt7902_mcu_rx_event
+init.c - mt7902_thermal_temp_show
+mcu.c - mt7902_mcu_get_temperature
+pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 11501, seq)
+mac.c - mt7902_rx_check(mdev, data, len: 44)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 9)
+mac.c - mt7902_rx_check(mdev, data, len: 512)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
 mcu.c - mt7902_mcu_rx_unsolicited_event
 mcu.c - mt7902_mcu_scan_event
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
-mcu.c - mt7902_mcu_rx_event
+mac.c - mt7902_rx_check(mdev, data, len: 40)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
 mcu.c - mt7902_mcu_rx_unsolicited_event
 mcu.c - mt7902_mcu_low_power_event
 main.c - mt7902_scan_work
 main.c - mt7902_hw_scan
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 262147, seq)
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
-mcu.c - mt7902_mcu_rx_event
+mac.c - mt7902_rx_check(mdev, data, len: 522)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 8
+mac.c - mt7902_mac_fill_rx
+mac.c - mt7902_rx_check(mdev, data, len: 512)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
 mcu.c - mt7902_mcu_rx_unsolicited_event
 mcu.c - mt7902_mcu_scan_event
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
-mcu.c - mt7902_mcu_rx_event
-mcu.c - mt7902_mcu_rx_unsolicited_event
-mcu.c - mt7902_mcu_low_power_event
-main.c - mt7902_scan_work
-main.c - mt7902_hw_scan
-pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 262147, seq)
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
-mac.c - mt7902_mac_fill_rx
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
-mac.c - mt7902_mac_fill_rx
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
-mcu.c - mt7902_mcu_rx_event
-mcu.c - mt7902_mcu_rx_unsolicited_event
-mcu.c - mt7902_mcu_scan_event
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
-mcu.c - mt7902_mcu_rx_event
-mcu.c - mt7902_mcu_rx_unsolicited_event
-mcu.c - mt7902_mcu_low_power_event
-main.c - mt7902_scan_work
-main.c - mt7902_hw_scan
-pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 262147, seq)
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
-mac.c - mt7902_mac_fill_rx
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
-mcu.c - mt7902_mcu_rx_event
-mcu.c - mt7902_mcu_rx_unsolicited_event
-mcu.c - mt7902_mcu_scan_event
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
-mcu.c - mt7902_mcu_rx_event
+mac.c - mt7902_rx_check(mdev, data, len: 40)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
 mcu.c - mt7902_mcu_rx_unsolicited_event
 mcu.c - mt7902_mcu_low_power_event
 main.c - mt7902_scan_work
@@ -492,10 +493,11 @@ main.c - mt7902_config
 main.c - mt7902_set_channel
 mcu.c - mt7902_mcu_set_chan_info
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 2285, seq)
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
-mcu.c - mt7902_mcu_rx_event
-mcu.c - mt7902_mcu_parse_response
+mac.c - mt7902_rx_check(mdev, data, len: 44)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2285, skb, seq: 11)
 main.c - mt7902_bss_info_changed
 main.c - mt7902_bss_info_changed
 main.c - mt7902_bss_info_changed
@@ -505,38 +507,36 @@ main.c - mt7902_mac_sta_add
 mac.c - mt7902_mac_wtbl_update
 mcu.c - mt7902_mcu_sta_update
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 9709, seq)
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
-mcu.c - mt7902_mcu_rx_event
-mcu.c - mt7902_mcu_rx_unsolicited_event
-mcu.c - mt7902_mcu_low_power_event
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
-mcu.c - mt7902_mcu_rx_event
-mcu.c - mt7902_mcu_parse_response
+mac.c - mt7902_rx_check(mdev, data, len: 44)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 9709, skb, seq: 13)
 main.c - mt7902_regd_set_6ghz_power_type
 main.c - mt7902_calc_vif_num
 mcu.c - mt7902_mcu_set_clc
 mcu.c - __mt7902_mcu_set_clc
 mcu.c - __mt7902_mcu_set_clc
 mcu.c - __mt7902_mcu_set_clc
-wlan2: authenticate with d6:3d:60:62:d1:59 (local address=1c:ce:51:d9:ca:00)
-wlan2: send auth to d6:3d:60:62:d1:59 (try 1/3)
+wlan8: authenticate with d6:3d:60:62:d1:59 (local address=1c:ce:51:d9:ca:00)
+wlan8: send auth to d6:3d:60:62:d1:59 (try 1/3)
 pci_mac.c - mt7902e_tx_prepare_skb
 main.c - mt7902_configure_filter
 mcu.c - mt7902_mcu_set_rxfilter
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 262154, seq)
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
+mac.c - mt7902_rx_check(mdev, data, len: 86)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 8
 mac.c - mt7902_mac_fill_rx
-wlan2: authenticated
+wlan8: authenticated
 main.c - mt7902_sta_state
-wlan2: associate with d6:3d:60:62:d1:59 (try 1/3)
+wlan8: associate with d6:3d:60:62:d1:59 (try 1/3)
 pci_mac.c - mt7902e_tx_prepare_skb
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
+mac.c - mt7902_rx_check(mdev, data, len: 343)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 8
 mac.c - mt7902_mac_fill_rx
-wlan2: RX AssocResp from d6:3d:60:62:d1:59 (capab=0x1511 status=0 aid=5)
+wlan8: RX AssocResp from d6:3d:60:62:d1:59 (capab=0x1511 status=0 aid=1)
 main.c - mt7902_sta_state
 main.c - mt7902_mac_sta_event
 mcu.c - mt7902_mcu_add_bss_info
@@ -547,39 +547,43 @@ mcu.c - mt7902_mcu_bss_ra_tlv
 mcu.c - mt7902_mcu_bss_hw_amsdu_tlv
 mcu.c - mt7902_mcu_bss_he_tlv
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 9965, seq)
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
-mcu.c - mt7902_mcu_rx_event
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
+mac.c - mt7902_rx_check(mdev, data, len: 195)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 2
 mac.c - mt7902_mac_fill_rx
-mcu.c - mt7902_mcu_parse_response
+mac.c - mt7902_rx_check(mdev, data, len: 44)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 9965, skb, seq: 15)
 mac_sta_event: add bss info ret = 0
 mac.c - mt7902_mac_wtbl_update
 mcu.c - mt7902_mcu_sta_update
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 9709, seq)
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
-mcu.c - mt7902_mcu_rx_event
-mcu.c - mt7902_mcu_parse_response
+mac.c - mt7902_rx_check(mdev, data, len: 44)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 9709, skb, seq: 1)
 main.c - mt7902_bss_info_changed
 mcu.c - mt7902_mcu_set_tx
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 262173, seq)
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 262320, seq)
 mcu.c - mt7902_mcu_sta_update
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 9709, seq)
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
-mcu.c - mt7902_mcu_rx_event
-mcu.c - mt7902_mcu_parse_response
+mac.c - mt7902_rx_check(mdev, data, len: 44)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 9709, skb, seq: 4)
 mcu.c - mt7902_mcu_set_beacon_filter
 mcu.c - mt7902_mcu_set_rxfilter
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 262154, seq)
-wlan2: associated
+wlan8: associated
 pci_mac.c - mt7902e_tx_prepare_skb
-wlx8c882b6009b8: deauthenticating from d6:3d:60:62:d1:58 by local choice (Reason: 3=DEAUTH_LEAVING)
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
+mac.c - mt7902_rx_check(mdev, data, len: 251)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 2
 mac.c - mt7902_mac_fill_rx
 main.c - mt7902_set_key
 set_key: falling back to software decryption, returning not supp for PTK/GTK
@@ -591,14 +595,14 @@ pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 262346, seq)
 main.c - mt7902_mac_sta_event
 main.c - mt7902_sta_set_decap_offload
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 9709, seq)
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
-mcu.c - mt7902_mcu_rx_event
-mcu.c - mt7902_mcu_parse_response
+mac.c - mt7902_rx_check(mdev, data, len: 44)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 9709, skb, seq: 7)
 decap_offload - update_hdr_trans sta rec update, ret = 0
 main.c - mt7902_bss_info_changed
 pci_mac.c - mt7902e_tx_prepare_skb
-pci_mac.c - mt7902e_tx_prepare_skb
 main.c - mt7902_configure_filter
 mcu.c - mt7902_mcu_set_rxfilter
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 262154, seq)
@@ -608,9 +612,20 @@ pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 262154, seq)
 main.c - mt7902_configure_filter
 mcu.c - mt7902_mcu_set_rxfilter
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 262154, seq)
+main.c - mt7902_configure_filter
+mcu.c - mt7902_mcu_set_rxfilter
+pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 262154, seq)
 pci_mac.c - mt7902e_tx_prepare_skb
 pci_mac.c - mt7902e_tx_prepare_skb
 pci_mac.c - mt7902e_tx_prepare_skb
+init.c - mt7902_thermal_temp_show
+mcu.c - mt7902_mcu_get_temperature
+pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 11501, seq)
+mac.c - mt7902_rx_check(mdev, data, len: 44)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 12)
 pci_mac.c - mt7902e_tx_prepare_skb
 main.c - mt7902_configure_filter
 mcu.c - mt7902_mcu_set_rxfilter
@@ -624,14 +639,173 @@ pci_mac.c - mt7902e_tx_prepare_skb
 pci_mac.c - mt7902e_tx_prepare_skb
 pci_mac.c - mt7902e_tx_prepare_skb
 pci_mac.c - mt7902e_tx_prepare_skb
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
+pci_mac.c - mt7902e_tx_prepare_skb
+init.c - mt7902_thermal_temp_show
+mcu.c - mt7902_mcu_get_temperature
+pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 11501, seq)
+mac.c - mt7902_rx_check(mdev, data, len: 44)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 15)
+init.c - mt7902_thermal_temp_show
+mcu.c - mt7902_mcu_get_temperature
+pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 11501, seq)
+mac.c - mt7902_rx_check(mdev, data, len: 44)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 1)
+init.c - mt7902_thermal_temp_show
+mcu.c - mt7902_mcu_get_temperature
+pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 11501, seq)
+mac.c - mt7902_rx_check(mdev, data, len: 44)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 2)
+init.c - mt7902_thermal_temp_show
+mcu.c - mt7902_mcu_get_temperature
+pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 11501, seq)
+mac.c - mt7902_rx_check(mdev, data, len: 44)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 3)
+init.c - mt7902_thermal_temp_show
+mcu.c - mt7902_mcu_get_temperature
+pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 11501, seq)
+mac.c - mt7902_rx_check(mdev, data, len: 44)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 4)
+init.c - mt7902_thermal_temp_show
+mcu.c - mt7902_mcu_get_temperature
+pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 11501, seq)
+mac.c - mt7902_rx_check(mdev, data, len: 44)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 5)
+mac.c - mt7902_rx_check(mdev, data, len: 106)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 8
 mac.c - mt7902_mac_fill_rx
 main.c - mt7902_bss_info_changed
-pci.c - mt7902_pci_remove
-pci.c - mt7902e_unregister_device
-wlan2: deauthenticating from d6:3d:60:62:d1:59 by local choice (Reason: 3=DEAUTH_LEAVING)
+init.c - mt7902_thermal_temp_show
+mcu.c - mt7902_mcu_get_temperature
+pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 11501, seq)
+mac.c - mt7902_rx_check(mdev, data, len: 44)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 6)
+init.c - mt7902_thermal_temp_show
+mcu.c - mt7902_mcu_get_temperature
+pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 11501, seq)
+mac.c - mt7902_rx_check(mdev, data, len: 44)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 7)
+init.c - mt7902_thermal_temp_show
+mcu.c - mt7902_mcu_get_temperature
+pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 11501, seq)
+mac.c - mt7902_rx_check(mdev, data, len: 44)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 8)
+init.c - mt7902_thermal_temp_show
+mcu.c - mt7902_mcu_get_temperature
+pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 11501, seq)
+mac.c - mt7902_rx_check(mdev, data, len: 44)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 9)
+init.c - mt7902_thermal_temp_show
+mcu.c - mt7902_mcu_get_temperature
+pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 11501, seq)
+mac.c - mt7902_rx_check(mdev, data, len: 44)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 10)
+init.c - mt7902_thermal_temp_show
+mcu.c - mt7902_mcu_get_temperature
+pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 11501, seq)
+mac.c - mt7902_rx_check(mdev, data, len: 44)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 11)
+init.c - mt7902_thermal_temp_show
+mcu.c - mt7902_mcu_get_temperature
+pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 11501, seq)
+mac.c - mt7902_rx_check(mdev, data, len: 44)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 12)
+init.c - mt7902_thermal_temp_show
+mcu.c - mt7902_mcu_get_temperature
+pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 11501, seq)
+mac.c - mt7902_rx_check(mdev, data, len: 44)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 13)
+init.c - mt7902_thermal_temp_show
+mcu.c - mt7902_mcu_get_temperature
+pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 11501, seq)
+mac.c - mt7902_rx_check(mdev, data, len: 44)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 14)
+init.c - mt7902_thermal_temp_show
+mcu.c - mt7902_mcu_get_temperature
+pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 11501, seq)
+mac.c - mt7902_rx_check(mdev, data, len: 44)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 15)
+init.c - mt7902_thermal_temp_show
+mcu.c - mt7902_mcu_get_temperature
+pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 11501, seq)
+mac.c - mt7902_rx_check(mdev, data, len: 44)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 1)
+main.c - mt7902_configure_filter
+mcu.c - mt7902_mcu_set_rxfilter
+pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 262154, seq)
+main.c - mt7902_configure_filter
+mcu.c - mt7902_mcu_set_rxfilter
+pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 262154, seq)
+main.c - mt7902_configure_filter
+mcu.c - mt7902_mcu_set_rxfilter
+pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 262154, seq)
+main.c - mt7902_configure_filter
+mcu.c - mt7902_mcu_set_rxfilter
+pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 262154, seq)
+main.c - mt7902_configure_filter
+mcu.c - mt7902_mcu_set_rxfilter
+pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 262154, seq)
+wlan8: deauthenticating from d6:3d:60:62:d1:59 by local choice (Reason: 3=DEAUTH_LEAVING)
 main.c - mt7902_bss_info_changed
+init.c - mt7902_thermal_temp_show
+mcu.c - mt7902_mcu_get_temperature
+pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 11501, seq)
+mac.c - mt7902_rx_check(mdev, data, len: 44)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 7)
 pci_mac.c - mt7902e_tx_prepare_skb
 main.c - mt7902_sta_state
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 262346, seq)
@@ -644,10 +818,11 @@ main.c - mt7902_mac_sta_remove
 main.c - mt7902_roc_abort_sync
 mcu.c - mt7902_mcu_sta_update
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 9709, seq)
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
-mcu.c - mt7902_mcu_rx_event
-mcu.c - mt7902_mcu_parse_response
+mac.c - mt7902_rx_check(mdev, data, len: 44)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 9709, skb, seq: 10)
 mac.c - mt7902_mac_wtbl_update
 mcu.c - mt7902_mcu_add_bss_info
 mcu.c - mt7902_mcu_bss_rfch_tlv
@@ -657,10 +832,11 @@ mcu.c - mt7902_mcu_bss_ra_tlv
 mcu.c - mt7902_mcu_bss_hw_amsdu_tlv
 mcu.c - mt7902_mcu_bss_he_tlv
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 9965, seq)
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
-mcu.c - mt7902_mcu_rx_event
-mcu.c - mt7902_mcu_parse_response
+mac.c - mt7902_rx_check(mdev, data, len: 44)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 9965, skb, seq: 11)
 mac_sta_remove: add bss info ret = 0
 main.c - mt7902_regd_set_6ghz_power_type
 main.c - mt7902_calc_vif_num
@@ -674,10 +850,11 @@ pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 262173, seq)
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 262320, seq)
 mcu.c - mt7902_mcu_sta_update
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 9709, seq)
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
-mcu.c - mt7902_mcu_rx_event
-mcu.c - mt7902_mcu_parse_response
+mac.c - mt7902_rx_check(mdev, data, len: 44)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 9709, skb, seq: 14)
 mcu.c - mt7902_mcu_set_beacon_filter
 mcu.c - mt7902_mcu_set_bss_pm
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 262167, seq)
@@ -688,30 +865,26 @@ main.c - mt7902_config
 main.c - mt7902_set_channel
 mcu.c - mt7902_mcu_set_chan_info
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 2285, seq)
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
-mcu.c - mt7902_mcu_rx_event
-mcu.c - mt7902_mcu_parse_response
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
-mcu.c - mt7902_mcu_rx_event
+mac.c - mt7902_rx_check(mdev, data, len: 44)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2285, skb, seq: 2)
+mac.c - mt7902_rx_check(mdev, data, len: 128)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
 mcu.c - mt7902_mcu_rx_unsolicited_event
 mcu.c - mt7902_mcu_tx_done_event
 mac.c - mt7902_mac_add_txs
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
-mcu.c - mt7902_mcu_rx_event
+mac.c - mt7902_rx_check(mdev, data, len: 128)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
 mcu.c - mt7902_mcu_rx_unsolicited_event
 mcu.c - mt7902_mcu_tx_done_event
 mac.c - mt7902_mac_add_txs
 main.c - mt7902_config
-mac_link_bss_remove
-main.c - mt7902_stop
-mcu.c - mt7902_mcu_radio_led_ctrl
-pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 1517, seq)
-mac.c - mt7902_rx_check
-mac.c - mt7902_queue_rx_skb
-mcu.c - mt7902_mcu_rx_event
 init.c - mt7902_regd_notifier
 init.c - mt7902_regd_update
 mcu.c - mt7902_mcu_set_clc
@@ -732,6 +905,103 @@ pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 262237, seq)
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 262237, seq)
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 262237, seq)
 pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 262237, seq)
+mac.c - mt7902_rx_check(mdev, data, len: 128)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_rx_unsolicited_event
+mcu.c - mt7902_mcu_tx_done_event
+mac.c - mt7902_mac_add_txs
+mac.c - mt7902_rx_check(mdev, data, len: 128)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_rx_unsolicited_event
+mcu.c - mt7902_mcu_tx_done_event
+mac.c - mt7902_mac_add_txs
+mac.c - mt7902_rx_check(mdev, data, len: 128)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_rx_unsolicited_event
+mcu.c - mt7902_mcu_tx_done_event
+mac.c - mt7902_mac_add_txs
+mac.c - mt7902_rx_check(mdev, data, len: 128)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_rx_unsolicited_event
+mcu.c - mt7902_mcu_tx_done_event
+mac.c - mt7902_mac_add_txs
+init.c - mt7902_thermal_temp_show
+mcu.c - mt7902_mcu_get_temperature
+pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 11501, seq)
+mac.c - mt7902_rx_check(mdev, data, len: 44)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 15)
+mac.c - mt7902_rx_check(mdev, data, len: 128)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_rx_unsolicited_event
+mcu.c - mt7902_mcu_tx_done_event
+mac.c - mt7902_mac_add_txs
+mac.c - mt7902_rx_check(mdev, data, len: 128)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_rx_unsolicited_event
+mcu.c - mt7902_mcu_tx_done_event
+mac.c - mt7902_mac_add_txs
+mac.c - mt7902_rx_check(mdev, data, len: 128)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_rx_unsolicited_event
+mcu.c - mt7902_mcu_tx_done_event
+mac.c - mt7902_mac_add_txs
+mac.c - mt7902_rx_check(mdev, data, len: 128)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_rx_unsolicited_event
+mcu.c - mt7902_mcu_tx_done_event
+mac.c - mt7902_mac_add_txs
+mac.c - mt7902_rx_check(mdev, data, len: 128)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_rx_unsolicited_event
+mcu.c - mt7902_mcu_tx_done_event
+mac.c - mt7902_mac_add_txs
+init.c - mt7902_thermal_temp_show
+mcu.c - mt7902_mcu_get_temperature
+pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 11501, seq)
+mac.c - mt7902_rx_check(mdev, data, len: 44)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 1)
+init.c - mt7902_thermal_temp_show
+mcu.c - mt7902_mcu_get_temperature
+pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 11501, seq)
+mac.c - mt7902_rx_check(mdev, data, len: 44)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 2)
+pci.c - mt7902_pci_remove
+pci.c - mt7902e_unregister_device
+mac_link_bss_remove
+main.c - mt7902_stop
+mcu.c - mt7902_mcu_radio_led_ctrl
+pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: 1517, seq)
+mac.c - mt7902_rx_check(mdev, data, len: 44)
+mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)
+mac.c - mt7902_queue_rx_skb - type: 7
+mcu.c - mt7902_mcu_rx_event(dev, skb)
 mt792x_wfsys_reset
 
 
