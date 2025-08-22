@@ -515,7 +515,7 @@ static int mt7902_set_key(struct ieee80211_hw *hw, enum set_key_cmd cmd,
 			  struct ieee80211_vif *vif, struct ieee80211_sta *sta,
 			  struct ieee80211_key_conf *key)
 {
-	printk(KERN_DEBUG "main.c - mt7902_set_key");
+	printk(KERN_DEBUG "main.c - mt7902_set_key(hw, cmd, vif, sta, key)");
 	struct mt792x_dev *dev = mt792x_hw_dev(hw);
 	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
 	struct mt792x_sta *msta = sta ? (struct mt792x_sta *)sta->drv_priv :
@@ -523,6 +523,115 @@ static int mt7902_set_key(struct ieee80211_hw *hw, enum set_key_cmd cmd,
 	struct mt76_wcid *wcid = &msta->deflink.wcid;
 	u8 *wcid_keyidx = &wcid->hw_key_idx;
 	int idx = key->keyidx, err = 0;
+
+
+/**
+ * enum nl80211_iftype - (virtual) interface types
+ *
+ * @NL80211_IFTYPE_UNSPECIFIED: unspecified type, driver decides
+ * @NL80211_IFTYPE_ADHOC: independent BSS member
+ * @NL80211_IFTYPE_STATION: managed BSS member
+ * @NL80211_IFTYPE_AP: access point
+ * @NL80211_IFTYPE_AP_VLAN: VLAN interface for access points; VLAN interfaces
+ *	are a bit special in that they must always be tied to a pre-existing
+ *	AP type interface.
+ * @NL80211_IFTYPE_WDS: wireless distribution interface
+ * @NL80211_IFTYPE_MONITOR: monitor interface receiving all frames
+ * @NL80211_IFTYPE_MESH_POINT: mesh point
+ * @NL80211_IFTYPE_P2P_CLIENT: P2P client
+ * @NL80211_IFTYPE_P2P_GO: P2P group owner
+ * @NL80211_IFTYPE_P2P_DEVICE: P2P device interface type, this is not a netdev
+ *	and therefore can't be created in the normal ways, use the
+ *	%NL80211_CMD_START_P2P_DEVICE and %NL80211_CMD_STOP_P2P_DEVICE
+ *	commands to create and destroy one
+ * @NL80211_IFTYPE_OCB: Outside Context of a BSS
+ *	This mode corresponds to the MIB variable dot11OCBActivated=true
+ * @NL80211_IFTYPE_NAN: NAN device interface type (not a netdev)
+ * @NL80211_IFTYPE_MAX: highest interface type number currently defined
+ * @NUM_NL80211_IFTYPES: number of defined interface types
+ *
+ * These values are used with the %NL80211_ATTR_IFTYPE
+ * to set the type of an interface.
+ *
+ * /
+enum nl80211_iftype {
+	NL80211_IFTYPE_UNSPECIFIED,
+	NL80211_IFTYPE_ADHOC,
+	NL80211_IFTYPE_STATION,
+	NL80211_IFTYPE_AP,
+	NL80211_IFTYPE_AP_VLAN,
+	NL80211_IFTYPE_WDS,
+	NL80211_IFTYPE_MONITOR,
+	NL80211_IFTYPE_MESH_POINT,
+	NL80211_IFTYPE_P2P_CLIENT,
+	NL80211_IFTYPE_P2P_GO,
+	NL80211_IFTYPE_P2P_DEVICE,
+	NL80211_IFTYPE_OCB,
+	NL80211_IFTYPE_NAN,
+
+	/* keep last * /
+	NUM_NL80211_IFTYPES,
+	NL80211_IFTYPE_MAX = NUM_NL80211_IFTYPES - 1
+};
+
+
+/**
+ * struct ieee80211_key_conf - key information
+ *
+ * This key information is given by mac80211 to the driver by
+ * the set_key() callback in &struct ieee80211_ops.
+ *
+ * @hw_key_idx: To be set by the driver, this is the key index the driver
+ *	wants to be given when a frame is transmitted and needs to be
+ *	encrypted in hardware.
+ * @cipher: The key's cipher suite selector.
+ * @tx_pn: PN used for TX keys, may be used by the driver as well if it
+ *	needs to do software PN assignment by itself (e.g. due to TSO)
+ * @flags: key flags, see &enum ieee80211_key_flags.
+ * @keyidx: the key index (0-7)
+ * @keylen: key material length
+ * @key: key material. For ALG_TKIP the key is encoded as a 256-bit (32 byte)
+ * 	data block:
+ * 	- Temporal Encryption Key (128 bits)
+ * 	- Temporal Authenticator Tx MIC Key (64 bits)
+ * 	- Temporal Authenticator Rx MIC Key (64 bits)
+ * @icv_len: The ICV length for this key type
+ * @iv_len: The IV length for this key type
+ * @link_id: the link ID, 0 for non-MLO, or -1 for pairwise keys
+ * /
+struct ieee80211_key_conf {
+	atomic64_t tx_pn;
+	u32 cipher;
+	u8 icv_len;
+	u8 iv_len;
+	u8 hw_key_idx;
+	s8 keyidx;
+	u16 flags;
+	s8 link_id;
+	u8 keylen;
+	u8 key[];
+};
+
+
+#define SUITE(oui, id)	(((oui) << 8) | (id))
+
+/* cipher suite selectors * /
+#define WLAN_CIPHER_SUITE_USE_GROUP	SUITE(0x000FAC, 0)
+#define WLAN_CIPHER_SUITE_WEP40		SUITE(0x000FAC, 1)
+#define WLAN_CIPHER_SUITE_TKIP		SUITE(0x000FAC, 2)
+/* reserved: 				SUITE(0x000FAC, 3) * /
+#define WLAN_CIPHER_SUITE_CCMP		SUITE(0x000FAC, 4)
+#define WLAN_CIPHER_SUITE_WEP104	SUITE(0x000FAC, 5)
+#define WLAN_CIPHER_SUITE_AES_CMAC	SUITE(0x000FAC, 6)
+#define WLAN_CIPHER_SUITE_GCMP		SUITE(0x000FAC, 8)
+#define WLAN_CIPHER_SUITE_GCMP_256	SUITE(0x000FAC, 9)
+#define WLAN_CIPHER_SUITE_CCMP_256	SUITE(0x000FAC, 10)
+#define WLAN_CIPHER_SUITE_BIP_GMAC_128	SUITE(0x000FAC, 11)
+#define WLAN_CIPHER_SUITE_BIP_GMAC_256	SUITE(0x000FAC, 12)
+#define WLAN_CIPHER_SUITE_BIP_CMAC_256	SUITE(0x000FAC, 13)
+
+#define WLAN_CIPHER_SUITE_SMS4		SUITE(0x001472, 1)
+
 
 	/* The hardware does not support per-STA RX GTK, fallback
 	 * to software mode for these.
@@ -771,7 +880,7 @@ static void mt7902_bss_info_changed(struct ieee80211_hw *hw,
 static void
 mt7902_calc_vif_num(void *priv, u8 *mac, struct ieee80211_vif *vif)
 {
-	printk(KERN_DEBUG "main.c - mt7902_calc_vif_num");
+	printk(KERN_DEBUG "main.c - mt7902_calc_vif_num(priv, mac, vif)");
 	u32 *num = priv;
 
 	if (!priv)
@@ -792,7 +901,7 @@ mt7902_calc_vif_num(void *priv, u8 *mac, struct ieee80211_vif *vif)
 static void
 mt7902_regd_set_6ghz_power_type(struct ieee80211_vif *vif, bool is_add)
 {
-	printk(KERN_DEBUG "main.c - mt7902_regd_set_6ghz_power_type");
+	printk(KERN_DEBUG "main.c - mt7902_regd_set_6ghz_power_type(vif, is_add: %d)", is_add);
 	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
 	struct mt792x_phy *phy = mvif->phy;
 	struct mt792x_dev *dev = phy->dev;
@@ -880,7 +989,7 @@ EXPORT_SYMBOL_GPL(mt7902_mac_sta_add);
 int mt7902_mac_sta_event(struct mt76_dev *mdev, struct ieee80211_vif *vif,
 			 struct ieee80211_sta *sta, enum mt76_sta_event ev)
 {
-	printk(KERN_DEBUG "main.c - mt7902_mac_sta_event");
+	printk(KERN_DEBUG "main.c - mt7902_mac_sta_event(mdev, vif, sta, ev)");
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
 	struct mt792x_sta *msta = (struct mt792x_sta *)sta->drv_priv;
 	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
@@ -1027,7 +1136,7 @@ static int mt7902_sta_state(struct ieee80211_hw *hw,
 			    enum ieee80211_sta_state old_state,
 			    enum ieee80211_sta_state new_state)
 {
-	printk(KERN_DEBUG "main.c - mt7902_sta_state");
+	printk(KERN_DEBUG "main.c - mt7902_sta_state(hw, vif, sta, old_state, new_state)");
 	struct mt792x_dev *dev = mt792x_hw_dev(hw);
 
 	if (dev->pm.ds_enable) {

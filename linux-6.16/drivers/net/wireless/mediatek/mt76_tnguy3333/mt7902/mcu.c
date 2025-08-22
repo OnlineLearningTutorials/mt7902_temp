@@ -1177,7 +1177,7 @@ int mt7902_mcu_set_beacon_filter(struct mt792x_dev *dev,
 				 struct ieee80211_vif *vif,
 				 bool enable)
 {
-	printk(KERN_DEBUG "mcu.c - mt7902_mcu_set_beacon_filter");
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_set_beacon_filter(dev, vif, enable: %d)", enable);
 #define MT7902_FIF_BIT_CLR		BIT(1)
 #define MT7902_FIF_BIT_SET		BIT(0)
 	int err;
@@ -1825,7 +1825,7 @@ mt7902_mcu_bss_bmc_tlv(struct sk_buff *skb, struct mt792x_phy *phy)
 int mt7902_mcu_add_bss_info(struct mt792x_phy *phy,
 			    struct ieee80211_vif *vif, int enable)
 {
-	printk(KERN_DEBUG "mcu.c - mt7902_mcu_add_bss_info");
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_add_bss_info(phy, vif, enable: %d)", enable);
 	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
 	struct mt792x_dev *dev = phy->dev;
 	struct sk_buff *skb;

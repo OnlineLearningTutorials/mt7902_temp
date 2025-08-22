@@ -170,7 +170,7 @@ static void mt7902_mac_sta_poll(struct mt792x_dev *dev)
 static int
 mt7902_mac_fill_rx(struct mt792x_dev *dev, struct sk_buff *skb)
 {
-	printk(KERN_DEBUG "mac.c - mt7902_mac_fill_rx");
+	printk(KERN_DEBUG "mac.c - mt7902_mac_fill_rx(dev, skb)");
 	u32 csum_mask = MT_RXD0_NORMAL_IP_SUM | MT_RXD0_NORMAL_UDP_TCP_SUM;
 	struct mt76_rx_status *status = (struct mt76_rx_status *)skb->cb;
 	bool hdr_trans, unicast, insert_ccmp_hdr = false;
