@@ -14,7 +14,7 @@ static ssize_t mt7902_thermal_temp_show(struct device *dev,
 					struct device_attribute *attr,
 					char *buf)
 {
-	printk(KERN_DEBUG "init.c - mt7902_thermal_temp_show");
+	printk(KERN_DEBUG "init.c - mt7902_thermal_temp_show(dev, attr, buf)");
 	switch (to_sensor_dev_attr(attr)->index) {
 	case 0: {
 		struct mt792x_phy *phy = dev_get_drvdata(dev);
@@ -28,6 +28,8 @@ static ssize_t mt7902_thermal_temp_show(struct device *dev,
 		if (temperature < 0)
 			return temperature;
 		/* display in millidegree Celsius */
+		printk(KERN_DEBUG "init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: %u", temperature);
+
 		return sprintf(buf, "%u\n", temperature * 1000);
 	}
 	default:
@@ -44,7 +46,7 @@ ATTRIBUTE_GROUPS(mt7902_hwmon);
 
 static int mt7902_thermal_init(struct mt792x_phy *phy)
 {
-	printk(KERN_DEBUG "init.c - mt7902_thermal_init");
+	printk(KERN_DEBUG "init.c - mt7902_thermal_init(phy)");
 	struct wiphy *wiphy = phy->mt76->hw->wiphy;
 	struct device *hwmon;
 	const char *name;
@@ -65,7 +67,7 @@ static int mt7902_thermal_init(struct mt792x_phy *phy)
 static void
 mt7902_regd_channel_update(struct wiphy *wiphy, struct mt792x_dev *dev)
 {
-	printk(KERN_DEBUG "init.c - mt7902_regd_channel_update");
+	printk(KERN_DEBUG "init.c - mt7902_regd_channel_update(wiphy, dev)");
 #define IS_UNII_INVALID(idx, sfreq, efreq) \
 	(!(dev->phy.clc_chan_conf & BIT(idx)) && (cfreq) >= (sfreq) && (cfreq) <= (efreq))
 	struct ieee80211_supported_band *sband;
@@ -117,7 +119,7 @@ mt7902_regd_channel_update(struct wiphy *wiphy, struct mt792x_dev *dev)
 
 void mt7902_regd_update(struct mt792x_dev *dev)
 {
-	printk(KERN_DEBUG "init.c - mt7902_regd_update");
+	printk(KERN_DEBUG "init.c - mt7902_regd_update(dev)");
 	struct mt76_dev *mdev = &dev->mt76;
 	struct ieee80211_hw *hw = mdev->hw;
 	struct wiphy *wiphy = hw->wiphy;
@@ -133,7 +135,7 @@ static void
 mt7902_regd_notifier(struct wiphy *wiphy,
 		     struct regulatory_request *request)
 {
-	printk(KERN_DEBUG "init.c - mt7902_regd_notifier");
+	printk(KERN_DEBUG "init.c - mt7902_regd_notifier(wiphy, request)");
 	struct ieee80211_hw *hw = wiphy_to_ieee80211_hw(wiphy);
 	struct mt792x_dev *dev = mt792x_hw_dev(hw);
 	struct mt76_connac_pm *pm = &dev->pm;
@@ -164,7 +166,7 @@ mt7902_regd_notifier(struct wiphy *wiphy,
 
 int mt7902_mac_init(struct mt792x_dev *dev)
 {
-	printk(KERN_DEBUG "init.c - mt7902_mac_init");
+	printk(KERN_DEBUG "init.c - mt7902_mac_init(dev)");
 	int i;
 
 	mt76_rmw_field(dev, MT_MDP_DCR1, MT_MDP_DCR1_MAX_RX_LEN, 1536);

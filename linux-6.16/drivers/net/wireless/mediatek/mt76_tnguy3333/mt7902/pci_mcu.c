@@ -23,7 +23,7 @@ static int
 mt7902_mcu_send_message(struct mt76_dev *mdev, struct sk_buff *skb,
 			int cmd, int *seq)
 {
-	printk(KERN_DEBUG "pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: %d, seq)", cmd);
+	printk(KERN_DEBUG "pci_mcu.c - mt7902_mcu_send_message(mdev, skb, cmd: %d, seq: %d)", cmd, seq);
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
 	enum mt76_mcuq_id txq = MT_MCUQ_WM;
 	int ret;

@@ -13,7 +13,7 @@ static int
 mt7902_init_he_caps(struct mt792x_phy *phy, enum nl80211_band band,
 		    struct ieee80211_sband_iftype_data *data)
 {
-	printk(KERN_DEBUG "main.c - mt7902_init_he_caps");
+	printk(KERN_DEBUG "main.c - mt7902_init_he_caps(phy, band: %d, data)", band);
 	int i, idx = 0;
 	int nss = hweight8(phy->mt76->chainmask);
 	u16 mcs_map = 0;
@@ -193,7 +193,7 @@ mt7902_init_he_caps(struct mt792x_phy *phy, enum nl80211_band band,
 
 void mt7902_set_stream_he_caps(struct mt792x_phy *phy)
 {
-	printk(KERN_DEBUG "main.c - mt7902_set_stream_he_caps");
+	printk(KERN_DEBUG "main.c - mt7902_set_stream_he_caps(phy)");
 	struct ieee80211_sband_iftype_data *data;
 	struct ieee80211_supported_band *band;
 	int n;
@@ -225,7 +225,7 @@ void mt7902_set_stream_he_caps(struct mt792x_phy *phy)
 
 int __mt7902_start(struct mt792x_phy *phy)
 {
-	printk(KERN_DEBUG "main.c - __mt7902_start");
+	printk(KERN_DEBUG "main.c - __mt7902_start(phy)");
 	struct mt76_phy *mphy = phy->mt76;
 	int err;
 
@@ -271,7 +271,7 @@ EXPORT_SYMBOL_GPL(__mt7902_start);
 
 static int mt7902_start(struct ieee80211_hw *hw)
 {
-	printk(KERN_DEBUG "main.c - mt7902_start");
+	printk(KERN_DEBUG "main.c - mt7902_start(hw)");
 	struct mt792x_phy *phy = mt792x_hw_phy(hw);
 	int err;
 
@@ -302,7 +302,7 @@ static void mt7902_stop(struct ieee80211_hw *hw, bool suspend)
 static int
 mt7902_add_interface(struct ieee80211_hw *hw, struct ieee80211_vif *vif)
 {
-	printk(KERN_DEBUG "main.c - mt7902_add_interface");
+	printk(KERN_DEBUG "main.c - mt7902_add_interface(hw, vif)");
 	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
 	struct mt792x_dev *dev = mt792x_hw_dev(hw);
 	struct mt792x_phy *phy = mt792x_hw_phy(hw);
@@ -487,7 +487,7 @@ static int mt7902_cancel_remain_on_channel(struct ieee80211_hw *hw,
 
 int mt7902_set_channel(struct mt76_phy *mphy)
 {
-	printk(KERN_DEBUG "main.c - mt7902_set_channel");
+	printk(KERN_DEBUG "main.c - mt7902_set_channel(mphy)");
 	struct mt792x_phy *phy = mphy->priv;
 	struct mt792x_dev *dev = phy->dev;
 	int ret;
@@ -656,7 +656,7 @@ void mt7902_set_runtime_pm(struct mt792x_dev *dev)
 
 static int mt7902_config(struct ieee80211_hw *hw, u32 changed)
 {
-	printk(KERN_DEBUG "main.c - mt7902_config");
+	printk(KERN_DEBUG "main.c - mt7902_config(hw, changed: 0x%x)", changed);
 	struct mt792x_dev *dev = mt792x_hw_dev(hw);
 	struct mt792x_phy *phy = mt792x_hw_phy(hw);
 	int ret = 0;
@@ -692,7 +692,7 @@ static void mt7902_configure_filter(struct ieee80211_hw *hw,
 				    unsigned int *total_flags,
 				    u64 multicast)
 {
-	printk(KERN_DEBUG "main.c - mt7902_configure_filter");
+	printk(KERN_DEBUG "main.c - mt7902_configure_filter(hw, changed_flags, total_flags, multicast: 0x%x)", multicast);
 #define MT7902_FILTER_FCSFAIL    BIT(2)
 #define MT7902_FILTER_CONTROL    BIT(5)
 #define MT7902_FILTER_OTHER_BSS  BIT(6)
@@ -722,7 +722,7 @@ static void mt7902_bss_info_changed(struct ieee80211_hw *hw,
 				    struct ieee80211_bss_conf *info,
 				    u64 changed)
 {
-	printk(KERN_DEBUG "main.c - mt7902_bss_info_changed");
+	printk(KERN_DEBUG "main.c - mt7902_bss_info_changed(hw, vif, info, changed: 0x%x)", changed);
 	struct mt792x_phy *phy = mt792x_hw_phy(hw);
 	struct mt792x_dev *dev = mt792x_hw_dev(hw);
 
@@ -1041,7 +1041,7 @@ static int mt7902_sta_state(struct ieee80211_hw *hw,
 
 void mt7902_scan_work(struct work_struct *work)
 {
-	printk(KERN_DEBUG "main.c - mt7902_scan_work");
+	printk(KERN_DEBUG "main.c - mt7902_scan_work(work)");
 	struct mt792x_phy *phy;
 
 	phy = (struct mt792x_phy *)container_of(work, struct mt792x_phy,
@@ -1077,7 +1077,7 @@ static int
 mt7902_hw_scan(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
 	       struct ieee80211_scan_request *req)
 {
-	printk(KERN_DEBUG "main.c - mt7902_hw_scan");
+	printk(KERN_DEBUG "main.c - mt7902_hw_scan(hw, vif, req)");
 	struct mt792x_dev *dev = mt792x_hw_dev(hw);
 	struct mt76_phy *mphy = hw->priv;
 	int err;
@@ -1317,7 +1317,7 @@ static void mt7902_ipv6_addr_change(struct ieee80211_hw *hw,
 int mt7902_set_tx_sar_pwr(struct ieee80211_hw *hw,
 			  const struct cfg80211_sar_specs *sar)
 {
-	printk(KERN_DEBUG "main.c - mt7902_set_tx_sar_pwr");
+	printk(KERN_DEBUG "main.c - mt7902_set_tx_sar_pwr(hw, sar)");
 	struct mt76_phy *mphy = hw->priv;
 
 	if (sar) {

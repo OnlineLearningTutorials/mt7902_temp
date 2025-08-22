@@ -17,7 +17,7 @@
 
 bool mt7902_mac_wtbl_update(struct mt792x_dev *dev, int idx, u32 mask)
 {
-	printk(KERN_DEBUG "mac.c - mt7902_mac_wtbl_update");
+	printk(KERN_DEBUG "mac.c - mt7902_mac_wtbl_update(dev, idx: %d, mask: 0x%08x)", idx, mask);
 	mt76_rmw(dev, MT_WTBL_UPDATE, MT_WTBL_UPDATE_WLAN_IDX,
 		 FIELD_PREP(MT_WTBL_UPDATE_WLAN_IDX, idx) | mask);
 

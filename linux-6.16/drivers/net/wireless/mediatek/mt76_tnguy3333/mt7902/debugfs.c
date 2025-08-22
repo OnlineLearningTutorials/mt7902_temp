@@ -275,7 +275,7 @@ mt7902s_sched_quota_read(struct seq_file *s, void *data)
 
 int mt7902_init_debugfs(struct mt792x_dev *dev)
 {
-	printk(KERN_DEBUG "debugfs.c - mt7902_init_debugfs");
+	printk(KERN_DEBUG "debugfs.c - mt7902_init_debugfs(dev)");
 	struct dentry *dir;
 
 	dir = mt76_register_debugfs_fops(&dev->mphy, &fops_regval);
