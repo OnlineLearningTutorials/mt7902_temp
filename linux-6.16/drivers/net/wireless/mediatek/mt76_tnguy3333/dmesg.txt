@@ -1,5 +1,5 @@
-
 pci.c - mt7902_pci_probe  =============================================================================================================================================================================================================================
+mt7902e 0000:03:00.0: enabling device (0000 -> 0002)
 mt7902e 0000:03:00.0: ASIC revision: 79020000
 mt792x_wfsys_reset
 pci.c - mt7902_dma_init(dev)
@@ -33,7 +33,7 @@ mcu.c - mt7902_mcu_get_nic_capability - MT_NIC_CAP_PHY
 mcu.c - mt7902_mcu_parse_phy_cap(dev, skb)
 mcu.c - mt7902_mcu_get_nic_capability - MT_NIC_CAP_6G
 mcu.c - mt7902_load_clc(dev, fw_name: mediatek/WIFI_RAM_CODE_MT7902_1.bin)
-mcu.c - mt7902_mcu_read_eeprom(dev, offset: 0x0000055b, val: 0x502fbd87)
+mcu.c - mt7902_mcu_read_eeprom(dev, offset: 0x0000055b, val: 0xc25e7d87)
 mcu.c - mt7902_mcu_parse_response(mdev, cmd: 66029, skb, seq: 3)
 mcu.c - mt7902_mcu_fw_log_2_host(dev, ctrl: 0x01)
 mcu.c - mt7902_mcu_set_eeprom(dev)
@@ -66,10 +66,10 @@ main.c - mt7902_init_he_caps(phy, band: 1, data)
 main.c - mt7902_init_he_caps(phy, band: 3, data)
 init.c - mt7902_regd_notifier(wiphy, request)
 init.c - mt7902_regd_update(dev)
-mcu.c - mt7902_mcu_set_clc(dev, alpha2: 0xf6177e20, env_cap)
-mcu.c - __mt7902_mcu_set_clc(dev, alpha2: 0xf6177e20, env_cap, clc, idx: 0x00)
-mcu.c - __mt7902_mcu_set_clc(dev, alpha2: 0xf6177e20, env_cap, clc, idx: 0x01)
-mcu.c - __mt7902_mcu_set_clc(dev, alpha2: 0xf6177e20, env_cap, clc, idx: 0x02)
+mcu.c - mt7902_mcu_set_clc(dev, alpha2: 0x10a07e20, env_cap)
+mcu.c - __mt7902_mcu_set_clc(dev, alpha2: 0x10a07e20, env_cap, clc, idx: 0x00)
+mcu.c - __mt7902_mcu_set_clc(dev, alpha2: 0x10a07e20, env_cap, clc, idx: 0x01)
+mcu.c - __mt7902_mcu_set_clc(dev, alpha2: 0x10a07e20, env_cap, clc, idx: 0x02)
 init.c - mt7902_regd_channel_update(wiphy, dev)
 main.c - mt7902_set_tx_sar_pwr(hw, sar)
 debugfs.c - mt7902_init_debugfs(dev)
@@ -78,6 +78,16 @@ main.c - mt7902_start(hw)
 main.c - __mt7902_start(phy)
 mcu.c - mt7902_mcu_parse_response(mdev, cmd: 18157, skb, seq: 5)
 mcu.c - mt7902_mcu_set_chan_info(phy, cmd: 20205)
+mcu.c - mt7902_mcu_set_chan_info - req.control_ch : 1
+mcu.c - mt7902_mcu_set_chan_info - req.center_ch : 1
+mcu.c - mt7902_mcu_set_chan_info - req.bw : 0
+mcu.c - mt7902_mcu_set_chan_info - req.tx_streams_num : 1
+mcu.c - mt7902_mcu_set_chan_info - req.rx_streams : 1
+mcu.c - mt7902_mcu_set_chan_info - req.band_idx : 0
+mcu.c - mt7902_mcu_set_chan_info - req.channel_band : 2
+mcu.c - mt7902_mcu_set_chan_info - req.switch_reason : 0
+mcu.c - mt7902_mcu_set_chan_info - req.center_ch2 : 0
+init.c - mt7902_thermal_temp_show(dev, attr, buf)
 mcu.c - mt7902_mcu_parse_response(mdev, cmd: 20205, skb, seq: 7)
 main.c - mt7902_set_tx_sar_pwr(hw, sar)
 mcu.c - mt7902_mcu_radio_led_ctrl(dev, value: 0x01)
@@ -92,18 +102,32 @@ mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10989, skb, seq: 6)
 add_interface: add dev info, ret=0
 mac.c - mt7902_mac_wtbl_update(dev, idx: 19, mask: 0x00001000)
 main.c - mt7902_bss_info_changed(hw, vif, info, changed: 0xe)
+mcu.c - mt7902_mcu_get_temperature(phy)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 7)
+init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 45
 main.c - mt7902_bss_info_changed(hw, vif, info, changed: 0x2000)
 mcu.c - mt7902_mcu_set_tx(dev, vif)
 main.c - mt7902_config(hw, changed: 0xfffffffd)
 main.c - mt7902_set_channel(mphy)
 mcu.c - mt7902_mcu_set_chan_info(phy, cmd: 2285)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2285, skb, seq: 8)
+mcu.c - mt7902_mcu_set_chan_info - req.control_ch : 1
+mcu.c - mt7902_mcu_set_chan_info - req.center_ch : 1
+mcu.c - mt7902_mcu_set_chan_info - req.bw : 0
+mcu.c - mt7902_mcu_set_chan_info - req.tx_streams_num : 1
+mcu.c - mt7902_mcu_set_chan_info - req.rx_streams : 1
+mcu.c - mt7902_mcu_set_chan_info - req.band_idx : 0
+mcu.c - mt7902_mcu_set_chan_info - req.channel_band : 0
+mcu.c - mt7902_mcu_set_chan_info - req.switch_reason : 9
+mcu.c - mt7902_mcu_set_chan_info - req.center_ch2 : 0
+mcu.c - mt7902_mcu_rx_unsolicited_event
+mcu.c - mt7902_mcu_low_power_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2285, skb, seq: 9)
 main.c - mt7902_set_tx_sar_pwr(hw, sar)
 main.c - mt7902_configure_filter(hw, changed_flags, total_flags, multicast: 0x0)
 mcu.c - mt7902_mcu_set_rxfilter(dev, fif: 0x80000000, bit_op: 0x00, bit_map: 0x00000000)
+main.c - mt7902_config(hw, changed: 0x10)
 main.c - mt7902_configure_filter(hw, changed_flags, total_flags, multicast: 0x0)
 mcu.c - mt7902_mcu_set_rxfilter(dev, fif: 0x80000000, bit_op: 0x00, bit_map: 0x00000000)
-main.c - mt7902_config(hw, changed: 0x10)
 mcu.c - mt7902_mcu_rx_unsolicited_event
 mcu.c - mt7902_mcu_low_power_event(dev, skb)
 main.c - mt7902_hw_scan(hw, vif, req)
@@ -125,7 +149,16 @@ main.c - mt7902_config(hw, changed: 0x100)
 main.c - mt7902_config(hw, changed: 0x40)
 main.c - mt7902_set_channel(mphy)
 mcu.c - mt7902_mcu_set_chan_info(phy, cmd: 2285)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2285, skb, seq: 10)
+mcu.c - mt7902_mcu_set_chan_info - req.control_ch : 2c
+mcu.c - mt7902_mcu_set_chan_info - req.center_ch : 2a
+mcu.c - mt7902_mcu_set_chan_info - req.bw : 2
+mcu.c - mt7902_mcu_set_chan_info - req.tx_streams_num : 1
+mcu.c - mt7902_mcu_set_chan_info - req.rx_streams : 1
+mcu.c - mt7902_mcu_set_chan_info - req.band_idx : 0
+mcu.c - mt7902_mcu_set_chan_info - req.channel_band : 1
+mcu.c - mt7902_mcu_set_chan_info - req.switch_reason : 0
+mcu.c - mt7902_mcu_set_chan_info - req.center_ch2 : 0
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2285, skb, seq: 11)
 main.c - mt7902_bss_info_changed(hw, vif, info, changed: 0x40000)
 main.c - mt7902_bss_info_changed(hw, vif, info, changed: 0x4000)
 main.c - mt7902_bss_info_changed(hw, vif, info, changed: 0xe0)
@@ -135,25 +168,25 @@ mac.c - mt7902_mac_wtbl_update(dev, idx: 1, mask: 0x00001000)
 mcu.c - mt7902_mcu_sta_update
 mcu.c - mt7902_mcu_rx_unsolicited_event
 mcu.c - mt7902_mcu_low_power_event(dev, skb)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 9709, skb, seq: 12)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 9709, skb, seq: 13)
 main.c - mt7902_regd_set_6ghz_power_type(vif, is_add: 1)
 main.c - mt7902_calc_vif_num(priv, mac, vif)
-mcu.c - mt7902_mcu_set_clc(dev, alpha2: 0xf6177e20, env_cap)
-mcu.c - __mt7902_mcu_set_clc(dev, alpha2: 0xf6177e20, env_cap, clc, idx: 0x00)
-mcu.c - __mt7902_mcu_set_clc(dev, alpha2: 0xf6177e20, env_cap, clc, idx: 0x01)
-mcu.c - __mt7902_mcu_set_clc(dev, alpha2: 0xf6177e20, env_cap, clc, idx: 0x02)
-wlan4: authenticate with d6:3d:60:62:d1:59 (local address=1c:ce:51:d9:ca:00)
-wlan4: send auth to d6:3d:60:62:d1:59 (try 1/3)
+mcu.c - mt7902_mcu_set_clc(dev, alpha2: 0x10a07e20, env_cap)
+mcu.c - __mt7902_mcu_set_clc(dev, alpha2: 0x10a07e20, env_cap, clc, idx: 0x00)
+mcu.c - __mt7902_mcu_set_clc(dev, alpha2: 0x10a07e20, env_cap, clc, idx: 0x01)
+mcu.c - __mt7902_mcu_set_clc(dev, alpha2: 0x10a07e20, env_cap, clc, idx: 0x02)
+wlan1: authenticate with d6:3d:60:62:d1:59 (local address=1c:ce:51:d9:ca:00)
+wlan1: send auth to d6:3d:60:62:d1:59 (try 1/3)
 pci_mac.c - mt7902e_tx_prepare_skb(mdev, txwi_ptr, qid, wcid, sta, tx_info)
 main.c - mt7902_configure_filter(hw, changed_flags, total_flags, multicast: 0x0)
 mcu.c - mt7902_mcu_set_rxfilter(dev, fif: 0x80000000, bit_op: 0x00, bit_map: 0x00000000)
 mac.c - mt7902_mac_fill_rx(dev, skb)
-wlan4: authenticated
+wlan1: authenticated
 main.c - mt7902_sta_state(hw, vif, sta, old_state, new_state)
-wlan4: associate with d6:3d:60:62:d1:59 (try 1/3)
+wlan1: associate with d6:3d:60:62:d1:59 (try 1/3)
 pci_mac.c - mt7902e_tx_prepare_skb(mdev, txwi_ptr, qid, wcid, sta, tx_info)
 mac.c - mt7902_mac_fill_rx(dev, skb)
-wlan4: RX AssocResp from d6:3d:60:62:d1:59 (capab=0x1511 status=0 aid=2)
+wlan1: RX AssocResp from d6:3d:60:62:d1:59 (capab=0x1511 status=0 aid=4)
 main.c - mt7902_sta_state(hw, vif, sta, old_state, new_state)
 main.c - mt7902_mac_sta_event(mdev, vif, sta, ev)
 mcu.c - mt7902_mcu_add_bss_info(phy, vif, enable: 1)
@@ -163,21 +196,21 @@ mcu.c - mt7902_mcu_bss_bmc_tlv
 mcu.c - mt7902_mcu_bss_ra_tlv
 mcu.c - mt7902_mcu_bss_hw_amsdu_tlv
 mcu.c - mt7902_mcu_bss_he_tlv
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 9965, skb, seq: 14)
+mac.c - mt7902_mac_fill_rx(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 9965, skb, seq: 15)
 mac_sta_event: add bss info ret = 0
 mac.c - mt7902_mac_wtbl_update(dev, idx: 1, mask: 0x00001000)
 mcu.c - mt7902_mcu_sta_update
-mac.c - mt7902_mac_fill_rx(dev, skb)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 9709, skb, seq: 15)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 9709, skb, seq: 1)
 main.c - mt7902_bss_info_changed(hw, vif, info, changed: 0x20102019)
 mcu.c - mt7902_mcu_set_tx(dev, vif)
 mcu.c - mt7902_mcu_sta_update
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 9709, skb, seq: 3)
+wlx8c882b6009b8: deauthenticating from d6:3d:60:62:d1:58 by local choice (Reason: 3=DEAUTH_LEAVING)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 9709, skb, seq: 4)
 mcu.c - mt7902_mcu_set_beacon_filter(dev, vif, enable: 1)
 mcu.c - mt7902_mcu_set_rxfilter(dev, fif: 0x00000000, bit_op: 0x01, bit_map: 0x00000800)
-wlan4: associated
+wlan1: associated
 pci_mac.c - mt7902e_tx_prepare_skb(mdev, txwi_ptr, qid, wcid, sta, tx_info)
-wlx8c882b6009b8: deauthenticating from d6:3d:60:62:d1:58 by local choice (Reason: 3=DEAUTH_LEAVING)
 mac.c - mt7902_mac_fill_rx(dev, skb)
 main.c - mt7902_set_key(hw, cmd, vif, sta, key)
 set_key: falling back to software decryption, returning not supp for PTK/GTK
@@ -187,7 +220,7 @@ set_key: falling back to software decryption, returning not supp for PTK/GTK
 main.c - mt7902_sta_state(hw, vif, sta, old_state, new_state)
 main.c - mt7902_mac_sta_event(mdev, vif, sta, ev)
 main.c - mt7902_sta_set_decap_offload
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 9709, skb, seq: 6)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 9709, skb, seq: 7)
 decap_offload - update_hdr_trans sta rec update, ret = 0
 main.c - mt7902_bss_info_changed(hw, vif, info, changed: 0x20000)
 pci_mac.c - mt7902e_tx_prepare_skb(mdev, txwi_ptr, qid, wcid, sta, tx_info)
@@ -198,8 +231,11 @@ main.c - mt7902_configure_filter(hw, changed_flags, total_flags, multicast: 0x0)
 mcu.c - mt7902_mcu_set_rxfilter(dev, fif: 0x80000000, bit_op: 0x00, bit_map: 0x00000000)
 main.c - mt7902_configure_filter(hw, changed_flags, total_flags, multicast: 0x0)
 mcu.c - mt7902_mcu_set_rxfilter(dev, fif: 0x80000000, bit_op: 0x00, bit_map: 0x00000000)
+main.c - mt7902_configure_filter(hw, changed_flags, total_flags, multicast: 0x0)
+mcu.c - mt7902_mcu_set_rxfilter(dev, fif: 0x80000000, bit_op: 0x00, bit_map: 0x00000000)
 pci_mac.c - mt7902e_tx_prepare_skb(mdev, txwi_ptr, qid, wcid, sta, tx_info)
 pci_mac.c - mt7902e_tx_prepare_skb(mdev, txwi_ptr, qid, wcid, sta, tx_info)
+mac.c - mt7902_mac_fill_rx(dev, skb)
 pci_mac.c - mt7902e_tx_prepare_skb(mdev, txwi_ptr, qid, wcid, sta, tx_info)
 pci_mac.c - mt7902e_tx_prepare_skb(mdev, txwi_ptr, qid, wcid, sta, tx_info)
 pci_mac.c - mt7902e_tx_prepare_skb(mdev, txwi_ptr, qid, wcid, sta, tx_info)
@@ -212,51 +248,91 @@ pci_mac.c - mt7902e_tx_prepare_skb(mdev, txwi_ptr, qid, wcid, sta, tx_info)
 pci_mac.c - mt7902e_tx_prepare_skb(mdev, txwi_ptr, qid, wcid, sta, tx_info)
 pci_mac.c - mt7902e_tx_prepare_skb(mdev, txwi_ptr, qid, wcid, sta, tx_info)
 pci_mac.c - mt7902e_tx_prepare_skb(mdev, txwi_ptr, qid, wcid, sta, tx_info)
+init.c - mt7902_thermal_temp_show(dev, attr, buf)
+mcu.c - mt7902_mcu_get_temperature(phy)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 14)
+init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 64
+init.c - mt7902_thermal_temp_show(dev, attr, buf)
+mcu.c - mt7902_mcu_get_temperature(phy)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 15)
+init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 66
+init.c - mt7902_thermal_temp_show(dev, attr, buf)
+mcu.c - mt7902_mcu_get_temperature(phy)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 1)
+init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 69
+init.c - mt7902_thermal_temp_show(dev, attr, buf)
+mcu.c - mt7902_mcu_get_temperature(phy)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 2)
+init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 71
 mac.c - mt7902_mac_fill_rx(dev, skb)
 main.c - mt7902_bss_info_changed(hw, vif, info, changed: 0x800000)
 init.c - mt7902_thermal_temp_show(dev, attr, buf)
 mcu.c - mt7902_mcu_get_temperature(phy)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 12)
-init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 52
-init.c - mt7902_thermal_temp_show(dev, attr, buf)
-mcu.c - mt7902_mcu_get_temperature(phy)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 13)
-init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 52
-init.c - mt7902_thermal_temp_show(dev, attr, buf)
-mcu.c - mt7902_mcu_get_temperature(phy)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 14)
-init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 59
-init.c - mt7902_thermal_temp_show(dev, attr, buf)
-mcu.c - mt7902_mcu_get_temperature(phy)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 15)
-init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 59
-init.c - mt7902_thermal_temp_show(dev, attr, buf)
-mcu.c - mt7902_mcu_get_temperature(phy)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 1)
-init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 62
-init.c - mt7902_thermal_temp_show(dev, attr, buf)
-mcu.c - mt7902_mcu_get_temperature(phy)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 2)
-init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 62
-init.c - mt7902_thermal_temp_show(dev, attr, buf)
-mcu.c - mt7902_mcu_get_temperature(phy)
 mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 3)
-init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 66
+init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 74
 init.c - mt7902_thermal_temp_show(dev, attr, buf)
 mcu.c - mt7902_mcu_get_temperature(phy)
 mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 4)
-init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 66
+init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 76
 init.c - mt7902_thermal_temp_show(dev, attr, buf)
 mcu.c - mt7902_mcu_get_temperature(phy)
 mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 5)
-init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 67
+init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 78
 init.c - mt7902_thermal_temp_show(dev, attr, buf)
 mcu.c - mt7902_mcu_get_temperature(phy)
 mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 6)
-init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 67
-pci.c - mt7902_pci_remove
-pci.c - mt7902e_unregister_device
-wlan4: deauthenticating from d6:3d:60:62:d1:59 by local choice (Reason: 3=DEAUTH_LEAVING)
+init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 79
+init.c - mt7902_thermal_temp_show(dev, attr, buf)
+mcu.c - mt7902_mcu_get_temperature(phy)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 7)
+init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 81
+init.c - mt7902_thermal_temp_show(dev, attr, buf)
+mcu.c - mt7902_mcu_get_temperature(phy)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 8)
+init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 81
+init.c - mt7902_thermal_temp_show(dev, attr, buf)
+mcu.c - mt7902_mcu_get_temperature(phy)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 9)
+init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 83
+init.c - mt7902_thermal_temp_show(dev, attr, buf)
+mcu.c - mt7902_mcu_get_temperature(phy)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 10)
+init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 83
+init.c - mt7902_thermal_temp_show(dev, attr, buf)
+mcu.c - mt7902_mcu_get_temperature(phy)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 11)
+init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 85
+init.c - mt7902_thermal_temp_show(dev, attr, buf)
+mcu.c - mt7902_mcu_get_temperature(phy)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 12)
+init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 85
+init.c - mt7902_thermal_temp_show(dev, attr, buf)
+mcu.c - mt7902_mcu_get_temperature(phy)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 13)
+init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 86
+init.c - mt7902_thermal_temp_show(dev, attr, buf)
+mcu.c - mt7902_mcu_get_temperature(phy)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 14)
+init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 86
+init.c - mt7902_thermal_temp_show(dev, attr, buf)
+mcu.c - mt7902_mcu_get_temperature(phy)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 15)
+init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 88
+init.c - mt7902_thermal_temp_show(dev, attr, buf)
+mcu.c - mt7902_mcu_get_temperature(phy)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 1)
+init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 88
+main.c - mt7902_configure_filter(hw, changed_flags, total_flags, multicast: 0x0)
+mcu.c - mt7902_mcu_set_rxfilter(dev, fif: 0x80000000, bit_op: 0x00, bit_map: 0x00000000)
+main.c - mt7902_configure_filter(hw, changed_flags, total_flags, multicast: 0x0)
+mcu.c - mt7902_mcu_set_rxfilter(dev, fif: 0x80000000, bit_op: 0x00, bit_map: 0x00000000)
+main.c - mt7902_configure_filter(hw, changed_flags, total_flags, multicast: 0x0)
+mcu.c - mt7902_mcu_set_rxfilter(dev, fif: 0x80000000, bit_op: 0x00, bit_map: 0x00000000)
+main.c - mt7902_configure_filter(hw, changed_flags, total_flags, multicast: 0x0)
+mcu.c - mt7902_mcu_set_rxfilter(dev, fif: 0x80000000, bit_op: 0x00, bit_map: 0x00000000)
+main.c - mt7902_configure_filter(hw, changed_flags, total_flags, multicast: 0x0)
+mcu.c - mt7902_mcu_set_rxfilter(dev, fif: 0x80000000, bit_op: 0x00, bit_map: 0x00000000)
+wlan1: deauthenticating from d6:3d:60:62:d1:59 by local choice (Reason: 3=DEAUTH_LEAVING)
 main.c - mt7902_bss_info_changed(hw, vif, info, changed: 0x20000)
 pci_mac.c - mt7902e_tx_prepare_skb(mdev, txwi_ptr, qid, wcid, sta, tx_info)
 main.c - mt7902_sta_state(hw, vif, sta, old_state, new_state)
@@ -280,10 +356,10 @@ mcu.c - mt7902_mcu_parse_response(mdev, cmd: 9965, skb, seq: 10)
 mac_sta_remove: add bss info ret = 0
 main.c - mt7902_regd_set_6ghz_power_type(vif, is_add: 0)
 main.c - mt7902_calc_vif_num(priv, mac, vif)
-mcu.c - mt7902_mcu_set_clc(dev, alpha2: 0xf6177e20, env_cap)
-mcu.c - __mt7902_mcu_set_clc(dev, alpha2: 0xf6177e20, env_cap, clc, idx: 0x00)
-mcu.c - __mt7902_mcu_set_clc(dev, alpha2: 0xf6177e20, env_cap, clc, idx: 0x01)
-mcu.c - __mt7902_mcu_set_clc(dev, alpha2: 0xf6177e20, env_cap, clc, idx: 0x02)
+mcu.c - mt7902_mcu_set_clc(dev, alpha2: 0x10a07e20, env_cap)
+mcu.c - __mt7902_mcu_set_clc(dev, alpha2: 0x10a07e20, env_cap, clc, idx: 0x00)
+mcu.c - __mt7902_mcu_set_clc(dev, alpha2: 0x10a07e20, env_cap, clc, idx: 0x01)
+mcu.c - __mt7902_mcu_set_clc(dev, alpha2: 0x10a07e20, env_cap, clc, idx: 0x02)
 main.c - mt7902_bss_info_changed(hw, vif, info, changed: 0x80209f)
 mcu.c - mt7902_mcu_set_tx(dev, vif)
 mcu.c - mt7902_mcu_sta_update
@@ -295,6 +371,15 @@ main.c - mt7902_bss_info_changed(hw, vif, info, changed: 0x4000)
 main.c - mt7902_config(hw, changed: 0x40)
 main.c - mt7902_set_channel(mphy)
 mcu.c - mt7902_mcu_set_chan_info(phy, cmd: 2285)
+mcu.c - mt7902_mcu_set_chan_info - req.control_ch : 1
+mcu.c - mt7902_mcu_set_chan_info - req.center_ch : 1
+mcu.c - mt7902_mcu_set_chan_info - req.bw : 0
+mcu.c - mt7902_mcu_set_chan_info - req.tx_streams_num : 1
+mcu.c - mt7902_mcu_set_chan_info - req.rx_streams : 1
+mcu.c - mt7902_mcu_set_chan_info - req.band_idx : 0
+mcu.c - mt7902_mcu_set_chan_info - req.channel_band : 0
+mcu.c - mt7902_mcu_set_chan_info - req.switch_reason : 9
+mcu.c - mt7902_mcu_set_chan_info - req.center_ch2 : 0
 mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2285, skb, seq: 1)
 mcu.c - mt7902_mcu_rx_unsolicited_event
 mcu.c - mt7902_mcu_tx_done_event
@@ -303,17 +388,70 @@ mcu.c - mt7902_mcu_rx_unsolicited_event
 mcu.c - mt7902_mcu_tx_done_event
 mac.c - mt7902_mac_add_txs
 main.c - mt7902_config(hw, changed: 0x100)
+init.c - mt7902_regd_notifier(wiphy, request)
+init.c - mt7902_regd_update(dev)
+mcu.c - mt7902_mcu_set_clc(dev, alpha2: 0x10a07e20, env_cap)
+mcu.c - __mt7902_mcu_set_clc(dev, alpha2: 0x10a07e20, env_cap, clc, idx: 0x00)
+mcu.c - __mt7902_mcu_set_clc(dev, alpha2: 0x10a07e20, env_cap, clc, idx: 0x01)
+mcu.c - __mt7902_mcu_set_clc(dev, alpha2: 0x10a07e20, env_cap, clc, idx: 0x02)
+init.c - mt7902_regd_channel_update(wiphy, dev)
+main.c - mt7902_set_tx_sar_pwr(hw, sar)
+init.c - mt7902_thermal_temp_show(dev, attr, buf)
+mcu.c - mt7902_mcu_get_temperature(phy)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 14)
+mcu.c - mt7902_mcu_rx_unsolicited_event
+init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 78
+mcu.c - mt7902_mcu_tx_done_event
+mac.c - mt7902_mac_add_txs
+mcu.c - mt7902_mcu_rx_unsolicited_event
+mcu.c - mt7902_mcu_tx_done_event
+mac.c - mt7902_mac_add_txs
+mcu.c - mt7902_mcu_rx_unsolicited_event
+mcu.c - mt7902_mcu_tx_done_event
+mac.c - mt7902_mac_add_txs
+init.c - mt7902_thermal_temp_show(dev, attr, buf)
+mcu.c - mt7902_mcu_get_temperature(phy)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 15)
+init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 72
+mcu.c - mt7902_mcu_rx_unsolicited_event
+mcu.c - mt7902_mcu_tx_done_event
+mac.c - mt7902_mac_add_txs
+mcu.c - mt7902_mcu_rx_unsolicited_event
+mcu.c - mt7902_mcu_tx_done_event
+mac.c - mt7902_mac_add_txs
+mcu.c - mt7902_mcu_rx_unsolicited_event
+mcu.c - mt7902_mcu_tx_done_event
+mac.c - mt7902_mac_add_txs
+mcu.c - mt7902_mcu_rx_unsolicited_event
+mcu.c - mt7902_mcu_tx_done_event
+mac.c - mt7902_mac_add_txs
+mcu.c - mt7902_mcu_rx_unsolicited_event
+mcu.c - mt7902_mcu_tx_done_event
+mac.c - mt7902_mac_add_txs
+mcu.c - mt7902_mcu_rx_unsolicited_event
+mcu.c - mt7902_mcu_tx_done_event
+mac.c - mt7902_mac_add_txs
+init.c - mt7902_thermal_temp_show(dev, attr, buf)
+mcu.c - mt7902_mcu_get_temperature(phy)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 1)
+init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 67
+init.c - mt7902_thermal_temp_show(dev, attr, buf)
+mcu.c - mt7902_mcu_get_temperature(phy)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 2)
+init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 66
+init.c - mt7902_thermal_temp_show(dev, attr, buf)
+mcu.c - mt7902_mcu_get_temperature(phy)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 3)
+init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 64
+init.c - mt7902_thermal_temp_show(dev, attr, buf)
+mcu.c - mt7902_mcu_get_temperature(phy)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 11501, skb, seq: 4)
+init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 64
+pci.c - mt7902_pci_remove
+pci.c - mt7902e_unregister_device
 mac_link_bss_remove
 main.c - mt7902_stop
 mcu.c - mt7902_mcu_radio_led_ctrl(dev, value: 0x03)
-init.c - mt7902_regd_notifier(wiphy, request)
-init.c - mt7902_regd_update(dev)
-mcu.c - mt7902_mcu_set_clc(dev, alpha2: 0xf6177e20, env_cap)
-mcu.c - __mt7902_mcu_set_clc(dev, alpha2: 0xf6177e20, env_cap, clc, idx: 0x00)
-mcu.c - __mt7902_mcu_set_clc(dev, alpha2: 0xf6177e20, env_cap, clc, idx: 0x01)
-mcu.c - __mt7902_mcu_set_clc(dev, alpha2: 0xf6177e20, env_cap, clc, idx: 0x02)
-init.c - mt7902_regd_channel_update(wiphy, dev)
-main.c - mt7902_set_tx_sar_pwr(hw, sar)
 mt792x_wfsys_reset
 
 

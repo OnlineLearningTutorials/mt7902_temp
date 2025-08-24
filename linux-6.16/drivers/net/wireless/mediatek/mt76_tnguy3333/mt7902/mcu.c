@@ -1017,6 +1017,16 @@ int mt7902_mcu_set_chan_info(struct mt792x_phy *phy, int cmd)
 
 		req.center_ch2 = ieee80211_frequency_to_channel(freq2);
 	}
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_set_chan_info - req.control_ch : %x", req.control_ch);
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_set_chan_info - req.center_ch : %x", req.center_ch);
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_set_chan_info - req.bw : %x", req.bw);
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_set_chan_info - req.tx_streams_num : %x", req.tx_streams_num);
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_set_chan_info - req.rx_streams : %x", req.rx_streams);
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_set_chan_info - req.band_idx : %x", req.band_idx);
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_set_chan_info - req.channel_band : %x", req.channel_band);
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_set_chan_info - req.switch_reason : %x", req.switch_reason);
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_set_chan_info - req.center_ch2 : %x", req.center_ch2);
+	
 
 	return mt76_mcu_send_msg(&dev->mt76, cmd, &req, sizeof(req), true);
 }
