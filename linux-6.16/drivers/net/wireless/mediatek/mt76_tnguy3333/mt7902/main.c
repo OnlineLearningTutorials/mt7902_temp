@@ -323,12 +323,12 @@ mt7902_add_interface(struct ieee80211_hw *hw, struct ieee80211_vif *vif)
 	mvif->bss_conf.mt76.band_idx = 0;
 	mvif->bss_conf.mt76.wmm_idx = mvif->bss_conf.mt76.idx % MT76_CONNAC_MAX_WMM_SETS;
 
-	 ret = mt76_connac_mcu_uni_add_dev(&dev->mphy, &vif->bss_conf,
-	 				  &mvif->bss_conf.mt76,
-	 				  &mvif->sta.deflink.wcid, true);
+	 // ret = mt76_connac_mcu_uni_add_dev(&dev->mphy, &vif->bss_conf,
+	 // 				  &mvif->bss_conf.mt76,
+	 // 				  &mvif->sta.deflink.wcid, true);
 
-    //ret = mt7902_mcu_add_dev_info(&dev->mphy, &vif->bss_conf, &mvif->bss_conf.mt76,
-	//				  true);
+    ret = mt7902_mcu_add_dev_info(&dev->mphy, &vif->bss_conf, &mvif->bss_conf.mt76,
+					  true);
     printk(KERN_INFO "add_interface: add dev info, ret=%d\n", ret);
 
 	if (ret)

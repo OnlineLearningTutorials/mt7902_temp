@@ -367,7 +367,7 @@ mt7902_mcu_uni_rx_unsolicited_event(struct mt792x_dev *dev,
 
 void mt7902_mcu_rx_event(struct mt792x_dev *dev, struct sk_buff *skb)
 {
-	printk(KERN_DEBUG "mcu.c - mt7902_mcu_rx_event(dev, skb)");
+	//printk(KERN_DEBUG "mcu.c - mt7902_mcu_rx_event(dev, skb)");
 	struct mt76_connac2_mcu_rxd *rxd;
 
 	if (skb_linearize(skb))
