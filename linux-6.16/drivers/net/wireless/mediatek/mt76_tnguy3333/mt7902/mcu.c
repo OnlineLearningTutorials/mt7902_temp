@@ -620,20 +620,25 @@ static int mt7902_mcu_get_nic_capability(struct mt792x_phy *mphy)
 
 		switch (le32_to_cpu(tlv->type)) {
 		case MT_NIC_CAP_6G:
+			printk(KERN_DEBUG "mcu.c - mt7902_mcu_get_nic_capability - MT_NIC_CAP_6G");
 			phy->cap.has_6ghz = skb->data[0];
 			break;
 		case MT_NIC_CAP_MAC_ADDR:
+			printk(KERN_DEBUG "mcu.c - mt7902_mcu_get_nic_capability - MT_NIC_CAP_MAC_ADDR");
 			memcpy(phy->macaddr, (void *)skb->data, ETH_ALEN);
 			break;
 		case MT_NIC_CAP_PHY:
+			printk(KERN_DEBUG "mcu.c - mt7902_mcu_get_nic_capability - MT_NIC_CAP_PHY");
 			mt7902_mcu_parse_phy_cap(phy->dev, skb);
 			break;
 		case MT_NIC_CAP_TX_RESOURCE:
+			printk(KERN_DEBUG "mcu.c - mt7902_mcu_get_nic_capability - MT_NIC_CAP_TX_RESOURCE");
 			if (mt76_is_sdio(phy->dev))
 				mt7902_mcu_parse_tx_resource(phy->dev,
 							     skb);
 			break;
 		case MT_NIC_CAP_CHIP_CAP:
+			printk(KERN_DEBUG "mcu.c - mt7902_mcu_get_nic_capability - MT_NIC_CAP_CHIP_CAP");
 			memcpy(&mphy->chip_cap, (void *)skb->data, sizeof(u64));
 			break;
 		default:
