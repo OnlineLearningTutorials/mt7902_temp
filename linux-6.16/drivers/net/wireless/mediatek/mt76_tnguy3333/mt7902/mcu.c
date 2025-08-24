@@ -1658,6 +1658,11 @@ int mt7902_mcu_add_dev_info(struct mt76_phy *phy,
 	};
 	
     memcpy(data.tlv.omac_addr, bss_conf->addr, ETH_ALEN);
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_add_dev_info - data.hdr.omac_idx : %x", data.hdr.omac_idx);
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_add_dev_info - data.hdr.band_idx : %x", data.hdr.band_idx);
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_add_dev_info - data.hdr.is_tlv_append : %x", data.hdr.is_tlv_append);
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_add_dev_info - data.tlv.active : %x", data.tlv.active);
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_add_dev_info - data.tlv.band_idx : %x", data.tlv.band_idx);
 
 	return mt76_mcu_send_msg(dev, MCU_EXT_CMD(DEV_INFO_UPDATE),
 				 &data, sizeof(data), true);

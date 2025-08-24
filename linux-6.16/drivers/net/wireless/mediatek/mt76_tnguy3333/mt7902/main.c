@@ -846,17 +846,19 @@ static void mt7902_bss_info_changed(struct ieee80211_hw *hw,
 		}
 	}
 
-	//if (changed & (BSS_CHANGED_BEACON |
-	//	       BSS_CHANGED_BEACON_ENABLED))
-	//	mt7902_mcu_uni_add_beacon_offload(dev, hw, vif,
-	//					  info->enable_beacon);
+	if (changed & (BSS_CHANGED_BEACON |
+		       BSS_CHANGED_BEACON_ENABLED))
+		// mt7902_mcu_uni_add_beacon_offload(dev, hw, vif,
+		// 				  info->enable_beacon);
+		mt7902_mcu_add_bss_info(phy, vif, true);
+		//mt7902_mcu_add_sta(dev, vif, NULL, true);
 
 	/* ensure that enable txcmd_mode after bss_info */
 	if (changed & (BSS_CHANGED_QOS | BSS_CHANGED_BEACON_ENABLED))
 		mt7902_mcu_set_tx(dev, vif);
 
-	//if (changed & BSS_CHANGED_PS)
-	//	mt7902_mcu_uni_bss_ps(dev, vif);
+	if (changed & BSS_CHANGED_PS)
+		mt7902_mcu_uni_bss_ps(dev, vif);
 
 	if (changed & BSS_CHANGED_CQM)
 		mt7902_mcu_set_rssimonitor(dev, vif);
@@ -868,10 +870,10 @@ static void mt7902_bss_info_changed(struct ieee80211_hw *hw,
 	}
 
 	if (changed & BSS_CHANGED_ARP_FILTER) {
-		//struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
+		struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
 
-		//mt76_connac_mcu_update_arp_filter(&dev->mt76, &mvif->bss_conf.mt76,
-		//				  info);
+		mt76_connac_mcu_update_arp_filter(&dev->mt76, &mvif->bss_conf.mt76,
+						  info);
 	}
 
 	mt792x_mutex_release(dev);
