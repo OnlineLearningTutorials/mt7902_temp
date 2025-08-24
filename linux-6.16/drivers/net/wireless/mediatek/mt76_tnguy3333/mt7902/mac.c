@@ -572,7 +572,8 @@ bool mt7902_rx_check(struct mt76_dev *mdev, void *data, int len)
 	enum rx_pkt_type type;
 
 	type = le32_get_bits(rxd[0], MT_RXD0_PKT_TYPE);
-
+	printk(KERN_DEBUG "mac.c - mt7902_rx_check - type: %d", type);
+	
 	switch (type) {
 	case PKT_TYPE_TXRX_NOTIFY:
 		printk(KERN_DEBUG "mac.c - mt7902_rx_check - case-pkt_type_txrx-notify");
@@ -593,7 +594,7 @@ EXPORT_SYMBOL_GPL(mt7902_rx_check);
 void mt7902_queue_rx_skb(struct mt76_dev *mdev, enum mt76_rxq_id q,
 			 struct sk_buff *skb, u32 *info)
 {
-	printk(KERN_DEBUG "mac.c - mt7902_queue_rx_skb(mdev, q, skb, info)");
+	printk(KERN_DEBUG "mac.c - mt7902_queue_rx_skb(mdev, q: %d, skb, info: 0x%x)", q, info);
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
 	__le32 *rxd = (__le32 *)skb->data;
 	__le32 *end = (__le32 *)&skb->data[skb->len];
@@ -606,7 +607,7 @@ void mt7902_queue_rx_skb(struct mt76_dev *mdev, enum mt76_rxq_id q,
 	if (type == PKT_TYPE_RX_EVENT && flag == 0x1)
 		type = PKT_TYPE_NORMAL_MCU;
 
-	printk(KERN_DEBUG "mac.c - mt7902_queue_rx_skb - type: %d", type);
+	printk(KERN_DEBUG "mac.c - mt7902_queue_rx_skb - type: %d, flag: %x", type, flag);
 
 	switch (type) {
 	case PKT_TYPE_TXRX_NOTIFY:
