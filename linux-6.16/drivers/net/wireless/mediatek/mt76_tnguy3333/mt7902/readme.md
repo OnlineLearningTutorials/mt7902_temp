@@ -1,5 +1,17 @@
 # Some Data Struct used in the files
 
+ - To load all module in serial
+```
+sudo rmmod mt7902e
+sudo rmmod mt792x-lib
+sudo rmmod mt76-connac-lib
+sudo rmmod mt76
+
+sudo insmod mt76.ko
+sudo insmod mt76-connac-lib.ko
+sudo insmod mt792x-lib.ko
+sudo insmod mt7902/mt7902e.ko
+```
   -  linux/include/net/mac80211.h
   ```
 struct ieee80211_hw {
