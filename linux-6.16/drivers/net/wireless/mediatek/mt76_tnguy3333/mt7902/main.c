@@ -644,10 +644,10 @@ struct ieee80211_key_conf {
 		return -EOPNOTSUPP;
 
 	// Returning not supp here forces software decryption, because hardware decryption is currently not working
-	if(key->cipher == WLAN_CIPHER_SUITE_CCMP){
-		printk(KERN_INFO "set_key: falling back to software decryption, returning not supp for PTK/GTK\n");
-		return -EOPNOTSUPP;
-	}
+	// if(key->cipher == WLAN_CIPHER_SUITE_CCMP){
+	// 	printk(KERN_INFO "set_key: falling back to software decryption, returning not supp for PTK/GTK\n");
+	// 	return -EOPNOTSUPP;
+	// }
 
 	/* fall back to sw encryption for unsupported ciphers */
 	switch (key->cipher) {
