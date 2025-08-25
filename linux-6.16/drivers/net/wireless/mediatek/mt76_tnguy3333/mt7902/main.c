@@ -523,6 +523,7 @@ static int mt7902_set_key(struct ieee80211_hw *hw, enum set_key_cmd cmd,
 	struct mt76_wcid *wcid = &msta->deflink.wcid;
 	u8 *wcid_keyidx = &wcid->hw_key_idx;
 	int idx = key->keyidx, err = 0;
+	printk(KERN_DEBUG "main.c - mt7902_set_key - wdid_keyidx: %x, idx: %d", wcid_keyidx, idx);
 
 
 /**
@@ -633,9 +634,14 @@ struct ieee80211_key_conf {
 #define WLAN_CIPHER_SUITE_SMS4		SUITE(0x001472, 1)
 
 
+
 	/* The hardware does not support per-STA RX GTK, fallback
 	 * to software mode for these.
 	 */
+	printk(KERN_DEBUG "main.c - mt7902_set_key - vif->type: %d", vif->type);
+	printk(KERN_DEBUG "main.c - mt7902_set_key - key->cipher: %d", key->cipher);
+	
+
 	if ((vif->type == NL80211_IFTYPE_ADHOC ||
 	     vif->type == NL80211_IFTYPE_MESH_POINT) &&
 	    (key->cipher == WLAN_CIPHER_SUITE_TKIP ||
@@ -686,7 +692,8 @@ struct ieee80211_key_conf {
 		if (vif->type != NL80211_IFTYPE_STATION || vif->cfg.assoc)
 			goto out;
 	}
-
+	printk(KERN_DEBUG "main.c - mt7902_set_key - mt76_wcid_key_setup");
+	
 	mt76_wcid_key_setup(&dev->mt76, wcid, key);
 	err = mt76_connac_mcu_add_key(&dev->mt76, vif, &msta->deflink.bip,
 				      key, MCU_EXT_CMD(STA_REC_UPDATE),
