@@ -639,7 +639,7 @@ struct ieee80211_key_conf {
 	 * to software mode for these.
 	 */
 	printk(KERN_DEBUG "main.c - mt7902_set_key - vif->type: %d", vif->type);
-	printk(KERN_DEBUG "main.c - mt7902_set_key - key->cipher: %d", key->cipher);
+	printk(KERN_DEBUG "main.c - mt7902_set_key - key->cipher: %x", key->cipher);
 	
 
 	if ((vif->type == NL80211_IFTYPE_ADHOC ||
@@ -998,7 +998,7 @@ EXPORT_SYMBOL_GPL(mt7902_mac_sta_add);
 int mt7902_mac_sta_event(struct mt76_dev *mdev, struct ieee80211_vif *vif,
 			 struct ieee80211_sta *sta, enum mt76_sta_event ev)
 {
-	printk(KERN_DEBUG "main.c - mt7902_mac_sta_event(mdev, vif, sta, ev)");
+	printk(KERN_DEBUG "main.c - mt7902_mac_sta_event(mdev, vif, sta, ev: %d)", ev);
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
 	struct mt792x_sta *msta = (struct mt792x_sta *)sta->drv_priv;
 	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
@@ -1145,7 +1145,7 @@ static int mt7902_sta_state(struct ieee80211_hw *hw,
 			    enum ieee80211_sta_state old_state,
 			    enum ieee80211_sta_state new_state)
 {
-	printk(KERN_DEBUG "main.c - mt7902_sta_state(hw, vif, sta, old_state, new_state)");
+	printk(KERN_DEBUG "main.c - mt7902_sta_state(hw, vif, sta, old_state: %d, new_state: %d)", old_state, new_state);
 	struct mt792x_dev *dev = mt792x_hw_dev(hw);
 
 	if (dev->pm.ds_enable) {
