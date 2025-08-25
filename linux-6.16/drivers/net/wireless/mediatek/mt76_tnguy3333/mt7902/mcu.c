@@ -1664,7 +1664,7 @@ int mt7902_mcu_add_dev_info(struct mt76_phy *phy,
 	printk(KERN_DEBUG "mcu.c - mt7902_mcu_add_dev_info - data.tlv.active : %x", data.tlv.active);
 	printk(KERN_DEBUG "mcu.c - mt7902_mcu_add_dev_info - data.tlv.band_idx : %x", data.tlv.band_idx);
 
-	return mt76_mcu_send_msg(dev, MCU_WMWA_UNI_CMD(DEV_INFO_UPDATE),
+	return mt76_mcu_send_msg(dev, MCU_EXT_CMD(DEV_INFO_UPDATE),
 				 &data, sizeof(data), true);
 }
 
@@ -1884,7 +1884,7 @@ int mt7902_mcu_add_bss_info(struct mt792x_phy *phy,
 	}
 out:
 	return mt76_mcu_skb_send_msg(&dev->mt76, skb,
-				     MCU_WMWA_UNI_CMD(BSS_INFO_UPDATE), true);
+				     MCU_EXT_CMD(BSS_INFO_UPDATE), true);
 }
 
 
