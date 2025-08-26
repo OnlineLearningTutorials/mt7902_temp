@@ -419,5 +419,9 @@ struct bss_mld_tlv {
 	u8 remap_idx;
 	u8 __rsv[3];
 } __packed;
+int mt7902_mcu_add_sta(struct mt7902_dev *dev, struct ieee80211_vif *vif,
+		       struct ieee80211_sta *sta, bool enable);
+//int mt7902_mcu_add_beacon(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
+//			  int enable);
 
 #endif

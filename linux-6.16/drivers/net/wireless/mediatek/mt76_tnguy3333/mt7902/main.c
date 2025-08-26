@@ -844,6 +844,23 @@ static void mt7902_bss_info_changed(struct ieee80211_hw *hw,
 
 	mt792x_mutex_acquire(dev);
 
+	/*
+	 * station mode uses BSSID to map the wlan entry to a peer,
+	 * and then peer references bss_info_rfch to set bandwidth cap.
+	 */
+	if (changed & BSS_CHANGED_BSSID &&
+	    vif->type == NL80211_IFTYPE_STATION) {
+		bool join = !is_zero_ether_addr(info->bssid);
+
+		mt7902_mcu_add_bss_info(phy, vif, join);
+		//mt7902_mcu_add_sta(dev, vif, NULL, join);
+	}
+/*
+	if (changed & BSS_CHANGED_ASSOC) {
+		mt7902_mcu_add_bss_info(phy, vif, info->assoc);
+		mt7902_mcu_add_obss_spr(dev, vif, info->he_obss_pd.enable);
+	} */
+
 	if (changed & BSS_CHANGED_ERP_SLOT) {
 		int slottime = info->use_short_slot ? 9 : 20;
 
@@ -853,16 +870,27 @@ static void mt7902_bss_info_changed(struct ieee80211_hw *hw,
 		}
 	}
 
-	if (changed & (BSS_CHANGED_BEACON |
-		       BSS_CHANGED_BEACON_ENABLED))
-		// mt7902_mcu_uni_add_beacon_offload(dev, hw, vif,
-		// 				  info->enable_beacon);
+	if (changed & BSS_CHANGED_BEACON_ENABLED && info->enable_beacon) {
 		mt7902_mcu_add_bss_info(phy, vif, true);
 		//mt7902_mcu_add_sta(dev, vif, NULL, true);
+	}
 
 	/* ensure that enable txcmd_mode after bss_info */
 	if (changed & (BSS_CHANGED_QOS | BSS_CHANGED_BEACON_ENABLED))
 		mt7902_mcu_set_tx(dev, vif);
+
+/*
+	if (changed & BSS_CHANGED_HE_OBSS_PD)
+		mt7902_mcu_add_obss_spr(dev, vif, info->he_obss_pd.enable); 
+
+	if (changed & BSS_CHANGED_HE_BSS_COLOR)
+		mt7902_update_bss_color(hw, vif, &info->he_bss_color); 
+
+	if (changed & (BSS_CHANGED_BEACON |
+		       BSS_CHANGED_BEACON_ENABLED))
+		mt7902_mcu_add_beacon(hw, vif, info->enable_beacon); */
+
+	/*
 
 	if (changed & BSS_CHANGED_PS)
 		mt7902_mcu_uni_bss_ps(dev, vif);
@@ -881,7 +909,7 @@ static void mt7902_bss_info_changed(struct ieee80211_hw *hw,
 
 		mt76_connac_mcu_update_arp_filter(&dev->mt76, &mvif->bss_conf.mt76,
 						  info);
-	}
+	} */
 
 	mt792x_mutex_release(dev);
 }
@@ -889,7 +917,7 @@ static void mt7902_bss_info_changed(struct ieee80211_hw *hw,
 static void
 mt7902_calc_vif_num(void *priv, u8 *mac, struct ieee80211_vif *vif)
 {
-	printk(KERN_DEBUG "main.c - mt7902_calc_vif_num(priv, mac, vif)");
+	printk(KERN_DEBUG "main.c - mt7902_calc_vif_num(priv, mac, vif) - vif->type: %d", vif->type);
 	u32 *num = priv;
 
 	if (!priv)
@@ -927,6 +955,8 @@ mt7902_regd_set_6ghz_power_type(struct ieee80211_vif *vif, bool is_add)
 
 	if (!is_add)
 		vif->bss_conf.power_type = IEEE80211_REG_UNSET_AP;
+
+	printk(KERN_DEBUG "main.c - mt7902_regd_set_6ghz_power_type - vif->bss_conf.power_type: %d", vif->bss_conf.power_type);
 
 	switch (vif->bss_conf.power_type) {
 	case IEEE80211_REG_SP_AP:

@@ -724,7 +724,7 @@ void mt7902_mac_reset_work(struct work_struct *work)
 
 void mt7902_coredump_work(struct work_struct *work)
 {
-	printk(KERN_DEBUG "mac.c - mt7902_coredump_work");
+	printk(KERN_DEBUG "mac.c - mt7902_coredump_work(work)");
 	struct mt792x_dev *dev;
 	char *dump, *data;
 

@@ -18,7 +18,7 @@ MODULE_PARM_DESC(disable_clc, "disable CLC support");
 int mt7902_mcu_parse_response(struct mt76_dev *mdev, int cmd,
 			      struct sk_buff *skb, int seq)
 {
-	printk(KERN_DEBUG "mcu.c - mt7902_mcu_parse_response(mdev, cmd: %d, skb, seq: %d)", cmd, seq);
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_parse_response(mdev, cmd: %x, skb, seq: %d)", cmd, seq);
 	int mcu_cmd = FIELD_GET(__MCU_CMD_FIELD_ID, cmd);
 	struct mt76_connac2_mcu_rxd *rxd;
 	int ret = 0;
@@ -311,10 +311,12 @@ mt7902_mcu_rssi_monitor_event(struct mt792x_dev *dev, struct sk_buff *skb)
 static void
 mt7902_mcu_rx_unsolicited_event(struct mt792x_dev *dev, struct sk_buff *skb)
 {
-	printk(KERN_DEBUG "mcu.c - mt7902_mcu_rx_unsolicited_event");
+	//printk(KERN_DEBUG "mcu.c - mt7902_mcu_rx_unsolicited_event(dev, skb)");
 	struct mt76_connac2_mcu_rxd *rxd;
 
 	rxd = (struct mt76_connac2_mcu_rxd *)skb->data;
+
+	//printk(KERN_DEBUG "mcu.c - mt7902_mcu_rx_unsolicited_event - rxd->eid : %x", rxd->eid);
 	switch (rxd->eid) {
 	case MCU_EVENT_BSS_BEACON_LOSS:
 		mt7902_mcu_connection_loss_event(dev, skb);
@@ -350,11 +352,11 @@ static void
 mt7902_mcu_uni_rx_unsolicited_event(struct mt792x_dev *dev,
 				    struct sk_buff *skb)
 {
-	printk(KERN_DEBUG "mcu.c - mt7902_mcu_uni_rx_unsolicited_event");
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_uni_rx_unsolicited_event(dev, skb)");
 	struct mt76_connac2_mcu_rxd *rxd;
 
 	rxd = (struct mt76_connac2_mcu_rxd *)skb->data;
-
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_uni_rx_unsolicited_event - rxd->eid: %x", rxd->eid);
 	switch (rxd->eid) {
 	case MCU_UNI_EVENT_ROC:
 		mt7902_mcu_uni_roc_event(dev, skb);
@@ -1860,11 +1862,11 @@ int mt7902_mcu_add_bss_info(struct mt792x_phy *phy,
 	//if (enable)
 	//	mt76_connac_mcu_bss_omac_tlv(skb, vif);
 
-	//mt76_connac_mcu_bss_basic_tlv(skb, vif, NULL, phy->mt76,
-	//			      mvif->sta.deflink.wcid.idx, enable);
-	mt7902_mcu_bss_basic_tlv(skb, vif, NULL, phy->mt76,
-				mvif->sta.deflink.wcid.idx, enable);
-	mt7902_mcu_bss_sec_tlv(skb, vif);
+	mt76_connac_mcu_bss_basic_tlv(skb, vif, NULL, phy->mt76,
+				      mvif->sta.deflink.wcid.idx, enable);
+	//mt7902_mcu_bss_basic_tlv(skb, vif, NULL, phy->mt76,
+	//			mvif->sta.deflink.wcid.idx, enable);
+	//mt7902_mcu_bss_sec_tlv(skb, vif);
 
 	if (vif->type == NL80211_IFTYPE_MONITOR)
 		goto out;
@@ -1874,13 +1876,13 @@ int mt7902_mcu_add_bss_info(struct mt792x_phy *phy,
 		mt7902_mcu_bss_bmc_tlv(skb, phy);
 		mt7902_mcu_bss_ra_tlv(skb, vif, phy);
 		//mt7902_mcu_bss_hw_amsdu_tlv(skb);
-		mt7902_mcu_bss_txcmd_tlv(skb, true);
+		//mt7902_mcu_bss_txcmd_tlv(skb, true);
 
 		if (vif->bss_conf.he_support)
 			mt7902_mcu_bss_he_tlv(skb, vif, phy);
 
 		/* all mt7902 ic need this tlv, no matter it supports EHT or not */
-		mt7902_mcu_bss_mld_tlv(skb);
+		//mt7902_mcu_bss_mld_tlv(skb);
 	}
 out:
 	return mt76_mcu_skb_send_msg(&dev->mt76, skb,
@@ -1904,6 +1906,7 @@ mt7902_mcu_bss_basic_tlv(struct sk_buff *skb,
 	u32 type;
 	int idx;
 
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_bss_basic_tlv - vif->type : %d", vif->type);
 	switch (vif->type) {
 	case NL80211_IFTYPE_MESH_POINT:
 	case NL80211_IFTYPE_AP:
@@ -2028,3 +2031,64 @@ mt7902_mcu_add_uni_tlv(struct sk_buff *skb, int tag, int len)
 	return ptlv;
 }
 */
+
+
+/*
+int mt7902_mcu_add_sta(struct mt7902_dev *dev, struct ieee80211_vif *vif,
+		       struct ieee80211_sta *sta, bool enable)
+{
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_add_sta(dev, vif, sta, enable: %d)", enable);
+	struct mt7902_vif *mvif = (struct mt7902_vif *)vif->drv_priv;
+	struct mt7902_sta *msta;
+	struct sk_buff *skb;
+	int ret;
+
+	msta = sta ? (struct mt7902_sta *)sta->drv_priv : &mvif->sta;
+
+	skb = mt76_connac_mcu_alloc_sta_req(&dev->mt76, &mvif->mt76,
+					    &msta->wcid);
+	if (IS_ERR(skb))
+		return PTR_ERR(skb);
+
+	/* starec basic * /
+	mt76_connac_mcu_sta_basic_tlv(skb, vif, sta, enable, true);
+	if (!enable)
+		goto out;
+
+	/* tag order is in accordance with firmware dependency. * /
+	if (sta) {
+		/* starec phy * /
+		if (mt76_chip(&dev->mt76) != 0x7902)
+			mt7902_mcu_sta_phy_tlv(dev, skb, vif, sta);
+		/* starec bfer * /
+		mt7902_mcu_sta_bfer_tlv(dev, skb, vif, sta);
+		/* starec ht * /
+		mt7902_mcu_sta_ht_tlv(skb, sta);
+		/* starec vht * /
+		mt7902_mcu_sta_vht_tlv(skb, sta);
+		/* starec uapsd * /
+		mt76_connac_mcu_sta_uapsd(skb, vif, sta);
+		/* starec amsdu * /
+		mt7902_mcu_sta_amsdu_tlv(dev, skb, vif, sta);
+		/* starec he * /
+		mt7902_mcu_sta_he_tlv(skb, sta, vif);
+		/* starec he 6g* /
+		mt7902_mcu_sta_he_6g_tlv(skb, sta, vif);
+		/* starec muru * /
+		mt7902_mcu_sta_muru_tlv(skb, sta, vif);
+		/* starec bfee * /
+		mt7902_mcu_sta_bfee_tlv(dev, skb, vif, sta);
+		/* starec hdr trans * /
+		mt7902_mcu_sta_hdr_trans_tlv(dev, skb, vif, sta);
+	}
+
+	ret = mt7902_mcu_add_group(dev, vif, sta);
+	if (ret) {
+		dev_kfree_skb(skb);
+		return ret;
+	}
+out:
+	return mt76_mcu_skb_send_msg(&dev->mt76, skb,
+				     MCU_WMWA_UNI_CMD(STA_REC_UPDATE), true);
+} */
+
