@@ -332,3 +332,60 @@ struct wiphy {
 
 
 ```
+
+To add BSS (Basic Service Set) information for a STA (Station) using the Linux mac80211 subsystem, you need to configure the STA's Virtual Interface (VIF) by setting parameters in its operating mode to reflect its connection to a BSS, such as joining an existing BSS, creating an ad-hoc BSS, or handling BSS transitions. BSS information is shared through beacon frames and managed by the AP, with the STA responding to and utilizing this information to maintain connectivity and participate in the network. 
+
+
+
+## Understanding the Terms
+
+    BSS (Basic Service Set):
+    A collection of wireless stations that can communicate, potentially including an Access Point (AP) that connects to a wired network. 
+
+### STA (Station):
+A wireless device, such as a laptop or smartphone, that participates in the network. 
+### VIF (Virtual Interface):
+A logical interface that manages a wireless connection, with a STA VIF typically handling station-related operations like connecting to an AP. 
+### mac80211:
+A Linux kernel subsystem that handles the functions of a wireless LAN driver, providing APIs to configure and manage Wi-Fi devices and connections. 
+
+
+## How to Add BSS Information to a STA VIF
+
+### 1. Create and Configure the STA VIF:
+        In a Linux environment using mac80211, you would use helpers like the WifiHelper and WifiMacHelper in simulation environments, or driver-level APIs to create a new STA-mode VIF. 
+
+wifi.Install(phy, mac, wifiStaNodes) from ns-3 is an example of installing a STA device. 
+
+### 2. Join a BSS:
+
+    For a STA to join a BSS managed by an AP, it sends association requests. 
+
+The STA will listen for Beacon frames from the AP, which contain BSS information like the SSID (network name) and security settings. 
+The STA's VIF then uses this information to authenticate and associate with the AP's BSS. 
+
+### 3. Participate in an Ad-Hoc BSS:
+
+    In an IBSS (Independent Basic Service Set) or ad-hoc mode, stations form a network without an AP. 
+
+The STA VIF needs to perform functions normally done by an AP, such as generating beacon frames to announce its presence and synchronize with other stations in the ad-hoc BSS. 
+
+### 4. Manage BSS Transitions (Roaming):
+
+    When a STA needs to move to a new AP in the same or a different BSS, it uses the BSS Transition Management (BTM) protocol (IEEE 802.11v). 
+
+A STA can send a BTM Query to an AP to get recommendations on where to roam, or the AP can send a BTM Request to the STA. 
+The STA's VIF then uses this information to request a transition to the target AP's BSS. 
+
+## Key Configuration Considerations
+
+###  Beacon Management:
+    For ad-hoc networks, the VIF must generate beacon frames containing the BSS information. 
+
+### Association Parameters:
+The VIF needs to be set to the appropriate operating mode (e.g., StaWifiMac in ns-3) to handle association and authentication with the chosen BSS. 
+
+### Parameter Negotiation:
+In a BSS, the STA uses information from the AP's beacons to set operational parameters, such as the BSS Max Idle Period for power saving. 
+
+

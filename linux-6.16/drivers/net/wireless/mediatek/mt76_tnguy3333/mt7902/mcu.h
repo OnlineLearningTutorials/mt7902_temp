@@ -177,7 +177,7 @@ struct bss_info_he {
 	__le16 max_nss_mcs[CMD_HE_MCS_BW_NUM];
 	u8 rsv[6];
 } __packed;
-
+/*
 #define MT7902_BSS_UPDATE_MAX_SIZE	(sizeof(struct sta_req_hdr) +	\
 					 sizeof(struct bss_info_omac) +	\
 					 sizeof(struct bss_info_basic) +\
@@ -187,5 +187,139 @@ struct bss_info_he {
 					 sizeof(struct bss_info_he) +	\
 					 sizeof(struct bss_info_bmc_rate) +\
 					 sizeof(struct bss_info_ext_bss))
+*/
+
+struct bss_req_hdr {
+	u8 bss_idx;
+	u8 __rsv[3];
+} __packed;
+
+
+struct bss_rate_tlv {
+	__le16 tag;
+	__le16 len;
+	u8 __rsv1[4];
+	__le16 bc_trans;
+	__le16 mc_trans;
+	u8 short_preamble;
+	u8 bc_fixed_rate;
+	u8 mc_fixed_rate;
+	u8 __rsv2[1];
+} __packed;
+
+struct bss_ra_tlv {
+	__le16 tag;
+	__le16 len;
+	u8 short_preamble;
+	u8 force_sgi;
+	u8 force_gf;
+	u8 ht_mode;
+	u8 se_off;
+	u8 antenna_idx;
+	__le16 max_phyrate;
+	u8 force_tx_streams;
+	u8 __rsv[3];
+} __packed;
+
+struct bss_rlm_tlv {
+	__le16 tag;
+	__le16 len;
+	u8 control_channel;
+	u8 center_chan;
+	u8 center_chan2;
+	u8 bw;
+	u8 tx_streams;
+	u8 rx_streams;
+	u8 ht_op_info;
+	u8 sco;
+	u8 band;
+	u8 __rsv[3];
+} __packed;
+
+struct bss_color_tlv {
+	__le16 tag;
+	__le16 len;
+	u8 enable;
+	u8 color;
+	u8 rsv[2];
+} __packed;
+
+#define MAX_BEACON_SIZE 512
+struct bss_bcn_content_tlv {
+	__le16 tag;
+	__le16 len;
+	__le16 tim_ie_pos;
+	__le16 csa_ie_pos;
+	__le16 bcc_ie_pos;
+	u8 enable;
+	u8 type;
+	__le16 pkt_len;
+	u8 pkt[MAX_BEACON_SIZE];
+} __packed;
+
+struct bss_bcn_cntdwn_tlv {
+	__le16 tag;
+	__le16 len;
+	u8 cnt;
+	u8 rsv[3];
+} __packed;
+
+struct bss_bcn_mbss_tlv {
+#define MAX_BEACON_NUM	32
+	__le16 tag;
+	__le16 len;
+	__le32 bitmap;
+	__le16 offset[MAX_BEACON_NUM];
+} __packed __aligned(4);
+
+struct bss_txcmd_tlv {
+	__le16 tag;
+	__le16 len;
+	u8 txcmd_mode;
+	u8 __rsv[3];
+} __packed;
+
+struct bss_sec_tlv {
+	__le16 tag;
+	__le16 len;
+	u8 __rsv1[2];
+	u8 cipher;
+	u8 __rsv2[1];
+} __packed;
+
+struct bss_power_save {
+	__le16 tag;
+	__le16 len;
+	u8 profile;
+	u8 _rsv[3];
+} __packed;
+
+struct bss_mld_tlv {
+	__le16 tag;
+	__le16 len;
+	u8 group_mld_id;
+	u8 own_mld_id;
+	u8 mac_addr[ETH_ALEN];
+	u8 remap_idx;
+	u8 __rsv[3];
+} __packed;
+
+
+#define mt7902_BSS_UPDATE_MAX_SIZE	(sizeof(struct bss_req_hdr) +	\
+					 sizeof(struct mt76_connac_bss_basic_tlv) +	\
+					 sizeof(struct bss_rlm_tlv) +\
+					 sizeof(struct bss_ra_tlv) + \
+					 sizeof(struct bss_info_uni_he) +	\
+					 sizeof(struct bss_rate_tlv) +\
+					 sizeof(struct bss_txcmd_tlv) +\
+					 sizeof(struct bss_power_save) +\
+					 sizeof(struct bss_sec_tlv) +\
+					 sizeof(struct bss_mld_tlv))
+
+#define mt7902_BEACON_UPDATE_SIZE	(sizeof(struct bss_req_hdr) +	\
+					 sizeof(struct bss_bcn_content_tlv) + \
+					 sizeof(struct bss_bcn_cntdwn_tlv) + \
+					 sizeof(struct bss_bcn_mbss_tlv))
+
 
 #endif

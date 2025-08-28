@@ -833,6 +833,29 @@ static void mt7902_configure_filter(struct ieee80211_hw *hw,
 	*total_flags &= (FIF_OTHER_BSS | FIF_FCSFAIL | FIF_CONTROL);
 }
 
+static void
+mt7902_update_bss_color(struct ieee80211_hw *hw,
+			struct ieee80211_vif *vif,
+			struct cfg80211_he_bss_color *bss_color)
+{
+	struct mt7902_dev *dev = mt7902_hw_dev(hw);
+
+	switch (vif->type) {
+	case NL80211_IFTYPE_AP: {
+		struct mt7902_vif *mvif = (struct mt7902_vif *)vif->drv_priv;
+
+		if (mvif->mt76.omac_idx > HW_BSSID_MAX)
+			return;
+		fallthrough;
+	}
+	case NL80211_IFTYPE_STATION:
+		mt7902_mcu_update_bss_color(dev, vif, bss_color);
+		break;
+	default:
+		break;
+	}
+}
+
 static void mt7902_bss_info_changed(struct ieee80211_hw *hw,
 				    struct ieee80211_vif *vif,
 				    struct ieee80211_bss_conf *info,
@@ -853,13 +876,13 @@ static void mt7902_bss_info_changed(struct ieee80211_hw *hw,
 		bool join = !is_zero_ether_addr(info->bssid);
 
 		mt7902_mcu_add_bss_info(phy, vif, join);
-		//mt7902_mcu_add_sta(dev, vif, NULL, join);
+		mt7902_mcu_add_sta(dev, vif, NULL, join);
 	}
-/*
+
 	if (changed & BSS_CHANGED_ASSOC) {
 		mt7902_mcu_add_bss_info(phy, vif, info->assoc);
 		mt7902_mcu_add_obss_spr(dev, vif, info->he_obss_pd.enable);
-	} */
+	} 
 
 	if (changed & BSS_CHANGED_ERP_SLOT) {
 		int slottime = info->use_short_slot ? 9 : 20;
@@ -872,14 +895,13 @@ static void mt7902_bss_info_changed(struct ieee80211_hw *hw,
 
 	if (changed & BSS_CHANGED_BEACON_ENABLED && info->enable_beacon) {
 		mt7902_mcu_add_bss_info(phy, vif, true);
-		//mt7902_mcu_add_sta(dev, vif, NULL, true);
+		mt7902_mcu_add_sta(dev, vif, NULL, true);
 	}
 
 	/* ensure that enable txcmd_mode after bss_info */
 	if (changed & (BSS_CHANGED_QOS | BSS_CHANGED_BEACON_ENABLED))
 		mt7902_mcu_set_tx(dev, vif);
 
-/*
 	if (changed & BSS_CHANGED_HE_OBSS_PD)
 		mt7902_mcu_add_obss_spr(dev, vif, info->he_obss_pd.enable); 
 
@@ -888,7 +910,7 @@ static void mt7902_bss_info_changed(struct ieee80211_hw *hw,
 
 	if (changed & (BSS_CHANGED_BEACON |
 		       BSS_CHANGED_BEACON_ENABLED))
-		mt7902_mcu_add_beacon(hw, vif, info->enable_beacon); */
+		mt7902_mcu_add_beacon(hw, vif, info->enable_beacon); 
 
 	/*
 
