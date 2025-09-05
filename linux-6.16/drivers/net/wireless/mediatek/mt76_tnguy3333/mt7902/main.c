@@ -832,13 +832,13 @@ static void mt7902_configure_filter(struct ieee80211_hw *hw,
 
 	*total_flags &= (FIF_OTHER_BSS | FIF_FCSFAIL | FIF_CONTROL);
 }
-
+/*
 static void
 mt7902_update_bss_color(struct ieee80211_hw *hw,
 			struct ieee80211_vif *vif,
 			struct cfg80211_he_bss_color *bss_color)
 {
-	struct mt7902_dev *dev = mt7902_hw_dev(hw);
+	struct mt792x_dev *dev = mt792x_hw_dev(hw);
 
 	switch (vif->type) {
 	case NL80211_IFTYPE_AP: {
@@ -854,7 +854,7 @@ mt7902_update_bss_color(struct ieee80211_hw *hw,
 	default:
 		break;
 	}
-}
+} */
 
 static void mt7902_bss_info_changed(struct ieee80211_hw *hw,
 				    struct ieee80211_vif *vif,
@@ -876,12 +876,12 @@ static void mt7902_bss_info_changed(struct ieee80211_hw *hw,
 		bool join = !is_zero_ether_addr(info->bssid);
 
 		mt7902_mcu_add_bss_info(phy, vif, join);
-		mt7902_mcu_add_sta(dev, vif, NULL, join);
+		//mt7902_mcu_add_sta(dev, vif, NULL, join);
 	}
 
 	if (changed & BSS_CHANGED_ASSOC) {
-		mt7902_mcu_add_bss_info(phy, vif, info->assoc);
-		mt7902_mcu_add_obss_spr(dev, vif, info->he_obss_pd.enable);
+		//mt7902_mcu_add_bss_info(phy, vif, info->assoc);
+		//mt7902_mcu_add_obss_spr(dev, vif, info->he_obss_pd.enable);
 	} 
 
 	if (changed & BSS_CHANGED_ERP_SLOT) {
@@ -895,7 +895,7 @@ static void mt7902_bss_info_changed(struct ieee80211_hw *hw,
 
 	if (changed & BSS_CHANGED_BEACON_ENABLED && info->enable_beacon) {
 		mt7902_mcu_add_bss_info(phy, vif, true);
-		mt7902_mcu_add_sta(dev, vif, NULL, true);
+		//mt7902_mcu_add_sta(dev, vif, NULL, true);
 	}
 
 	/* ensure that enable txcmd_mode after bss_info */
@@ -903,10 +903,10 @@ static void mt7902_bss_info_changed(struct ieee80211_hw *hw,
 		mt7902_mcu_set_tx(dev, vif);
 
 	if (changed & BSS_CHANGED_HE_OBSS_PD)
-		mt7902_mcu_add_obss_spr(dev, vif, info->he_obss_pd.enable); 
+		//mt7902_mcu_add_obss_spr(dev, vif, info->he_obss_pd.enable); 
 
 	if (changed & BSS_CHANGED_HE_BSS_COLOR)
-		mt7902_update_bss_color(hw, vif, &info->he_bss_color); 
+		//mt7902_update_bss_color(hw, vif, &info->he_bss_color); 
 
 	if (changed & (BSS_CHANGED_BEACON |
 		       BSS_CHANGED_BEACON_ENABLED))

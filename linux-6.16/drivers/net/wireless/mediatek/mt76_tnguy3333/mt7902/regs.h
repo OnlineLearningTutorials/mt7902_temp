@@ -4,7 +4,7 @@
 #ifndef __MT7902_REGS_H
 #define __MT7902_REGS_H
 
-#include "../mt792x_regs.h"
+#include "mt792x_regs.h"
 
 #define MT_MDP_BASE			0x820cd000
 #define MT_MDP(ofs)			(MT_MDP_BASE + (ofs))

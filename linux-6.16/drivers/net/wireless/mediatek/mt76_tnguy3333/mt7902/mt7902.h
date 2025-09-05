@@ -4,7 +4,7 @@
 #ifndef __MT7902_H
 #define __MT7902_H
 
-#include "../mt792x.h"
+#include "mt792x.h"
 #include "regs.h"
 
 #define MT7902_TX_RING_SIZE		2048
@@ -364,64 +364,5 @@ enum {
 	CMD_BAND_5G,
 	CMD_BAND_6G,
 };
-struct bss_ra_tlv {
-	__le16 tag;
-	__le16 len;
-	u8 short_preamble;
-	u8 force_sgi;
-	u8 force_gf;
-	u8 ht_mode;
-	u8 se_off;
-	u8 antenna_idx;
-	__le16 max_phyrate;
-	u8 force_tx_streams;
-	u8 __rsv[3];
-} __packed;
-static int
-mt7902_mcu_bss_basic_tlv(struct sk_buff *skb,
-			struct ieee80211_vif *vif,
-			struct ieee80211_sta *sta,
-			struct mt76_phy *phy, u16 wlan_idx,
-			bool enable);
-static void
-mt7902_mcu_bss_sec_tlv(struct sk_buff *skb, struct ieee80211_vif *vif);
-static void
-mt7902_mcu_bss_txcmd_tlv(struct sk_buff *skb, bool en);
-static void
-mt7902_mcu_bss_mld_tlv(struct sk_buff *skb);
-struct mt76_vif {
-	u8 idx;
-	u8 omac_idx;
-	u8 band_idx;
-	u8 wmm_idx;
-	u8 scan_seq_num;
-	u8 cipher;
-};
-struct bss_sec_tlv {
-	__le16 tag;
-	__le16 len;
-	u8 __rsv1[2];
-	u8 cipher;
-	u8 __rsv2[1];
-} __packed;
-struct bss_txcmd_tlv {
-	__le16 tag;
-	__le16 len;
-	u8 txcmd_mode;
-	u8 __rsv[3];
-} __packed;
-struct bss_mld_tlv {
-	__le16 tag;
-	__le16 len;
-	u8 group_mld_id;
-	u8 own_mld_id;
-	u8 mac_addr[ETH_ALEN];
-	u8 remap_idx;
-	u8 __rsv[3];
-} __packed;
-int mt7902_mcu_add_sta(struct mt7902_dev *dev, struct ieee80211_vif *vif,
-		       struct ieee80211_sta *sta, bool enable);
-//int mt7902_mcu_add_beacon(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
-//			  int enable);
 
 #endif

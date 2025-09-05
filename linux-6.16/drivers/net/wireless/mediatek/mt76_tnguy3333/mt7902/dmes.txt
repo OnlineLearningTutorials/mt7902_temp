@@ -1,0 +1,232 @@
+
+pci.c - mt7902_pci_probe  =============================================================================================================================================================================================================================
+mt7902e 0000:03:00.0: enabling device (0000 -> 0002)
+mt7902e 0000:03:00.0: ASIC revision: 79020000
+pci.c - mt7902_dma_init(dev)
+init.c - mt7902_register_device(dev)
+init.c - mt7902_init_work(work)
+init.c - mt7902_init_hardware(dev)
+init.c - __mt7902_init_hardware(dev)
+pci_mcu.c - mt7902e_mcu_init(dev)
+pci_mcu.c - mt7902e_driver_own(dev)
+mcu.c - mt7902_run_firmware(dev)
+mcu.c - mt7902_load_firmware(dev)
+mcu.c - mt7902_firmware_state(dev, wa: 0)
+mcu.c - mt7902_load_firmware - load_patch
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10, skb, seq: 1)
+mt7902e 0000:03:00.0: HW/SW Version: 0x8a108a10, Build Time: 20220729160652a
+
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 2)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 7, skb, seq: 2)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10, skb, seq: 3)
+mcu.c - mt7902_load_firmware - load_ram
+mt7902e 0000:03:00.0: WM Firmware Version: ____000000, Build Time: 20220729160729
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 4)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 15)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 12)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2, skb, seq: 1)
+mt7902e 0000:03:00.0: Message 00000002 (seq 1) timeout
+mt7902e 0000:03:00.0: Failed to start WM firmware
+pci.c - mt7902e_init_reset
+init.c - __mt7902_init_hardware(dev)
+pci_mcu.c - mt7902e_mcu_init(dev)
+pci_mcu.c - mt7902e_driver_own(dev)
+mcu.c - mt7902_run_firmware(dev)
+mcu.c - mt7902_load_firmware(dev)
+mcu.c - mt7902_firmware_state(dev, wa: 0)
+mcu.c - mt7902_load_firmware - load_patch
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10, skb, seq: 2)
+mt7902e 0000:03:00.0: HW/SW Version: 0x8a108a10, Build Time: 20220729160652a
+
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 3)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 7, skb, seq: 3)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10, skb, seq: 4)
+mcu.c - mt7902_load_firmware - load_ram
+mt7902e 0000:03:00.0: WM Firmware Version: ____000000, Build Time: 20220729160729
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 5)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 1)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 13)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2, skb, seq: 2)
+mt7902e 0000:03:00.0: Message 00000002 (seq 2) timeout
+mt7902e 0000:03:00.0: Failed to start WM firmware
+pci.c - mt7902e_init_reset
+init.c - __mt7902_init_hardware(dev)
+pci_mcu.c - mt7902e_mcu_init(dev)
+pci_mcu.c - mt7902e_driver_own(dev)
+mcu.c - mt7902_run_firmware(dev)
+mcu.c - mt7902_load_firmware(dev)
+mcu.c - mt7902_firmware_state(dev, wa: 0)
+mcu.c - mt7902_load_firmware - load_patch
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10, skb, seq: 3)
+mt7902e 0000:03:00.0: HW/SW Version: 0x8a108a10, Build Time: 20220729160652a
+
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 4)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 7, skb, seq: 4)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10, skb, seq: 5)
+mcu.c - mt7902_load_firmware - load_ram
+mt7902e 0000:03:00.0: WM Firmware Version: ____000000, Build Time: 20220729160729
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 6)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 2)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 14)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2, skb, seq: 3)
+mt7902e 0000:03:00.0: Message 00000002 (seq 3) timeout
+mt7902e 0000:03:00.0: Failed to start WM firmware
+pci.c - mt7902e_init_reset
+init.c - __mt7902_init_hardware(dev)
+pci_mcu.c - mt7902e_mcu_init(dev)
+pci_mcu.c - mt7902e_driver_own(dev)
+mcu.c - mt7902_run_firmware(dev)
+mcu.c - mt7902_load_firmware(dev)
+mcu.c - mt7902_firmware_state(dev, wa: 0)
+mcu.c - mt7902_load_firmware - load_patch
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10, skb, seq: 4)
+mt7902e 0000:03:00.0: HW/SW Version: 0x8a108a10, Build Time: 20220729160652a
+
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 5)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 7, skb, seq: 5)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10, skb, seq: 6)
+mcu.c - mt7902_load_firmware - load_ram
+mt7902e 0000:03:00.0: WM Firmware Version: ____000000, Build Time: 20220729160729
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 7)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 3)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 15)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2, skb, seq: 4)
+mt7902e 0000:03:00.0: Message 00000002 (seq 4) timeout
+mt7902e 0000:03:00.0: Failed to start WM firmware
+pci.c - mt7902e_init_reset
+init.c - __mt7902_init_hardware(dev)
+pci_mcu.c - mt7902e_mcu_init(dev)
+pci_mcu.c - mt7902e_driver_own(dev)
+mcu.c - mt7902_run_firmware(dev)
+mcu.c - mt7902_load_firmware(dev)
+mcu.c - mt7902_firmware_state(dev, wa: 0)
+mcu.c - mt7902_load_firmware - load_patch
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10, skb, seq: 5)
+mt7902e 0000:03:00.0: HW/SW Version: 0x8a108a10, Build Time: 20220729160652a
+
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 6)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 7, skb, seq: 6)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10, skb, seq: 7)
+mcu.c - mt7902_load_firmware - load_ram
+mt7902e 0000:03:00.0: WM Firmware Version: ____000000, Build Time: 20220729160729
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 8)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 4)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 1)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2, skb, seq: 5)
+mt7902e 0000:03:00.0: Message 00000002 (seq 5) timeout
+mt7902e 0000:03:00.0: Failed to start WM firmware
+pci.c - mt7902e_init_reset
+init.c - __mt7902_init_hardware(dev)
+pci_mcu.c - mt7902e_mcu_init(dev)
+pci_mcu.c - mt7902e_driver_own(dev)
+mcu.c - mt7902_run_firmware(dev)
+mcu.c - mt7902_load_firmware(dev)
+mcu.c - mt7902_firmware_state(dev, wa: 0)
+mcu.c - mt7902_load_firmware - load_patch
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10, skb, seq: 6)
+mt7902e 0000:03:00.0: HW/SW Version: 0x8a108a10, Build Time: 20220729160652a
+
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 7)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 7, skb, seq: 7)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10, skb, seq: 8)
+mcu.c - mt7902_load_firmware - load_ram
+mt7902e 0000:03:00.0: WM Firmware Version: ____000000, Build Time: 20220729160729
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 9)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 5)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 2)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2, skb, seq: 6)
+mt7902e 0000:03:00.0: Message 00000002 (seq 6) timeout
+mt7902e 0000:03:00.0: Failed to start WM firmware
+pci.c - mt7902e_init_reset
+init.c - __mt7902_init_hardware(dev)
+pci_mcu.c - mt7902e_mcu_init(dev)
+pci_mcu.c - mt7902e_driver_own(dev)
+mcu.c - mt7902_run_firmware(dev)
+mcu.c - mt7902_load_firmware(dev)
+mcu.c - mt7902_firmware_state(dev, wa: 0)
+mcu.c - mt7902_load_firmware - load_patch
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10, skb, seq: 7)
+mt7902e 0000:03:00.0: HW/SW Version: 0x8a108a10, Build Time: 20220729160652a
+
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 8)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 7, skb, seq: 8)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10, skb, seq: 9)
+mcu.c - mt7902_load_firmware - load_ram
+mt7902e 0000:03:00.0: WM Firmware Version: ____000000, Build Time: 20220729160729
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 10)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 6)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 3)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2, skb, seq: 7)
+mt7902e 0000:03:00.0: Message 00000002 (seq 7) timeout
+mt7902e 0000:03:00.0: Failed to start WM firmware
+pci.c - mt7902e_init_reset
+init.c - __mt7902_init_hardware(dev)
+pci_mcu.c - mt7902e_mcu_init(dev)
+pci_mcu.c - mt7902e_driver_own(dev)
+mcu.c - mt7902_run_firmware(dev)
+mcu.c - mt7902_load_firmware(dev)
+mcu.c - mt7902_firmware_state(dev, wa: 0)
+mcu.c - mt7902_load_firmware - load_patch
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10, skb, seq: 8)
+mt7902e 0000:03:00.0: HW/SW Version: 0x8a108a10, Build Time: 20220729160652a
+
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 9)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 7, skb, seq: 9)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10, skb, seq: 10)
+mcu.c - mt7902_load_firmware - load_ram
+mt7902e 0000:03:00.0: WM Firmware Version: ____000000, Build Time: 20220729160729
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 11)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 7)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 4)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2, skb, seq: 8)
+mt7902e 0000:03:00.0: Message 00000002 (seq 8) timeout
+mt7902e 0000:03:00.0: Failed to start WM firmware
+pci.c - mt7902e_init_reset
+init.c - __mt7902_init_hardware(dev)
+pci_mcu.c - mt7902e_mcu_init(dev)
+pci_mcu.c - mt7902e_driver_own(dev)
+mcu.c - mt7902_run_firmware(dev)
+mcu.c - mt7902_load_firmware(dev)
+mcu.c - mt7902_firmware_state(dev, wa: 0)
+mcu.c - mt7902_load_firmware - load_patch
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10, skb, seq: 9)
+mt7902e 0000:03:00.0: HW/SW Version: 0x8a108a10, Build Time: 20220729160652a
+
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 10)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 7, skb, seq: 10)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10, skb, seq: 11)
+mcu.c - mt7902_load_firmware - load_ram
+mt7902e 0000:03:00.0: WM Firmware Version: ____000000, Build Time: 20220729160729
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 12)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 8)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 5)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2, skb, seq: 9)
+mt7902e 0000:03:00.0: Message 00000002 (seq 9) timeout
+mt7902e 0000:03:00.0: Failed to start WM firmware
+pci.c - mt7902e_init_reset
+init.c - __mt7902_init_hardware(dev)
+pci_mcu.c - mt7902e_mcu_init(dev)
+pci_mcu.c - mt7902e_driver_own(dev)
+mcu.c - mt7902_run_firmware(dev)
+mcu.c - mt7902_load_firmware(dev)
+mcu.c - mt7902_firmware_state(dev, wa: 0)
+mcu.c - mt7902_load_firmware - load_patch
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10, skb, seq: 10)
+mt7902e 0000:03:00.0: HW/SW Version: 0x8a108a10, Build Time: 20220729160652a
+
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 11)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 7, skb, seq: 11)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10, skb, seq: 12)
+mcu.c - mt7902_load_firmware - load_ram
+mt7902e 0000:03:00.0: WM Firmware Version: ____000000, Build Time: 20220729160729
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 13)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 9)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 6)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2, skb, seq: 10)
+mt7902e 0000:03:00.0: Message 00000002 (seq 10) timeout
+mt7902e 0000:03:00.0: Failed to start WM firmware
+pci.c - mt7902e_init_reset
+mt7902e 0000:03:00.0: hardware init failed
+
+
+

@@ -1,6 +1,21 @@
 # Some Data Struct used in the files
 
  - To load all module in serial
+ ```
+sudo rmmod mt7902e
+sudo rmmod mt7921e
+sudo rmmod mt7921_common
+sudo rmmod mt792x-lib
+sudo rmmod mt76-connac-lib
+sudo rmmod mt76
+
+sudo insmod ../mt76_module/mt76.ko
+sudo insmod ../mt76_connac_lib_module/mt76-connac-lib.ko
+sudo insmod ../mt792x_lib_module/mt792x-lib.ko
+sudo insmod mt7902e.ko
+```
+
+
 ```
 sudo rmmod mt7902e
 sudo rmmod mt792x-lib

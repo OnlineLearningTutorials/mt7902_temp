@@ -5,8 +5,8 @@
 #include <linux/etherdevice.h>
 #include <linux/timekeeping.h>
 #include "mt7902.h"
-#include "../dma.h"
-#include "../mt76_connac2_mac.h"
+#include "dma.h"
+#include "mt76_connac2_mac.h"
 #include "mcu.h"
 
 #define MT_WTBL_TXRX_CAP_RATE_OFFSET	7

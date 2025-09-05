@@ -4,7 +4,7 @@
 #ifndef __MT7902_MCU_H
 #define __MT7902_MCU_H
 
-#include "../mt76_connac_mcu.h"
+#include "mt76_connac_mcu.h"
 
 struct mt7902_mcu_tx_done_event {
 	u8 pid;
@@ -220,7 +220,7 @@ struct bss_ra_tlv {
 	u8 force_tx_streams;
 	u8 __rsv[3];
 } __packed;
-
+/*
 struct bss_rlm_tlv {
 	__le16 tag;
 	__le16 len;
@@ -234,7 +234,7 @@ struct bss_rlm_tlv {
 	u8 sco;
 	u8 band;
 	u8 __rsv[3];
-} __packed;
+} __packed; */
 
 struct bss_color_tlv {
 	__le16 tag;
@@ -285,7 +285,7 @@ struct bss_sec_tlv {
 	u8 __rsv1[2];
 	u8 cipher;
 	u8 __rsv2[1];
-} __packed;
+} __packed;  
 
 struct bss_power_save {
 	__le16 tag;
@@ -302,10 +302,51 @@ struct bss_mld_tlv {
 	u8 mac_addr[ETH_ALEN];
 	u8 remap_idx;
 	u8 __rsv[3];
+} __packed; 
+
+
+/*
+struct bss_ra_tlv {
+	__le16 tag;
+	__le16 len;
+	u8 short_preamble;
+	u8 force_sgi;
+	u8 force_gf;
+	u8 ht_mode;
+	u8 se_off;
+	u8 antenna_idx;
+	__le16 max_phyrate;
+	u8 force_tx_streams;
+	u8 __rsv[3];
 } __packed;
 
 
-#define mt7902_BSS_UPDATE_MAX_SIZE	(sizeof(struct bss_req_hdr) +	\
+struct bss_sec_tlv {
+	__le16 tag;
+	__le16 len;
+	u8 __rsv1[2];
+	u8 cipher;
+	u8 __rsv2[1];
+} __packed;
+struct bss_txcmd_tlv {
+	__le16 tag;
+	__le16 len;
+	u8 txcmd_mode;
+	u8 __rsv[3];
+} __packed;
+struct bss_mld_tlv {
+	__le16 tag;
+	__le16 len;
+	u8 group_mld_id;
+	u8 own_mld_id;
+	u8 mac_addr[ETH_ALEN];
+	u8 remap_idx;
+	u8 __rsv[3];
+} __packed;
+*/
+
+
+#define MT7902_BSS_UPDATE_MAX_SIZE	(sizeof(struct bss_req_hdr) +	\
 					 sizeof(struct mt76_connac_bss_basic_tlv) +	\
 					 sizeof(struct bss_rlm_tlv) +\
 					 sizeof(struct bss_ra_tlv) + \
@@ -320,6 +361,85 @@ struct bss_mld_tlv {
 					 sizeof(struct bss_bcn_content_tlv) + \
 					 sizeof(struct bss_bcn_cntdwn_tlv) + \
 					 sizeof(struct bss_bcn_mbss_tlv))
+
+static int
+mt7902_mcu_bss_basic_tlv(struct sk_buff *skb,
+			struct ieee80211_vif *vif,
+			struct ieee80211_sta *sta,
+			struct mt76_phy *phy, u16 wlan_idx,
+			bool enable);
+static void
+mt7902_mcu_bss_rfch_tlv(struct sk_buff *skb, struct ieee80211_vif *vif,
+			struct mt792x_phy *phy);
+static void
+mt7902_mcu_bss_bmc_tlv(struct sk_buff *skb, struct mt792x_phy *phy);
+static void
+mt7902_mcu_bss_sec_tlv(struct sk_buff *skb, struct ieee80211_vif *vif);
+static void
+mt7902_mcu_bss_ra_tlv(struct sk_buff *skb, struct ieee80211_vif *vif,
+		      struct mt792x_phy *phy);
+static void
+mt7902_mcu_bss_he_tlv(struct sk_buff *skb, struct ieee80211_vif *vif,
+		      struct mt792x_phy *phy);
+static void
+mt7902_mcu_bss_txcmd_tlv(struct sk_buff *skb, bool en);
+static void
+mt7902_mcu_bss_mld_tlv(struct sk_buff *skb);
+struct mt76_vif {
+	u8 idx;
+	u8 omac_idx;
+	u8 band_idx;
+	u8 wmm_idx;
+	u8 scan_seq_num;
+	u8 cipher;
+};
+int mt7902_mcu_add_sta(struct mt7902_dev *dev, struct ieee80211_vif *vif,
+		       struct ieee80211_sta *sta, bool enable);
+int mt7902_mcu_add_beacon(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
+		  int enable);
+static int
+mt7902_mcu_muar_config(struct mt792x_phy *phy, struct ieee80211_vif *vif,
+		       bool bssid, bool enable);
+static inline bool
+mt7902_is_ebf_supported(struct mt792x_phy *phy, struct ieee80211_vif *vif,
+			struct ieee80211_sta *sta, bool bfee);
+static void
+mt7902_mcu_sta_bfer_he(struct ieee80211_sta *sta, struct ieee80211_vif *vif,
+		       struct mt792x_phy *phy, struct sta_rec_bf *bf);
+static void
+mt7902_mcu_sta_bfer_vht(struct ieee80211_sta *sta, struct mt792x_phy *phy,
+			struct sta_rec_bf *bf, bool explicit);
+static void
+mt7902_mcu_sta_bfer_ht(struct ieee80211_sta *sta, struct mt792x_phy *phy,
+		       struct sta_rec_bf *bf);
+static void
+mt7902_mcu_sta_bfer_tlv(struct mt7902_dev *dev, struct sk_buff *skb,
+		       struct ieee80211_vif *vif, struct ieee80211_sta *sta);
+static void
+mt7902_mcu_sta_ht_tlv(struct sk_buff *skb, struct ieee80211_sta *sta);
+static void
+mt7902_mcu_sta_vht_tlv(struct sk_buff *skb, struct ieee80211_sta *sta);
+static void
+mt7902_mcu_sta_amsdu_tlv(struct mt7902_dev *dev, struct sk_buff *skb,
+			 struct ieee80211_vif *vif, struct ieee80211_sta *sta);
+static void
+mt7902_mcu_sta_he_tlv(struct sk_buff *skb, struct ieee80211_sta *sta,
+		      struct ieee80211_vif *vif);
+static void
+mt7902_mcu_sta_he_6g_tlv(struct sk_buff *skb, struct ieee80211_sta *sta,
+		      struct ieee80211_vif *vif);
+static void
+mt7902_mcu_sta_muru_tlv(struct sk_buff *skb, struct ieee80211_sta *sta,
+			struct ieee80211_vif *vif);
+static void
+mt7902_mcu_sta_bfee_tlv(struct mt7902_dev *dev, struct sk_buff *skb,
+			struct ieee80211_vif *vif, struct ieee80211_sta *sta);
+static void
+mt7902_mcu_sta_hdr_trans_tlv(struct mt7902_dev *dev, struct sk_buff *skb,
+			 struct ieee80211_vif *vif, struct ieee80211_sta *sta);
+static int
+mt7902_mcu_add_group(struct mt7902_dev *dev, struct ieee80211_vif *vif,
+		     struct ieee80211_sta *sta);
 
 
 #endif

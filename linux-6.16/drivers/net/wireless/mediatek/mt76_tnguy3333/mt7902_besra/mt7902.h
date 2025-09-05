@@ -113,30 +113,6 @@ struct mt7902_sta {
 	} twt;
 };
 
-struct mt7902_vif_cap {
-	bool ht_ldpc:1;
-	bool vht_ldpc:1;
-	bool he_ldpc:1;
-	bool vht_su_ebfer:1;
-	bool vht_su_ebfee:1;
-	bool vht_mu_ebfer:1;
-	bool vht_mu_ebfee:1;
-	bool he_su_ebfer:1;
-	bool he_su_ebfee:1;
-	bool he_mu_ebfer:1;
-};
-
-struct mt7902_vif {
-	struct mt76_vif mt76; /* must be first */
-
-	struct mt7902_vif_cap cap;
-	struct mt7902_sta sta;
-	struct mt7902_phy *phy;
-
-	struct ieee80211_tx_queue_params queue_params[IEEE80211_NUM_ACS];
-	struct cfg80211_bitrate_mask bitrate_mask;
-};
-
 /* per-phy stats.  */
 struct mib_stats {
 	u32 ack_fail_cnt;
@@ -571,4 +547,31 @@ void mt7902_sta_add_debugfs(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
 			    struct ieee80211_sta *sta, struct dentry *dir);
 #endif
 
-#endif
+
+struct mt7902_vif_cap {
+	bool ht_ldpc:1;
+	bool vht_ldpc:1;
+	bool he_ldpc:1;
+	bool vht_su_ebfer:1;
+	bool vht_su_ebfee:1;
+	bool vht_mu_ebfer:1;
+	bool vht_mu_ebfee:1;
+	bool he_su_ebfer:1;
+	bool he_su_ebfee:1;
+	bool he_mu_ebfer:1;
+};
+
+struct mt7902_vif {
+	struct mt76_vif mt76; /* must be first */
+
+	struct mt7902_vif_cap cap;
+	struct mt7902_sta sta;
+	struct mt7902_phy *phy;
+
+	struct ieee80211_tx_queue_params queue_params[IEEE80211_NUM_ACS];
+	struct cfg80211_bitrate_mask bitrate_mask;
+};
+
+
+
+

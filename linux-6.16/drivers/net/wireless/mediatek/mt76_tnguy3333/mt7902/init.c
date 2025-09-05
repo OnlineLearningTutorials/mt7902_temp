@@ -7,7 +7,7 @@
 #include <linux/thermal.h>
 #include <linux/firmware.h>
 #include "mt7902.h"
-#include "../mt76_connac2_mac.h"
+#include "mt76_connac2_mac.h"
 #include "mcu.h"
 
 static ssize_t mt7902_thermal_temp_show(struct device *dev,

@@ -1,0 +1,48 @@
+# SPDX-License-Identifier: GPL-2.0-only
+obj-m += mt76.o
+obj-m += mt76-connac-lib.o
+obj-m += mt792x-lib.o
+
+mt76-y := \
+	mt76_module/mmio.o \
+	mt76_module/util.o \
+	mt76_module/dma.o \
+	mt76_module/mac80211.o \
+	mt76_module/debugfs.o \
+	mt76_module/eeprom.o \
+	mt76_module/tx.o \
+	mt76_module/agg-rx.o \
+	mt76_module/mcu.o \
+	mt76_module/wed.o \
+	mt76_module/scan.o \
+	mt76_module/channel.o
+	#mt76_module/trace.o \
+
+
+mt76-$(CONFIG_PCI) += mt76_module/pci.o
+mt76-$(CONFIG_NL80211_TESTMODE) += mt76_module/testmode.o
+
+CFLAGS_trace.o := -I$(mt76_module/src)
+CFLAGS_mt792x_trace.o := -I$(mt76_module/src)
+
+mt76-connac-lib-y := \
+	mt76_connac_lib_module/mt76_connac_mcu.o \
+	mt76_connac_lib_module/mt76_connac_mac.o \
+	mt76_connac_lib_module/mt76_connac3_mac.o
+
+mt792x-lib-y := \
+	mt792x_lib_module/mt792x_core.o \
+	mt792x_lib_module/mt792x_mac.o \
+	mt792x_lib_module/mt792x_debugfs.o \
+	mt792x_lib_module/mt792x_dma.o
+	#mt792x_lib_module/mt792x_trace.o \
+
+mt792x-lib-$(CONFIG_ACPI) += mt792x_lib_module/mt792x_acpi_sar.o
+
+obj-m += mt7902/
+
+all:
+	$(MAKE) -C /lib/modules/`uname -r`/build/ M=`pwd` modules
+
+clean:
+	$(MAKE) -C /lib/modules/`uname -r`/build/ M=`pwd` clean
