@@ -338,4 +338,8 @@ int mt7902_mcu_abort_roc(struct mt792x_phy *phy, struct mt792x_vif *vif,
 			 u8 token_id);
 void mt7902_roc_abort_sync(struct mt792x_dev *dev);
 int mt7902_mcu_set_rssimonitor(struct mt792x_dev *dev, struct ieee80211_vif *vif);
+
+int mt7902_firmware_state(struct mt792x_dev *dev, bool wa);
+int mt7902_load_firmware(struct mt792x_dev *dev);
+
 #endif
