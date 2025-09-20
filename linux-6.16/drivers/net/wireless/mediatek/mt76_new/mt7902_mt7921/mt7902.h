@@ -7,8 +7,8 @@
 #include "../mt792x.h"
 #include "regs.h"
 
-#define mt7902_FIRMWARE_WM	"mediatek/WIFI_RAM_CODE_MT7902_1a.bin"
-#define mt7902_ROM_PATCH	"mediatek/WIFI_MT7902_patch_mcu_1a_2_hdr.bin"
+//#define mt7902_FIRMWARE_WM	"mediatek/WIFI_RAM_CODE_MT7902_1.bin"
+//#define mt7902_ROM_PATCH	"mediatek/WIFI_MT7902_patch_mcu_1_1_hdr.bin"
 
 #define mt7902_TX_RING_SIZE		2048
 #define mt7902_TX_MCU_RING_SIZE		256
