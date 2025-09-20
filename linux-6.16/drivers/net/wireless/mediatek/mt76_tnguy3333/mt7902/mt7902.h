@@ -364,5 +364,97 @@ enum {
 	CMD_BAND_5G,
 	CMD_BAND_6G,
 };
+struct mt7902_vif_cap;
+struct mt7902_sta; 
+
+struct mt7902_vif {
+	struct mt76_vif_link mt76; /* must be first */
+
+	struct mt7902_vif_cap cap;
+	struct mt7902_sta sta;
+	struct mt7902_phy *phy;
+
+	struct ieee80211_tx_queue_params queue_params[IEEE80211_NUM_ACS];
+	struct cfg80211_bitrate_mask bitrate_mask;
+};
+struct mt7902_vif_cap {
+	bool ht_ldpc:1;
+	bool vht_ldpc:1;
+	bool he_ldpc:1;
+	bool vht_su_ebfer:1;
+	bool vht_su_ebfee:1;
+	bool vht_mu_ebfer:1;
+	bool vht_mu_ebfee:1;
+	bool he_su_ebfer:1;
+	bool he_su_ebfee:1;
+	bool he_mu_ebfer:1;
+};
+
+struct mt7902_sta {
+	struct mt76_wcid wcid; /* must be first */
+
+	struct mt7902_vif *vif;
+
+	struct list_head rc_list;
+	u32 airtime_ac[8];
+
+	int ack_signal;
+	struct ewma_avg_signal avg_ack_signal;
+
+	unsigned long changed;
+	unsigned long jiffies;
+	struct mt76_connac_sta_key_conf bip;
+
+	struct {
+		u8 flowid_mask;
+		struct mt7902_twt_flow flow[MT7915_MAX_STA_TWT_AGRT];
+	} twt;
+};
+
+struct mt7902_phy {
+	struct mt76_phy *mt76;
+	struct mt7902_dev *dev;
+
+	struct ieee80211_sband_iftype_data iftype[NUM_NL80211_BANDS][NUM_NL80211_IFTYPES];
+
+	struct ieee80211_vif *monitor_vif;
+
+	struct thermal_cooling_device *cdev;
+	u8 cdev_state;
+	u8 throttle_state;
+	u32 throttle_temp[2]; /* 0: critical high, 1: maximum */
+
+	u32 rxfilter;
+	u64 omac_mask;
+
+	u16 noise;
+
+	s16 coverage_class;
+	u8 slottime;
+
+	u32 trb_ts;
+
+	u32 rx_ampdu_ts;
+	u32 ampdu_ref;
+
+	struct mt76_mib_stats mib;
+	struct mt76_channel_state state_ts;
+
+#ifdef CONFIG_NL80211_TESTMODE
+	struct {
+		u32 *reg_backup;
+
+		s32 last_freq_offset;
+		u8 last_rcpi[4];
+		s8 last_ib_rssi[4];
+		s8 last_wb_rssi[4];
+		u8 last_snr;
+
+		u8 spe_idx;
+	} test;
+#endif
+};
+
+
 
 #endif

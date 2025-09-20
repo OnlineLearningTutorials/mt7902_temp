@@ -1978,16 +1978,16 @@ mt7902_mcu_add_uni_tlv(struct sk_buff *skb, int tag, int len)
 
 	return ptlv;
 }
-* /
+*/
 
 
 
-int mt7902_mcu_add_sta(struct mt7902_dev *dev, struct ieee80211_vif *vif,
+int mt7902_mcu_add_sta(struct mt792x_dev *dev, struct ieee80211_vif *vif,
 		       struct ieee80211_sta *sta, bool enable)
 {
 	printk(KERN_DEBUG "mcu.c - mt7902_mcu_add_sta(dev, vif, sta, enable: %d)", enable);
 
-	/*
+	
 	struct mt7902_vif *mvif = (struct mt7902_vif *)vif->drv_priv;
 	struct mt7902_sta *msta;
 	struct sk_buff *skb;
@@ -2000,8 +2000,8 @@ int mt7902_mcu_add_sta(struct mt7902_dev *dev, struct ieee80211_vif *vif,
 	if (IS_ERR(skb))
 		return PTR_ERR(skb);
 
-	/* starec basic * /
-	//mt76_connac_mcu_sta_basic_tlv(dev, skb, link_conf, link_sta, conn_state, newly);
+	/* starec basic */
+	mt76_connac_mcu_sta_basic_tlv(dev, skb, link_conf, link_sta, conn_state, newly);
 	if (!enable)
 		goto out;
 
@@ -2036,7 +2036,7 @@ int mt7902_mcu_add_sta(struct mt7902_dev *dev, struct ieee80211_vif *vif,
 	if (ret) {
 		dev_kfree_skb(skb);
 		return ret;
-	} * /
+	} */
 out:
 	return mt76_mcu_skb_send_msg(&dev->mt76, skb,
 				     MCU_WMWA_UNI_CMD(STA_REC_UPDATE), true);

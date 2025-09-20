@@ -832,7 +832,7 @@ static void mt7902_configure_filter(struct ieee80211_hw *hw,
 
 	*total_flags &= (FIF_OTHER_BSS | FIF_FCSFAIL | FIF_CONTROL);
 }
-/*
+
 static void
 mt7902_update_bss_color(struct ieee80211_hw *hw,
 			struct ieee80211_vif *vif,
@@ -854,7 +854,7 @@ mt7902_update_bss_color(struct ieee80211_hw *hw,
 	default:
 		break;
 	}
-} */
+} 
 
 static void mt7902_bss_info_changed(struct ieee80211_hw *hw,
 				    struct ieee80211_vif *vif,
@@ -864,38 +864,43 @@ static void mt7902_bss_info_changed(struct ieee80211_hw *hw,
 	printk(KERN_DEBUG "main.c - mt7902_bss_info_changed(hw, vif, info, changed: 0x%x)", changed);
 	struct mt792x_phy *phy = mt792x_hw_phy(hw);
 	struct mt792x_dev *dev = mt792x_hw_dev(hw);
+	int set_bss_info = -1, set_sta = -1;
 
-	mt792x_mutex_acquire(dev);
+	mutex_lock(&dev->mt76.mutex);
 
 	/*
 	 * station mode uses BSSID to map the wlan entry to a peer,
 	 * and then peer references bss_info_rfch to set bandwidth cap.
 	 */
 	if (changed & BSS_CHANGED_BSSID &&
-	    vif->type == NL80211_IFTYPE_STATION) {
-		bool join = !is_zero_ether_addr(info->bssid);
+	    vif->type == NL80211_IFTYPE_STATION)
+		set_bss_info = set_sta = !is_zero_ether_addr(info->bssid);
+	if (changed & BSS_CHANGED_ASSOC)
+		set_bss_info = vif->cfg.assoc;
+	if (changed & BSS_CHANGED_BEACON_ENABLED &&
+	    info->enable_beacon &&
+	    vif->type != NL80211_IFTYPE_AP)
+		set_bss_info = set_sta = 1;
 
-		mt7902_mcu_add_bss_info(phy, vif, join);
-		//mt7902_mcu_add_sta(dev, vif, NULL, join);
-	}
+	if (set_bss_info == 1)
+		mt7902_mcu_add_bss_info(phy, vif, true);
+	if (set_sta == 1)
+		mt7902_mcu_add_sta(dev, vif, NULL, CONN_STATE_PORT_SECURE, false);
 
-	if (changed & BSS_CHANGED_ASSOC) {
-		//mt7902_mcu_add_bss_info(phy, vif, info->assoc);
-		//mt7902_mcu_add_obss_spr(dev, vif, info->he_obss_pd.enable);
-	} 
+	if (changed & BSS_CHANGED_ERP_CTS_PROT)
+		mt7902_mac_enable_rtscts(dev, vif, info->use_cts_prot);
 
 	if (changed & BSS_CHANGED_ERP_SLOT) {
-		int slottime = info->use_short_slot ? 9 : 20;
+		int slottime = 9;
+
+		if (phy->mt76->chandef.chan->band == NL80211_BAND_2GHZ &&
+		    !info->use_short_slot)
+			slottime = 20;
 
 		if (slottime != phy->slottime) {
 			phy->slottime = slottime;
-			mt792x_mac_set_timeing(phy);
+			mt7902_mac_set_timing(phy);
 		}
-	}
-
-	if (changed & BSS_CHANGED_BEACON_ENABLED && info->enable_beacon) {
-		mt7902_mcu_add_bss_info(phy, vif, true);
-		//mt7902_mcu_add_sta(dev, vif, NULL, true);
 	}
 
 	/* ensure that enable txcmd_mode after bss_info */
@@ -903,37 +908,26 @@ static void mt7902_bss_info_changed(struct ieee80211_hw *hw,
 		mt7902_mcu_set_tx(dev, vif);
 
 	if (changed & BSS_CHANGED_HE_OBSS_PD)
-		//mt7902_mcu_add_obss_spr(dev, vif, info->he_obss_pd.enable); 
+		mt7902_mcu_add_obss_spr(phy, vif, &info->he_obss_pd);
 
 	if (changed & BSS_CHANGED_HE_BSS_COLOR)
-		//mt7902_update_bss_color(hw, vif, &info->he_bss_color); 
+		mt7902_update_bss_color(hw, vif, &info->he_bss_color);
 
 	if (changed & (BSS_CHANGED_BEACON |
 		       BSS_CHANGED_BEACON_ENABLED))
-		mt7902_mcu_add_beacon(hw, vif, info->enable_beacon); 
+		mt7902_mcu_add_beacon(hw, vif, info->enable_beacon, changed);
 
-	/*
+	if (changed & (BSS_CHANGED_UNSOL_BCAST_PROBE_RESP |
+		       BSS_CHANGED_FILS_DISCOVERY))
+		mt7902_mcu_add_inband_discov(dev, vif, changed);
 
-	if (changed & BSS_CHANGED_PS)
-		mt7902_mcu_uni_bss_ps(dev, vif);
+	if (set_bss_info == 0)
+		mt7902_mcu_add_bss_info(phy, vif, false);
+	if (set_sta == 0)
+		mt7902_mcu_add_sta(dev, vif, NULL, CONN_STATE_DISCONNECT, false);
 
-	if (changed & BSS_CHANGED_CQM)
-		mt7902_mcu_set_rssimonitor(dev, vif);
 
-	if (changed & BSS_CHANGED_ASSOC) {
-		mt7902_mcu_sta_update(dev, NULL, vif, true,
-				      MT76_STA_INFO_STATE_ASSOC);
-		mt7902_mcu_set_beacon_filter(dev, vif, vif->cfg.assoc);
-	}
-
-	if (changed & BSS_CHANGED_ARP_FILTER) {
-		struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
-
-		mt76_connac_mcu_update_arp_filter(&dev->mt76, &mvif->bss_conf.mt76,
-						  info);
-	} */
-
-	mt792x_mutex_release(dev);
+	mutex_unlock(&dev->mt76.mutex);
 }
 
 static void
