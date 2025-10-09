@@ -7,6 +7,7 @@
 #include "mt792x.h"
 #include "regs.h"
 
+#define MT7915_MAX_STA_TWT_AGRT		8
 #define MT7902_TX_RING_SIZE		2048
 #define MT7902_TX_MCU_RING_SIZE		256
 #define MT7902_TX_FWDL_RING_SIZE	128
@@ -23,6 +24,8 @@
 #define MT7902_SKU_RATE_NUM		161
 #define MT7902_SKU_MAX_DELTA_IDX	MT7902_SKU_RATE_NUM
 #define MT7902_SKU_TABLE_SIZE		(MT7902_SKU_RATE_NUM + 1)
+
+#define mt7902_MAX_QUEUE		(__MT_RXQ_MAX + __MT_MCUQ_MAX + 2)
 
 #define MCU_UNI_EVENT_ROC  0x27
 #define MCU_UNI_EVENT_CLC  0x80
@@ -194,7 +197,7 @@ int mt7902_run_firmware(struct mt792x_dev *dev);
 int mt7902_set_channel(struct mt76_phy *mphy);
 int mt7902_mcu_set_bss_pm(struct mt792x_dev *dev, struct ieee80211_vif *vif,
 			  bool enable);
-int mt7902_mcu_sta_update(struct mt792x_dev *dev, struct ieee80211_sta *sta,
+int mt7902_mcu_sta_update(struct mt7902_dev *dev, struct ieee80211_sta *sta,
 			  struct ieee80211_vif *vif, bool enable,
 			  enum mt76_sta_info_state state);
 int mt7902_mcu_set_chan_info(struct mt792x_phy *phy, int cmd);
@@ -338,9 +341,8 @@ int mt7902_mcu_abort_roc(struct mt792x_phy *phy, struct mt792x_vif *vif,
 void mt7902_roc_abort_sync(struct mt792x_dev *dev);
 int mt7902_mcu_set_rssimonitor(struct mt792x_dev *dev, struct ieee80211_vif *vif);
 int mt7902_mcu_add_dev_info(struct mt76_phy *phy,
-			    struct ieee80211_bss_conf *bss_conf,
-                struct mt76_vif_link *mvif, bool enable);
-int mt7902_mcu_add_bss_info(struct mt792x_phy *phy,
+			    struct ieee80211_vif *vif, bool enable);
+int mt7902_mcu_add_bss_info(struct mt7902_phy *phy,
 			    struct ieee80211_vif *vif, int enable);
 //static struct tlv *
 //mt7902_mcu_add_uni_tlv(struct sk_buff *skb, int tag, int len)
@@ -367,16 +369,7 @@ enum {
 struct mt7902_vif_cap;
 struct mt7902_sta; 
 
-struct mt7902_vif {
-	struct mt76_vif_link mt76; /* must be first */
 
-	struct mt7902_vif_cap cap;
-	struct mt7902_sta sta;
-	struct mt7902_phy *phy;
-
-	struct ieee80211_tx_queue_params queue_params[IEEE80211_NUM_ACS];
-	struct cfg80211_bitrate_mask bitrate_mask;
-};
 struct mt7902_vif_cap {
 	bool ht_ldpc:1;
 	bool vht_ldpc:1;
@@ -388,6 +381,22 @@ struct mt7902_vif_cap {
 	bool he_su_ebfer:1;
 	bool he_su_ebfee:1;
 	bool he_mu_ebfer:1;
+};
+
+struct mt7902_twt_flow {
+	struct list_head list;
+	u64 start_tsf;
+	u64 tsf;
+	u32 duration;
+	u16 wcid;
+	__le16 mantissa;
+	u8 exp;
+	u8 table_id;
+	u8 id;
+	u8 protection:1;
+	u8 flowtype:1;
+	u8 trigger:1;
+	u8 sched:1;
 };
 
 struct mt7902_sta {
@@ -456,5 +465,76 @@ struct mt7902_phy {
 };
 
 
+struct mt7902_dev {
+	union { /* must be first */
+		struct mt76_dev mt76;
+		struct mt76_phy mphy;
+	};
+
+	struct mt7902_hif *hif2;
+	struct mt7902_reg_desc reg;
+	u8 q_id[mt7902_MAX_QUEUE];
+	u32 q_int_mask[mt7902_MAX_QUEUE];
+	u32 wfdma_mask;
+
+	const struct mt76_bus_ops *bus_ops;
+	struct tasklet_struct irq_tasklet;
+	struct mt7902_phy phy;
+
+	/* monitor rx chain configured channel */
+	struct cfg80211_chan_def rdd2_chandef;
+	struct mt7902_phy *rdd2_phy;
+
+	u32 chainmask;
+	u16 chain_shift_ext;
+	u16 chain_shift_tri;
+	u32 hif_idx;
+
+	struct work_struct init_work;
+	struct work_struct rc_work;
+	struct work_struct reset_work;
+	wait_queue_head_t reset_wait;
+	u32 reset_state;
+
+	struct list_head sta_rc_list;
+	struct list_head sta_poll_list;
+	struct list_head twt_list;
+	spinlock_t sta_poll_lock;
+
+	u32 hw_pattern;
+
+	bool dbdc_support;
+	bool tbtc_support;
+	bool flash_mode;
+	bool muru_debug;
+	bool ibf;
+	u8 fw_debug_wm;
+	u8 fw_debug_wa;
+	u8 fw_debug_bin;
+	u16 fw_debug_seq;
+
+	struct dentry *debugfs_dir;
+	struct rchan *relay_fwlog;
+
+	void *cal;
+
+	struct {
+		u8 table_mask;
+		u8 n_agrt;
+	} twt;
+};
+
+
+struct mt7902_vif {
+	struct mt76_vif_link mt76; /* must be first */
+
+	struct mt7902_vif_cap cap;
+	struct mt7902_sta sta;
+	struct mt7902_phy *phy;
+
+	struct ieee80211_tx_queue_params queue_params[IEEE80211_NUM_ACS];
+	struct cfg80211_bitrate_mask bitrate_mask;
+}
+;
 
 #endif

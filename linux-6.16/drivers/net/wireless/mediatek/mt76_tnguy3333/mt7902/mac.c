@@ -636,14 +636,14 @@ void mt7902_queue_rx_skb(struct mt76_dev *mdev, enum mt76_rxq_id q,
 	}
 }
 EXPORT_SYMBOL_GPL(mt7902_queue_rx_skb);
-
+/*
 static void
 mt7902_vif_connect_iter(void *priv, u8 *mac,
 			struct ieee80211_vif *vif)
 {
 	printk(KERN_DEBUG "mac.c - mt7902_vif_connect_iter");
-	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
-	struct mt792x_dev *dev = mvif->phy->dev;
+	struct mt7902_vif *mvif = (struct mt7902_vif *)vif->drv_priv;
+	struct mt7902_dev *dev = mvif->phy->dev;
 	//struct ieee80211_hw *hw = mt76_hw(dev);
 
 	if (vif->type == NL80211_IFTYPE_STATION)
@@ -653,7 +653,7 @@ mt7902_vif_connect_iter(void *priv, u8 *mac,
 	// 			    &mvif->bss_conf.mt76,
 	// 			    &mvif->sta.deflink.wcid, true);
 
-    u32 ret = mt7902_mcu_add_dev_info(&dev->mphy, &vif->bss_conf, &mvif->bss_conf.mt76,
+    u32 ret = mt7902_mcu_add_dev_info(&dev->mphy, &vif->bss_conf, &mvif->mt76,
                     true);
 
     printk(KERN_DEBUG "vif_connect_iter: add dev info ret = %d\n", ret);
@@ -671,7 +671,7 @@ mt7902_vif_connect_iter(void *priv, u8 *mac,
 				      MT76_STA_INFO_STATE_NONE);
 		//mt7902_mcu_uni_add_beacon_offload(dev, hw, vif, true);
 	}
-}
+} */
 
 /* system error recovery */
 void mt7902_mac_reset_work(struct work_struct *work)
@@ -716,9 +716,9 @@ void mt7902_mac_reset_work(struct work_struct *work)
 	clear_bit(MT76_RESET, &dev->mphy.state);
 	pm->suspended = false;
 	ieee80211_wake_queues(hw);
-	ieee80211_iterate_active_interfaces(hw,
+	/* ieee80211_iterate_active_interfaces(hw,
 					    IEEE80211_IFACE_ITER_RESUME_ALL,
-					    mt7902_vif_connect_iter, NULL);
+					    mt7902_vif_connect_iter, NULL); */
 	mt76_connac_power_save_sched(&dev->mt76.phy, pm);
 }
 
