@@ -2407,7 +2407,7 @@ mt7902_mcu_add_group(struct mt7902_dev *dev, struct ieee80211_vif *vif,
 
 
 
-int mt7902_mcu_add_obss_spr(struct mt76_dev *dev, struct ieee80211_vif *vif,
+int mt7902_mcu_add_obss_spr(struct mt7902_dev *dev, struct ieee80211_vif *vif,
 			    bool enable)
 {
 #define MT_SPR_ENABLE		1
@@ -2450,32 +2450,36 @@ __mt7902_mcu_alloc_bss_req(struct mt76_dev *dev, struct mt76_vif *mvif, int len)
 }
 
 
-int mt7902_mcu_update_bss_color(struct mt76_dev *dev, struct ieee80211_vif *vif,
+int mt7902_mcu_update_bss_color(struct mt7902_dev *dev, struct ieee80211_vif *vif,
 				struct cfg80211_he_bss_color *he_bss_color)
 {
-	int len = sizeof(struct bss_req_hdr) + sizeof(struct bss_color_tlv);
+	//int len = sizeof(struct bss_req_hdr) + sizeof(struct bss_color_tlv);
+	int len = sizeof(struct sta_req_hdr) + sizeof(struct bss_info_color);
 	struct mt7902_vif *mvif = (struct mt7902_vif *)vif->drv_priv;
 	struct bss_color_tlv *bss_color;
 	struct sk_buff *skb;
 	struct tlv *tlv;
 
-	skb = __mt7902_mcu_alloc_bss_req(&dev->mt76, &mvif->mt76, len);
+	//skb = __mt7902_mcu_alloc_bss_req(&dev->mt76, &mvif->mt76, len);
+	skb = __mt76_connac_mcu_alloc_sta_req(&dev->mt76, &mvif->mt76, NULL, len);
 	if (IS_ERR(skb))
 		return PTR_ERR(skb);
 
-	tlv = mt76_connac_mcu_add_tlv(skb, UNI_BSS_INFO_BSS_COLOR,
-				      sizeof(*bss_color));
-	bss_color = (struct bss_color_tlv *)tlv;
-	bss_color->enable = he_bss_color->enabled;
+	//tlv = mt76_connac_mcu_add_tlv(skb, UNI_BSS_INFO_BSS_COLOR, sizeof(*bss_color));
+	tlv = mt76_connac_mcu_add_tlv(skb, BSS_INFO_BSS_COLOR, sizeof(*bss_color));
+	//bss_color = (struct bss_color_tlv *)tlv;
+	bss_color = (struct bss_info_color *)tlv;
+	//bss_color->enable = he_bss_color->enabled;
+	bss_color->disable = !he_bss_color->enabled;
 	bss_color->color = he_bss_color->color;
 
 	return mt76_mcu_skb_send_msg(dev, skb,
-				     MCU_WMWA_UNI_CMD(BSS_INFO_UPDATE), true);
+				     MCU_EXT_CMD(BSS_INFO_UPDATE), true);
 }
 
 
 static int
-mt7902_mcu_muar_config(struct mt792x_phy *phy, struct ieee80211_vif *vif,
+mt7902_mcu_muar_config(struct mt7902_phy *phy, struct ieee80211_vif *vif,
 		       bool bssid, bool enable)
 {
 	struct mt7902_dev *dev = phy->dev;
