@@ -11,6 +11,10 @@
 #define MT_STA_BFER			BIT(0)
 #define MT_STA_BFEE			BIT(1)
 
+#define HE_PHY(p, c)			u8_get_bits(c, IEEE80211_HE_PHY_##p)
+#define HE_MAC(m, c)			u8_get_bits(c, IEEE80211_HE_MAC_##m)
+
+
 static bool mt7902_disable_clc;
 module_param_named(disable_clc, mt7902_disable_clc, bool, 0644);
 MODULE_PARM_DESC(disable_clc, "disable CLC support");
@@ -1164,7 +1168,7 @@ mt7902_mcu_set_bss_pm(struct mt792x_dev *dev, struct ieee80211_vif *vif,
 	return mt76_mcu_send_msg(&dev->mt76, MCU_CE_CMD(SET_BSS_CONNECTED),
 				 &req, sizeof(req), false);
 }
-
+/*
 int mt7902_mcu_sta_update(struct mt792x_dev *dev, struct ieee80211_sta *sta,
 			  struct ieee80211_vif *vif, bool enable,
 			  enum mt76_sta_info_state state)
@@ -1188,7 +1192,7 @@ int mt7902_mcu_sta_update(struct mt792x_dev *dev, struct ieee80211_sta *sta,
 	info.newly = msta ? state != MT76_STA_INFO_STATE_ASSOC : true;
 
 	return mt76_connac_mcu_sta_cmd(&dev->mphy, &info);
-}
+} */
 
 int mt7902_mcu_set_beacon_filter(struct mt792x_dev *dev,
 				 struct ieee80211_vif *vif,
@@ -1623,7 +1627,7 @@ int mt7902_mcu_set_rssimonitor(struct mt792x_dev *dev, struct ieee80211_vif *vif
 				 &data, sizeof(data), false);
 }
 
-int mt7902_mcu_add_dev_info(struct mt76_phy *phy,
+int mt7902_mcu_add_dev_info(struct mt7902_phy *phy,
 			    struct ieee80211_vif *vif, bool enable)
 {
 	printk(KERN_DEBUG "mcu.c - mt7902_mcu_add_dev_info(phy, bss_conf, mvif, enable: %d)", enable);
@@ -1645,7 +1649,7 @@ int mt7902_mcu_add_dev_info(struct mt76_phy *phy,
 	} data = {
 		.hdr = {
 			.omac_idx = mvif->mt76.omac_idx,
-			.band_idx = mvif->mt76.band_idx,
+			.dbdc_idx = mvif->mt76.band_idx,
 		},
 		.tlv = {
 			.tag = cpu_to_le16(DEV_INFO_ACTIVE),
@@ -1664,7 +1668,7 @@ int mt7902_mcu_add_dev_info(struct mt76_phy *phy,
 	// printk(KERN_DEBUG "mcu.c - mt7902_mcu_add_dev_info - data.tlv.active : %x", data.tlv.active);
 	// printk(KERN_DEBUG "mcu.c - mt7902_mcu_add_dev_info - data.tlv.band_idx : %x", data.tlv.band_idx);
 
-	return mt76_mcu_send_msg(dev, MCU_EXT_CMD(DEV_INFO_UPDATE),
+	return mt76_mcu_send_msg(dev->mt76->dev, MCU_EXT_CMD(DEV_INFO_UPDATE),
 				 &data, sizeof(data), true);
 }
 
@@ -1872,7 +1876,7 @@ mt7902_mcu_bss_sec_tlv(struct sk_buff *skb, struct ieee80211_vif *vif)
 
 static void
 mt7902_mcu_bss_rfch_tlv(struct sk_buff *skb, struct ieee80211_vif *vif,
-			struct mt792x_phy *phy)
+			struct mt7902_phy *phy)
 {
 	struct cfg80211_chan_def *chandef = &phy->mt76->chandef;
 	struct bss_rlm_tlv *ch;
@@ -1898,7 +1902,7 @@ mt7902_mcu_bss_rfch_tlv(struct sk_buff *skb, struct ieee80211_vif *vif,
 
 
 static void
-mt7902_mcu_bss_bmc_tlv(struct sk_buff *skb, struct mt792x_phy *phy)
+mt7902_mcu_bss_bmc_tlv(struct sk_buff *skb, struct mt7902_phy *phy)
 {
 	struct bss_rate_tlv *bmc;
 	struct cfg80211_chan_def *chandef = &phy->mt76->chandef;
@@ -1921,7 +1925,7 @@ mt7902_mcu_bss_bmc_tlv(struct sk_buff *skb, struct mt792x_phy *phy)
 
 static void
 mt7902_mcu_bss_ra_tlv(struct sk_buff *skb, struct ieee80211_vif *vif,
-		      struct mt792x_phy *phy)
+		      struct mt7902_phy *phy)
 {
 	struct bss_ra_tlv *ra;
 	struct tlv *tlv;
@@ -1988,7 +1992,10 @@ int mt7902_mcu_add_sta(struct mt7902_dev *dev, struct ieee80211_vif *vif,
 	struct mt7902_vif *mvif = (struct mt7902_vif *)vif->drv_priv;
 	struct mt7902_sta *msta;
 	struct sk_buff *skb;
+	struct ieee80211_link_sta *link_sta;
+	int conn_state;
 	int ret;
+	bool newly = true;
 
 	msta = sta ? (struct mt7902_sta *)sta->drv_priv : &mvif->sta;
 
@@ -1997,8 +2004,11 @@ int mt7902_mcu_add_sta(struct mt7902_dev *dev, struct ieee80211_vif *vif,
 	if (IS_ERR(skb))
 		return PTR_ERR(skb);
 
+	link_sta = sta ? &sta->deflink : NULL;
+	conn_state = enable ? CONN_STATE_PORT_SECURE : CONN_STATE_DISCONNECT;
+
 	/* starec basic */
-	mt76_connac_mcu_sta_basic_tlv(dev, skb, link_conf, link_sta, conn_state, newly);
+	mt76_connac_mcu_sta_basic_tlv(&dev->mt76, skb, &vif->bss_conf, link_sta, conn_state, newly);
 	if (!enable)
 		goto out;
 
@@ -2034,7 +2044,7 @@ int mt7902_mcu_add_sta(struct mt7902_dev *dev, struct ieee80211_vif *vif,
 	if (ret) {
 		dev_kfree_skb(skb);
 		return ret;
-	} */
+	} 
 out:
 	return mt76_mcu_skb_send_msg(&dev->mt76, skb,
 				     MCU_EXT_CMD(STA_REC_UPDATE), true);
@@ -2058,7 +2068,7 @@ mt7902_mcu_sta_bfer_tlv(struct mt7902_dev *dev, struct sk_buff *skb,
 	};
 	bool ebf;
 
-	if (!(sta->ht_cap.ht_supported || sta->he_cap.has_he))
+	if (!(sta->deflink.ht_cap.ht_supported || sta->deflink.he_cap.has_he))
 		return;
 
 	ebf = mt7902_is_ebf_supported(phy, vif, sta, false);
@@ -2072,21 +2082,21 @@ mt7902_mcu_sta_bfer_tlv(struct mt7902_dev *dev, struct sk_buff *skb,
 	 * vht: support eBF and iBF
 	 * ht: iBF only, since mac80211 lacks of eBF support
 	 */
-	if (sta->he_cap.has_he && ebf)
+	if (sta->deflink.he_cap.has_he && ebf)
 		mt7902_mcu_sta_bfer_he(sta, vif, phy, bf);
-	else if (sta->vht_cap.vht_supported)
+	else if (sta->deflink.vht_cap.vht_supported)
 		mt7902_mcu_sta_bfer_vht(sta, phy, bf, ebf);
-	else if (sta->ht_cap.ht_supported)
+	else if (sta->deflink.ht_cap.ht_supported)
 		mt7902_mcu_sta_bfer_ht(sta, phy, bf);
 	else
-		return;
+		return; 
 
 	bf->bf_cap = ebf ? ebf : dev->ibf << 1;
-	bf->bw = sta->bandwidth;
-	bf->ibf_dbw = sta->bandwidth;
+	bf->bw = sta->deflink.bandwidth;
+	bf->ibf_dbw = sta->deflink.bandwidth;
 	bf->ibf_nrow = tx_ant;
 
-	if (!ebf && sta->bandwidth <= IEEE80211_STA_RX_BW_40 && !bf->ncol)
+	if (!ebf && sta->deflink.bandwidth <= IEEE80211_STA_RX_BW_40 && !bf->ncol)
 		bf->ibf_timeout = 0x48;
 	else
 		bf->ibf_timeout = 0x18;
@@ -2096,7 +2106,7 @@ mt7902_mcu_sta_bfer_tlv(struct mt7902_dev *dev, struct sk_buff *skb,
 	else
 		bf->mem_20m = matrix[bf->nrow][bf->ncol];
 
-	switch (sta->bandwidth) {
+	switch (sta->deflink.bandwidth) {
 	case IEEE80211_STA_RX_BW_160:
 	case IEEE80211_STA_RX_BW_80:
 		bf->mem_total = bf->mem_20m * 2;
@@ -2116,13 +2126,13 @@ mt7902_mcu_sta_ht_tlv(struct sk_buff *skb, struct ieee80211_sta *sta)
 	struct sta_rec_ht *ht;
 	struct tlv *tlv;
 
-	if (!sta->ht_cap.ht_supported)
+	if (!sta->deflink.ht_cap.ht_supported)
 		return;
 
 	tlv = mt76_connac_mcu_add_tlv(skb, STA_REC_HT, sizeof(*ht));
 
 	ht = (struct sta_rec_ht *)tlv;
-	ht->ht_cap = cpu_to_le16(sta->ht_cap.cap);
+	ht->deflink.ht_cap = cpu_to_le16(sta->ht_cap.cap);
 }
 
 static void
@@ -2131,15 +2141,15 @@ mt7902_mcu_sta_vht_tlv(struct sk_buff *skb, struct ieee80211_sta *sta)
 	struct sta_rec_vht *vht;
 	struct tlv *tlv;
 
-	if (!sta->vht_cap.vht_supported)
+	if (!sta->deflink.vht_cap.vht_supported)
 		return;
 
 	tlv = mt76_connac_mcu_add_tlv(skb, STA_REC_VHT, sizeof(*vht));
 
 	vht = (struct sta_rec_vht *)tlv;
-	vht->vht_cap = cpu_to_le32(sta->vht_cap.cap);
-	vht->vht_rx_mcs_map = sta->vht_cap.vht_mcs.rx_mcs_map;
-	vht->vht_tx_mcs_map = sta->vht_cap.vht_mcs.tx_mcs_map;
+	vht->vht_cap = cpu_to_le32(sta->deflink.vht_cap.cap);
+	vht->vht_rx_mcs_map = sta->deflink.vht_cap.vht_mcs.rx_mcs_map;
+	vht->vht_tx_mcs_map = sta->deflink.vht_cap.vht_mcs.tx_mcs_map;
 }
 
 
@@ -2155,7 +2165,7 @@ mt7902_mcu_sta_amsdu_tlv(struct mt7902_dev *dev, struct sk_buff *skb,
 	    vif->type != NL80211_IFTYPE_AP)
 		return;
 
-	if (!sta->max_amsdu_len)
+	if (!sta->deflink.agg.max_amsdu_len)
 	    return;
 
 	tlv = mt76_connac_mcu_add_tlv(skb, STA_REC_HW_AMSDU, sizeof(*amsdu));
@@ -2164,7 +2174,7 @@ mt7902_mcu_sta_amsdu_tlv(struct mt7902_dev *dev, struct sk_buff *skb,
 	amsdu->amsdu_en = true;
 	msta->wcid.amsdu = true;
 
-	switch (sta->max_amsdu_len) {
+	switch (sta->deflink.agg.max_amsdu_len) {
 	case IEEE80211_MAX_MPDU_LEN_VHT_11454:
 		amsdu->max_mpdu_size =
 			IEEE80211_VHT_CAP_MAX_MPDU_LENGTH_11454;
@@ -2181,16 +2191,66 @@ mt7902_mcu_sta_amsdu_tlv(struct mt7902_dev *dev, struct sk_buff *skb,
 
 
 static void
+mt7902_mcu_set_sta_he_mcs(struct ieee80211_sta *sta, __le16 *he_mcs,
+			  u16 mcs_map)
+{
+	struct mt7902_sta *msta = (struct mt7902_sta *)sta->drv_priv;
+	enum nl80211_band band = msta->vif->phy->mt76->chandef.chan->band;
+	const u16 *mask = msta->vif->bitrate_mask.control[band].he_mcs;
+	int nss, max_nss = sta->deflink.rx_nss > 3 ? 4 : sta->deflink.rx_nss;
+
+	for (nss = 0; nss < max_nss; nss++) {
+		int mcs;
+
+		switch ((mcs_map >> (2 * nss)) & 0x3) {
+		case IEEE80211_HE_MCS_SUPPORT_0_11:
+			mcs = GENMASK(11, 0);
+			break;
+		case IEEE80211_HE_MCS_SUPPORT_0_9:
+			mcs = GENMASK(9, 0);
+			break;
+		case IEEE80211_HE_MCS_SUPPORT_0_7:
+			mcs = GENMASK(7, 0);
+			break;
+		default:
+			mcs = 0;
+		}
+
+		mcs = mcs ? fls(mcs & mask[nss]) - 1 : -1;
+
+		switch (mcs) {
+		case 0 ... 7:
+			mcs = IEEE80211_HE_MCS_SUPPORT_0_7;
+			break;
+		case 8 ... 9:
+			mcs = IEEE80211_HE_MCS_SUPPORT_0_9;
+			break;
+		case 10 ... 11:
+			mcs = IEEE80211_HE_MCS_SUPPORT_0_11;
+			break;
+		default:
+			mcs = IEEE80211_HE_MCS_NOT_SUPPORTED;
+			break;
+		}
+		mcs_map &= ~(0x3 << (nss * 2));
+		mcs_map |= mcs << (nss * 2);
+	}
+
+	*he_mcs = cpu_to_le16(mcs_map);
+}
+
+
+static void
 mt7902_mcu_sta_he_tlv(struct sk_buff *skb, struct ieee80211_sta *sta,
 		      struct ieee80211_vif *vif)
 {
-	struct ieee80211_he_cap_elem *elem = &sta->he_cap.he_cap_elem;
+	struct ieee80211_he_cap_elem *elem = &sta->deflink.he_cap.he_cap_elem;
 	struct ieee80211_he_mcs_nss_supp mcs_map;
 	struct sta_rec_he_v2 *he;
 	struct tlv *tlv;
 	int i = 0;
 
-	if (!sta->he_cap.has_he)
+	if (!sta->deflink.he_cap.has_he)
 		return;
 
 	tlv = mt76_connac_mcu_add_tlv(skb, STA_REC_HE_V2, sizeof(*he));
@@ -2202,8 +2262,8 @@ mt7902_mcu_sta_he_tlv(struct sk_buff *skb, struct ieee80211_sta *sta,
 		he->he_phy_cap[i] = cpu_to_le16(elem->phy_cap_info[i]);
 	}
 
-	mcs_map = sta->he_cap.he_mcs_nss_supp;
-	switch (sta->bandwidth) {
+	mcs_map = sta->deflink.he_cap.he_mcs_nss_supp;
+	switch (sta->deflink.bandwidth) {
 	case IEEE80211_STA_RX_BW_160:
 		if (elem->phy_cap_info[0] &
 		    IEEE80211_HE_PHY_CAP0_CHANNEL_WIDTH_SET_80PLUS80_MHZ_IN_5G)
@@ -2233,13 +2293,13 @@ mt7902_mcu_sta_he_6g_tlv(struct sk_buff *skb, struct ieee80211_sta *sta,
 	struct sta_rec_he_6g_capa *he_6g;
 	struct tlv *tlv;
 
-	if (!sta->he_6ghz_capa.capa)
+	if (!sta->deflink.he_6ghz_capa.capa)
 		return;
 
 	tlv = mt76_connac_mcu_add_tlv(skb, STA_REC_HE_6G, sizeof(*he_6g));
 
 	he_6g = (struct sta_rec_he_6g_capa *)tlv;
-	he_6g->capa = cpu_to_le16(sta->he_6ghz_capa.capa);
+	he_6g->capa = cpu_to_le16(sta->deflink.he_6ghz_capa.capa);
 
 }
 
@@ -2249,7 +2309,7 @@ mt7902_mcu_sta_muru_tlv(struct sk_buff *skb, struct ieee80211_sta *sta,
 			struct ieee80211_vif *vif)
 {
 	struct mt7902_vif *mvif = (struct mt7902_vif *)vif->drv_priv;
-	struct ieee80211_he_cap_elem *elem = &sta->he_cap.he_cap_elem;
+	struct ieee80211_he_cap_elem *elem = &sta->deflink.he_cap.he_cap_elem;
 	struct sta_rec_muru *muru;
 	struct tlv *tlv;
 
@@ -2268,13 +2328,13 @@ mt7902_mcu_sta_muru_tlv(struct sk_buff *skb, struct ieee80211_sta *sta,
 	muru->cfg.ofdma_dl_en = true;
 
 	muru->mimo_dl.vht_mu_bfee =
-		!!(sta->vht_cap.cap & IEEE80211_VHT_CAP_MU_BEAMFORMEE_CAPABLE);
+		!!(sta->deflink.vht_cap.cap & IEEE80211_VHT_CAP_MU_BEAMFORMEE_CAPABLE);
 
-	if (sta->vht_cap.vht_supported)
+	if (sta->deflink.vht_cap.vht_supported)
 		muru->mimo_dl.vht_mu_bfee =
-			!!(sta->vht_cap.cap & IEEE80211_VHT_CAP_MU_BEAMFORMEE_CAPABLE);
+			!!(sta->deflink.vht_cap.cap & IEEE80211_VHT_CAP_MU_BEAMFORMEE_CAPABLE);
 
-	if (!sta->he_cap.has_he)
+	if (!sta->deflink.he_cap.has_he)
 		return;
 
 	muru->mimo_dl.partial_bw_dl_mimo =
@@ -2303,7 +2363,7 @@ mt7902_mcu_sta_muru_tlv(struct sk_buff *skb, struct ieee80211_sta *sta,
 	muru->ofdma_ul.uo_ra =
 		HE_MAC(CAP3_OFDMA_RA, elem->mac_cap_info[3]);
 }
-* /
+
 
 static void
 mt7902_mcu_sta_bfee_tlv(struct mt7902_dev *dev, struct sk_buff *skb,
@@ -2396,7 +2456,7 @@ mt7902_mcu_add_group(struct mt7902_dev *dev, struct ieee80211_vif *vif,
 	msta = sta ? (struct mt7902_sta *)sta->drv_priv : &mvif->sta;
 	req.wlan_idx = cpu_to_le16(msta->wcid.idx);
 
-	return mt76_mcu_send_msg(&dev->mt76, MCU_WM_UNI_CMD(VOW), &req,
+	return mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD(VOW), &req,
 				 sizeof(req), true);
 }
 

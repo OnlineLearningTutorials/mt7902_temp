@@ -370,17 +370,17 @@ mt7902_mcu_bss_basic_tlv(struct sk_buff *skb,
 			bool enable);
 static void
 mt7902_mcu_bss_rfch_tlv(struct sk_buff *skb, struct ieee80211_vif *vif,
-			struct mt792x_phy *phy);
+			struct mt7902_phy *phy);
 static void
-mt7902_mcu_bss_bmc_tlv(struct sk_buff *skb, struct mt792x_phy *phy);
+mt7902_mcu_bss_bmc_tlv(struct sk_buff *skb, struct mt7902_phy *phy);
 static void
 mt7902_mcu_bss_sec_tlv(struct sk_buff *skb, struct ieee80211_vif *vif);
 static void
 mt7902_mcu_bss_ra_tlv(struct sk_buff *skb, struct ieee80211_vif *vif,
-		      struct mt792x_phy *phy);
+		      struct mt7902_phy *phy);
 static void
 mt7902_mcu_bss_he_tlv(struct sk_buff *skb, struct ieee80211_vif *vif,
-		      struct mt792x_phy *phy);
+		      struct mt7902_phy *phy);
 static void
 mt7902_mcu_bss_txcmd_tlv(struct sk_buff *skb, bool en);
 static void
@@ -393,24 +393,24 @@ struct mt76_vif {
 	u8 scan_seq_num;
 	u8 cipher;
 };
-int mt7902_mcu_add_sta(struct mt792x_dev *dev, struct ieee80211_vif *vif,
+int mt7902_mcu_add_sta(struct mt7902_dev *dev, struct ieee80211_vif *vif,
 		       struct ieee80211_sta *sta, bool enable);
 int mt7902_mcu_add_beacon(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
 		  int enable);
 static int
-mt7902_mcu_muar_config(struct mt792x_phy *phy, struct ieee80211_vif *vif,
+mt7902_mcu_muar_config(struct mt7902_phy *phy, struct ieee80211_vif *vif,
 		       bool bssid, bool enable);
 static inline bool
-mt7902_is_ebf_supported(struct mt792x_phy *phy, struct ieee80211_vif *vif,
+mt7902_is_ebf_supported(struct mt7902_phy *phy, struct ieee80211_vif *vif,
 			struct ieee80211_sta *sta, bool bfee);
 static void
 mt7902_mcu_sta_bfer_he(struct ieee80211_sta *sta, struct ieee80211_vif *vif,
-		       struct mt792x_phy *phy, struct sta_rec_bf *bf);
+		       struct mt7902_phy *phy, struct sta_rec_bf *bf);
 static void
-mt7902_mcu_sta_bfer_vht(struct ieee80211_sta *sta, struct mt792x_phy *phy,
+mt7902_mcu_sta_bfer_vht(struct ieee80211_sta *sta, struct mt7902_phy *phy,
 			struct sta_rec_bf *bf, bool explicit);
 static void
-mt7902_mcu_sta_bfer_ht(struct ieee80211_sta *sta, struct mt792x_phy *phy,
+mt7902_mcu_sta_bfer_ht(struct ieee80211_sta *sta, struct mt7902_phy *phy,
 		       struct sta_rec_bf *bf);
 static void
 mt7902_mcu_sta_bfer_tlv(struct mt7902_dev *dev, struct sk_buff *skb,
@@ -441,5 +441,13 @@ static int
 mt7902_mcu_add_group(struct mt7902_dev *dev, struct ieee80211_vif *vif,
 		     struct ieee80211_sta *sta);
 
+struct sta_rec_hdr_trans {
+	__le16 tag;
+	__le16 len;
+	u8 from_ds;
+	u8 to_ds;
+	u8 dis_rx_hdr_tran;
+	u8 mesh;
+} __packed;
 
 #endif

@@ -340,7 +340,7 @@ int mt7902_mcu_abort_roc(struct mt792x_phy *phy, struct mt792x_vif *vif,
 			 u8 token_id);
 void mt7902_roc_abort_sync(struct mt792x_dev *dev);
 int mt7902_mcu_set_rssimonitor(struct mt792x_dev *dev, struct ieee80211_vif *vif);
-int mt7902_mcu_add_dev_info(struct mt76_phy *phy,
+int mt7902_mcu_add_dev_info(struct mt7902_phy *phy,
 			    struct ieee80211_vif *vif, bool enable);
 int mt7902_mcu_add_bss_info(struct mt7902_phy *phy,
 			    struct ieee80211_vif *vif, int enable);
