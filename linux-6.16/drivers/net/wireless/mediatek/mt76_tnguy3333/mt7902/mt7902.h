@@ -340,10 +340,11 @@ int mt7902_mcu_abort_roc(struct mt792x_phy *phy, struct mt792x_vif *vif,
 			 u8 token_id);
 void mt7902_roc_abort_sync(struct mt792x_dev *dev);
 int mt7902_mcu_set_rssimonitor(struct mt792x_dev *dev, struct ieee80211_vif *vif);
+/*
 int mt7902_mcu_add_dev_info(struct mt7902_phy *phy,
 			    struct ieee80211_vif *vif, bool enable);
 int mt7902_mcu_add_bss_info(struct mt7902_phy *phy,
-			    struct ieee80211_vif *vif, int enable);
+			    struct ieee80211_vif *vif, int enable); */
 //static struct tlv *
 //mt7902_mcu_add_uni_tlv(struct sk_buff *skb, int tag, int len)
 struct bss_rlm_tlv {
@@ -534,7 +535,27 @@ struct mt7902_vif {
 
 	struct ieee80211_tx_queue_params queue_params[IEEE80211_NUM_ACS];
 	struct cfg80211_bitrate_mask bitrate_mask;
+};
+
+static inline struct mt7902_dev *
+mt7902_hw_dev(struct ieee80211_hw *hw)
+{
+	struct mt76_phy *phy = hw->priv;
+
+	return container_of(phy->dev, struct mt7902_dev, mt76);
 }
-;
+
+static inline struct mt7902_phy *
+mt7902_hw_phy(struct ieee80211_hw *hw)
+{
+	struct mt76_phy *phy = hw->priv;
+
+	return phy->priv;
+}
+
+void mt7902_mac_write_txwi(struct mt76_dev *dev, __le32 *txwi,
+			   struct sk_buff *skb, struct mt76_wcid *wcid, int pid,
+			   struct ieee80211_key_conf *key,
+			   enum mt76_txq_id qid, u32 changed);
 
 #endif

@@ -450,4 +450,155 @@ struct sta_rec_hdr_trans {
 	u8 mesh;
 } __packed;
 
+struct bss_info_color {
+	__le16 tag;
+	__le16 len;
+	u8 disable;
+	u8 color;
+	u8 rsv[2];
+} __packed;
+
+/*
+struct bss_info_bmc_rate {
+	__le16 tag;
+	__le16 len;
+	__le16 bc_trans;
+	__le16 mc_trans;
+	u8 short_preamble;
+	u8 rsv[7];
+} __packed; 
+
+struct bss_info_ra {
+	__le16 tag;
+	__le16 len;
+	u8 op_mode;
+	u8 adhoc_en;
+	u8 short_preamble;
+	u8 tx_streams;
+	u8 rx_streams;
+	u8 algo;
+	u8 force_sgi;
+	u8 force_gf;
+	u8 ht_mode;
+	u8 has_20_sta;		/* Check if any sta support GF. * /
+	u8 bss_width_trigger_events;
+	u8 vht_nss_cap;
+	u8 vht_bw_signal;	/* not use * /
+	u8 vht_force_sgi;	/* not use * /
+	u8 se_off;
+	u8 antenna_idx;
+	u8 train_up_rule;
+	u8 rsv[3];
+	unsigned short train_up_high_thres;
+	short train_up_rule_rssi;
+	unsigned short low_traffic_thres;
+	__le16 max_phyrate;
+	__le32 phy_cap;
+	__le32 interval;
+	__le32 fast_interval;
+} __packed; 
+
+struct bss_info_hw_amsdu {
+	__le16 tag;
+	__le16 len;
+	__le32 cmp_bitmap_0;
+	__le32 cmp_bitmap_1;
+	__le16 trig_thres;
+	u8 enable;
+	u8 rsv;
+} __packed; 
+
+struct bss_info_color {
+	__le16 tag;
+	__le16 len;
+	u8 disable;
+	u8 color;
+	u8 rsv[2];
+} __packed;
+
+struct bss_info_he {
+	__le16 tag;
+	__le16 len;
+	u8 he_pe_duration;
+	u8 vht_op_info_present;
+	__le16 he_rts_thres;
+	__le16 max_nss_mcs[CMD_HE_MCS_BW_NUM];
+	u8 rsv[6];
+} __packed; */
+
+struct bss_info_bcn {
+	__le16 tag;
+	__le16 len;
+	u8 ver;
+	u8 enable;
+	__le16 sub_ntlv;
+} __packed __aligned(4);
+
+struct bss_info_bcn_cntdwn {
+	__le16 tag;
+	__le16 len;
+	u8 cnt;
+	u8 rsv[3];
+} __packed __aligned(4);
+
+struct bss_info_bcn_mbss {
+#define MAX_BEACON_NUM	32
+	__le16 tag;
+	__le16 len;
+	__le32 bitmap;
+	__le16 offset[MAX_BEACON_NUM];
+	u8 rsv[8];
+} __packed __aligned(4);
+
+struct bss_info_bcn_cont {
+	__le16 tag;
+	__le16 len;
+	__le16 tim_ofs;
+	__le16 csa_ofs;
+	__le16 bcc_ofs;
+	__le16 pkt_len;
+} __packed __aligned(4);
+
+struct bss_info_inband_discovery {
+	__le16 tag;
+	__le16 len;
+	u8 tx_type;
+	u8 tx_mode;
+	u8 tx_interval;
+	u8 enable;
+	__le16 rsv;
+	__le16 prob_rsp_len;
+} __packed __aligned(4);
+
+enum {
+	BSS_INFO_BCN_CSA,
+	BSS_INFO_BCN_BCC,
+	BSS_INFO_BCN_MBSSID,
+	BSS_INFO_BCN_CONTENT,
+	BSS_INFO_BCN_DISCOV,
+	BSS_INFO_BCN_MAX
+};
+
+
+#define MT7902_MAX_BEACON_SIZE		1308
+#define MT7902_BEACON_UPDATE_SIZE	(sizeof(struct sta_req_hdr) +	\
+					 sizeof(struct bss_info_bcn) +	\
+					 sizeof(struct bss_info_bcn_cntdwn) +	\
+					 sizeof(struct bss_info_bcn_mbss) +	\
+					 MT_TXD_SIZE +	\
+					 sizeof(struct bss_info_bcn_cont))
+#define MT7902_MAX_BSS_OFFLOAD_SIZE	(MT7902_MAX_BEACON_SIZE +	\
+					 MT7902_BEACON_UPDATE_SIZE)
+
+#define MT7902_BSS_UPDATE_MAX_SIZE	(sizeof(struct sta_req_hdr) +	\
+					 sizeof(struct bss_info_omac) +	\
+					 sizeof(struct bss_info_basic) +\
+					 sizeof(struct bss_info_rf_ch) +\
+					 sizeof(struct bss_info_ra) +	\
+					 sizeof(struct bss_info_hw_amsdu) +\
+					 sizeof(struct bss_info_he) +	\
+					 sizeof(struct bss_info_bmc_rate) +\
+					 sizeof(struct bss_info_ext_bss))
+
+
 #endif
