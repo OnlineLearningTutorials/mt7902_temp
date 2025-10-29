@@ -299,70 +299,151 @@ static void mt7902_stop(struct ieee80211_hw *hw, bool suspend)
 	mt792x_stop(hw, false);
 }
 
+static inline int get_free_idx(u32 mask, u8 start, u8 end)
+{
+	return ffs(~mask & GENMASK(end, start));
+}
+
+static int get_omac_idx(enum nl80211_iftype type, u64 mask)
+{
+	int i;
+
+	switch (type) {
+	case NL80211_IFTYPE_MESH_POINT:
+	case NL80211_IFTYPE_ADHOC:
+	case NL80211_IFTYPE_STATION:
+		/* prefer hw bssid slot 1-3 */
+		i = get_free_idx(mask, HW_BSSID_1, HW_BSSID_3);
+		if (i)
+			return i - 1;
+
+		if (type != NL80211_IFTYPE_STATION)
+			break;
+
+		i = get_free_idx(mask, EXT_BSSID_1, EXT_BSSID_MAX);
+		if (i)
+			return i - 1;
+
+		if (~mask & BIT(HW_BSSID_0))
+			return HW_BSSID_0;
+
+		break;
+	case NL80211_IFTYPE_MONITOR:
+	case NL80211_IFTYPE_AP:
+		/* ap uses hw bssid 0 and ext bssid */
+		if (~mask & BIT(HW_BSSID_0))
+			return HW_BSSID_0;
+
+		i = get_free_idx(mask, EXT_BSSID_1, EXT_BSSID_MAX);
+		if (i)
+			return i - 1;
+
+		break;
+	default:
+		WARN_ON(1);
+		break;
+	}
+
+	return -1;
+}
+
+
 static int
 mt7902_add_interface(struct ieee80211_hw *hw, struct ieee80211_vif *vif)
 {
 	printk(KERN_DEBUG "main.c - mt7902_add_interface(hw, vif)");
-	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
-	struct mt792x_dev *dev = mt792x_hw_dev(hw);
-	struct mt792x_phy *phy = mt792x_hw_phy(hw);
+	struct mt7902_vif *mvif = (struct mt7902_vif *)vif->drv_priv;
+	struct mt7902_dev *dev = mt7902_hw_dev(hw);
+	struct mt7902_phy *phy = mt7902_hw_phy(hw);
 	struct mt76_txq *mtxq;
+	bool ext_phy = phy != &dev->phy;
 	int idx, ret = 0;
 
-	mt792x_mutex_acquire(dev);
+	mutex_lock(&dev->mt76.mutex);
 
-	mvif->bss_conf.mt76.idx = __ffs64(~dev->mt76.vif_mask);
-	if (mvif->bss_conf.mt76.idx >= MT792x_MAX_INTERFACES) {
+	mt76_testmode_reset(phy->mt76, true);
+
+	if(vif->type == NL80211_IFTYPE_MONITOR &&
+		is_zero_ether_addr(vif->addr))
+		phy->monitor_vif = vif;
+
+	mvif->mt76.idx = __ffs64(~dev->mt76.vif_mask);
+	if (mvif->mt76.idx >= (MT7902_MAX_INTERFACES << dev->dbdc_support)) {
 		ret = -ENOSPC;
 		goto out;
 	}
 
-	mvif->bss_conf.mt76.omac_idx = mvif->bss_conf.mt76.idx;
+	idx = get_omac_idx(vif->type, phy->omac_mask);
+	if(idx < 0) {
+		ret = -ENOSPC;
+		goto out;
+	}
+
+	mvif->mt76.omac_idx = idx;
 	mvif->phy = phy;
-	mvif->bss_conf.vif = mvif;
-	mvif->bss_conf.mt76.band_idx = 0;
-	mvif->bss_conf.mt76.wmm_idx = mvif->bss_conf.mt76.idx % MT76_CONNAC_MAX_WMM_SETS;
+	//mvif->bss_conf.vif = mvif;
+	mvif->mt76.band_idx = phy->mt76->band_idx;
+	mvif->mt76.wcid = &mvif->sta.wcid;
+	
+	mvif->mt76.wmm_idx = vif->type != NL80211_IFTYPE_AP;
+	if(ext_phy)
+		mvif->mt76.wmm_idx += 2;
 
 	 // ret = mt76_connac_mcu_uni_add_dev(&dev->mphy, &vif->bss_conf,
 	 // 				  &mvif->bss_conf.mt76,
 	 // 				  &mvif->sta.deflink.wcid, true);
 
-    ret = mt7902_mcu_add_dev_info(&dev->mphy, &vif->bss_conf, &mvif->bss_conf.mt76,
-					  true);
+    ret = mt7902_mcu_add_dev_info(phy, vif, true);
     printk(KERN_INFO "add_interface: add dev info, ret=%d\n", ret);
-
 	if (ret)
 		goto out;
 
-	dev->mt76.vif_mask |= BIT_ULL(mvif->bss_conf.mt76.idx);
-	phy->omac_mask |= BIT_ULL(mvif->bss_conf.mt76.omac_idx);
+	dev->mt76.vif_mask |= BIT_ULL(mvif->mt76.idx);
+	phy->omac_mask |= BIT_ULL(mvif->mt76.omac_idx);
 
-	idx = MT792x_WTBL_RESERVED - mvif->bss_conf.mt76.idx;
+	idx = mt76_wcid_alloc(dev->mt76.wcid_mask, mt7902_wtbl_size(dev));
+	if(idx < 0) {
+		ret = -ENOSPC;
+		goto out;
+	}
 
-	INIT_LIST_HEAD(&mvif->sta.deflink.wcid.poll_list);
-	mvif->sta.deflink.wcid.idx = idx;
-	mvif->sta.deflink.wcid.tx_info |= MT_WCID_TX_INFO_SET;
-	mt76_wcid_init(&mvif->sta.deflink.wcid, mvif->bss_conf.mt76.band_idx);
+	INIT_LIST_HEAD(&mvif->sta.rc_list);
+	mvif->sta.wcid.idx = idx;
+	mvif->sta.wcid.tx_info |= MT_WCID_TX_INFO_SET;
+	mt76_wcid_init(&mvif->sta.wcid, phy->mt76->band_idx);
 
 	mt7902_mac_wtbl_update(dev, idx,
 			       MT_WTBL_UPDATE_ADM_COUNT_CLEAR);
 
-	ewma_rssi_init(&mvif->bss_conf.rssi);
+	//ewma_rssi_init(&mvif->bss_conf.rssi);
 
-	rcu_assign_pointer(dev->mt76.wcid[idx], &mvif->sta.deflink.wcid);
+	//rcu_assign_pointer(dev->mt76.wcid[idx], &mvif->sta.deflink.wcid);
 	if (vif->txq) {
 		mtxq = (struct mt76_txq *)vif->txq->drv_priv;
 		mtxq->wcid = idx;
 	}
 
+	if(vif->type != NL80211_IFTYPE_AP && 
+		(!mvif->mt76.omac_idx || mvif->mt76.omac_idx > 3))
+		vif->offload_flags = 0;
+	vif->offload_flags |= IEEE80211_OFFLOAD_ENCAP_4ADDR;
+
+	mt7902_init_bitrate_mask(vif);
+	memset(&mvif->cap, -1, sizeof(mvif->cap));
+
+	mt7902_mcu_add_bss_info(phy, vif, true);
+	mt7902_mcu_add_sta(dev, vif, NULL, CONN_STATE_PORT_SECURE, true);
+	rcu_assign_pointer(dev->mt76.wcid[idx], &mvif->sta.wcid);
+
+/*
 	vif->driver_flags |= IEEE80211_VIF_BEACON_FILTER;
 	if (phy->chip_cap & MT792x_CHIP_CAP_RSSI_NOTIFY_EVT_EN)
 		vif->driver_flags |= IEEE80211_VIF_SUPPORTS_CQM_RSSI;
 
 	INIT_WORK(&mvif->csa_work, mt7902_csa_work);
-	timer_setup(&mvif->csa_timer, mt792x_csa_timer, 0);
+	timer_setup(&mvif->csa_timer, mt792x_csa_timer, 0);  */
 out:
-	mt792x_mutex_release(dev);
+	mutex_unlock(&dev->mt76.mutex);
 
 	return ret;
 }

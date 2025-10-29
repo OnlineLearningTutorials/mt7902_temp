@@ -15,7 +15,7 @@
 
 #define MT_WTBL_AC0_CTT_OFFSET		20
 
-bool mt7902_mac_wtbl_update(struct mt792x_dev *dev, int idx, u32 mask)
+bool mt7902_mac_wtbl_update(struct mt7902_dev *dev, int idx, u32 mask)
 {
 	printk(KERN_DEBUG "mac.c - mt7902_mac_wtbl_update(dev, idx: %d, mask: 0x%08x)", idx, mask);
 	mt76_rmw(dev, MT_WTBL_UPDATE, MT_WTBL_UPDATE_WLAN_IDX,
@@ -31,7 +31,7 @@ static u32 mt7902_mac_wtbl_lmac_addr(int idx, u8 offset)
 	return MT_WTBL_LMAC_OFFS(idx, 0) + offset * 4;
 }
 
-static void mt7902_mac_sta_poll(struct mt792x_dev *dev)
+static void mt7902_mac_sta_poll(struct mt7902_dev *dev)
 {
 	printk(KERN_DEBUG "mac.c - mt7902_mac_sta_poll");
 	static const u8 ac_to_tid[] = {
@@ -41,12 +41,12 @@ static void mt7902_mac_sta_poll(struct mt792x_dev *dev)
 		[IEEE80211_AC_VO] = 6
 	};
 	struct ieee80211_sta *sta;
-	struct mt792x_sta *msta;
-	struct mt792x_link_sta *mlink;
+	struct mt7902_sta *msta;
+	struct rate_info *rate;
 	u32 tx_time[IEEE80211_NUM_ACS], rx_time[IEEE80211_NUM_ACS];
 	LIST_HEAD(sta_poll_list);
-	struct rate_info *rate;
-	s8 rssi[4];
+	//struct rate_info *rate;
+	//s8 rssi[4];
 	int i;
 
 	spin_lock_bh(&dev->mt76.sta_poll_lock);
@@ -57,6 +57,7 @@ static void mt7902_mac_sta_poll(struct mt792x_dev *dev)
 		bool clear = false;
 		u32 addr, val;
 		u16 idx;
+		s8 rssi[4];
 		u8 bw;
 
 		spin_lock_bh(&dev->mt76.sta_poll_lock);
@@ -64,25 +65,24 @@ static void mt7902_mac_sta_poll(struct mt792x_dev *dev)
 			spin_unlock_bh(&dev->mt76.sta_poll_lock);
 			break;
 		}
-		mlink = list_first_entry(&sta_poll_list,
-					 struct mt792x_link_sta,
-					 wcid.poll_list);
-		msta = container_of(mlink, struct mt792x_sta, deflink);
-		list_del_init(&mlink->wcid.poll_list);
+		msta = list_first_entry(&sta_poll_list,
+					 struct mt7902_sta, wcid.poll_list);
+		//msta = container_of(mlink, struct mt792x_sta, deflink);
+		list_del_init(&msta->wcid.poll_list);
 		spin_unlock_bh(&dev->mt76.sta_poll_lock);
 
-		idx = mlink->wcid.idx;
+		idx = msta->wcid.idx;
 		addr = mt7902_mac_wtbl_lmac_addr(idx, MT_WTBL_AC0_CTT_OFFSET);
 
 		for (i = 0; i < IEEE80211_NUM_ACS; i++) {
-			u32 tx_last = mlink->airtime_ac[i];
-			u32 rx_last = mlink->airtime_ac[i + 4];
+			u32 tx_last = msta->airtime_ac[i];
+			u32 rx_last = msta->airtime_ac[i + 4];
 
-			mlink->airtime_ac[i] = mt76_rr(dev, addr);
-			mlink->airtime_ac[i + 4] = mt76_rr(dev, addr + 4);
+			msta->airtime_ac[i] = mt76_rr(dev, addr);
+			msta->airtime_ac[i + 4] = mt76_rr(dev, addr + 4);
 
-			tx_time[i] = mlink->airtime_ac[i] - tx_last;
-			rx_time[i] = mlink->airtime_ac[i + 4] - rx_last;
+			tx_time[i] = msta->airtime_ac[i] - tx_last;
+			rx_time[i] = msta->airtime_ac[i + 4] - rx_last;
 
 			if ((tx_last | rx_last) & BIT(30))
 				clear = true;
@@ -93,10 +93,10 @@ static void mt7902_mac_sta_poll(struct mt792x_dev *dev)
 		if (clear) {
 			mt7902_mac_wtbl_update(dev, idx,
 					       MT_WTBL_UPDATE_ADM_COUNT_CLEAR);
-			memset(mlink->airtime_ac, 0, sizeof(mlink->airtime_ac));
+			memset(msta->airtime_ac, 0, sizeof(msta->airtime_ac));
 		}
 
-		if (!mlink->wcid.sta)
+		if (!msta->wcid.sta)
 			continue;
 
 		sta = container_of((void *)msta, struct ieee80211_sta,
@@ -119,7 +119,7 @@ static void mt7902_mac_sta_poll(struct mt792x_dev *dev)
 		 * we need to make sure that flags match so polling GI
 		 * from per-sta counters directly.
 		 */
-		rate = &mlink->wcid.rate;
+		rate = &msta->wcid.rate;
 		addr = mt7902_mac_wtbl_lmac_addr(idx,
 						 MT_WTBL_TXRX_CAP_RATE_OFFSET);
 		val = mt76_rr(dev, addr);
@@ -160,10 +160,10 @@ static void mt7902_mac_sta_poll(struct mt792x_dev *dev)
 		rssi[2] = to_rssi(GENMASK(23, 16), val);
 		rssi[3] = to_rssi(GENMASK(31, 14), val);
 
-		mlink->ack_signal =
+		msta->ack_signal =
 			mt76_rx_signal(msta->vif->phy->mt76->antenna_mask, rssi);
 
-		ewma_avg_signal_add(&mlink->avg_ack_signal, -mlink->ack_signal);
+		ewma_avg_signal_add(&msta->avg_ack_signal, -msta->ack_signal);
 	}
 }
 
@@ -557,7 +557,7 @@ static void mt7902_mac_tx_free(struct mt792x_dev *dev, void *data, int len)
 	}
 
 	rcu_read_lock();
-	mt7902_mac_sta_poll(dev);
+	//mt7902_mac_sta_poll(dev);
 	rcu_read_unlock();
 
 	mt76_worker_schedule(&dev->mt76.tx_worker);
@@ -862,7 +862,7 @@ bool mt7902_usb_sdio_tx_status_data(struct mt76_dev *mdev, u8 *update)
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
 
 	mt792x_mutex_acquire(dev);
-	mt7902_mac_sta_poll(dev);
+	//mt7902_mac_sta_poll(dev);
 	mt792x_mutex_release(dev);
 
 	return false;

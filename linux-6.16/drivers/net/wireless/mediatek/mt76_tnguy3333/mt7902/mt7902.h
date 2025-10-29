@@ -7,6 +7,14 @@
 #include "mt792x.h"
 #include "regs.h"
 
+
+#define MT7902_MAX_INTERFACES		19
+#define MT7902_WTBL_SIZE		288
+//#define MT7902_WTBL_SIZE		544
+#define MT7902_WTBL_RESERVED		(mt7902_wtbl_size(dev) - 1)
+#define MT7902_WTBL_STA			(MT7902_WTBL_RESERVED - \
+					 MT7902_MAX_INTERFACES)
+
 #define MT7915_MAX_STA_TWT_AGRT		8
 #define MT7902_TX_RING_SIZE		2048
 #define MT7902_TX_MCU_RING_SIZE		256
@@ -212,6 +220,12 @@ int mt7902_mcu_set_rxfilter(struct mt792x_dev *dev, u32 fif,
 int mt7902_mcu_radio_led_ctrl(struct mt792x_dev *dev, u8 value);
 int mt7902_mcu_wf_rf_pin_ctrl(struct mt792x_phy *phy, u8 action);
 
+static inline u16 mt7902_wtbl_size(struct mt7902_dev *dev)
+{
+	//return is_mt7902(&dev->mt76) ? MT7902_WTBL_SIZE : MT7916_WTBL_SIZE;
+	return MT7902_WTBL_SIZE;
+}
+
 static inline u32
 mt7902_reg_map_l1(struct mt792x_dev *dev, u32 addr)
 {
@@ -251,7 +265,6 @@ mt7902_l1_rmw(struct mt792x_dev *dev, u32 addr, u32 mask, u32 val)
 
 void mt7902_regd_update(struct mt792x_dev *dev);
 int mt7902_mac_init(struct mt792x_dev *dev);
-bool mt7902_mac_wtbl_update(struct mt792x_dev *dev, int idx, u32 mask);
 int mt7902_mac_sta_add(struct mt76_dev *mdev, struct ieee80211_vif *vif,
 		       struct ieee80211_sta *sta);
 int mt7902_mac_sta_event(struct mt76_dev *mdev, struct ieee80211_vif *vif,
@@ -340,11 +353,8 @@ int mt7902_mcu_abort_roc(struct mt792x_phy *phy, struct mt792x_vif *vif,
 			 u8 token_id);
 void mt7902_roc_abort_sync(struct mt792x_dev *dev);
 int mt7902_mcu_set_rssimonitor(struct mt792x_dev *dev, struct ieee80211_vif *vif);
-/*
-int mt7902_mcu_add_dev_info(struct mt7902_phy *phy,
-			    struct ieee80211_vif *vif, bool enable);
-int mt7902_mcu_add_bss_info(struct mt7902_phy *phy,
-			    struct ieee80211_vif *vif, int enable); */
+
+
 //static struct tlv *
 //mt7902_mcu_add_uni_tlv(struct sk_buff *skb, int tag, int len)
 struct bss_rlm_tlv {
@@ -557,5 +567,12 @@ void mt7902_mac_write_txwi(struct mt76_dev *dev, __le32 *txwi,
 			   struct sk_buff *skb, struct mt76_wcid *wcid, int pid,
 			   struct ieee80211_key_conf *key,
 			   enum mt76_txq_id qid, u32 changed);
+
+int mt7902_mcu_add_dev_info(struct mt7902_phy *phy,
+			    struct ieee80211_vif *vif, bool enable);
+int mt7902_mcu_add_bss_info(struct mt7902_phy *phy,
+			    struct ieee80211_vif *vif, int enable);
+bool mt7902_mac_wtbl_update(struct mt7902_dev *dev, int idx, u32 mask);
+
 
 #endif
