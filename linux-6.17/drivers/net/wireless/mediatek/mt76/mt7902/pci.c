@@ -17,14 +17,11 @@ static DEFINE_SPINLOCK(hif_lock);
 static u32 hif_idx;
 
 static const struct pci_device_id mt7902_pci_device_table[] = {
-	{ PCI_DEVICE(PCI_VENDOR_ID_MEDIATEK, 0x7915) },
-	{ PCI_DEVICE(PCI_VENDOR_ID_MEDIATEK, 0x7906) },
+	{ PCI_DEVICE(PCI_VENDOR_ID_MEDIATEK, 0x7902) }, //bellwether
 	{ },
 };
 
 static const struct pci_device_id mt7902_hif_device_table[] = {
-	{ PCI_DEVICE(PCI_VENDOR_ID_MEDIATEK, 0x7916) },
-	{ PCI_DEVICE(PCI_VENDOR_ID_MEDIATEK, 0x790a) },
 	{ },
 };
 
@@ -42,7 +39,6 @@ static struct mt7902_hif *mt7902_pci_get_hif2(u32 idx)
 			continue;
 
 		get_device(hif->dev);
-		hif->index = idx;
 		goto out;
 	}
 	hif = NULL;
@@ -63,17 +59,10 @@ static void mt7902_put_hif2(struct mt7902_hif *hif)
 
 static struct mt7902_hif *mt7902_pci_init_hif2(struct pci_dev *pdev)
 {
-	struct pci_dev *tmp_pdev;
-
 	hif_idx++;
-
-	tmp_pdev = pci_get_device(PCI_VENDOR_ID_MEDIATEK, 0x7916, NULL);
-	if (!tmp_pdev) {
-		tmp_pdev = pci_get_device(PCI_VENDOR_ID_MEDIATEK, 0x790a, NULL);
-		if (!tmp_pdev)
-			return NULL;
-	}
-	pci_dev_put(tmp_pdev);
+	if (!pci_get_device(PCI_VENDOR_ID_MEDIATEK, 0x7916, NULL) &&
+	    !pci_get_device(PCI_VENDOR_ID_MEDIATEK, 0x790a, NULL))
+		return NULL;
 
 	writel(hif_idx | MT_PCIE_RECOG_ID_SEM,
 	       pcim_iomap_table(pdev)[0] + MT_PCIE_RECOG_ID);
@@ -103,9 +92,9 @@ static int mt7902_pci_hif2_probe(struct pci_dev *pdev)
 static int mt7902_pci_probe(struct pci_dev *pdev,
 			    const struct pci_device_id *id)
 {
-	struct mt7902_hif *hif2 = NULL;
 	struct mt7902_dev *dev;
 	struct mt76_dev *mdev;
+	struct mt7902_hif *hif2;
 	int irq;
 	int ret;
 
@@ -125,7 +114,7 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 
 	mt76_pci_disable_aspm(pdev);
 
-	if (id->device == 0x7916 || id->device == 0x790a)
+	if (id->device == 0x790a)
 		return mt7902_pci_hif2_probe(pdev);
 
 	dev = mt7902_mmio_probe(&pdev->dev, pcim_iomap_table(pdev)[0],
@@ -137,24 +126,17 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 	mt7902_wfsys_reset(dev);
 	hif2 = mt7902_pci_init_hif2(pdev);
 
-	ret = mt7902_mmio_wed_init(dev, pdev, true, &irq);
+	ret = pci_alloc_irq_vectors(pdev, 1, 1, PCI_IRQ_ALL_TYPES);
 	if (ret < 0)
-		goto free_wed_or_irq_vector;
+		goto free_device;
 
-	if (!ret) {
-		hif2 = mt7902_pci_init_hif2(pdev);
-
-		ret = pci_alloc_irq_vectors(pdev, 1, 1, PCI_IRQ_ALL_TYPES);
-		if (ret < 0)
-			goto free_device;
-
-		irq = pdev->irq;
-	}
-
+	irq = pdev->irq;
 	ret = devm_request_irq(mdev->dev, irq, mt7902_irq_handler,
 			       IRQF_SHARED, KBUILD_MODNAME, dev);
 	if (ret)
-		goto free_wed_or_irq_vector;
+		goto free_irq_vector;
+
+	mt76_wr(dev, MT_INT_MASK_CSR, 0);
 
 	/* master switch of PCIe tnterrupt enable */
 	mt76_wr(dev, MT_PCIE_MAC_INT_ENABLE, 0xff);
@@ -164,10 +146,7 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 
 		mt76_wr(dev, MT_INT1_MASK_CSR, 0);
 		/* master switch of PCIe tnterrupt enable */
-		if (is_mt7902(mdev))
-			mt76_wr(dev, MT_PCIE1_MAC_INT_ENABLE, 0xff);
-		else
-			mt76_wr(dev, MT_PCIE1_MAC_INT_ENABLE_MT7916, 0xff);
+		mt76_wr(dev, MT_PCIE1_MAC_INT_ENABLE, 0xff);
 
 		ret = devm_request_irq(mdev->dev, dev->hif2->irq,
 				       mt7902_irq_handler, IRQF_SHARED,
@@ -189,11 +168,8 @@ free_hif2:
 	if (dev->hif2)
 		put_device(dev->hif2->dev);
 	devm_free_irq(mdev->dev, irq, dev);
-free_wed_or_irq_vector:
-	if (mtk_wed_device_active(&mdev->mmio.wed))
-		mtk_wed_device_detach(&mdev->mmio.wed);
-	else
-		pci_free_irq_vectors(pdev);
+free_irq_vector:
+	pci_free_irq_vectors(pdev);
 free_device:
 	mt76_free_device(&dev->mt76);
 
@@ -234,9 +210,8 @@ struct pci_driver mt7902_pci_driver = {
 
 MODULE_DEVICE_TABLE(pci, mt7902_pci_device_table);
 MODULE_DEVICE_TABLE(pci, mt7902_hif_device_table);
-MODULE_FIRMWARE(mt7902_FIRMWARE_WA);
-MODULE_FIRMWARE(mt7902_FIRMWARE_WM);
-MODULE_FIRMWARE(mt7902_ROM_PATCH);
-MODULE_FIRMWARE(MT7916_FIRMWARE_WA);
-MODULE_FIRMWARE(MT7916_FIRMWARE_WM);
-MODULE_FIRMWARE(MT7916_ROM_PATCH);
+MODULE_FIRMWARE(MT7902_FIRMWARE_WA);
+MODULE_FIRMWARE(MT7902_FIRMWARE_WM);
+MODULE_FIRMWARE(MT7902_ROM_PATCH);
+MODULE_FIRMWARE(MT7902_FIRMWARE_ROM);
+MODULE_FIRMWARE(MT7902_FIRMWARE_ROM_SRAM);
