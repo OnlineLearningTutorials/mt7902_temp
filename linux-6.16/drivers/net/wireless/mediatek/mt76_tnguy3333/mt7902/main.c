@@ -347,6 +347,25 @@ static int get_omac_idx(enum nl80211_iftype type, u64 mask)
 	return -1;
 }
 
+static void mt7902_init_bitrate_mask(struct ieee80211_vif *vif)
+{
+	struct mt7902_vif *mvif = (struct mt7902_vif *)vif->drv_priv;
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(mvif->bitrate_mask.control); i++) {
+		mvif->bitrate_mask.control[i].gi = NL80211_TXRATE_DEFAULT_GI;
+		mvif->bitrate_mask.control[i].he_gi = 0xff;
+		mvif->bitrate_mask.control[i].he_ltf = 0xff;
+		mvif->bitrate_mask.control[i].legacy = GENMASK(31, 0);
+		memset(mvif->bitrate_mask.control[i].ht_mcs, 0xff,
+		       sizeof(mvif->bitrate_mask.control[i].ht_mcs));
+		memset(mvif->bitrate_mask.control[i].vht_mcs, 0xff,
+		       sizeof(mvif->bitrate_mask.control[i].vht_mcs));
+		memset(mvif->bitrate_mask.control[i].he_mcs, 0xff,
+		       sizeof(mvif->bitrate_mask.control[i].he_mcs));
+	}
+}
+
 
 static int
 mt7902_add_interface(struct ieee80211_hw *hw, struct ieee80211_vif *vif)
@@ -954,10 +973,18 @@ static void mt7902_bss_info_changed(struct ieee80211_hw *hw,
 	 * and then peer references bss_info_rfch to set bandwidth cap.
 	 */
 	if (changed & BSS_CHANGED_BSSID &&
-	    vif->type == NL80211_IFTYPE_STATION)
-		set_bss_info = set_sta = !is_zero_ether_addr(info->bssid);
-	if (changed & BSS_CHANGED_ASSOC)
-		set_bss_info = vif->cfg.assoc;
+	    vif->type == NL80211_IFTYPE_STATION) {
+		bool join = !is_zero_ether_addr(info->bssid);
+			
+		mt7902_mcu_add_bss_info(phy, vif, join);
+		mt7902_mcu_add_sta(dev, vif, NULL, join);
+	}
+		
+	if (changed & BSS_CHANGED_ASSOC) {
+		mt7902_mcu_add_bss_info(phy, vif, info->assoc);
+		mt7902_mcu_add_obss_spr(dev, vif, info->he_obss_pd.enable);
+	}
+/*
 	if (changed & BSS_CHANGED_BEACON_ENABLED &&
 	    info->enable_beacon &&
 	    vif->type != NL80211_IFTYPE_AP)
@@ -970,18 +997,19 @@ static void mt7902_bss_info_changed(struct ieee80211_hw *hw,
 
 	if (changed & BSS_CHANGED_ERP_CTS_PROT)
 		mt7902_mac_enable_rtscts(dev, vif, info->use_cts_prot);
-
+*/
 	if (changed & BSS_CHANGED_ERP_SLOT) {
-		int slottime = 9;
-
-		if (phy->mt76->chandef.chan->band == NL80211_BAND_2GHZ &&
-		    !info->use_short_slot)
-			slottime = 20;
+		int slottime = info->use_short_slot ? 9 : 20;
 
 		if (slottime != phy->slottime) {
 			phy->slottime = slottime;
 			mt7902_mac_set_timing(phy);
 		}
+	}
+
+	if(changed & BSS_CHANGED_BEACON_ENABLED && info->enable_beacon) {
+		mt7902_mcu_add_bss_info(phy, vif, true);
+		mt7902_mcu_add_sta(dev, vif, NULL, true);
 	}
 
 	/* ensure that enable txcmd_mode after bss_info */
@@ -997,16 +1025,6 @@ static void mt7902_bss_info_changed(struct ieee80211_hw *hw,
 	if (changed & (BSS_CHANGED_BEACON |
 		       BSS_CHANGED_BEACON_ENABLED))
 		mt7902_mcu_add_beacon(hw, vif, info->enable_beacon, changed);
-
-	if (changed & (BSS_CHANGED_UNSOL_BCAST_PROBE_RESP |
-		       BSS_CHANGED_FILS_DISCOVERY))
-		mt7902_mcu_add_inband_discov(dev, vif, changed);
-
-	if (set_bss_info == 0)
-		mt7902_mcu_add_bss_info(phy, vif, false);
-	if (set_sta == 0)
-		mt7902_mcu_add_sta(dev, vif, NULL, CONN_STATE_DISCONNECT, false);
-
 
 	mutex_unlock(&dev->mt76.mutex);
 }

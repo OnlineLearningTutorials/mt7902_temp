@@ -596,15 +596,15 @@ void mt7902_mac_write_txwi(struct mt76_dev *dev, __le32 *txwi,
 			   struct ieee80211_key_conf *key,
 			   enum mt76_txq_id qid, u32 changed);
 
-int mt7902_mcu_add_dev_info(struct mt7902_phy *phy,
-			    struct ieee80211_vif *vif, bool enable);
-int mt7902_mcu_add_bss_info(struct mt7902_phy *phy,
-			    struct ieee80211_vif *vif, int enable);
+int mt7902_mcu_add_dev_info(struct mt7902_phy *phy, struct ieee80211_vif *vif, bool enable);
+int mt7902_mcu_add_bss_info(struct mt7902_phy *phy, struct ieee80211_vif *vif, int enable);
 bool mt7902_mac_wtbl_update(struct mt7902_dev *dev, int idx, u32 mask);
 int mt7902_mcu_update_bss_color(struct mt7902_dev *dev, struct ieee80211_vif *vif,
 				struct cfg80211_he_bss_color *he_bss_color);
 void mt7902_mac_enable_rtscts(struct mt7902_dev *dev,
 			      struct ieee80211_vif *vif, bool enable);
+int mt7902_mcu_add_obss_spr(struct mt7902_dev *dev, struct ieee80211_vif *vif,
+                            bool enable);
 
 #endif
 
