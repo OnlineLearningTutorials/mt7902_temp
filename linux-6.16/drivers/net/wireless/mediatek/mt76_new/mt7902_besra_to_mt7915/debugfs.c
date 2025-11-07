@@ -7,7 +7,7 @@
 #include "mcu.h"
 #include "mac.h"
 
-#define FW_BIN_LOG_MAGIC	0x44d9c99a
+#define FW_BIN_LOG_MAGIC	0x44e98caf
 
 /** global debugfs **/
 
@@ -23,9 +23,9 @@ mt7902_implicit_txbf_set(void *data, u64 val)
 {
 	struct mt7902_dev *dev = data;
 
-	if (test_bit(MT76_STATE_RUNNING, &dev->mphy.state))
-		return -EBUSY;
-
+	/* The existing connected stations shall reconnect to apply
+	 * new implicit txbf configuration.
+	 */
 	dev->ibf = !!val;
 
 	return mt7902_mcu_set_txbf(dev, MT_BF_TYPE_UPDATE);
@@ -44,46 +44,195 @@ mt7902_implicit_txbf_get(void *data, u64 *val)
 DEFINE_DEBUGFS_ATTRIBUTE(fops_implicit_txbf, mt7902_implicit_txbf_get,
 			 mt7902_implicit_txbf_set, "%lld\n");
 
-/* test knob of system layer 1/2 error recovery */
-static int mt7902_ser_trigger_set(void *data, u64 val)
+/* test knob of system error recovery */
+static ssize_t
+mt7902_sys_recovery_set(struct file *file, const char __user *user_buf,
+			size_t count, loff_t *ppos)
 {
-	enum {
-		SER_SET_RECOVER_L1 = 1,
-		SER_SET_RECOVER_L2,
-		SER_ENABLE = 2,
-		SER_RECOVER
-	};
-	struct mt7902_dev *dev = data;
+	struct mt7902_phy *phy = file->private_data;
+	struct mt7902_dev *dev = phy->dev;
+	bool band = phy->mt76->band_idx;
+	char buf[16];
 	int ret = 0;
+	u16 val;
+
+	if (count >= sizeof(buf))
+		return -EINVAL;
+
+	if (copy_from_user(buf, user_buf, count))
+		return -EFAULT;
+
+	if (count && buf[count - 1] == '\n')
+		buf[count - 1] = '\0';
+	else
+		buf[count] = '\0';
+
+	if (kstrtou16(buf, 0, &val))
+		return -EINVAL;
 
 	switch (val) {
+	/*
+	 * 0: grab firmware current SER state.
+	 * 1: trigger & enable system error L1 recovery.
+	 * 2: trigger & enable system error L2 recovery.
+	 * 3: trigger & enable system error L3 rx abort.
+	 * 4: trigger & enable system error L3 tx abort
+	 * 5: trigger & enable system error L3 tx disable.
+	 * 6: trigger & enable system error L3 bf recovery.
+	 * 7: trigger & enable system error full recovery.
+	 * 8: trigger firmware crash.
+	 */
+	case SER_QUERY:
+		ret = mt7902_mcu_set_ser(dev, 0, 0, band);
+		break;
 	case SER_SET_RECOVER_L1:
 	case SER_SET_RECOVER_L2:
-		ret = mt7902_mcu_set_ser(dev, SER_ENABLE, BIT(val), 0);
+	case SER_SET_RECOVER_L3_RX_ABORT:
+	case SER_SET_RECOVER_L3_TX_ABORT:
+	case SER_SET_RECOVER_L3_TX_DISABLE:
+	case SER_SET_RECOVER_L3_BF:
+		ret = mt7902_mcu_set_ser(dev, SER_ENABLE, BIT(val), band);
 		if (ret)
 			return ret;
 
-		return mt7902_mcu_set_ser(dev, SER_RECOVER, val, 0);
+		ret = mt7902_mcu_set_ser(dev, SER_RECOVER, val, band);
+		break;
+
+	/* enable full chip reset */
+	case SER_SET_RECOVER_FULL:
+		mt76_set(dev, MT_WFDMA0_MCU_HOST_INT_ENA, MT_MCU_CMD_WDT_MASK);
+		ret = mt7902_mcu_set_ser(dev, 1, 3, band);
+		if (ret)
+			return ret;
+
+		dev->recovery.state |= MT_MCU_CMD_WDT_MASK;
+		mt7902_reset(dev);
+		break;
+
+	/* WARNING: trigger firmware crash */
+	case SER_SET_SYSTEM_ASSERT:
+		mt76_wr(dev, MT_MCU_WM_CIRQ_EINT_MASK_CLR_ADDR, BIT(18));
+		mt76_wr(dev, MT_MCU_WM_CIRQ_EINT_SOFT_ADDR, BIT(18));
+		break;
 	default:
 		break;
 	}
 
+	return ret ? ret : count;
+}
+
+static ssize_t
+mt7902_sys_recovery_get(struct file *file, char __user *user_buf,
+			size_t count, loff_t *ppos)
+{
+	struct mt7902_phy *phy = file->private_data;
+	struct mt7902_dev *dev = phy->dev;
+	char *buff;
+	int desc = 0;
+	ssize_t ret;
+	static const size_t bufsz = 1024;
+
+	buff = kmalloc(bufsz, GFP_KERNEL);
+	if (!buff)
+		return -ENOMEM;
+
+	/* HELP */
+	desc += scnprintf(buff + desc, bufsz - desc,
+			  "Please echo the correct value ...\n");
+	desc += scnprintf(buff + desc, bufsz - desc,
+			  "0: grab firmware transient SER state\n");
+	desc += scnprintf(buff + desc, bufsz - desc,
+			  "1: trigger system error L1 recovery\n");
+	desc += scnprintf(buff + desc, bufsz - desc,
+			  "2: trigger system error L2 recovery\n");
+	desc += scnprintf(buff + desc, bufsz - desc,
+			  "3: trigger system error L3 rx abort\n");
+	desc += scnprintf(buff + desc, bufsz - desc,
+			  "4: trigger system error L3 tx abort\n");
+	desc += scnprintf(buff + desc, bufsz - desc,
+			  "5: trigger system error L3 tx disable\n");
+	desc += scnprintf(buff + desc, bufsz - desc,
+			  "6: trigger system error L3 bf recovery\n");
+	desc += scnprintf(buff + desc, bufsz - desc,
+			  "7: trigger system error full recovery\n");
+	desc += scnprintf(buff + desc, bufsz - desc,
+			  "8: trigger firmware crash\n");
+
+	/* SER statistics */
+	desc += scnprintf(buff + desc, bufsz - desc,
+			  "\nlet's dump firmware SER statistics...\n");
+	desc += scnprintf(buff + desc, bufsz - desc,
+			  "::E  R , SER_STATUS        = 0x%08x\n",
+			  mt76_rr(dev, MT_SWDEF_SER_STATS));
+	desc += scnprintf(buff + desc, bufsz - desc,
+			  "::E  R , SER_PLE_ERR       = 0x%08x\n",
+			  mt76_rr(dev, MT_SWDEF_PLE_STATS));
+	desc += scnprintf(buff + desc, bufsz - desc,
+			  "::E  R , SER_PLE_ERR_1     = 0x%08x\n",
+			  mt76_rr(dev, MT_SWDEF_PLE1_STATS));
+	desc += scnprintf(buff + desc, bufsz - desc,
+			  "::E  R , SER_PLE_ERR_AMSDU = 0x%08x\n",
+			  mt76_rr(dev, MT_SWDEF_PLE_AMSDU_STATS));
+	desc += scnprintf(buff + desc, bufsz - desc,
+			  "::E  R , SER_PSE_ERR       = 0x%08x\n",
+			  mt76_rr(dev, MT_SWDEF_PSE_STATS));
+	desc += scnprintf(buff + desc, bufsz - desc,
+			  "::E  R , SER_PSE_ERR_1     = 0x%08x\n",
+			  mt76_rr(dev, MT_SWDEF_PSE1_STATS));
+	desc += scnprintf(buff + desc, bufsz - desc,
+			  "::E  R , SER_LMAC_WISR6_B0 = 0x%08x\n",
+			  mt76_rr(dev, MT_SWDEF_LAMC_WISR6_BN0_STATS));
+	desc += scnprintf(buff + desc, bufsz - desc,
+			  "::E  R , SER_LMAC_WISR6_B1 = 0x%08x\n",
+			  mt76_rr(dev, MT_SWDEF_LAMC_WISR6_BN1_STATS));
+	desc += scnprintf(buff + desc, bufsz - desc,
+			  "::E  R , SER_LMAC_WISR7_B0 = 0x%08x\n",
+			  mt76_rr(dev, MT_SWDEF_LAMC_WISR7_BN0_STATS));
+	desc += scnprintf(buff + desc, bufsz - desc,
+			  "::E  R , SER_LMAC_WISR7_B1 = 0x%08x\n",
+			  mt76_rr(dev, MT_SWDEF_LAMC_WISR7_BN1_STATS));
+	desc += scnprintf(buff + desc, bufsz - desc,
+			  "\nSYS_RESET_COUNT: WM %d, WA %d\n",
+			  dev->recovery.wm_reset_count,
+			  dev->recovery.wa_reset_count);
+
+	ret = simple_read_from_buffer(user_buf, count, ppos, buff, desc);
+	kfree(buff);
 	return ret;
 }
 
-DEFINE_DEBUGFS_ATTRIBUTE(fops_ser_trigger, NULL,
-			 mt7902_ser_trigger_set, "%lld\n");
+static const struct file_operations mt7902_sys_recovery_ops = {
+	.write = mt7902_sys_recovery_set,
+	.read = mt7902_sys_recovery_get,
+	.open = simple_open,
+	.llseek = default_llseek,
+};
 
 static int
 mt7902_radar_trigger(void *data, u64 val)
 {
-	struct mt7902_dev *dev = data;
+#define RADAR_MAIN_CHAIN	1
+#define RADAR_BACKGROUND	2
+	struct mt7902_phy *phy = data;
+	struct mt7902_dev *dev = phy->dev;
+	int rdd_idx;
 
-	if (val > MT_RX_SEL2)
+	if (!val || val > RADAR_BACKGROUND)
 		return -EINVAL;
 
-	return mt7902_mcu_rdd_cmd(dev, RDD_RADAR_EMULATE,
-				 val, 0, 0);
+	if (val == RADAR_BACKGROUND && !dev->rdd2_phy) {
+		dev_err(dev->mt76.dev, "Background radar is not enabled\n");
+		return -EINVAL;
+	}
+
+	rdd_idx = mt7902_get_rdd_idx(phy, val == RADAR_BACKGROUND);
+	if (rdd_idx < 0) {
+		dev_err(dev->mt76.dev, "No RDD found\n");
+		return -EINVAL;
+	}
+
+	return mt76_connac_mcu_rdd_cmd(&dev->mt76, RDD_RADAR_EMULATE,
+				       rdd_idx, 0, 0);
 }
 
 DEFINE_DEBUGFS_ATTRIBUTE(fops_radar_trigger, NULL,
@@ -117,7 +266,6 @@ static int mt7902_muru_stats_show(struct seq_file *file, void *data)
 {
 	struct mt7902_phy *phy = file->private;
 	struct mt7902_dev *dev = phy->dev;
-	struct mt7902_mcu_muru_stats mu_stats = {};
 	static const char * const dl_non_he_type[] = {
 		"CCK", "OFDM", "HT MIX", "HT GF",
 		"VHT SU", "VHT 2MU", "VHT 3MU", "VHT 4MU"
@@ -141,7 +289,7 @@ static int mt7902_muru_stats_show(struct seq_file *file, void *data)
 
 	mutex_lock(&dev->mt76.mutex);
 
-	ret = mt7902_mcu_muru_debug_get(phy, &mu_stats);
+	ret = mt7902_mcu_muru_debug_get(phy);
 	if (ret)
 		goto exit;
 
@@ -151,14 +299,13 @@ static int mt7902_muru_stats_show(struct seq_file *file, void *data)
 	for (i = 0; i < 5; i++)
 		seq_printf(file, "%8s | ", dl_non_he_type[i]);
 
-#define __dl_u32(s)     le32_to_cpu(mu_stats.dl.s)
 	seq_puts(file, "\nTotal Count:");
 	seq_printf(file, "%8u | %8u | %8u | %8u | %8u | ",
-		   __dl_u32(cck_cnt),
-		   __dl_u32(ofdm_cnt),
-		   __dl_u32(htmix_cnt),
-		   __dl_u32(htgf_cnt),
-		   __dl_u32(vht_su_cnt));
+		   phy->mib.dl_cck_cnt,
+		   phy->mib.dl_ofdm_cnt,
+		   phy->mib.dl_htmix_cnt,
+		   phy->mib.dl_htgf_cnt,
+		   phy->mib.dl_vht_su_cnt);
 
 	seq_puts(file, "\nDownlink MU-MIMO\nData Type:  ");
 
@@ -167,23 +314,23 @@ static int mt7902_muru_stats_show(struct seq_file *file, void *data)
 
 	seq_puts(file, "\nTotal Count:");
 	seq_printf(file, "%8u | %8u | %8u | ",
-		   __dl_u32(vht_2mu_cnt),
-		   __dl_u32(vht_3mu_cnt),
-		   __dl_u32(vht_4mu_cnt));
+		   phy->mib.dl_vht_2mu_cnt,
+		   phy->mib.dl_vht_3mu_cnt,
+		   phy->mib.dl_vht_4mu_cnt);
 
-	sub_total_cnt = __dl_u32(vht_2mu_cnt) +
-		__dl_u32(vht_3mu_cnt) +
-		__dl_u32(vht_4mu_cnt);
+	sub_total_cnt = (u64)phy->mib.dl_vht_2mu_cnt +
+			     phy->mib.dl_vht_3mu_cnt +
+			     phy->mib.dl_vht_4mu_cnt;
 
 	seq_printf(file, "\nTotal non-HE MU-MIMO DL PPDU count: %lld",
 		   sub_total_cnt);
 
 	total_ppdu_cnt = sub_total_cnt +
-		__dl_u32(cck_cnt) +
-		__dl_u32(ofdm_cnt) +
-		__dl_u32(htmix_cnt) +
-		__dl_u32(htgf_cnt) +
-		__dl_u32(vht_su_cnt);
+			 phy->mib.dl_cck_cnt +
+			 phy->mib.dl_ofdm_cnt +
+			 phy->mib.dl_htmix_cnt +
+			 phy->mib.dl_htgf_cnt +
+			 phy->mib.dl_vht_su_cnt;
 
 	seq_printf(file, "\nAll non-HE DL PPDU count: %lld", total_ppdu_cnt);
 
@@ -195,8 +342,7 @@ static int mt7902_muru_stats_show(struct seq_file *file, void *data)
 
 	seq_puts(file, "\nTotal Count:");
 	seq_printf(file, "%8u | %8u | ",
-		   __dl_u32(he_su_cnt),
-		   __dl_u32(he_ext_su_cnt));
+		   phy->mib.dl_he_su_cnt, phy->mib.dl_he_ext_su_cnt);
 
 	seq_puts(file, "\nDownlink MU-MIMO\nData Type:  ");
 
@@ -205,9 +351,8 @@ static int mt7902_muru_stats_show(struct seq_file *file, void *data)
 
 	seq_puts(file, "\nTotal Count:");
 	seq_printf(file, "%8u | %8u | %8u | ",
-		   __dl_u32(he_2mu_cnt),
-		   __dl_u32(he_3mu_cnt),
-		   __dl_u32(he_4mu_cnt));
+		   phy->mib.dl_he_2mu_cnt, phy->mib.dl_he_3mu_cnt,
+		   phy->mib.dl_he_4mu_cnt);
 
 	seq_puts(file, "\nDownlink OFDMA\nData Type:  ");
 
@@ -216,37 +361,36 @@ static int mt7902_muru_stats_show(struct seq_file *file, void *data)
 
 	seq_puts(file, "\nTotal Count:");
 	seq_printf(file, "%8u | %8u | %8u | %8u | %9u | %8u | ",
-		   __dl_u32(he_2ru_cnt),
-		   __dl_u32(he_3ru_cnt),
-		   __dl_u32(he_4ru_cnt),
-		   __dl_u32(he_5to8ru_cnt),
-		   __dl_u32(he_9to16ru_cnt),
-		   __dl_u32(he_gtr16ru_cnt));
+		   phy->mib.dl_he_2ru_cnt,
+		   phy->mib.dl_he_3ru_cnt,
+		   phy->mib.dl_he_4ru_cnt,
+		   phy->mib.dl_he_5to8ru_cnt,
+		   phy->mib.dl_he_9to16ru_cnt,
+		   phy->mib.dl_he_gtr16ru_cnt);
 
-	sub_total_cnt = __dl_u32(he_2mu_cnt) +
-		__dl_u32(he_3mu_cnt) +
-		__dl_u32(he_4mu_cnt);
+	sub_total_cnt = (u64)phy->mib.dl_he_2mu_cnt +
+			     phy->mib.dl_he_3mu_cnt +
+			     phy->mib.dl_he_4mu_cnt;
 	total_ppdu_cnt = sub_total_cnt;
 
 	seq_printf(file, "\nTotal HE MU-MIMO DL PPDU count: %lld",
 		   sub_total_cnt);
 
-	sub_total_cnt = __dl_u32(he_2ru_cnt) +
-		__dl_u32(he_3ru_cnt) +
-		__dl_u32(he_4ru_cnt) +
-		__dl_u32(he_5to8ru_cnt) +
-		__dl_u32(he_9to16ru_cnt) +
-		__dl_u32(he_gtr16ru_cnt);
+	sub_total_cnt = (u64)phy->mib.dl_he_2ru_cnt +
+			     phy->mib.dl_he_3ru_cnt +
+			     phy->mib.dl_he_4ru_cnt +
+			     phy->mib.dl_he_5to8ru_cnt +
+			     phy->mib.dl_he_9to16ru_cnt +
+			     phy->mib.dl_he_gtr16ru_cnt;
 	total_ppdu_cnt += sub_total_cnt;
 
 	seq_printf(file, "\nTotal HE OFDMA DL PPDU count: %lld",
 		   sub_total_cnt);
 
-	total_ppdu_cnt += __dl_u32(he_su_cnt) +
-		__dl_u32(he_ext_su_cnt);
+	total_ppdu_cnt += (u64)phy->mib.dl_he_su_cnt +
+			       phy->mib.dl_he_ext_su_cnt;
 
 	seq_printf(file, "\nAll HE DL PPDU count: %lld", total_ppdu_cnt);
-#undef __dl_u32
 
 	/* HE Uplink */
 	seq_puts(file, "\n\nUplink");
@@ -255,12 +399,11 @@ static int mt7902_muru_stats_show(struct seq_file *file, void *data)
 	for (i = 0; i < 3; i++)
 		seq_printf(file, "%8s | ", ul_he_type[i]);
 
-#define __ul_u32(s)     le32_to_cpu(mu_stats.ul.s)
 	seq_puts(file, "\nTotal Count:");
 	seq_printf(file, "%8u | %8u | %8u | ",
-		   __ul_u32(hetrig_2mu_cnt),
-		   __ul_u32(hetrig_3mu_cnt),
-		   __ul_u32(hetrig_4mu_cnt));
+		   phy->mib.ul_hetrig_2mu_cnt,
+		   phy->mib.ul_hetrig_3mu_cnt,
+		   phy->mib.ul_hetrig_4mu_cnt);
 
 	seq_puts(file, "\nTrigger-based Uplink OFDMA\nData Type:  ");
 
@@ -269,37 +412,36 @@ static int mt7902_muru_stats_show(struct seq_file *file, void *data)
 
 	seq_puts(file, "\nTotal Count:");
 	seq_printf(file, "%8u | %8u | %8u | %8u | %8u | %9u |  %7u | ",
-		   __ul_u32(hetrig_su_cnt),
-		   __ul_u32(hetrig_2ru_cnt),
-		   __ul_u32(hetrig_3ru_cnt),
-		   __ul_u32(hetrig_4ru_cnt),
-		   __ul_u32(hetrig_5to8ru_cnt),
-		   __ul_u32(hetrig_9to16ru_cnt),
-		   __ul_u32(hetrig_gtr16ru_cnt));
+		   phy->mib.ul_hetrig_su_cnt,
+		   phy->mib.ul_hetrig_2ru_cnt,
+		   phy->mib.ul_hetrig_3ru_cnt,
+		   phy->mib.ul_hetrig_4ru_cnt,
+		   phy->mib.ul_hetrig_5to8ru_cnt,
+		   phy->mib.ul_hetrig_9to16ru_cnt,
+		   phy->mib.ul_hetrig_gtr16ru_cnt);
 
-	sub_total_cnt = __ul_u32(hetrig_2mu_cnt) +
-		__ul_u32(hetrig_3mu_cnt) +
-		__ul_u32(hetrig_4mu_cnt);
+	sub_total_cnt = (u64)phy->mib.ul_hetrig_2mu_cnt +
+			     phy->mib.ul_hetrig_3mu_cnt +
+			     phy->mib.ul_hetrig_4mu_cnt;
 	total_ppdu_cnt = sub_total_cnt;
 
 	seq_printf(file, "\nTotal HE MU-MIMO UL TB PPDU count: %lld",
 		   sub_total_cnt);
 
-	sub_total_cnt = __ul_u32(hetrig_2ru_cnt) +
-		__ul_u32(hetrig_3ru_cnt) +
-		__ul_u32(hetrig_4ru_cnt) +
-		__ul_u32(hetrig_5to8ru_cnt) +
-		__ul_u32(hetrig_9to16ru_cnt) +
-		__ul_u32(hetrig_gtr16ru_cnt);
+	sub_total_cnt = (u64)phy->mib.ul_hetrig_2ru_cnt +
+			     phy->mib.ul_hetrig_3ru_cnt +
+			     phy->mib.ul_hetrig_4ru_cnt +
+			     phy->mib.ul_hetrig_5to8ru_cnt +
+			     phy->mib.ul_hetrig_9to16ru_cnt +
+			     phy->mib.ul_hetrig_gtr16ru_cnt;
 	total_ppdu_cnt += sub_total_cnt;
 
 	seq_printf(file, "\nTotal HE OFDMA UL TB PPDU count: %lld",
 		   sub_total_cnt);
 
-	total_ppdu_cnt += __ul_u32(hetrig_su_cnt);
+	total_ppdu_cnt += phy->mib.ul_hetrig_su_cnt;
 
 	seq_printf(file, "\nAll HE UL TB PPDU count: %lld\n", total_ppdu_cnt);
-#undef __ul_u32
 
 exit:
 	mutex_unlock(&dev->mt76.mutex);
@@ -317,6 +459,11 @@ mt7902_rdd_monitor(struct seq_file *s, void *data)
 	int ret = 0;
 
 	mutex_lock(&dev->mt76.mutex);
+
+	if (!mt7902_eeprom_has_background_radar(dev)) {
+		seq_puts(s, "no background radar capability\n");
+		goto out;
+	}
 
 	if (!cfg80211_chandef_valid(chandef)) {
 		ret = -EINVAL;
@@ -365,30 +512,26 @@ mt7902_fw_debug_wm_set(void *data, u64 val)
 		DEBUG_CMD_RPT_TRIG,
 		DEBUG_SPL,
 		DEBUG_RPT_RX,
-		DEBUG_RPT_RA = 68,
 	} debug;
 	bool tx, rx, en;
 	int ret;
 
-	dev->fw_debug_wm = val ? MCU_FW_LOG_TO_HOST : 0;
+	dev->fw.debug_wm = val ? MCU_FW_LOG_TO_HOST : 0;
 
-	if (dev->fw_debug_bin)
-		val = MCU_FW_LOG_RELAY;
+	if (dev->fw.debug_bin)
+		val = 16;
 	else
-		val = dev->fw_debug_wm;
+		val = dev->fw.debug_wm;
 
-	tx = dev->fw_debug_wm || (dev->fw_debug_bin & BIT(1));
-	rx = dev->fw_debug_wm || (dev->fw_debug_bin & BIT(2));
-	en = dev->fw_debug_wm || (dev->fw_debug_bin & BIT(0));
+	tx = dev->fw.debug_wm || (dev->fw.debug_bin & BIT(1));
+	rx = dev->fw.debug_wm || (dev->fw.debug_bin & BIT(2));
+	en = dev->fw.debug_wm || (dev->fw.debug_bin & BIT(0));
 
 	ret = mt7902_mcu_fw_log_2_host(dev, MCU_FW_LOG_WM, val);
 	if (ret)
-		return ret;
+		goto out;
 
-	for (debug = DEBUG_TXCMD; debug <= DEBUG_RPT_RA; debug++) {
-		if (debug == 67)
-			continue;
-
+	for (debug = DEBUG_TXCMD; debug <= DEBUG_RPT_RX; debug++) {
 		if (debug == DEBUG_RPT_RX)
 			val = en && rx;
 		else
@@ -396,17 +539,21 @@ mt7902_fw_debug_wm_set(void *data, u64 val)
 
 		ret = mt7902_mcu_fw_dbg_ctrl(dev, debug, val);
 		if (ret)
-			return ret;
+			goto out;
 	}
 
-	/* TODO */
 	/* WM CPU info record control */
-	/* mt76_clear(dev, MT_CPU_UTIL_CTRL, BIT(0)); */
-	/* mt76_wr(dev, MT_DIC_CMD_REG_CMD, BIT(2) | BIT(13) | !dev->fw_debug_wm); */
-	/* mt76_wr(dev, MT_MCU_WM_CIRQ_IRQ_MASK_CLR_ADDR, BIT(5)); */
-	/* mt76_wr(dev, MT_MCU_WM_CIRQ_IRQ_SOFT_ADDR, BIT(5)); */
+	mt76_clear(dev, MT_CPU_UTIL_CTRL, BIT(0));
+	mt76_wr(dev, MT_DIC_CMD_REG_CMD, BIT(2) | BIT(13) |
+		(dev->fw.debug_wm ? 0 : BIT(0)));
+	mt76_wr(dev, MT_MCU_WM_CIRQ_IRQ_MASK_CLR_ADDR, BIT(5));
+	mt76_wr(dev, MT_MCU_WM_CIRQ_IRQ_SOFT_ADDR, BIT(5));
 
-	return 0;
+out:
+	if (ret)
+		dev->fw.debug_wm = 0;
+
+	return ret;
 }
 
 static int
@@ -414,7 +561,7 @@ mt7902_fw_debug_wm_get(void *data, u64 *val)
 {
 	struct mt7902_dev *dev = data;
 
-	*val = dev->fw_debug_wm;
+	*val = dev->fw.debug_wm;
 
 	return 0;
 }
@@ -428,14 +575,19 @@ mt7902_fw_debug_wa_set(void *data, u64 val)
 	struct mt7902_dev *dev = data;
 	int ret;
 
-	dev->fw_debug_wa = val ? MCU_FW_LOG_TO_HOST : 0;
+	dev->fw.debug_wa = val ? MCU_FW_LOG_TO_HOST : 0;
 
-	ret = mt7902_mcu_fw_log_2_host(dev, MCU_FW_LOG_WA, dev->fw_debug_wa);
+	ret = mt7902_mcu_fw_log_2_host(dev, MCU_FW_LOG_WA, dev->fw.debug_wa);
 	if (ret)
-		return ret;
+		goto out;
 
-	return mt7902_mcu_wa_cmd(dev, MCU_WA_PARAM_CMD(SET), MCU_WA_PARAM_PDMA_RX,
-				 !!dev->fw_debug_wa, 0);
+	ret = mt7902_mcu_wa_cmd(dev, MCU_WA_PARAM_CMD(SET),
+				MCU_WA_PARAM_PDMA_RX, !!dev->fw.debug_wa, 0);
+out:
+	if (ret)
+		dev->fw.debug_wa = 0;
+
+	return ret;
 }
 
 static int
@@ -443,7 +595,7 @@ mt7902_fw_debug_wa_get(void *data, u64 *val)
 {
 	struct mt7902_dev *dev = data;
 
-	*val = dev->fw_debug_wa;
+	*val = dev->fw.debug_wa;
 
 	return 0;
 }
@@ -490,11 +642,11 @@ mt7902_fw_debug_bin_set(void *data, u64 val)
 	if (!dev->relay_fwlog)
 		return -ENOMEM;
 
-	dev->fw_debug_bin = val;
+	dev->fw.debug_bin = val;
 
 	relay_reset(dev->relay_fwlog);
 
-	return mt7902_fw_debug_wm_set(dev, dev->fw_debug_wm);
+	return mt7902_fw_debug_wm_set(dev, dev->fw.debug_wm);
 }
 
 static int
@@ -502,7 +654,7 @@ mt7902_fw_debug_bin_get(void *data, u64 *val)
 {
 	struct mt7902_dev *dev = data;
 
-	*val = dev->fw_debug_bin;
+	*val = dev->fw.debug_bin;
 
 	return 0;
 }
@@ -515,7 +667,9 @@ mt7902_fw_util_wm_show(struct seq_file *file, void *data)
 {
 	struct mt7902_dev *dev = file->private;
 
-	if (dev->fw_debug_wm) {
+	seq_printf(file, "Program counter: 0x%x\n", mt76_rr(dev, MT_WM_MCU_PC));
+
+	if (dev->fw.debug_wm) {
 		seq_printf(file, "Busy: %u%%  Peak busy: %u%%\n",
 			   mt76_rr(dev, MT_CPU_UTIL_BUSY_PCT),
 			   mt76_rr(dev, MT_CPU_UTIL_PEAK_BUSY_PCT));
@@ -534,7 +688,9 @@ mt7902_fw_util_wa_show(struct seq_file *file, void *data)
 {
 	struct mt7902_dev *dev = file->private;
 
-	if (dev->fw_debug_wa)
+	seq_printf(file, "Program counter: 0x%x\n", mt76_rr(dev, MT_WA_MCU_PC));
+
+	if (dev->fw.debug_wa)
 		return mt7902_mcu_wa_cmd(dev, MCU_WA_PARAM_CMD(QUERY),
 					 MCU_WA_PARAM_CPU_UTIL, 0, 0);
 
@@ -548,16 +704,18 @@ mt7902_ampdu_stat_read_phy(struct mt7902_phy *phy,
 			   struct seq_file *file)
 {
 	struct mt7902_dev *dev = phy->dev;
-	int bound[15], range[4], i, n;
+	bool ext_phy = phy != &dev->phy;
+	int bound[15], range[4], i;
+	u8 band = phy->mt76->band_idx;
 
 	/* Tx ampdu stat */
 	for (i = 0; i < ARRAY_SIZE(range); i++)
-		range[i] = mt76_rr(dev, MT_MIB_ARNG(phy->band_idx, i));
+		range[i] = mt76_rr(dev, MT_MIB_ARNG(band, i));
 
 	for (i = 0; i < ARRAY_SIZE(bound); i++)
 		bound[i] = MT_MIB_ARNCR_RANGE(range[i / 4], i % 4) + 1;
 
-	seq_printf(file, "\nPhy %d, Phy band %d\n", phy->band_idx);
+	seq_printf(file, "\nPhy %d, Phy band %d\n", ext_phy, band);
 
 	seq_printf(file, "Length: %8d | ", bound[0]);
 	for (i = 0; i < ARRAY_SIZE(bound) - 1; i++)
@@ -565,9 +723,8 @@ mt7902_ampdu_stat_read_phy(struct mt7902_phy *phy,
 			   bound[i] + 1, bound[i + 1]);
 
 	seq_puts(file, "\nCount:  ");
-	n = phy->band_idx ? ARRAY_SIZE(dev->mt76.aggr_stats) / 2 : 0;
 	for (i = 0; i < ARRAY_SIZE(bound); i++)
-		seq_printf(file, "%8d | ", dev->mt76.aggr_stats[i + n]);
+		seq_printf(file, "%8d | ", phy->mt76->aggr_stats[i]);
 	seq_puts(file, "\n");
 
 	seq_printf(file, "BA miss count: %d\n", phy->mib.ba_miss_cnt);
@@ -576,10 +733,10 @@ mt7902_ampdu_stat_read_phy(struct mt7902_phy *phy,
 static void
 mt7902_txbf_stat_read_phy(struct mt7902_phy *phy, struct seq_file *s)
 {
+	struct mt76_mib_stats *mib = &phy->mib;
 	static const char * const bw[] = {
 		"BW20", "BW40", "BW80", "BW160"
 	};
-	struct mib_stats *mib = &phy->mib;
 
 	/* Tx Beamformer monitor */
 	seq_puts(s, "\nTx Beamformer applied PPDU counts: ");
@@ -625,7 +782,7 @@ mt7902_tx_stats_show(struct seq_file *file, void *data)
 {
 	struct mt7902_phy *phy = file->private;
 	struct mt7902_dev *dev = phy->dev;
-	struct mib_stats *mib = &phy->mib;
+	struct mt76_mib_stats *mib = &phy->mib;
 	int i;
 
 	mutex_lock(&dev->mt76.mutex);
@@ -668,7 +825,7 @@ mt7902_hw_queue_read(struct seq_file *s, u32 size,
 		if (val & BIT(map[i].index))
 			continue;
 
-		ctrl = BIT(31) | (map[i].pid << 10) | (map[i].qid << 24);
+		ctrl = BIT(31) | (map[i].pid << 10) | ((u32)map[i].qid << 24);
 		mt76_wr(dev, MT_FL_Q0_CTRL, ctrl);
 
 		head = mt76_get_field(dev, MT_FL_Q2_CTRL,
@@ -815,35 +972,201 @@ mt7902_xmit_queues_show(struct seq_file *file, void *data)
 
 DEFINE_SHOW_ATTRIBUTE(mt7902_xmit_queues);
 
-static int
-mt7902_rate_txpower_show(struct seq_file *file, void *data)
+#define mt7902_txpower_puts(rate)						\
+({										\
+	len += scnprintf(buf + len, sz - len, "%-16s:", #rate " (TMAC)");	\
+	for (i = 0; i < mt7902_sku_group_len[SKU_##rate]; i++, offs++)		\
+		len += scnprintf(buf + len, sz - len, " %6d", txpwr[offs]);	\
+	len += scnprintf(buf + len, sz - len, "\n");				\
+})
+
+#define mt7902_txpower_sets(rate, pwr, flag)			\
+({								\
+	offs += len;						\
+	len = mt7902_sku_group_len[rate];			\
+	if (mode == flag) {					\
+		for (i = 0; i < len; i++)			\
+			req.txpower_sku[offs + i] = pwr;	\
+	}							\
+})
+
+static ssize_t
+mt7902_rate_txpower_get(struct file *file, char __user *user_buf,
+			size_t count, loff_t *ppos)
 {
-	static const char * const sku_group_name[] = {
-		"CCK", "OFDM", "HT20", "HT40",
-		"VHT20", "VHT40", "VHT80", "VHT160",
-		"RU26", "RU52", "RU106", "RU242/SU20",
-		"RU484/SU40", "RU996/SU80", "RU2x996/SU160"
-	};
-	struct mt7902_phy *phy = file->private;
-	s8 txpower[mt7902_SKU_RATE_NUM], *buf;
-	int i;
+	struct mt7902_phy *phy = file->private_data;
+	struct mt7902_dev *dev = phy->dev;
+	s8 txpwr[mt7902_SKU_RATE_NUM];
+	static const size_t sz = 2048;
+	u8 band = phy->mt76->band_idx;
+	int i, offs = 0, len = 0;
+	ssize_t ret;
+	char *buf;
+	u32 reg;
 
-	seq_printf(file, "\nBand %d\n", phy->band_idx);
-	mt7902_mcu_get_txpower_sku(phy, txpower, sizeof(txpower));
-	for (i = 0, buf = txpower; i < ARRAY_SIZE(mt7902_sku_group_len); i++) {
-		u8 mcs_num = mt7902_sku_group_len[i];
+	buf = kzalloc(sz, GFP_KERNEL);
+	if (!buf)
+		return -ENOMEM;
 
-		if (i >= SKU_VHT_BW20 && i <= SKU_VHT_BW160)
-			mcs_num = 10;
+	ret = mt7902_mcu_get_txpower_sku(phy, txpwr, sizeof(txpwr));
+	if (ret)
+		goto out;
 
-		mt76_seq_puts_array(file, sku_group_name[i], buf, mcs_num);
-		buf += mt7902_sku_group_len[i];
-	}
+	/* Txpower propagation path: TMAC -> TXV -> BBP */
+	len += scnprintf(buf + len, sz - len,
+			 "\nPhy%d Tx power table (channel %d)\n",
+			 phy != &dev->phy, phy->mt76->chandef.chan->hw_value);
+	len += scnprintf(buf + len, sz - len, "%-16s  %6s %6s %6s %6s\n",
+			 " ", "1m", "2m", "5m", "11m");
+	mt7902_txpower_puts(CCK);
 
-	return 0;
+	len += scnprintf(buf + len, sz - len,
+			 "%-16s  %6s %6s %6s %6s %6s %6s %6s %6s\n",
+			 " ", "6m", "9m", "12m", "18m", "24m", "36m", "48m",
+			 "54m");
+	mt7902_txpower_puts(OFDM);
+
+	len += scnprintf(buf + len, sz - len,
+			 "%-16s  %6s %6s %6s %6s %6s %6s %6s %6s\n",
+			 " ", "mcs0", "mcs1", "mcs2", "mcs3", "mcs4",
+			 "mcs5", "mcs6", "mcs7");
+	mt7902_txpower_puts(HT_BW20);
+
+	len += scnprintf(buf + len, sz - len,
+			 "%-16s  %6s %6s %6s %6s %6s %6s %6s %6s %6s\n",
+			 " ", "mcs0", "mcs1", "mcs2", "mcs3", "mcs4", "mcs5",
+			 "mcs6", "mcs7", "mcs32");
+	mt7902_txpower_puts(HT_BW40);
+
+	len += scnprintf(buf + len, sz - len,
+			 "%-16s  %6s %6s %6s %6s %6s %6s %6s %6s %6s %6s %6s %6s\n",
+			 " ", "mcs0", "mcs1", "mcs2", "mcs3", "mcs4", "mcs5",
+			 "mcs6", "mcs7", "mcs8", "mcs9", "mcs10", "mcs11");
+	mt7902_txpower_puts(VHT_BW20);
+	mt7902_txpower_puts(VHT_BW40);
+	mt7902_txpower_puts(VHT_BW80);
+	mt7902_txpower_puts(VHT_BW160);
+	mt7902_txpower_puts(HE_RU26);
+	mt7902_txpower_puts(HE_RU52);
+	mt7902_txpower_puts(HE_RU106);
+	mt7902_txpower_puts(HE_RU242);
+	mt7902_txpower_puts(HE_RU484);
+	mt7902_txpower_puts(HE_RU996);
+	mt7902_txpower_puts(HE_RU2x996);
+
+	reg = is_mt7902(&dev->mt76) ? MT_WF_PHY_TPC_CTRL_STAT(band) :
+	      MT_WF_PHY_TPC_CTRL_STAT_MT7916(band);
+
+	len += scnprintf(buf + len, sz - len, "\nTx power (bbp)  : %6ld\n",
+			 mt76_get_field(dev, reg, MT_WF_PHY_TPC_POWER));
+
+	ret = simple_read_from_buffer(user_buf, count, ppos, buf, len);
+
+out:
+	kfree(buf);
+	return ret;
 }
 
-DEFINE_SHOW_ATTRIBUTE(mt7902_rate_txpower);
+static ssize_t
+mt7902_rate_txpower_set(struct file *file, const char __user *user_buf,
+			size_t count, loff_t *ppos)
+{
+	int i, ret, pwr, pwr160 = 0, pwr80 = 0, pwr40 = 0, pwr20 = 0;
+	struct mt7902_phy *phy = file->private_data;
+	struct mt7902_dev *dev = phy->dev;
+	struct mt76_phy *mphy = phy->mt76;
+	struct mt7902_mcu_txpower_sku req = {
+		.format_id = TX_POWER_LIMIT_TABLE,
+		.band_idx = phy->mt76->band_idx,
+	};
+	char buf[100];
+	enum mac80211_rx_encoding mode;
+	u32 offs = 0, len = 0;
+
+	if (count >= sizeof(buf))
+		return -EINVAL;
+
+	if (copy_from_user(buf, user_buf, count))
+		return -EFAULT;
+
+	if (count && buf[count - 1] == '\n')
+		buf[count - 1] = '\0';
+	else
+		buf[count] = '\0';
+
+	if (sscanf(buf, "%u %u %u %u %u",
+		   &mode, &pwr160, &pwr80, &pwr40, &pwr20) != 5) {
+		dev_warn(dev->mt76.dev,
+			 "per bandwidth power limit: Mode BW160 BW80 BW40 BW20");
+		return -EINVAL;
+	}
+
+	if (mode > RX_ENC_HE)
+		return -EINVAL;
+
+	if (pwr160)
+		pwr160 = mt76_get_power_bound(mphy, pwr160);
+	if (pwr80)
+		pwr80 = mt76_get_power_bound(mphy, pwr80);
+	if (pwr40)
+		pwr40 = mt76_get_power_bound(mphy, pwr40);
+	if (pwr20)
+		pwr20 = mt76_get_power_bound(mphy, pwr20);
+
+	if (pwr160 < 0 || pwr80 < 0 || pwr40 < 0 || pwr20 < 0)
+		return -EINVAL;
+
+	mutex_lock(&dev->mt76.mutex);
+	ret = mt7902_mcu_get_txpower_sku(phy, req.txpower_sku,
+					 sizeof(req.txpower_sku));
+	if (ret)
+		goto out;
+
+	mt7902_txpower_sets(SKU_CCK, pwr20, RX_ENC_LEGACY);
+	mt7902_txpower_sets(SKU_OFDM, pwr20, RX_ENC_LEGACY);
+	if (mode == RX_ENC_LEGACY)
+		goto skip;
+
+	mt7902_txpower_sets(SKU_HT_BW20, pwr20, RX_ENC_HT);
+	mt7902_txpower_sets(SKU_HT_BW40, pwr40, RX_ENC_HT);
+	if (mode == RX_ENC_HT)
+		goto skip;
+
+	mt7902_txpower_sets(SKU_VHT_BW20, pwr20, RX_ENC_VHT);
+	mt7902_txpower_sets(SKU_VHT_BW40, pwr40, RX_ENC_VHT);
+	mt7902_txpower_sets(SKU_VHT_BW80, pwr80, RX_ENC_VHT);
+	mt7902_txpower_sets(SKU_VHT_BW160, pwr160, RX_ENC_VHT);
+	if (mode == RX_ENC_VHT)
+		goto skip;
+
+	mt7902_txpower_sets(SKU_HE_RU26, pwr20, RX_ENC_HE + 1);
+	mt7902_txpower_sets(SKU_HE_RU52, pwr20, RX_ENC_HE + 1);
+	mt7902_txpower_sets(SKU_HE_RU106, pwr20, RX_ENC_HE + 1);
+	mt7902_txpower_sets(SKU_HE_RU242, pwr20, RX_ENC_HE);
+	mt7902_txpower_sets(SKU_HE_RU484, pwr40, RX_ENC_HE);
+	mt7902_txpower_sets(SKU_HE_RU996, pwr80, RX_ENC_HE);
+	mt7902_txpower_sets(SKU_HE_RU2x996, pwr160, RX_ENC_HE);
+skip:
+	ret = mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD(TX_POWER_FEATURE_CTRL),
+				&req, sizeof(req), true);
+	if (ret)
+		goto out;
+
+	pwr = max3(pwr80, pwr40, pwr20);
+	mphy->txpower_cur = max3(mphy->txpower_cur, pwr160, pwr);
+out:
+	mutex_unlock(&dev->mt76.mutex);
+
+	return ret ? ret : count;
+}
+
+static const struct file_operations mt7902_rate_txpower_fops = {
+	.write = mt7902_rate_txpower_set,
+	.read = mt7902_rate_txpower_get,
+	.open = simple_open,
+	.owner = THIS_MODULE,
+	.llseek = default_llseek,
+};
 
 static int
 mt7902_twt_stats(struct seq_file *s, void *data)
@@ -872,7 +1195,7 @@ mt7902_twt_stats(struct seq_file *s, void *data)
 }
 
 /* The index of RF registers use the generic regidx, combined with two parts:
- * WF selection [31:28] and offset [27:0].
+ * WF selection [31:24] and offset [23:0].
  */
 static int
 mt7902_rf_regval_get(void *data, u64 *val)
@@ -885,7 +1208,7 @@ mt7902_rf_regval_get(void *data, u64 *val)
 	if (ret)
 		return ret;
 
-	*val = le32_to_cpu(regval);
+	*val = regval;
 
 	return 0;
 }
@@ -894,8 +1217,9 @@ static int
 mt7902_rf_regval_set(void *data, u64 val)
 {
 	struct mt7902_dev *dev = data;
+	u32 val32 = val;
 
-	return mt7902_mcu_rf_regval(dev, dev->mt76.debugfs_reg, (u32 *)&val, true);
+	return mt7902_mcu_rf_regval(dev, dev->mt76.debugfs_reg, &val32, true);
 }
 
 DEFINE_DEBUGFS_ATTRIBUTE(fops_rf_regval, mt7902_rf_regval_get,
@@ -904,6 +1228,7 @@ DEFINE_DEBUGFS_ATTRIBUTE(fops_rf_regval, mt7902_rf_regval_get,
 int mt7902_init_debugfs(struct mt7902_phy *phy)
 {
 	struct mt7902_dev *dev = phy->dev;
+	bool ext_phy = phy != &dev->phy;
 	struct dentry *dir;
 
 	dir = mt76_register_debugfs_fops(phy->mt76, NULL);
@@ -917,6 +1242,8 @@ int mt7902_init_debugfs(struct mt7902_phy *phy)
 	debugfs_create_file("xmit-queues", 0400, dir, phy,
 			    &mt7902_xmit_queues_fops);
 	debugfs_create_file("tx_stats", 0400, dir, phy, &mt7902_tx_stats_fops);
+	debugfs_create_file("sys_recovery", 0600, dir, phy,
+			    &mt7902_sys_recovery_ops);
 	debugfs_create_file("fw_debug_wm", 0600, dir, dev, &fops_fw_debug_wm);
 	debugfs_create_file("fw_debug_wa", 0600, dir, dev, &fops_fw_debug_wa);
 	debugfs_create_file("fw_debug_bin", 0600, dir, dev, &fops_fw_debug_bin);
@@ -930,19 +1257,18 @@ int mt7902_init_debugfs(struct mt7902_phy *phy)
 			    &mt7902_rate_txpower_fops);
 	debugfs_create_devm_seqfile(dev->mt76.dev, "twt_stats", dir,
 				    mt7902_twt_stats);
-	debugfs_create_file("ser_trigger", 0200, dir, dev, &fops_ser_trigger);
 	debugfs_create_file("rf_regval", 0600, dir, dev, &fops_rf_regval);
 
-	if (!dev->dbdc_support || phy->band_idx) {
+	if (!dev->dbdc_support || phy->mt76->band_idx) {
 		debugfs_create_u32("dfs_hw_pattern", 0400, dir,
 				   &dev->hw_pattern);
-		debugfs_create_file("radar_trigger", 0200, dir, dev,
+		debugfs_create_file("radar_trigger", 0200, dir, phy,
 				    &fops_radar_trigger);
 		debugfs_create_devm_seqfile(dev->mt76.dev, "rdd_monitor", dir,
 					    mt7902_rdd_monitor);
 	}
 
-	if (phy == &dev->phy)
+	if (!ext_phy)
 		dev->debugfs_dir = dir;
 
 	return 0;
@@ -977,14 +1303,10 @@ void mt7902_debugfs_rx_fw_monitor(struct mt7902_dev *dev, const void *data, int 
 {
 	struct {
 		__le32 magic;
-		u8 version;
-		u8 _rsv;
-		__le16 serial_id;
 		__le32 timestamp;
 		__le16 msg_type;
 		__le16 len;
 	} hdr = {
-		.version = 0x1,
 		.magic = cpu_to_le32(FW_BIN_LOG_MAGIC),
 		.msg_type = cpu_to_le16(PKT_TYPE_RX_FW_MONITOR),
 	};
@@ -992,7 +1314,6 @@ void mt7902_debugfs_rx_fw_monitor(struct mt7902_dev *dev, const void *data, int 
 	if (!dev->relay_fwlog)
 		return;
 
-	hdr.serial_id = cpu_to_le16(dev->fw_debug_seq++);
 	hdr.timestamp = cpu_to_le32(mt76_rr(dev, MT_LPON_FRCR(0)));
 	hdr.len = *(__le16 *)data;
 	mt7902_debugfs_write_fwlog(dev, &hdr, sizeof(hdr), data, len);
@@ -1057,8 +1378,8 @@ static ssize_t mt7902_sta_fixed_rate_set(struct file *file,
 
 	phy.ldpc = (phy.bw || phy.ldpc) * GENMASK(2, 0);
 	for (i = 0; i <= phy.bw; i++) {
-		phy.sgi |= gi << (i << sta->he_cap.has_he);
-		phy.he_ltf |= he_ltf << (i << sta->he_cap.has_he);
+		phy.sgi |= gi << (i << sta->deflink.he_cap.has_he);
+		phy.he_ltf |= he_ltf << (i << sta->deflink.he_cap.has_he);
 	}
 	field = RATE_PARAM_FIXED;
 

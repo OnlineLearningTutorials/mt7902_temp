@@ -19,14 +19,17 @@ enum mt7902_eeprom_field {
 	MT_EE_DDIE_FT_VERSION =	0x050,
 	MT_EE_DO_PRE_CAL =	0x062,
 	MT_EE_WIFI_CONF =	0x190,
+	MT_EE_DO_PRE_CAL_V2 =	0x19a,
 	MT_EE_RATE_DELTA_2G =	0x252,
 	MT_EE_RATE_DELTA_5G =	0x29d,
 	MT_EE_TX0_POWER_2G =	0x2fc,
 	MT_EE_TX0_POWER_5G =	0x34b,
 	MT_EE_RATE_DELTA_2G_V2 = 0x7d3,
 	MT_EE_RATE_DELTA_5G_V2 = 0x81e,
+	MT_EE_RATE_DELTA_6G_V2 = 0x884, /* 6g fields only appear in eeprom v2 */
 	MT_EE_TX0_POWER_2G_V2 =	0x441,
 	MT_EE_TX0_POWER_5G_V2 =	0x445,
+	MT_EE_TX0_POWER_6G_V2 =	0x465,
 	MT_EE_ADIE_FT_VERSION =	0x9a0,
 
 	__MT_EE_MAX =		0xe00,
@@ -37,12 +40,22 @@ enum mt7902_eeprom_field {
 };
 
 #define MT_EE_WIFI_CAL_GROUP			BIT(0)
-#define MT_EE_WIFI_CAL_DPD			GENMASK(2, 1)
+#define MT_EE_WIFI_CAL_DPD_2G			BIT(2)
+#define MT_EE_WIFI_CAL_DPD_5G			BIT(1)
+#define MT_EE_WIFI_CAL_DPD_6G			BIT(3)
+#define MT_EE_WIFI_CAL_DPD			GENMASK(3, 1)
 #define MT_EE_CAL_UNIT				1024
-#define MT_EE_CAL_GROUP_SIZE			(49 * MT_EE_CAL_UNIT + 16)
-#define MT_EE_CAL_DPD_SIZE			(54 * MT_EE_CAL_UNIT)
+#define MT_EE_CAL_GROUP_SIZE_7915		(49 * MT_EE_CAL_UNIT + 16)
+#define MT_EE_CAL_GROUP_SIZE_7916		(54 * MT_EE_CAL_UNIT + 16)
+#define MT_EE_CAL_GROUP_SIZE_7975		(54 * MT_EE_CAL_UNIT + 16)
+#define MT_EE_CAL_GROUP_SIZE_7976		(94 * MT_EE_CAL_UNIT + 16)
+#define MT_EE_CAL_GROUP_SIZE_7916_6G		(94 * MT_EE_CAL_UNIT + 16)
+#define MT_EE_CAL_DPD_SIZE_V1			(54 * MT_EE_CAL_UNIT)
+#define MT_EE_CAL_DPD_SIZE_V2			(300 * MT_EE_CAL_UNIT)
+#define MT_EE_CAL_DPD_SIZE_V2_7981		(102 * MT_EE_CAL_UNIT)	/* no 6g dpd data */
 
 #define MT_EE_WIFI_CONF0_TX_PATH		GENMASK(2, 0)
+#define MT_EE_WIFI_CONF0_RX_PATH		GENMASK(5, 3)
 #define MT_EE_WIFI_CONF0_BAND_SEL		GENMASK(7, 6)
 #define MT_EE_WIFI_CONF1_BAND_SEL		GENMASK(7, 6)
 #define MT_EE_WIFI_CONF_STREAM_NUM		GENMASK(7, 5)
@@ -55,11 +68,6 @@ enum mt7902_eeprom_field {
 #define MT_EE_RATE_DELTA_MASK			GENMASK(5, 0)
 #define MT_EE_RATE_DELTA_SIGN			BIT(6)
 #define MT_EE_RATE_DELTA_EN			BIT(7)
-
-#define MT_EE_NSS_MAX_MA7915			4
-#define MT_EE_NSS_MAX_DBDC_MA7915		2
-#define MT_EE_NSS_MAX_MA7986			4
-#define MT_EE_NSS_MAX_DBDC_MA7986		4
 
 enum mt7902_adie_sku {
 	MT7976_ONE_ADIE_DBDC = 0x7,
@@ -103,8 +111,20 @@ enum mt7902_sku_rate_group {
 };
 
 static inline int
-mt7902_get_channel_group(int channel)
+mt7902_get_channel_group_5g(int channel, bool is_7976)
 {
+	if (is_7976) {
+		if (channel <= 64)
+			return 0;
+		if (channel <= 96)
+			return 1;
+		if (channel <= 128)
+			return 2;
+		if (channel <= 144)
+			return 3;
+		return 4;
+	}
+
 	if (channel >= 184 && channel <= 196)
 		return 0;
 	if (channel <= 48)
@@ -122,11 +142,21 @@ mt7902_get_channel_group(int channel)
 	return 7;
 }
 
+static inline int
+mt7902_get_channel_group_6g(int channel)
+{
+	if (channel <= 29)
+		return 0;
+
+	return DIV_ROUND_UP(channel - 29, 32);
+}
+
 static inline bool
 mt7902_tssi_enabled(struct mt7902_dev *dev, enum nl80211_band band)
 {
 	u8 *eep = dev->mt76.eeprom.data;
-	u8 val = eep[MT_EE_WIFI_CONF + 7];
+	u8 offs = is_mt7981(&dev->mt76) ? 8 : 7;
+	u8 val = eep[MT_EE_WIFI_CONF + offs];
 
 	if (band == NL80211_BAND_2GHZ)
 		return val & MT_EE_WIFI_CONF7_TSSI0_2G;
@@ -135,6 +165,37 @@ mt7902_tssi_enabled(struct mt7902_dev *dev, enum nl80211_band band)
 		return val & MT_EE_WIFI_CONF7_TSSI1_5G;
 	else
 		return val & MT_EE_WIFI_CONF7_TSSI0_5G;
+}
+
+static inline u32
+mt7902_get_cal_group_size(struct mt7902_dev *dev)
+{
+	u8 *eep = dev->mt76.eeprom.data;
+	u32 val;
+
+	if (is_mt7902(&dev->mt76)) {
+		return MT_EE_CAL_GROUP_SIZE_7915;
+	} else if (is_mt7916(&dev->mt76)) {
+		val = eep[MT_EE_WIFI_CONF + 1];
+		val = FIELD_GET(MT_EE_WIFI_CONF0_BAND_SEL, val);
+		return (val == MT_EE_V2_BAND_SEL_6GHZ) ? MT_EE_CAL_GROUP_SIZE_7916_6G :
+							 MT_EE_CAL_GROUP_SIZE_7916;
+	} else if (mt7902_check_adie(dev, false)) {
+		return MT_EE_CAL_GROUP_SIZE_7976;
+	} else {
+		return MT_EE_CAL_GROUP_SIZE_7975;
+	}
+}
+
+static inline u32
+mt7902_get_cal_dpd_size(struct mt7902_dev *dev)
+{
+	if (is_mt7902(&dev->mt76))
+		return MT_EE_CAL_DPD_SIZE_V1;
+	else if (is_mt7981(&dev->mt76))
+		return MT_EE_CAL_DPD_SIZE_V2_7981;
+	else
+		return MT_EE_CAL_DPD_SIZE_V2;
 }
 
 extern const u8 mt7902_sku_group_len[MAX_SKU_RATE_GROUP_NUM];

@@ -2,27 +2,46 @@
 /* Copyright (C) 2020 MediaTek Inc. */
 
 #include <linux/firmware.h>
+#include <linux/moduleparam.h>
 #include "mt7902.h"
 #include "eeprom.h"
+
+static bool enable_6ghz;
+module_param(enable_6ghz, bool, 0644);
+MODULE_PARM_DESC(enable_6ghz, "Enable 6 GHz instead of 5 GHz on hardware that supports both");
 
 static int mt7902_eeprom_load_precal(struct mt7902_dev *dev)
 {
 	struct mt76_dev *mdev = &dev->mt76;
 	u8 *eeprom = mdev->eeprom.data;
-	u32 val = eeprom[MT_EE_DO_PRE_CAL];
+	u32 offs = is_mt7902(&dev->mt76) ? MT_EE_DO_PRE_CAL : MT_EE_DO_PRE_CAL_V2;
+	u32 size, val = eeprom[offs];
+	int ret;
 
-	if (!dev->flash_mode)
+	if (!dev->flash_mode || !val)
 		return 0;
 
-	if (val != (MT_EE_WIFI_CAL_DPD | MT_EE_WIFI_CAL_GROUP))
-		return 0;
+	size = mt7902_get_cal_group_size(dev) + mt7902_get_cal_dpd_size(dev);
 
-	val = MT_EE_CAL_GROUP_SIZE + MT_EE_CAL_DPD_SIZE;
-	dev->cal = devm_kzalloc(mdev->dev, val, GFP_KERNEL);
+	dev->cal = devm_kzalloc(mdev->dev, size, GFP_KERNEL);
 	if (!dev->cal)
 		return -ENOMEM;
 
-	return mt76_get_of_eeprom(mdev, dev->cal, MT_EE_PRECAL_V2, val);
+	offs = is_mt7902(&dev->mt76) ? MT_EE_PRECAL : MT_EE_PRECAL_V2;
+
+	ret = mt76_get_of_data_from_mtd(mdev, dev->cal, offs, size);
+	if (!ret)
+		return ret;
+
+	ret = mt76_get_of_data_from_nvmem(mdev, dev->cal, "precal", size);
+	if (!ret)
+		return ret;
+
+	dev_warn(mdev->dev, "missing precal data, size=%d\n", size);
+	devm_kfree(mdev->dev, dev->cal);
+	dev->cal = NULL;
+
+	return ret;
 }
 
 static int mt7902_check_eeprom(struct mt7902_dev *dev)
@@ -30,11 +49,16 @@ static int mt7902_check_eeprom(struct mt7902_dev *dev)
 	u8 *eeprom = dev->mt76.eeprom.data;
 	u16 val = get_unaligned_le16(eeprom);
 
+#define CHECK_EEPROM_ERR(match)	(match ? 0 : -EINVAL)
 	switch (val) {
 	case 0x7915:
+		return CHECK_EEPROM_ERR(is_mt7902(&dev->mt76));
 	case 0x7916:
+		return CHECK_EEPROM_ERR(is_mt7916(&dev->mt76));
+	case 0x7981:
+		return CHECK_EEPROM_ERR(is_mt7981(&dev->mt76));
 	case 0x7986:
-		return 0;
+		return CHECK_EEPROM_ERR(is_mt7986(&dev->mt76));
 	default:
 		return -EINVAL;
 	}
@@ -42,7 +66,32 @@ static int mt7902_check_eeprom(struct mt7902_dev *dev)
 
 static char *mt7902_eeprom_name(struct mt7902_dev *dev)
 {
-	return MT7902_EEPROM_DEFAULT;
+	switch (mt76_chip(&dev->mt76)) {
+	case 0x7915:
+		return dev->dbdc_support ?
+		       mt7902_EEPROM_DEFAULT_DBDC : mt7902_EEPROM_DEFAULT;
+	case 0x7981:
+		/* mt7981 only supports mt7976 and only in DBDC mode */
+		return MT7981_EEPROM_MT7976_DEFAULT_DBDC;
+	case 0x7986:
+		switch (mt7902_check_adie(dev, true)) {
+		case MT7976_ONE_ADIE_DBDC:
+			return MT7986_EEPROM_MT7976_DEFAULT_DBDC;
+		case MT7975_ONE_ADIE:
+			return MT7986_EEPROM_MT7975_DEFAULT;
+		case MT7976_ONE_ADIE:
+			return MT7986_EEPROM_MT7976_DEFAULT;
+		case MT7975_DUAL_ADIE:
+			return MT7986_EEPROM_MT7975_DUAL_DEFAULT;
+		case MT7976_DUAL_ADIE:
+			return MT7986_EEPROM_MT7976_DUAL_DEFAULT;
+		default:
+			break;
+		}
+		return NULL;
+	default:
+		return MT7916_EEPROM_DEFAULT;
+	}
 }
 
 static int
@@ -62,7 +111,7 @@ mt7902_eeprom_load_default(struct mt7902_dev *dev)
 		goto out;
 	}
 
-	memcpy(eeprom, fw->data, mt7902_EEPROM_SIZE);
+	memcpy(eeprom, fw->data, mt7902_eeprom_size(dev));
 	dev->flash_mode = true;
 
 out:
@@ -74,8 +123,9 @@ out:
 static int mt7902_eeprom_load(struct mt7902_dev *dev)
 {
 	int ret;
+	u16 eeprom_size = mt7902_eeprom_size(dev);
 
-	ret = mt76_eeprom_init(&dev->mt76, mt7902_EEPROM_SIZE);
+	ret = mt76_eeprom_init(&dev->mt76, eeprom_size);
 	if (ret < 0)
 		return ret;
 
@@ -84,18 +134,23 @@ static int mt7902_eeprom_load(struct mt7902_dev *dev)
 	} else {
 		u8 free_block_num;
 		u32 block_num, i;
+		u32 eeprom_blk_size = mt7902_EEPROM_BLOCK_SIZE;
 
-		mt7902_mcu_get_eeprom_free_block(dev, &free_block_num);
-		/* efuse info not enough */
+		ret = mt7902_mcu_get_eeprom_free_block(dev, &free_block_num);
+		if (ret < 0)
+			return ret;
+
+		/* efuse info isn't enough */
 		if (free_block_num >= 29)
 			return -EINVAL;
 
 		/* read eeprom data from efuse */
-		block_num = DIV_ROUND_UP(mt7902_EEPROM_SIZE,
-					 mt7902_EEPROM_BLOCK_SIZE);
-		for (i = 0; i < block_num; i++)
-			mt7902_mcu_get_eeprom(dev,
-					      i * mt7902_EEPROM_BLOCK_SIZE);
+		block_num = DIV_ROUND_UP(eeprom_size, eeprom_blk_size);
+		for (i = 0; i < block_num; i++) {
+			ret = mt7902_mcu_get_eeprom(dev, i * eeprom_blk_size, NULL);
+			if (ret < 0)
+				return ret;
+		}
 	}
 
 	return mt7902_check_eeprom(dev);
@@ -105,100 +160,108 @@ static void mt7902_eeprom_parse_band_config(struct mt7902_phy *phy)
 {
 	struct mt7902_dev *dev = phy->dev;
 	u8 *eeprom = dev->mt76.eeprom.data;
+	u8 band = phy->mt76->band_idx;
 	u32 val;
 
-	/* TODO:
-	 * since default bin hasn't properly configured yet,
-	 * currently hardcode band cap for bellwether */
+	val = eeprom[MT_EE_WIFI_CONF + band];
+	val = FIELD_GET(MT_EE_WIFI_CONF0_BAND_SEL, val);
 
-	/* val = eeprom[MT_EE_WIFI_CONF + phy->band_idx]; */
-	/* val = FIELD_GET(MT_EE_WIFI_CONF0_BAND_SEL, val); */
+	if (!is_mt7902(&dev->mt76)) {
+		switch (val) {
+		case MT_EE_V2_BAND_SEL_5GHZ:
+			phy->mt76->cap.has_5ghz = true;
+			return;
+		case MT_EE_V2_BAND_SEL_6GHZ:
+			phy->mt76->cap.has_6ghz = true;
+			return;
+		case MT_EE_V2_BAND_SEL_5GHZ_6GHZ:
+			if (enable_6ghz) {
+				phy->mt76->cap.has_6ghz = true;
+				u8p_replace_bits(&eeprom[MT_EE_WIFI_CONF + band],
+						 MT_EE_V2_BAND_SEL_6GHZ,
+						 MT_EE_WIFI_CONF0_BAND_SEL);
+			} else {
+				phy->mt76->cap.has_5ghz = true;
+				u8p_replace_bits(&eeprom[MT_EE_WIFI_CONF + band],
+						 MT_EE_V2_BAND_SEL_5GHZ,
+						 MT_EE_WIFI_CONF0_BAND_SEL);
+			}
+			/* force to buffer mode */
+			dev->flash_mode = true;
 
-	/* switch (val) { */
-	/* 	case MT_EE_V2_BAND_SEL_5GHZ: */
-	/* 		phy->mt76->cap.has_5ghz = true; */
-	/* 		return; */
-	/* 	case MT_EE_V2_BAND_SEL_6GHZ: */
-	/* 		phy->mt76->cap.has_6ghz = true; */
-	/* 		return; */
-	/* 	case MT_EE_V2_BAND_SEL_5GHZ_6GHZ: */
-	/* 		phy->mt76->cap.has_5ghz = true; */
-	/* 		phy->mt76->cap.has_6ghz = true; */
-	/* 		return; */
-	/* 	default */
-	/* 		phy->mt76->cap.has_2ghz = true; */
-	/* 		return; */
-	/* } */
+			return;
+		default:
+			phy->mt76->cap.has_2ghz = true;
+			return;
+		}
+	} else if (val == MT_EE_BAND_SEL_DEFAULT && dev->dbdc_support) {
+		val = band ? MT_EE_BAND_SEL_5GHZ : MT_EE_BAND_SEL_2GHZ;
+	}
 
-	if (phy->band_idx == 2)
-		phy->mt76->cap.has_2ghz = true;
-	else {
+	switch (val) {
+	case MT_EE_BAND_SEL_5GHZ:
 		phy->mt76->cap.has_5ghz = true;
-		/* phy->mt76->cap.has_6ghz = true; */
+		break;
+	case MT_EE_BAND_SEL_2GHZ:
+		phy->mt76->cap.has_2ghz = true;
+		break;
+	default:
+		phy->mt76->cap.has_2ghz = true;
+		phy->mt76->cap.has_5ghz = true;
+		break;
 	}
 }
 
 void mt7902_eeprom_parse_hw_cap(struct mt7902_dev *dev,
 				struct mt7902_phy *phy)
 {
-	u8 nss, nss_band, nss_band_max, *eeprom = dev->mt76.eeprom.data;
+	u8 path, nss, nss_max = 4, *eeprom = dev->mt76.eeprom.data;
 	struct mt76_phy *mphy = phy->mt76;
-	u8 phy_idx = mt7902_get_phy_id(phy);
+	u8 band = phy->mt76->band_idx;
 
 	mt7902_eeprom_parse_band_config(phy);
 
-	/* read tx/rx mask from eeprom */
-	nss = FIELD_GET(MT_EE_WIFI_CONF0_TX_PATH,
-			eeprom[MT_EE_WIFI_CONF + phy->band_idx]);
+	/* read tx/rx path from eeprom */
+	if (is_mt7902(&dev->mt76)) {
+		path = FIELD_GET(MT_EE_WIFI_CONF0_TX_PATH,
+				 eeprom[MT_EE_WIFI_CONF]);
+	} else {
+		path = FIELD_GET(MT_EE_WIFI_CONF0_TX_PATH,
+				 eeprom[MT_EE_WIFI_CONF + band]);
+	}
 
-	if (!nss || nss > 4)
-		nss = 4;
+	if (!path || path > 4)
+		path = 4;
 
 	/* read tx/rx stream */
-	nss_band = nss;
-
+	nss = path;
 	if (dev->dbdc_support) {
-		nss_band = FIELD_GET(MT_EE_WIFI_CONF_STREAM_NUM,
-				     eeprom[MT_EE_WIFI_CONF + 2 + phy->band_idx]);
+		if (is_mt7902(&dev->mt76)) {
+			path = min_t(u8, path, 2);
+			nss = FIELD_GET(MT_EE_WIFI_CONF3_TX_PATH_B0,
+					eeprom[MT_EE_WIFI_CONF + 3]);
+			if (band)
+				nss = FIELD_GET(MT_EE_WIFI_CONF3_TX_PATH_B1,
+						eeprom[MT_EE_WIFI_CONF + 3]);
+		} else {
+			nss = FIELD_GET(MT_EE_WIFI_CONF_STREAM_NUM,
+					eeprom[MT_EE_WIFI_CONF + 2 + band]);
+		}
 
-		nss_band_max = MT_EE_NSS_MAX_DBDC_MA7986;
-	} else {
-		nss_band_max = MT_EE_NSS_MAX_MA7986;
+		if (!is_mt798x(&dev->mt76))
+			nss_max = 2;
 	}
 
-	if (!nss_band || nss_band > nss_band_max)
-		nss_band = nss_band_max;
+	if (!nss)
+		nss = nss_max;
+	nss = min_t(u8, min_t(u8, nss_max, nss), path);
 
-	if (nss_band > nss) {
-		dev_warn(dev->mt76.dev,
-			 "nss mismatch, nss(%d) nss_band(%d) band(%d) phy_id(%d)\n",
-			 nss, nss_band, phy->band_idx, phy_idx);
-		nss = nss_band;
-	}
-
-	mphy->chainmask = BIT(nss) - 1;
-	switch (phy_idx) {
-	case MT_MAIN_PHY:
-		dev->chain_shift_ext = hweight8(mphy->chainmask);
-		dev->chain_shift_tri = dev->chain_shift_ext;
-		break;
-	case MT_EXT_PHY:
-		mphy->chainmask <<= dev->chain_shift_ext;
-		dev->chain_shift_tri += hweight8(mphy->chainmask);
-		break;
-	case MT_TRI_PHY:
-		mphy->chainmask <<= dev->chain_shift_tri;
-		break;
-	default:
-		break;
-	}
-	mphy->antenna_mask = BIT(nss_band) - 1;
+	mphy->chainmask = BIT(path) - 1;
+	if (band)
+		mphy->chainmask <<= dev->chainshift;
+	mphy->antenna_mask = BIT(nss) - 1;
 	dev->chainmask |= mphy->chainmask;
-
-	dev_err(dev->mt76.dev,
-		 "nss info, nss(%d) nss_band(%d) band(%d) phy_id(%d) chainmask(%08x) antenna_mask(%02x) dev chainmask(%08x)\n",
-		 nss, nss_band, phy->band_idx, phy_idx,
-		 mphy->chainmask, mphy->antenna_mask, dev->chainmask);
+	dev->chainshift = hweight8(dev->mphy.chainmask);
 }
 
 int mt7902_eeprom_init(struct mt7902_dev *dev)
@@ -216,10 +279,7 @@ int mt7902_eeprom_init(struct mt7902_dev *dev)
 			return ret;
 	}
 
-	ret = mt7902_eeprom_load_precal(dev);
-	if (ret)
-		return ret;
-
+	mt7902_eeprom_load_precal(dev);
 	mt7902_eeprom_parse_hw_cap(dev, &dev->phy);
 	memcpy(dev->mphy.macaddr, dev->mt76.eeprom.data + MT_EE_MAC_ADDR,
 	       ETH_ALEN);
@@ -235,27 +295,43 @@ int mt7902_eeprom_get_target_power(struct mt7902_dev *dev,
 {
 	u8 *eeprom = dev->mt76.eeprom.data;
 	int index, target_power;
-	bool tssi_on;
+	bool tssi_on, is_7976;
 
 	if (chain_idx > 3)
 		return -EINVAL;
 
 	tssi_on = mt7902_tssi_enabled(dev, chan->band);
+	is_7976 = mt7902_check_adie(dev, false) || is_mt7916(&dev->mt76);
 
 	if (chan->band == NL80211_BAND_2GHZ) {
-		index = MT_EE_TX0_POWER_2G_V2 + chain_idx * 3;
-		target_power = eeprom[index];
+		if (is_7976) {
+			index = MT_EE_TX0_POWER_2G_V2 + chain_idx;
+			target_power = eeprom[index];
+		} else {
+			index = MT_EE_TX0_POWER_2G + chain_idx * 3;
+			target_power = eeprom[index];
 
-		if (!tssi_on)
-			target_power += eeprom[index + 1];
+			if (!tssi_on)
+				target_power += eeprom[index + 1];
+		}
+	} else if (chan->band == NL80211_BAND_5GHZ) {
+		int group = mt7902_get_channel_group_5g(chan->hw_value, is_7976);
+
+		if (is_7976) {
+			index = MT_EE_TX0_POWER_5G_V2 + chain_idx * 5;
+			target_power = eeprom[index + group];
+		} else {
+			index = MT_EE_TX0_POWER_5G + chain_idx * 12;
+			target_power = eeprom[index + group];
+
+			if (!tssi_on)
+				target_power += eeprom[index + 8];
+		}
 	} else {
-		int group = mt7902_get_channel_group(chan->hw_value);
+		int group = mt7902_get_channel_group_6g(chan->hw_value);
 
-		index = MT_EE_TX0_POWER_5G_V2 + chain_idx * 12;
-		target_power = eeprom[index + group];
-
-		if (!tssi_on)
-			target_power += eeprom[index + 8];
+		index = MT_EE_TX0_POWER_6G_V2 + chain_idx * 8;
+		target_power = is_7976 ? eeprom[index + group] : 0;
 	}
 
 	return target_power;
@@ -264,20 +340,56 @@ int mt7902_eeprom_get_target_power(struct mt7902_dev *dev,
 s8 mt7902_eeprom_get_power_delta(struct mt7902_dev *dev, int band)
 {
 	u8 *eeprom = dev->mt76.eeprom.data;
-	u32 val;
+	u32 val, offs;
 	s8 delta;
+	bool is_7976 = mt7902_check_adie(dev, false) || is_mt7916(&dev->mt76);
 
 	if (band == NL80211_BAND_2GHZ)
-		val = eeprom[MT_EE_RATE_DELTA_2G_V2];
+		offs = is_7976 ? MT_EE_RATE_DELTA_2G_V2 : MT_EE_RATE_DELTA_2G;
+	else if (band == NL80211_BAND_5GHZ)
+		offs = is_7976 ? MT_EE_RATE_DELTA_5G_V2 : MT_EE_RATE_DELTA_5G;
 	else
-		val = eeprom[MT_EE_RATE_DELTA_5G_V2];
+		offs = is_7976 ? MT_EE_RATE_DELTA_6G_V2 : 0;
 
-	if (!(val & MT_EE_RATE_DELTA_EN))
+	val = eeprom[offs];
+
+	if (!offs || !(val & MT_EE_RATE_DELTA_EN))
 		return 0;
 
 	delta = FIELD_GET(MT_EE_RATE_DELTA_MASK, val);
 
 	return val & MT_EE_RATE_DELTA_SIGN ? delta : -delta;
+}
+
+bool
+mt7902_eeprom_has_background_radar(struct mt7902_dev *dev)
+{
+	u8 val, buf[mt7902_EEPROM_BLOCK_SIZE];
+	u8 band_sel, tx_path, rx_path;
+	int offs = MT_EE_WIFI_CONF + 1;
+
+	switch (mt76_chip(&dev->mt76)) {
+	case 0x7915:
+		return true;
+	case 0x7906:
+		/* read efuse to check background radar capability */
+		if (mt7902_mcu_get_eeprom(dev, offs, buf))
+			break;
+
+		val = buf[offs % mt7902_EEPROM_BLOCK_SIZE];
+		band_sel = u8_get_bits(val, MT_EE_WIFI_CONF0_BAND_SEL);
+		tx_path = u8_get_bits(val, MT_EE_WIFI_CONF0_TX_PATH);
+		rx_path = u8_get_bits(val, MT_EE_WIFI_CONF0_RX_PATH);
+
+		return (band_sel == MT_EE_V2_BAND_SEL_5GHZ &&
+			tx_path == rx_path && rx_path == 2);
+	case 0x7981:
+	case 0x7986:
+	default:
+		break;
+	}
+
+	return false;
 }
 
 const u8 mt7902_sku_group_len[] = {
