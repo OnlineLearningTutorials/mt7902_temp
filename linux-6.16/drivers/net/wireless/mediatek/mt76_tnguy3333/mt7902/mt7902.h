@@ -27,6 +27,9 @@
 #define MT7902_EEPROM_SIZE		3584
 #define MT7902_TOKEN_SIZE		8192
 
+#define MT7902_CFEND_RATE_DEFAULT	0x49	/* OFDM 24M */
+#define MT7902_CFEND_RATE_11B		0x03	/* 11B LP, 11M */
+
 #define MT7902_EEPROM_BLOCK_SIZE	16
 
 #define MT7902_SKU_RATE_NUM		161
@@ -547,6 +550,31 @@ struct mt7902_vif {
 	struct cfg80211_bitrate_mask bitrate_mask;
 };
 
+
+static inline struct mt7902_phy *
+mt7902_ext_phy(struct mt7902_dev *dev)
+{
+	struct mt76_phy *phy = dev->mt76.phys[MT_BAND1];
+
+	if (!phy)
+		return NULL;
+
+	return phy->priv;
+}
+
+static inline struct mt7902_phy *
+mt7902_tri_phy(struct mt7902_dev *dev)
+{
+	struct mt76_phy *phy = dev->mt76.phys[MT_BAND2];
+
+	if (!phy)
+		return NULL;
+
+	return phy->priv;
+}
+
+
+
 static inline struct mt7902_dev *
 mt7902_hw_dev(struct ieee80211_hw *hw)
 {
@@ -573,6 +601,12 @@ int mt7902_mcu_add_dev_info(struct mt7902_phy *phy,
 int mt7902_mcu_add_bss_info(struct mt7902_phy *phy,
 			    struct ieee80211_vif *vif, int enable);
 bool mt7902_mac_wtbl_update(struct mt7902_dev *dev, int idx, u32 mask);
-
+int mt7902_mcu_update_bss_color(struct mt7902_dev *dev, struct ieee80211_vif *vif,
+				struct cfg80211_he_bss_color *he_bss_color);
+void mt7902_mac_enable_rtscts(struct mt7902_dev *dev,
+			      struct ieee80211_vif *vif, bool enable);
 
 #endif
+
+
+void mt7902_mac_set_timing(struct mt7902_phy *phy);

@@ -394,7 +394,7 @@ struct mt76_vif {
 	u8 cipher;
 };
 int mt7902_mcu_add_sta(struct mt7902_dev *dev, struct ieee80211_vif *vif,
-		       struct ieee80211_sta *sta, bool enable);
+		       struct ieee80211_sta *sta, int conn_state, bool newly);
 int mt7902_mcu_add_beacon(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
 		  int enable);
 static int

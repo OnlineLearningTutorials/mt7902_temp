@@ -919,7 +919,7 @@ mt7902_update_bss_color(struct ieee80211_hw *hw,
 			struct ieee80211_vif *vif,
 			struct cfg80211_he_bss_color *bss_color)
 {
-	struct mt792x_dev *dev = mt792x_hw_dev(hw);
+	struct mt7902_dev *dev = mt7902_hw_dev(hw);
 
 	switch (vif->type) {
 	case NL80211_IFTYPE_AP: {
@@ -943,8 +943,8 @@ static void mt7902_bss_info_changed(struct ieee80211_hw *hw,
 				    u64 changed)
 {
 	printk(KERN_DEBUG "main.c - mt7902_bss_info_changed(hw, vif, info, changed: 0x%x)", changed);
-	struct mt792x_phy *phy = mt792x_hw_phy(hw);
-	struct mt792x_dev *dev = mt792x_hw_dev(hw);
+	struct mt7902_phy *phy = mt7902_hw_phy(hw);
+	struct mt7902_dev *dev = mt7902_hw_dev(hw);
 	int set_bss_info = -1, set_sta = -1;
 
 	mutex_lock(&dev->mt76.mutex);

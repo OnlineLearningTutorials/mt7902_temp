@@ -1984,33 +1984,32 @@ mt7902_mcu_add_uni_tlv(struct sk_buff *skb, int tag, int len)
 
 
 int mt7902_mcu_add_sta(struct mt7902_dev *dev, struct ieee80211_vif *vif,
-		       struct ieee80211_sta *sta, bool enable)
+		       struct ieee80211_sta *sta, int conn_state, bool newly)
 {
-	printk(KERN_DEBUG "mcu.c - mt7902_mcu_add_sta(dev, vif, sta, enable: %d)", enable);
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_add_sta(dev, vif, sta, enable: %d)", newly);
 
 	
 	struct mt7902_vif *mvif = (struct mt7902_vif *)vif->drv_priv;
 	struct mt7902_sta *msta;
 	struct sk_buff *skb;
 	struct ieee80211_link_sta *link_sta;
-	int conn_state;
 	int ret;
-	bool newly = true;
 
 	msta = sta ? (struct mt7902_sta *)sta->drv_priv : &mvif->sta;
+	link_sta = sta ? &sta->deflink : NULL;
 
 	skb = mt76_connac_mcu_alloc_sta_req(&dev->mt76, &mvif->mt76,
 					    &msta->wcid);
 	if (IS_ERR(skb))
 		return PTR_ERR(skb);
 
-	link_sta = sta ? &sta->deflink : NULL;
-	conn_state = enable ? CONN_STATE_PORT_SECURE : CONN_STATE_DISCONNECT;
+	
+	//conn_state = enable ? CONN_STATE_PORT_SECURE : CONN_STATE_DISCONNECT;
 
 	/* starec basic */
 	mt76_connac_mcu_sta_basic_tlv(&dev->mt76, skb, &vif->bss_conf, link_sta, conn_state, newly);
-	if (!enable)
-		goto out;
+	//if (!enable)
+	//	goto out;
 
 	/* tag order is in accordance with firmware dependency. */
 	if (sta) {
