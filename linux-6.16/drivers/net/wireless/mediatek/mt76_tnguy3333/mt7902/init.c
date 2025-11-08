@@ -17,8 +17,8 @@ static ssize_t mt7902_thermal_temp_show(struct device *dev,
 	printk(KERN_DEBUG "init.c - mt7902_thermal_temp_show(dev, attr, buf)");
 	switch (to_sensor_dev_attr(attr)->index) {
 	case 0: {
-		struct mt792x_phy *phy = dev_get_drvdata(dev);
-		struct mt792x_dev *mdev = phy->dev;
+		struct mt7902_phy *phy = dev_get_drvdata(dev);
+		struct mt7902_dev *mdev = phy->dev;
 		int temperature;
 
 		mt792x_mutex_acquire(mdev);
@@ -44,7 +44,7 @@ static struct attribute *mt7902_hwmon_attrs[] = {
 };
 ATTRIBUTE_GROUPS(mt7902_hwmon);
 
-static int mt7902_thermal_init(struct mt792x_phy *phy)
+static int mt7902_thermal_init(struct mt7902_phy *phy)
 {
 	printk(KERN_DEBUG "init.c - mt7902_thermal_init(phy)");
 	struct wiphy *wiphy = phy->mt76->hw->wiphy;
@@ -65,7 +65,7 @@ static int mt7902_thermal_init(struct mt792x_phy *phy)
 }
 
 static void
-mt7902_regd_channel_update(struct wiphy *wiphy, struct mt792x_dev *dev)
+mt7902_regd_channel_update(struct wiphy *wiphy, struct mt7902_dev *dev)
 {
 	printk(KERN_DEBUG "init.c - mt7902_regd_channel_update(wiphy, dev)");
 #define IS_UNII_INVALID(idx, sfreq, efreq) \
@@ -117,7 +117,7 @@ mt7902_regd_channel_update(struct wiphy *wiphy, struct mt792x_dev *dev)
 	}
 }
 
-void mt7902_regd_update(struct mt792x_dev *dev)
+void mt7902_regd_update(struct mt7902_dev *dev)
 {
 	printk(KERN_DEBUG "init.c - mt7902_regd_update(dev)");
 	struct mt76_dev *mdev = &dev->mt76;
@@ -137,7 +137,7 @@ mt7902_regd_notifier(struct wiphy *wiphy,
 {
 	printk(KERN_DEBUG "init.c - mt7902_regd_notifier(wiphy, request)");
 	struct ieee80211_hw *hw = wiphy_to_ieee80211_hw(wiphy);
-	struct mt792x_dev *dev = mt792x_hw_dev(hw);
+	struct mt7902_dev *dev = mt792x_hw_dev(hw);
 	struct mt76_connac_pm *pm = &dev->pm;
 
 	memcpy(dev->mt76.alpha2, request->alpha2, sizeof(dev->mt76.alpha2));
@@ -164,7 +164,7 @@ mt7902_regd_notifier(struct wiphy *wiphy,
 	wake_up(&dev->wait);
 }
 
-int mt7902_mac_init(struct mt792x_dev *dev)
+int mt7902_mac_init(struct mt7902_dev *dev)
 {
 	printk(KERN_DEBUG "init.c - mt7902_mac_init(dev)");
 	int i;
@@ -185,7 +185,7 @@ int mt7902_mac_init(struct mt792x_dev *dev)
 }
 EXPORT_SYMBOL_GPL(mt7902_mac_init);
 
-static int __mt7902_init_hardware(struct mt792x_dev *dev)
+static int __mt7902_init_hardware(struct mt7902_dev *dev)
 {
 	printk(KERN_DEBUG "init.c - __mt7902_init_hardware(dev)");
 	int ret;
@@ -209,7 +209,7 @@ out:
 	return ret;
 }
 
-static int mt7902_init_hardware(struct mt792x_dev *dev)
+static int mt7902_init_hardware(struct mt7902_dev *dev)
 {
 	printk(KERN_DEBUG "init.c - mt7902_init_hardware(dev)");
 	int ret, i;
@@ -235,7 +235,7 @@ static int mt7902_init_hardware(struct mt792x_dev *dev)
 static void mt7902_init_work(struct work_struct *work)
 {
 	printk(KERN_DEBUG "init.c - mt7902_init_work(work)");
-	struct mt792x_dev *dev = container_of(work, struct mt792x_dev,
+	struct mt7902_dev *dev = container_of(work, struct mt7902_dev,
 					      init_work);
 	int ret;
 
@@ -272,7 +272,7 @@ static void mt7902_init_work(struct work_struct *work)
 	mt76_connac_mcu_set_deep_sleep(&dev->mt76, dev->pm.ds_enable);
 }
 
-int mt7902_register_device(struct mt792x_dev *dev)
+int mt7902_register_device(struct mt7902_dev *dev)
 {
 	printk(KERN_DEBUG "init.c - mt7902_register_device(dev)");
 	struct ieee80211_hw *hw = mt76_hw(dev);

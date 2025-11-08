@@ -10,7 +10,7 @@
 #include "mcu.h"
 
 static int
-mt7902_init_he_caps(struct mt792x_phy *phy, enum nl80211_band band,
+mt7902_init_he_caps(struct mt7902_phy *phy, enum nl80211_band band,
 		    struct ieee80211_sband_iftype_data *data)
 {
 	printk(KERN_DEBUG "main.c - mt7902_init_he_caps(phy, band: %d, data)", band);
@@ -191,7 +191,7 @@ mt7902_init_he_caps(struct mt792x_phy *phy, enum nl80211_band band,
 	return idx;
 }
 
-void mt7902_set_stream_he_caps(struct mt792x_phy *phy)
+void mt7902_set_stream_he_caps(struct mt7902_phy *phy)
 {
 	printk(KERN_DEBUG "main.c - mt7902_set_stream_he_caps(phy)");
 	struct ieee80211_sband_iftype_data *data;
@@ -223,7 +223,7 @@ void mt7902_set_stream_he_caps(struct mt792x_phy *phy)
 	}
 }
 
-int __mt7902_start(struct mt792x_phy *phy)
+int __mt7902_start(struct mt7902_phy *phy)
 {
 	printk(KERN_DEBUG "main.c - __mt7902_start(phy)");
 	struct mt76_phy *mphy = phy->mt76;
@@ -272,7 +272,7 @@ EXPORT_SYMBOL_GPL(__mt7902_start);
 static int mt7902_start(struct ieee80211_hw *hw)
 {
 	printk(KERN_DEBUG "main.c - mt7902_start(hw)");
-	struct mt792x_phy *phy = mt792x_hw_phy(hw);
+	struct mt7902_phy *phy = mt792x_hw_phy(hw);
 	int err;
 
 	mt792x_mutex_acquire(phy->dev);
@@ -285,7 +285,7 @@ static int mt7902_start(struct ieee80211_hw *hw)
 static void mt7902_stop(struct ieee80211_hw *hw, bool suspend)
 {
 	printk(KERN_DEBUG "main.c - mt7902_stop");
-	struct mt792x_dev *dev = mt792x_hw_dev(hw);
+	struct mt7902_dev *dev = mt792x_hw_dev(hw);
 	int err = 0;
 
 	if (mt76_is_mmio(&dev->mt76)) {
@@ -472,15 +472,15 @@ static void mt7902_roc_iter(void *priv, u8 *mac,
 {
 	printk(KERN_DEBUG "main.c - mt7902_roc_iter");
 	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
-	struct mt792x_phy *phy = priv;
+	struct mt7902_phy *phy = priv;
 
 	mt7902_mcu_abort_roc(phy, mvif, phy->roc_token_id);
 }
 
-void mt7902_roc_abort_sync(struct mt792x_dev *dev)
+void mt7902_roc_abort_sync(struct mt7902_dev *dev)
 {
 	printk(KERN_DEBUG "main.c - mt7902_roc_abort_sync");
-	struct mt792x_phy *phy = &dev->phy;
+	struct mt7902_phy *phy = &dev->phy;
 
 	timer_delete_sync(&phy->roc_timer);
 	cancel_work_sync(&phy->roc_work);
@@ -494,9 +494,9 @@ EXPORT_SYMBOL_GPL(mt7902_roc_abort_sync);
 void mt7902_roc_work(struct work_struct *work)
 {
 	printk(KERN_DEBUG "main.c - mt7902_roc_work");
-	struct mt792x_phy *phy;
+	struct mt7902_phy *phy;
 
-	phy = (struct mt792x_phy *)container_of(work, struct mt792x_phy,
+	phy = (struct mt7902_phy *)container_of(work, struct mt7902_phy,
 						roc_work);
 
 	if (!test_and_clear_bit(MT76_STATE_ROC, &phy->mt76->state))
@@ -510,7 +510,7 @@ void mt7902_roc_work(struct work_struct *work)
 	ieee80211_remain_on_channel_expired(phy->mt76->hw);
 }
 
-static int mt7902_abort_roc(struct mt792x_phy *phy, struct mt792x_vif *vif)
+static int mt7902_abort_roc(struct mt7902_phy *phy, struct mt792x_vif *vif)
 {
 	printk(KERN_DEBUG "main.c - mt7902_abort_roc");
 	int err = 0;
@@ -526,7 +526,7 @@ static int mt7902_abort_roc(struct mt792x_phy *phy, struct mt792x_vif *vif)
 	return err;
 }
 
-static int mt7902_set_roc(struct mt792x_phy *phy,
+static int mt7902_set_roc(struct mt7902_phy *phy,
 			  struct mt792x_vif *vif,
 			  struct ieee80211_channel *chan,
 			  int duration,
@@ -565,7 +565,7 @@ static int mt7902_remain_on_channel(struct ieee80211_hw *hw,
 {
 	printk(KERN_DEBUG "main.c - mt7902_remain_on_channel");
 	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
-	struct mt792x_phy *phy = mt792x_hw_phy(hw);
+	struct mt7902_phy *phy = mt792x_hw_phy(hw);
 	int err;
 
 	mt792x_mutex_acquire(phy->dev);
@@ -580,7 +580,7 @@ static int mt7902_cancel_remain_on_channel(struct ieee80211_hw *hw,
 {
 	printk(KERN_DEBUG "main.c - mt7902_cancel_remain_on_channel");
 	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
-	struct mt792x_phy *phy = mt792x_hw_phy(hw);
+	struct mt7902_phy *phy = mt792x_hw_phy(hw);
 
 	return mt7902_abort_roc(phy, mvif);
 }
@@ -588,8 +588,8 @@ static int mt7902_cancel_remain_on_channel(struct ieee80211_hw *hw,
 int mt7902_set_channel(struct mt76_phy *mphy)
 {
 	printk(KERN_DEBUG "main.c - mt7902_set_channel(mphy)");
-	struct mt792x_phy *phy = mphy->priv;
-	struct mt792x_dev *dev = phy->dev;
+	struct mt7902_phy *phy = mphy->priv;
+	struct mt7902_dev *dev = phy->dev;
 	int ret;
 
 	mt76_connac_pm_wake(mphy, &dev->pm);
@@ -616,7 +616,7 @@ static int mt7902_set_key(struct ieee80211_hw *hw, enum set_key_cmd cmd,
 			  struct ieee80211_key_conf *key)
 {
 	printk(KERN_DEBUG "main.c - mt7902_set_key(hw, cmd, vif, sta, key)");
-	struct mt792x_dev *dev = mt792x_hw_dev(hw);
+	struct mt7902_dev *dev = mt792x_hw_dev(hw);
 	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
 	struct mt792x_sta *msta = sta ? (struct mt792x_sta *)sta->drv_priv :
 				  &mvif->sta;
@@ -818,7 +818,7 @@ static void
 mt7902_pm_interface_iter(void *priv, u8 *mac, struct ieee80211_vif *vif)
 {
 	printk(KERN_DEBUG "main.c - mt7902_pm_interface_iter");
-	struct mt792x_dev *dev = priv;
+	struct mt7902_dev *dev = priv;
 	struct ieee80211_hw *hw = mt76_hw(dev);
 	bool pm_enable = dev->pm.enable;
 	int err;
@@ -840,7 +840,7 @@ static void
 mt7902_sniffer_interface_iter(void *priv, u8 *mac, struct ieee80211_vif *vif)
 {
 	printk(KERN_DEBUG "main.c - mt7902_sniffer_interface_iter");
-	struct mt792x_dev *dev = priv;
+	struct mt7902_dev *dev = priv;
 	struct ieee80211_hw *hw = mt76_hw(dev);
 	struct mt76_connac_pm *pm = &dev->pm;
 	bool monitor = !!(hw->conf.flags & IEEE80211_CONF_MONITOR);
@@ -855,7 +855,7 @@ mt7902_sniffer_interface_iter(void *priv, u8 *mac, struct ieee80211_vif *vif)
 		mt7902_mcu_set_beacon_filter(dev, vif, false);
 }
 
-void mt7902_set_runtime_pm(struct mt792x_dev *dev)
+void mt7902_set_runtime_pm(struct mt7902_dev *dev)
 {
 	printk(KERN_DEBUG "main.c - mt7902_set_runtime_pm");
 	struct ieee80211_hw *hw = mt76_hw(dev);
@@ -873,8 +873,8 @@ void mt7902_set_runtime_pm(struct mt792x_dev *dev)
 static int mt7902_config(struct ieee80211_hw *hw, u32 changed)
 {
 	printk(KERN_DEBUG "main.c - mt7902_config(hw, changed: 0x%x)", changed);
-	struct mt792x_dev *dev = mt792x_hw_dev(hw);
-	struct mt792x_phy *phy = mt792x_hw_phy(hw);
+	struct mt7902_dev *dev = mt792x_hw_dev(hw);
+	struct mt7902_phy *phy = mt792x_hw_phy(hw);
 	int ret = 0;
 
 	if (changed & IEEE80211_CONF_CHANGE_CHANNEL) {
@@ -914,7 +914,7 @@ static void mt7902_configure_filter(struct ieee80211_hw *hw,
 #define MT7902_FILTER_OTHER_BSS  BIT(6)
 #define MT7902_FILTER_ENABLE     BIT(31)
 
-	struct mt792x_dev *dev = mt792x_hw_dev(hw);
+	struct mt7902_dev *dev = mt792x_hw_dev(hw);
 	u32 flags = MT7902_FILTER_ENABLE;
 
 #define MT7902_FILTER(_fif, _type) do {			\
@@ -977,11 +977,11 @@ static void mt7902_bss_info_changed(struct ieee80211_hw *hw,
 		bool join = !is_zero_ether_addr(info->bssid);
 			
 		mt7902_mcu_add_bss_info(phy, vif, join);
-		mt7902_mcu_add_sta(dev, vif, NULL, join);
+		mt7902_mcu_add_sta(dev, vif, NULL, CONN_STATE_PORT_SECURE, join);
 	}
 		
 	if (changed & BSS_CHANGED_ASSOC) {
-		mt7902_mcu_add_bss_info(phy, vif, info->assoc);
+		mt7902_mcu_add_bss_info(phy, vif, true);
 		mt7902_mcu_add_obss_spr(dev, vif, info->he_obss_pd.enable);
 	}
 /*
@@ -1009,7 +1009,7 @@ static void mt7902_bss_info_changed(struct ieee80211_hw *hw,
 
 	if(changed & BSS_CHANGED_BEACON_ENABLED && info->enable_beacon) {
 		mt7902_mcu_add_bss_info(phy, vif, true);
-		mt7902_mcu_add_sta(dev, vif, NULL, true);
+		mt7902_mcu_add_sta(dev, vif, NULL, CONN_STATE_PORT_SECURE, true);
 	}
 
 	/* ensure that enable txcmd_mode after bss_info */
@@ -1055,8 +1055,8 @@ mt7902_regd_set_6ghz_power_type(struct ieee80211_vif *vif, bool is_add)
 {
 	printk(KERN_DEBUG "main.c - mt7902_regd_set_6ghz_power_type(vif, is_add: %d)", is_add);
 	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
-	struct mt792x_phy *phy = mvif->phy;
-	struct mt792x_dev *dev = phy->dev;
+	struct mt7902_phy *phy = mvif->phy;
+	struct mt7902_dev *dev = phy->dev;
 	u32 valid_vif_num = 0;
 
 	ieee80211_iterate_active_interfaces(mt76_hw(dev),
@@ -1099,7 +1099,7 @@ int mt7902_mac_sta_add(struct mt76_dev *mdev, struct ieee80211_vif *vif,
 		       struct ieee80211_sta *sta)
 {
 	printk(KERN_DEBUG "main.c - mt7902_mac_sta_add");
-	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
+	struct mt7902_dev *dev = container_of(mdev, struct mt7902_dev, mt76);
 	struct mt792x_sta *msta = (struct mt792x_sta *)sta->drv_priv;
 	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
 	int ret, idx;
@@ -1144,7 +1144,7 @@ int mt7902_mac_sta_event(struct mt76_dev *mdev, struct ieee80211_vif *vif,
 			 struct ieee80211_sta *sta, enum mt76_sta_event ev)
 {
 	printk(KERN_DEBUG "main.c - mt7902_mac_sta_event(mdev, vif, sta, ev: %d)", ev);
-	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
+	struct mt7902_dev *dev = container_of(mdev, struct mt7902_dev, mt76);
 	struct mt792x_sta *msta = (struct mt792x_sta *)sta->drv_priv;
 	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
 
@@ -1178,7 +1178,7 @@ void mt7902_mac_sta_remove(struct mt76_dev *mdev, struct ieee80211_vif *vif,
 			   struct ieee80211_sta *sta)
 {
 	printk(KERN_DEBUG "main.c - mt7902_mac_sta_remove");
-	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
+	struct mt7902_dev *dev = container_of(mdev, struct mt7902_dev, mt76);
 	struct mt792x_sta *msta = (struct mt792x_sta *)sta->drv_priv;
 
 	mt7902_roc_abort_sync(dev);
@@ -1217,7 +1217,7 @@ EXPORT_SYMBOL_GPL(mt7902_mac_sta_remove);
 static int mt7902_set_rts_threshold(struct ieee80211_hw *hw, u32 val)
 {
 	printk(KERN_DEBUG "main.c - mt7902_set_rts_threshold");
-	struct mt792x_dev *dev = mt792x_hw_dev(hw);
+	struct mt7902_dev *dev = mt792x_hw_dev(hw);
 
 	mt792x_mutex_acquire(dev);
 	mt76_connac_mcu_set_rts_thresh(&dev->mt76, val, 0);
@@ -1232,7 +1232,7 @@ mt7902_ampdu_action(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
 {
 	printk(KERN_DEBUG "main.c - mt7902_ampdu_action");
 	enum ieee80211_ampdu_mlme_action action = params->action;
-	struct mt792x_dev *dev = mt792x_hw_dev(hw);
+	struct mt7902_dev *dev = mt792x_hw_dev(hw);
 	struct ieee80211_sta *sta = params->sta;
 	struct ieee80211_txq *txq = sta->txq[params->tid];
 	struct mt792x_sta *msta = (struct mt792x_sta *)sta->drv_priv;
@@ -1291,7 +1291,7 @@ static int mt7902_sta_state(struct ieee80211_hw *hw,
 			    enum ieee80211_sta_state new_state)
 {
 	printk(KERN_DEBUG "main.c - mt7902_sta_state(hw, vif, sta, old_state: %d, new_state: %d)", old_state, new_state);
-	struct mt792x_dev *dev = mt792x_hw_dev(hw);
+	struct mt7902_dev *dev = mt792x_hw_dev(hw);
 
 	if (dev->pm.ds_enable) {
 		mt792x_mutex_acquire(dev);
@@ -1305,9 +1305,9 @@ static int mt7902_sta_state(struct ieee80211_hw *hw,
 void mt7902_scan_work(struct work_struct *work)
 {
 	printk(KERN_DEBUG "main.c - mt7902_scan_work(work)");
-	struct mt792x_phy *phy;
+	struct mt7902_phy *phy;
 
-	phy = (struct mt792x_phy *)container_of(work, struct mt792x_phy,
+	phy = (struct mt7902_phy *)container_of(work, struct mt7902_phy,
 						scan_work.work);
 
 	while (true) {
@@ -1341,7 +1341,7 @@ mt7902_hw_scan(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
 	       struct ieee80211_scan_request *req)
 {
 	printk(KERN_DEBUG "main.c - mt7902_hw_scan(hw, vif, req)");
-	struct mt792x_dev *dev = mt792x_hw_dev(hw);
+	struct mt7902_dev *dev = mt792x_hw_dev(hw);
 	struct mt76_phy *mphy = hw->priv;
 	int err;
 
@@ -1356,7 +1356,7 @@ static void
 mt7902_cancel_hw_scan(struct ieee80211_hw *hw, struct ieee80211_vif *vif)
 {
 	printk(KERN_DEBUG "main.c - mt7902_cancel_hw_scan");
-	struct mt792x_dev *dev = mt792x_hw_dev(hw);
+	struct mt7902_dev *dev = mt792x_hw_dev(hw);
 	struct mt76_phy *mphy = hw->priv;
 
 	mt792x_mutex_acquire(dev);
@@ -1370,7 +1370,7 @@ mt7902_start_sched_scan(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
 			struct ieee80211_scan_ies *ies)
 {
 	printk(KERN_DEBUG "main.c - mt7902_start_sched_scan");
-	struct mt792x_dev *dev = mt792x_hw_dev(hw);
+	struct mt7902_dev *dev = mt792x_hw_dev(hw);
 	struct mt76_phy *mphy = hw->priv;
 	int err;
 
@@ -1391,7 +1391,7 @@ static int
 mt7902_stop_sched_scan(struct ieee80211_hw *hw, struct ieee80211_vif *vif)
 {
 	printk(KERN_DEBUG "main.c - mt7902_stop_sched_scan");
-	struct mt792x_dev *dev = mt792x_hw_dev(hw);
+	struct mt7902_dev *dev = mt792x_hw_dev(hw);
 	struct mt76_phy *mphy = hw->priv;
 	int err;
 
@@ -1406,8 +1406,8 @@ static int
 mt7902_set_antenna(struct ieee80211_hw *hw, u32 tx_ant, u32 rx_ant)
 {
 	printk(KERN_DEBUG "main.c - mt7902_set_antenna");
-	struct mt792x_dev *dev = mt792x_hw_dev(hw);
-	struct mt792x_phy *phy = mt792x_hw_phy(hw);
+	struct mt7902_dev *dev = mt792x_hw_dev(hw);
+	struct mt7902_phy *phy = mt792x_hw_phy(hw);
 	int max_nss = hweight8(hw->wiphy->available_antennas_tx);
 
 	if (!tx_ant || tx_ant != rx_ant || ffs(tx_ant) > max_nss)
@@ -1434,8 +1434,8 @@ mt7902_set_antenna(struct ieee80211_hw *hw, u32 tx_ant, u32 rx_ant)
 static int mt7902_suspend(struct ieee80211_hw *hw,
 			  struct cfg80211_wowlan *wowlan)
 {
-	struct mt792x_dev *dev = mt792x_hw_dev(hw);
-	struct mt792x_phy *phy = mt792x_hw_phy(hw);
+	struct mt7902_dev *dev = mt792x_hw_dev(hw);
+	struct mt7902_phy *phy = mt792x_hw_phy(hw);
 
 	cancel_delayed_work_sync(&phy->scan_work);
 	cancel_delayed_work_sync(&phy->mt76->mac_work);
@@ -1458,8 +1458,8 @@ static int mt7902_suspend(struct ieee80211_hw *hw,
 
 static int mt7902_resume(struct ieee80211_hw *hw)
 {
-	struct mt792x_dev *dev = mt792x_hw_dev(hw);
-	struct mt792x_phy *phy = mt792x_hw_phy(hw);
+	struct mt7902_dev *dev = mt792x_hw_dev(hw);
+	struct mt7902_phy *phy = mt792x_hw_phy(hw);
 
 	mt792x_mutex_acquire(dev);
 
@@ -1481,7 +1481,7 @@ static void mt7902_set_rekey_data(struct ieee80211_hw *hw,
 				  struct ieee80211_vif *vif,
 				  struct cfg80211_gtk_rekey_data *data)
 {
-	struct mt792x_dev *dev = mt792x_hw_dev(hw);
+	struct mt7902_dev *dev = mt792x_hw_dev(hw);
 
 	mt792x_mutex_acquire(dev);
 	mt76_connac_mcu_update_gtk_rekey(hw, vif, data);
@@ -1496,7 +1496,7 @@ static void mt7902_sta_set_decap_offload(struct ieee80211_hw *hw,
 {
 	printk(KERN_DEBUG "main.c - mt7902_sta_set_decap_offload");
 	struct mt792x_sta *msta = (struct mt792x_sta *)sta->drv_priv;
-	struct mt792x_dev *dev = mt792x_hw_dev(hw);
+	struct mt7902_dev *dev = mt792x_hw_dev(hw);
 
 	if (!msta->deflink.wcid.sta)
 		return;
@@ -1523,7 +1523,7 @@ static void mt7902_ipv6_addr_change(struct ieee80211_hw *hw,
 				    struct inet6_dev *idev)
 {
 	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
-	struct mt792x_dev *dev = mt792x_hw_dev(hw);
+	struct mt7902_dev *dev = mt792x_hw_dev(hw);
 	struct inet6_ifaddr *ifa;
 	struct in6_addr ns_addrs[IEEE80211_BSS_ARP_ADDR_LIST_LEN];
 	struct sk_buff *skb;
@@ -1598,7 +1598,7 @@ static int mt7902_set_sar_specs(struct ieee80211_hw *hw,
 				const struct cfg80211_sar_specs *sar)
 {
 	printk(KERN_DEBUG "main.c - mt7902_set_sar_specs");
-	struct mt792x_dev *dev = mt792x_hw_dev(hw);
+	struct mt7902_dev *dev = mt792x_hw_dev(hw);
 	int err;
 
 	mt792x_mutex_acquire(dev);
@@ -1619,7 +1619,7 @@ mt7902_channel_switch_beacon(struct ieee80211_hw *hw,
 			     struct ieee80211_vif *vif,
 			     struct cfg80211_chan_def *chandef)
 {
-	//struct mt792x_dev *dev = mt792x_hw_dev(hw);
+	//struct mt7902_dev *dev = mt792x_hw_dev(hw);
 
 	//mt792x_mutex_acquire(dev);
 	//mt7902_mcu_uni_add_beacon_offload(dev, hw, vif, true);
@@ -1632,7 +1632,7 @@ mt7902_start_ap(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
 {
 	printk(KERN_DEBUG "main.c - mt7902_start_ap");
 	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
-	struct mt792x_dev *dev = mt792x_hw_dev(hw);
+	struct mt7902_dev *dev = mt792x_hw_dev(hw);
 	int err;
 
 	mt792x_mutex_acquire(dev);
@@ -1664,7 +1664,7 @@ mt7902_stop_ap(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
 {
 	printk(KERN_DEBUG "main.c - mt7902_stop_ap");
 	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
-	struct mt792x_dev *dev = mt792x_hw_dev(hw);
+	struct mt7902_dev *dev = mt792x_hw_dev(hw);
 	int err;
 
 	mt792x_mutex_acquire(dev);
@@ -1688,7 +1688,7 @@ mt7902_add_chanctx(struct ieee80211_hw *hw,
 		   struct ieee80211_chanctx_conf *ctx)
 {
 	printk(KERN_DEBUG "main.c - mt7902_add_chanctx");
-	struct mt792x_dev *dev = mt792x_hw_dev(hw);
+	struct mt7902_dev *dev = mt792x_hw_dev(hw);
 
 	dev->new_ctx = ctx;
 	return 0;
@@ -1699,7 +1699,7 @@ mt7902_remove_chanctx(struct ieee80211_hw *hw,
 		      struct ieee80211_chanctx_conf *ctx)
 {
 	printk(KERN_DEBUG "main.c - mt7902_remove_chanctx");
-	struct mt792x_dev *dev = mt792x_hw_dev(hw);
+	struct mt7902_dev *dev = mt792x_hw_dev(hw);
 
 	if (dev->new_ctx == ctx)
 		dev->new_ctx = NULL;
@@ -1712,7 +1712,7 @@ mt7902_change_chanctx(struct ieee80211_hw *hw,
 {
 	printk(KERN_DEBUG "main.c - mt7902_change_chanctx");
 	struct mt792x_chanctx *mctx = (struct mt792x_chanctx *)ctx->drv_priv;
-	struct mt792x_phy *phy = mt792x_hw_phy(hw);
+	struct mt7902_phy *phy = mt792x_hw_phy(hw);
 	struct ieee80211_vif *vif;
 	struct mt792x_vif *mvif;
 
@@ -1736,7 +1736,7 @@ static void mt7902_mgd_prepare_tx(struct ieee80211_hw *hw,
 {
 	printk(KERN_DEBUG "main.c - mt7902_mgd_prepare_tx");
 	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
-	struct mt792x_dev *dev = mt792x_hw_dev(hw);
+	struct mt7902_dev *dev = mt792x_hw_dev(hw);
 	u16 duration = info->duration ? info->duration :
 		       jiffies_to_msecs(HZ);
 
@@ -1770,7 +1770,7 @@ void mt7902_csa_work(struct work_struct *work)
 {
 	printk(KERN_DEBUG "main.c - mt7902_csa_work");
 	struct mt792x_vif *mvif;
-	struct mt792x_dev *dev;
+	struct mt7902_dev *dev;
 	struct ieee80211_vif *vif;
 	int ret = 0;
 
@@ -1833,7 +1833,7 @@ static void mt7902_channel_switch_rx_beacon(struct ieee80211_hw *hw,
 					    struct ieee80211_channel_switch *chsw)
 {
 	printk(KERN_DEBUG "main.c - mt7902_channel_switch_rx_beacon");
-	struct mt792x_dev *dev = mt792x_hw_dev(hw);
+	struct mt7902_dev *dev = mt792x_hw_dev(hw);
 	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
 	u16 beacon_interval = vif->bss_conf.beacon_int;
 
@@ -1848,7 +1848,7 @@ static void mt7902_channel_switch_rx_beacon(struct ieee80211_hw *hw,
 static void mt7902_rfkill_poll(struct ieee80211_hw *hw)
 {
 	printk(KERN_DEBUG "main.c - mt7902_rfkill_poll");
-	struct mt792x_phy *phy = mt792x_hw_phy(hw);
+	struct mt7902_phy *phy = mt792x_hw_phy(hw);
 	int ret = 0;
 
 	mt792x_mutex_acquire(phy->dev);
