@@ -29,6 +29,9 @@
 #define MT7902_FIRMWARE_WA		"mediatek/mt7902_wa.bin"
 #define MT7902_FIRMWARE_WM		"mediatek/mt7902_wm.bin"
 #define MT7902_ROM_PATCH		"mediatek/mt7902_rom_patch.bin"
+#define MT7902_FIRMWARE_ROM		"mediatek/mt7902_wf_rom.bin"
+#define MT7902_FIRMWARE_ROM_SRAM	"mediatek/mt7902_wf_rom_sram.bin"
+#define MT7902_EEPROM_DEFAULT		"mediatek/mt7902_eeprom.bin"
 
 #define MT7916_FIRMWARE_WA		"mediatek/mt7916_wa.bin"
 #define MT7916_FIRMWARE_WM		"mediatek/mt7916_wm.bin"
@@ -627,5 +630,6 @@ void mt7902_sta_add_debugfs(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
 #endif
 int mt7902_mmio_wed_init(struct mt7902_dev *dev, void *pdev_ptr,
 			 bool pci, int *irq);
+int mt7902_rom_start(struct mt7902_dev *dev);
 
 #endif

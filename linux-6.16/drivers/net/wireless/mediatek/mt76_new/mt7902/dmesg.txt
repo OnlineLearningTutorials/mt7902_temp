@@ -1,0 +1,36 @@
+pci.c - mt7902_pci_probe    ===============================================================
+mt7902e 0000:03:00.0: enabling device (0000 -> 0002)
+mt7902e 0000:03:00.0: disabling ASPM  L1
+mmio.c - mt7902_mmio_probe
+mmio.c - mt7902_mmio_init
+init.c - mt7902_wfsys_reset 		-CHECKED
+pci.c - mt7902_pci_init_hif2
+mmio.c - mt7902_mmio_wed_init
+pci.c - mt7902_pci_init_hif2
+init.c - mt7902_register_device		- to be corrected
+init.c - mt7902_band_config			- checked diff
+init.c - mt7902_alloc_ext_phy		- part of reg_dev
+init.c - mt7902_init_hardware		- checked
+dma.c - mt7902_dma_init				- checked
+dma.c - mt7902_dma_config			- checked
+dma.c - mt7902_dma_disable
+dma.c - mt7902_init_tx_queues
+dma.c - mt7902_init_tx_queues
+dma.c - mt7902_dma_enable
+dma.c - __mt7902_dma_prefetch		- checked
+dma.c - __mt7902_dma_prefetch
+dma.c - mt7902_dma_start
+mcu.c - mt7902_mcu_init 			- CHECKED
+mcu.c - mt7902_mcu_init_firmware	- CHECKED
+mcu.c - mt7902_driver_own		- checked
+mmio.c - mt7902_irq_tasklet
+mcu.c - mt7902_load_firmware	- checked
+mcu.c - mt7902_firmware_state 	- checked
+mt7902e 0000:03:00.0: Timeout for initializing firmware
+mcu.c - mt7902_mcu_send_message		- to be corrected
+mcu.c - mt7902_firmware_state             -checked
+mt7902e 0000:03:00.0: Timeout for initializing firmware
+mt7902e 0000:03:00.0: Firmware is not ready for download
+mt7902e 0000:03:00.0: probe with driver mt7902e failed with error -5
+
+

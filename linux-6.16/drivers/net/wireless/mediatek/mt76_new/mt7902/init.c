@@ -759,8 +759,8 @@ static void mt7902_init_work(struct work_struct *work)
 void mt7902_wfsys_reset(struct mt7902_dev *dev)
 {
 	printk(KERN_DEBUG "init.c - mt7902_wfsys_reset");
-#define MT_MCU_DUMMY_RANDOM	GENMASK(15, 0)
-#define MT_MCU_DUMMY_DEFAULT	GENMASK(31, 16)
+// #define MT_MCU_DUMMY_RANDOM	GENMASK(15, 0)
+// #define MT_MCU_DUMMY_DEFAULT	GENMASK(31, 16)
 
 	if (is_mt7902(&dev->mt76)) 
 		return;
@@ -794,9 +794,17 @@ mt7902_init_hardware(struct mt7902_dev *dev, struct mt7902_phy *phy2)
 	int ret, idx;
 
 	mt76_wr(dev, MT_INT_MASK_CSR, 0);
-	mt76_wr(dev, MT_INT_SOURCE_CSR, ~0);
+	//mt76_wr(dev, MT_INT_SOURCE_CSR, ~0);
 
 	INIT_WORK(&dev->init_work, mt7902_init_work);
+	//dev->dbdc_support = mt7902_band_config(dev);
+
+	/* bellwether do rom dl */
+	if (is_mt7902(&dev->mt76)) {
+		ret = mt7902_rom_start(dev);
+		if (ret)
+			return ret;
+	}
 
 	ret = mt7902_dma_init(dev, phy2);
 	if (ret)
@@ -812,7 +820,7 @@ mt7902_init_hardware(struct mt7902_dev *dev, struct mt7902_phy *phy2)
 	if (ret < 0)
 		return ret;
 
-	if (dev->cal) {
+	if (dev->flash_mode) {
 		ret = mt7902_mcu_apply_group_cal(dev);
 		if (ret)
 			return ret;

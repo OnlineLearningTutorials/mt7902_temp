@@ -257,25 +257,25 @@ mt7902_mcu_parse_response(struct mt76_dev *mdev, int cmd,
 	return ret;
 }
 
-static void
-mt7902_mcu_set_timeout(struct mt76_dev *mdev, int cmd)
-{
-	printk(KERN_DEBUG "mcu.c - mt7902_mcu_set_timeout");
-	if ((cmd & __MCU_CMD_FIELD_ID) != MCU_CMD_EXT_CID)
-		return;
+// static void
+// mt7902_mcu_set_timeout(struct mt76_dev *mdev, int cmd)
+// {
+// 	printk(KERN_DEBUG "mcu.c - mt7902_mcu_set_timeout");
+// 	if ((cmd & __MCU_CMD_FIELD_ID) != MCU_CMD_EXT_CID)
+// 		return;
 
-	switch (FIELD_GET(__MCU_CMD_FIELD_EXT_ID, cmd)) {
-	case MCU_EXT_CMD_THERMAL_CTRL:
-	case MCU_EXT_CMD_GET_MIB_INFO:
-	case MCU_EXT_CMD_PHY_STAT_INFO:
-	case MCU_EXT_CMD_STA_REC_UPDATE:
-	case MCU_EXT_CMD_BSS_INFO_UPDATE:
-		mdev->mcu.timeout = 2 * HZ;
-		return;
-	default:
-		break;
-	}
-}
+// 	switch (FIELD_GET(__MCU_CMD_FIELD_EXT_ID, cmd)) {
+// 	case MCU_EXT_CMD_THERMAL_CTRL:
+// 	case MCU_EXT_CMD_GET_MIB_INFO:
+// 	case MCU_EXT_CMD_PHY_STAT_INFO:
+// 	case MCU_EXT_CMD_STA_REC_UPDATE:
+// 	case MCU_EXT_CMD_BSS_INFO_UPDATE:
+// 		mdev->mcu.timeout = 2 * HZ;
+// 		return;
+// 	default:
+// 		break;
+// 	}
+// }
 
 static int
 mt7902_mcu_send_message(struct mt76_dev *mdev, struct sk_buff *skb,
@@ -292,7 +292,98 @@ mt7902_mcu_send_message(struct mt76_dev *mdev, struct sk_buff *skb,
 	else
 		qid = MT_MCUQ_WM;
 
-	mt7902_mcu_set_timeout(mdev, cmd);
+	//mt7902_mcu_set_timeout(mdev, cmd);
+
+
+// 	struct mt7902_dev *dev = container_of(mdev, struct mt7902_dev, mt76);
+// 	int txd_len, mcu_cmd = FIELD_GET(__MCU_CMD_FIELD_ID, cmd);
+// 	struct mt7902_uni_txd *uni_txd;
+// 	struct mt7902_mcu_txd *mcu_txd;
+// 	enum mt76_mcuq_id qid; 
+// 	__le32 *txd;
+// 	u32 val;
+// 	u8 seq;
+
+// 	mdev->mcu.timeout = 20 * HZ;
+
+// 	seq = ++dev->mt76.mcu.msg_seq & 0xf;
+// 	if(!seq)
+// 		seq = ++dev->mt76.mcu.msg_seq & 0xf;
+
+// 	if (cmd == MCU_CMD(FW_SCATTER)) {
+// 		qid = MT_MCUQ_FWDL;
+// 		goto exit;
+// 	}
+
+// 	txd_len = cmd & __MCU_CMD_FIELD_UNI ? sizeof(*uni_txd) : sizeof(*mcu_txd);
+// 	txd = (__le32 *)skb_push(skb, txd_len);
+// 	if (test_bit(MT76_STATE_MCU_RUNNING, &dev->mphy.state))
+// 		qid = MT_MCUQ_WA;
+// 	else
+// 		qid = MT_MCUQ_WM;
+
+// 	val = FIELD_PREP(MT_TXD0_TX_BYTES, skb->len) |
+// 	      FIELD_PREP(MT_TXD0_PKT_FMT, MT_TX_TYPE_CMD) |
+// 	      FIELD_PREP(MT_TXD0_Q_IDX, MT_TX_MCU_PORT_RX_Q0);
+// 	txd[0] = cpu_to_le32(val);
+
+// 	val = FIELD_PREP(MT_TXD1_HDR_FORMAT, MT_HDR_FORMAT_CMD);
+// 	txd[1] = cpu_to_le32(val);
+
+// 	if (cmd & __MCU_CMD_FIELD_UNI) {
+// 		uni_txd = (struct mt7902_uni_txd *)txd;
+// 		uni_txd->len = cpu_to_le16(skb->len - sizeof(uni_txd->txd));
+// 		uni_txd->cid = cpu_to_le16(mcu_cmd);
+// 		uni_txd->s2d_index = MCU_S2D_H2CN;
+// 		uni_txd->pkt_type = MCU_PKT_ID;
+// 		uni_txd->seq = seq;
+
+// 		if (cmd & __MCU_CMD_FIELD_QUERY)
+// 			uni_txd->option = MCU_CMD_UNI_QUERY_ACK;
+// 		else
+// 			uni_txd->option = MCU_CMD_UNI_EXT_ACK;
+
+// 		if ((cmd & __MCU_CMD_FIELD_WA) && (cmd & __MCU_CMD_FIELD_WM))
+// 			uni_txd->s2d_index = MCU_S2D_H2CN;
+// 		else if (cmd & __MCU_CMD_FIELD_WA)
+// 			uni_txd->s2d_index = MCU_S2D_H2C;
+// 		else if (cmd & __MCU_CMD_FIELD_WM)
+// 			uni_txd->s2d_index = MCU_S2D_H2N;
+
+// 		goto exit;
+// 	}
+
+// 	mcu_txd = (struct mt7902_mcu_txd *)txd;
+// 	mcu_txd->len = cpu_to_le16(skb->len - sizeof(mcu_txd->txd));
+// 	mcu_txd->pq_id = cpu_to_le16(MCU_PQ_ID(MT_TX_PORT_IDX_MCU,
+// 					       MT_TX_MCU_PORT_RX_Q0));
+// 	mcu_txd->pkt_type = MCU_PKT_ID;
+// 	mcu_txd->seq = seq;
+
+// 	mcu_txd->cid = FIELD_GET(__MCU_CMD_FIELD_ID, cmd);
+// 	mcu_txd->set_query = MCU_Q_NA;
+// 	mcu_txd->ext_cid = FIELD_GET(__MCU_CMD_FIELD_EXT_ID, cmd);
+// 	if (mcu_txd->ext_cid) {
+// 		mcu_txd->ext_cid_ack = 1;
+
+// 		/* do not use Q_SET for efuse */
+// 		if (cmd & __MCU_CMD_FIELD_QUERY)
+// 			mcu_txd->set_query = MCU_Q_QUERY;
+// 		else
+// 			mcu_txd->set_query = MCU_Q_SET;
+// 	}
+
+// 	if (cmd & __MCU_CMD_FIELD_WA)
+// 		mcu_txd->s2d_index = MCU_S2D_H2C;
+// 	else
+// 		mcu_txd->s2d_index = MCU_S2D_H2N; 
+
+// exit:
+// 	if (wait_seq)
+// 		*wait_seq = seq; 
+
+
+	//mt7902_mcu_set_timeout(mdev, cmd);
 
 	return mt76_tx_queue_skb_raw(dev, mdev->q_mcu[qid], skb, 0);
 }
@@ -2696,6 +2787,117 @@ static int mt7902_mcu_set_red(struct mt7902_dev *dev, bool enabled)
 				 MCU_WA_PARAM_RED, enabled, 0);
 }
 
+
+static int
+mt7902_load_rom(struct mt7902_dev *dev, bool is_sram)
+{
+#define MCU_FIRMWARE_ROM_ADDR		0x00800000
+#define MCU_FIRMWARE_ROM_SRAM_ADDR	0xE0048000
+
+	const struct firmware *fw;
+	int ret;
+	u32 val, ofs = 0;
+
+	ret = request_firmware(&fw, (is_sram ? MT7902_FIRMWARE_ROM_SRAM :
+			       MT7902_FIRMWARE_ROM),
+			       dev->mt76.dev);
+	if (ret) {
+		dev_err(dev->mt76.dev, "request rom binary failed\n");
+		return ret;
+	}
+
+	if (!fw || !fw->data ) {
+		dev_err(dev->mt76.dev, "Invalid firmware\n");
+		ret = -EINVAL;
+		goto out;
+	}
+
+	val = mt76_rr(dev, MT_INFRA_BUS_ON_REMAP_WF_5_4);
+
+	mt76_wr(dev, MT_INFRA_BUS_ON_REMAP_WF_5_4,
+		FIELD_GET(MT_INFRA_BUS_ON_REMAP_WF_4_MASK, val) |
+		FIELD_PREP(MT_INFRA_BUS_ON_REMAP_WF_5_MASK, 0x1850));
+
+	while (true) {
+		u32 size;
+
+		if (ofs >= fw->size)
+			break;
+
+		if ((ofs + 0x10000) <= fw->size)
+			size = 0x10000;
+		else
+			size = fw->size - ofs;
+
+		mt76_wr(dev, MT_MCU_BUS_REMAP,
+			((is_sram ? MCU_FIRMWARE_ROM_SRAM_ADDR : MCU_FIRMWARE_ROM_ADDR) + ofs));
+		mt76_wr_copy(dev, 0x50000, (void *) (fw->data + ofs), size);
+
+		ofs += 0x10000;
+	}
+
+	mt76_wr(dev, MT_INFRA_BUS_ON_REMAP_WF_5_4, val);
+
+out:
+	release_firmware(fw);
+
+	return ret;
+
+}
+
+
+int mt7902_rom_start(struct mt7902_dev *dev)
+{
+#define WF_IDLE			0xBE11
+#define WF_STATE_MASK		GENMASK(15, 0)
+
+	int ret;
+	u32 val;
+
+	ret = !mt76_poll_msec(dev, MT_TOP_CFG_ON_ROM_IDX,
+			      MT_TOP_CFG_ON_ROM_STATE_MASK,
+			      FIELD_PREP(MT_TOP_CFG_ON_ROM_STATE_MASK,
+					 MT_TOP_CFG_ON_ROM_IDLE), 200);
+	if (!ret)
+		return ret;
+
+	mt76_rmw(dev, MT_INFRA_RGU_RGU_ON_SW_RST_B,
+		 MT_INFRA_RGU_RGU_ON_SW_RST_B_MASK, 0);
+
+	ret = mt7902_load_rom(dev, false);
+	if (ret)
+		return ret;
+
+	ret = mt7902_load_rom(dev, true);
+	if (ret)
+		return ret;
+
+	mt76_rmw(dev, MT_INFRA_RGU_RGU_ON_SW_RST_B,
+		 MT_INFRA_RGU_RGU_ON_SW_RST_B_MASK, 1);
+
+	ret = !mt76_poll_msec(dev, MT_TOP_CFG_ON_ROM_IDX,
+			      MT_TOP_CFG_ON_ROM_STATE_MASK,
+			      FIELD_PREP(MT_TOP_CFG_ON_ROM_STATE_MASK,
+					 MT_TOP_CFG_ON_ROM_IDLE), 200);
+	if (ret)
+		return ret;
+
+	val = mt76_rr(dev, MT_HIF_REMAP_L1);
+
+	mt76_wr(dev, MT_HIF_REMAP_L1,
+		FIELD_GET(MT_HIF_REMAP_L1_OFFSET, val) | FIELD_PREP(MT_HIF_REMAP_L1_BASE, 0x1805));
+	if (!mt76_poll_msec(dev, 0x54A68, WF_STATE_MASK,
+		    FIELD_PREP(WF_STATE_MASK, WF_IDLE), 1000)) {
+		dev_err(dev->mt76.dev, "timeout for wf idle\n");
+		ret = -EIO;
+	}
+
+	mt76_wr(dev, MT_HIF_REMAP_L1, val);
+
+	return ret;
+}
+
+
 int mt7902_mcu_init_firmware(struct mt7902_dev *dev)
 {
 	printk(KERN_DEBUG "mcu.c - mt7902_mcu_init_firmware");
@@ -2729,12 +2931,12 @@ int mt7902_mcu_init_firmware(struct mt7902_dev *dev)
 	if (ret)
 		return ret;
 
-	mt76_connac_mcu_del_wtbl_all(&dev->mt76);
+	// mt76_connac_mcu_del_wtbl_all(&dev->mt76);
 
-	if ((mtk_wed_device_active(&dev->mt76.mmio.wed) &&
-	     is_mt7902(&dev->mt76)) ||
-	    !mtk_wed_get_rx_capa(&dev->mt76.mmio.wed))
-		mt7902_mcu_wa_cmd(dev, MCU_WA_PARAM_CMD(CAPABILITY), 0, 0, 0);
+	// if ((mtk_wed_device_active(&dev->mt76.mmio.wed) &&
+	//      is_mt7902(&dev->mt76)) ||
+	//     !mtk_wed_get_rx_capa(&dev->mt76.mmio.wed))
+	// 	mt7902_mcu_wa_cmd(dev, MCU_WA_PARAM_CMD(CAPABILITY), 0, 0, 0);
 
 	ret = mt7902_mcu_set_mwds(dev, 1);
 	if (ret)
@@ -2749,7 +2951,8 @@ int mt7902_mcu_init_firmware(struct mt7902_dev *dev)
 	if (ret)
 		return ret;
 
-	return mt7902_mcu_set_red(dev, mtk_wed_device_active(&dev->mt76.mmio.wed));
+	//return mt7902_mcu_set_red(dev, mtk_wed_device_active(&dev->mt76.mmio.wed));
+	return mt7902_mcu_wa_cmd(dev, MCU_WA_PARAM_CMD(SET), MCU_WA_PARAM_RED, 0, 0);
 }
 
 int mt7902_mcu_init(struct mt7902_dev *dev)
@@ -2757,10 +2960,11 @@ int mt7902_mcu_init(struct mt7902_dev *dev)
 	printk(KERN_DEBUG "mcu.c - mt7902_mcu_init");
 	static const struct mt76_mcu_ops mt7902_mcu_ops = {
 		.max_retry = 1,
-		.headroom = sizeof(struct mt76_connac2_mcu_txd),
-		.mcu_skb_prepare_msg = mt76_connac2_mcu_fill_message,
+		.headroom = sizeof(struct mt7902_mcu_txd),
+		//.mcu_skb_prepare_msg = mt76_connac2_mcu_fill_message,
 		.mcu_skb_send_msg = mt7902_mcu_send_message,
 		.mcu_parse_response = mt7902_mcu_parse_response,
+		.mcu_restart = mt76_connac_mcu_restart,
 	};
 
 	dev->mt76.mcu_ops = &mt7902_mcu_ops;
