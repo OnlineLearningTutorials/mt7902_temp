@@ -26,9 +26,9 @@
 #define mt7902_RX_RING_SIZE		1536
 #define mt7902_RX_MCU_RING_SIZE		512
 
-#define mt7902_FIRMWARE_WA		"mediatek/mt7902_wa.bin"
-#define mt7902_FIRMWARE_WM		"mediatek/mt7902_wm.bin"
-#define mt7902_ROM_PATCH		"mediatek/mt7902_rom_patch.bin"
+#define MT7902_FIRMWARE_WA		"mediatek/mt7902_wa.bin"
+#define MT7902_FIRMWARE_WM		"mediatek/mt7902_wm.bin"
+#define MT7902_ROM_PATCH		"mediatek/mt7902_rom_patch.bin"
 
 #define MT7916_FIRMWARE_WA		"mediatek/mt7916_wa.bin"
 #define MT7916_FIRMWARE_WM		"mediatek/mt7916_wm.bin"
