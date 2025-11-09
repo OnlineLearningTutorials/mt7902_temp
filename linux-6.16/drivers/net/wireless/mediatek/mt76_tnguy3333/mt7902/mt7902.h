@@ -235,9 +235,9 @@ mt7902_reg_map_l1(struct mt7902_dev *dev, u32 addr)
 	u32 offset = FIELD_GET(MT_HIF_REMAP_L1_OFFSET, addr);
 	u32 base = FIELD_GET(MT_HIF_REMAP_L1_BASE, addr);
 
-	mt76_rmw_field(dev, MT_HIF_REMAP_L1, MT_HIF_REMAP_L1_MASK, base);
+	dev->bus_ops->rmw(&dev->mt76, MT_HIF_REMAP_L1, FIELD_PREP(MT_HIF_REMAP_L1_MASK, base));
 	/* use read to push write */
-	mt76_rr(dev, MT_HIF_REMAP_L1);
+	dev->bus_ops->rr(&dev->mt76, MT_HIF_REMAP_L1);
 
 	return MT_HIF_REMAP_BASE_L1 + offset;
 }
