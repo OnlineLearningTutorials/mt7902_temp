@@ -88,6 +88,7 @@ static const struct mt7902_mem_region mt798x_mem_regions[] = {
 const struct mt7902_mem_region*
 mt7902_coredump_get_mem_layout(struct mt7902_dev *dev, u32 *num)
 {
+	printk(KERN_DEBUG "coredump.c - ");
 	switch (mt76_chip(&dev->mt76)) {
 	case 0x7915:
 		*num = ARRAY_SIZE(mt7902_mem_regions);
@@ -106,6 +107,7 @@ mt7902_coredump_get_mem_layout(struct mt7902_dev *dev, u32 *num)
 
 static int mt7902_coredump_get_mem_size(struct mt7902_dev *dev)
 {
+	printk(KERN_DEBUG "coredump.c - ");
 	const struct mt7902_mem_region *mem_region;
 	size_t size = 0;
 	u32 num;
@@ -130,6 +132,7 @@ static int mt7902_coredump_get_mem_size(struct mt7902_dev *dev)
 
 struct mt7902_crash_data *mt7902_coredump_new(struct mt7902_dev *dev)
 {
+	printk(KERN_DEBUG "coredump.c - ");
 	struct mt7902_crash_data *crash_data = dev->coredump.crash_data;
 
 	lockdep_assert_held(&dev->dump_mutex);
@@ -144,6 +147,7 @@ static void
 mt7902_coredump_fw_state(struct mt7902_dev *dev, struct mt7902_coredump *dump,
 			 bool *exception)
 {
+	printk(KERN_DEBUG "coredump.c - ");
 	u32 state, count, type;
 
 	type = (u32)mt76_get_field(dev, MT_FW_EXCEPT_TYPE, GENMASK(7, 0));
@@ -167,6 +171,7 @@ static void
 mt7902_coredump_fw_trace(struct mt7902_dev *dev, struct mt7902_coredump *dump,
 			 bool exception)
 {
+	printk(KERN_DEBUG "coredump.c - ");
 	u32 n, irq, sch, base = MT_FW_EINT_INFO;
 
 	/* trap or run? */
@@ -224,6 +229,7 @@ static void
 mt7902_coredump_fw_stack(struct mt7902_dev *dev, struct mt7902_coredump *dump,
 			 bool exception)
 {
+	printk(KERN_DEBUG "coredump.c - ");
 	u32 oldest, i, idx;
 
 	/* stop call stack record */
@@ -244,6 +250,7 @@ mt7902_coredump_fw_stack(struct mt7902_dev *dev, struct mt7902_coredump *dump,
 static void
 mt7902_coredump_fw_task(struct mt7902_dev *dev, struct mt7902_coredump *dump)
 {
+	printk(KERN_DEBUG "coredump.c - ");
 	u32 offs = is_mt7902(&dev->mt76) ? 0xe0 : 0x170;
 
 	strscpy(dump->task_qid, "(task queue id) read, write",
@@ -268,6 +275,7 @@ mt7902_coredump_fw_task(struct mt7902_dev *dev, struct mt7902_coredump *dump)
 static void
 mt7902_coredump_fw_context(struct mt7902_dev *dev, struct mt7902_coredump *dump)
 {
+	printk(KERN_DEBUG "coredump.c - ");
 	u32 count, idx, id;
 
 	count = mt76_rr(dev, MT_FW_CIRQ_COUNT);
@@ -301,6 +309,7 @@ mt7902_coredump_fw_context(struct mt7902_dev *dev, struct mt7902_coredump *dump)
 
 static struct mt7902_coredump *mt7902_coredump_build(struct mt7902_dev *dev)
 {
+	printk(KERN_DEBUG "coredump.c - ");
 	struct mt7902_crash_data *crash_data = dev->coredump.crash_data;
 	struct mt7902_coredump *dump;
 	struct mt7902_coredump_mem *dump_mem;
@@ -358,6 +367,7 @@ static struct mt7902_coredump *mt7902_coredump_build(struct mt7902_dev *dev)
 
 int mt7902_coredump_submit(struct mt7902_dev *dev)
 {
+	printk(KERN_DEBUG "coredump.c - ");
 	struct mt7902_coredump *dump;
 
 	dump = mt7902_coredump_build(dev);
@@ -373,6 +383,7 @@ int mt7902_coredump_submit(struct mt7902_dev *dev)
 
 int mt7902_coredump_register(struct mt7902_dev *dev)
 {
+	printk(KERN_DEBUG "coredump.c - ");
 	struct mt7902_crash_data *crash_data;
 
 	crash_data = vzalloc(sizeof(*dev->coredump.crash_data));
@@ -399,6 +410,7 @@ int mt7902_coredump_register(struct mt7902_dev *dev)
 
 void mt7902_coredump_unregister(struct mt7902_dev *dev)
 {
+	printk(KERN_DEBUG "coredump.c - ");
 	if (dev->coredump.crash_data->memdump_buf) {
 		vfree(dev->coredump.crash_data->memdump_buf);
 		dev->coredump.crash_data->memdump_buf = NULL;

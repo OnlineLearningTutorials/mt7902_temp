@@ -8,6 +8,7 @@
 static int
 mt7902_init_tx_queues(struct mt7902_phy *phy, int idx, int n_desc, int ring_base)
 {
+	printk(KERN_DEBUG "dma.c - mt7902_init_tx_queues");
 	struct mt7902_dev *dev = phy->dev;
 	struct mtk_wed_device *wed = NULL;
 
@@ -27,6 +28,7 @@ mt7902_init_tx_queues(struct mt7902_phy *phy, int idx, int n_desc, int ring_base
 
 static int mt7902_poll_tx(struct napi_struct *napi, int budget)
 {
+	printk(KERN_DEBUG "dma.c - mt7902_poll_tx");
 	struct mt7902_dev *dev;
 
 	dev = container_of(napi, struct mt7902_dev, mt76.tx_napi);
@@ -40,6 +42,7 @@ static int mt7902_poll_tx(struct napi_struct *napi, int budget)
 
 static void mt7902_dma_config(struct mt7902_dev *dev)
 {
+	printk(KERN_DEBUG "dma.c - mt7902_dma_config");
 #define Q_CONFIG(q, wfdma, int, id) do {		\
 		if (wfdma)				\
 			dev->wfdma_mask |= (1 << (q));	\
@@ -122,6 +125,7 @@ static void mt7902_dma_config(struct mt7902_dev *dev)
 
 static void __mt7902_dma_prefetch(struct mt7902_dev *dev, u32 ofs)
 {
+	printk(KERN_DEBUG "dma.c - __mt7902_dma_prefetch");
 #define PREFETCH(_base, _depth)	((_base) << 16 | (_depth))
 	u32 base = 0;
 
@@ -164,6 +168,7 @@ static void __mt7902_dma_prefetch(struct mt7902_dev *dev, u32 ofs)
 
 void mt7902_dma_prefetch(struct mt7902_dev *dev)
 {
+	printk(KERN_DEBUG "dma.c - mt7902_dma_prefetch");
 	__mt7902_dma_prefetch(dev, 0);
 	if (dev->hif2)
 		__mt7902_dma_prefetch(dev, MT_WFDMA0_PCIE1(0) - MT_WFDMA0(0));
@@ -171,6 +176,7 @@ void mt7902_dma_prefetch(struct mt7902_dev *dev)
 
 static void mt7902_dma_disable(struct mt7902_dev *dev, bool rst)
 {
+	printk(KERN_DEBUG "dma.c - mt7902_dma_disable");
 	struct mt76_dev *mdev = &dev->mt76;
 	u32 hif1_ofs = 0;
 
@@ -254,6 +260,7 @@ static void mt7902_dma_disable(struct mt7902_dev *dev, bool rst)
 
 int mt7902_dma_start(struct mt7902_dev *dev, bool reset, bool wed_reset)
 {
+	printk(KERN_DEBUG "dma.c - mt7902_dma_start");
 	struct mt76_dev *mdev = &dev->mt76;
 	u32 hif1_ofs = 0;
 	u32 irq_mask;
@@ -333,6 +340,7 @@ int mt7902_dma_start(struct mt7902_dev *dev, bool reset, bool wed_reset)
 
 static int mt7902_dma_enable(struct mt7902_dev *dev, bool reset)
 {
+	printk(KERN_DEBUG "dma.c - mt7902_dma_enable");
 	struct mt76_dev *mdev = &dev->mt76;
 	u32 hif1_ofs = 0;
 
@@ -407,6 +415,7 @@ static int mt7902_dma_enable(struct mt7902_dev *dev, bool reset)
 
 int mt7902_dma_init(struct mt7902_dev *dev, struct mt7902_phy *phy2)
 {
+	printk(KERN_DEBUG "dma.c - mt7902_dma_init");
 	struct mt76_dev *mdev = &dev->mt76;
 	u32 wa_rx_base, wa_rx_idx;
 	u32 hif1_ofs = 0;
@@ -589,6 +598,7 @@ int mt7902_dma_init(struct mt7902_dev *dev, struct mt7902_phy *phy2)
 
 int mt7902_dma_reset(struct mt7902_dev *dev, bool force)
 {
+	printk(KERN_DEBUG "dma.c - mt7902_dma_reset");
 	struct mt76_phy *mphy_ext = dev->mt76.phys[MT_BAND1];
 	struct mtk_wed_device *wed = &dev->mt76.mmio.wed;
 	int i;
@@ -649,6 +659,7 @@ int mt7902_dma_reset(struct mt7902_dev *dev, bool force)
 
 void mt7902_dma_cleanup(struct mt7902_dev *dev)
 {
+	printk(KERN_DEBUG "dma.c - mt7902_dma_cleanup");
 	mt7902_dma_disable(dev, true);
 
 	mt76_dma_cleanup(&dev->mt76);

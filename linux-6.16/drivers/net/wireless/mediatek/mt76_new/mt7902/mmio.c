@@ -415,6 +415,7 @@ static const struct mt76_connac_reg_map mt7986_reg_map[] = {
 
 static u32 mt7902_reg_map_l1(struct mt7902_dev *dev, u32 addr)
 {
+	//printk(KERN_DEBUG "mmio.c - mt7902_reg_map_l1");
 	u32 offset = FIELD_GET(MT_HIF_REMAP_L1_OFFSET, addr);
 	u32 base = FIELD_GET(MT_HIF_REMAP_L1_BASE, addr);
 	u32 l1_remap;
@@ -436,6 +437,7 @@ static u32 mt7902_reg_map_l1(struct mt7902_dev *dev, u32 addr)
 
 static u32 mt7902_reg_map_l2(struct mt7902_dev *dev, u32 addr)
 {
+	//printk(KERN_DEBUG "mmio.c - mt7902_reg_map_l2");
 	u32 offset, base;
 
 	if (is_mt7902(&dev->mt76)) {
@@ -469,6 +471,7 @@ static u32 mt7902_reg_map_l2(struct mt7902_dev *dev, u32 addr)
 
 static u32 __mt7902_reg_addr(struct mt7902_dev *dev, u32 addr)
 {
+	//printk(KERN_DEBUG "mmio.c - __mt7902_reg_addr");
 	int i;
 
 	if (addr < 0x100000)
@@ -497,6 +500,7 @@ static u32 __mt7902_reg_addr(struct mt7902_dev *dev, u32 addr)
 
 static u32 __mt7902_reg_remap_addr(struct mt7902_dev *dev, u32 addr)
 {
+	//printk(KERN_DEBUG "mmio.c - __mt7902_reg_remap_addr");
 	if ((addr >= MT_INFRA_BASE && addr < MT_WFSYS0_PHY_START) ||
 	    (addr >= MT_WFSYS0_PHY_START && addr < MT_WFSYS1_PHY_START) ||
 	    (addr >= MT_WFSYS1_PHY_START && addr <= MT_WFSYS1_PHY_END))
@@ -519,6 +523,7 @@ static u32 __mt7902_reg_remap_addr(struct mt7902_dev *dev, u32 addr)
 void mt7902_memcpy_fromio(struct mt7902_dev *dev, void *buf, u32 offset,
 			  size_t len)
 {
+	printk(KERN_DEBUG "mmio.c - mt7902_memcpy_fromio");
 	u32 addr = __mt7902_reg_addr(dev, offset);
 
 	if (addr) {
@@ -534,6 +539,7 @@ void mt7902_memcpy_fromio(struct mt7902_dev *dev, void *buf, u32 offset,
 
 static u32 mt7902_rr(struct mt76_dev *mdev, u32 offset)
 {
+	//printk(KERN_DEBUG "mmio.c - mt7902_rr");
 	struct mt7902_dev *dev = container_of(mdev, struct mt7902_dev, mt76);
 	u32 addr = __mt7902_reg_addr(dev, offset), val;
 
@@ -549,6 +555,7 @@ static u32 mt7902_rr(struct mt76_dev *mdev, u32 offset)
 
 static void mt7902_wr(struct mt76_dev *mdev, u32 offset, u32 val)
 {
+	//printk(KERN_DEBUG "mmio.c - mt7902_wr");
 	struct mt7902_dev *dev = container_of(mdev, struct mt7902_dev, mt76);
 	u32 addr = __mt7902_reg_addr(dev, offset);
 
@@ -564,6 +571,7 @@ static void mt7902_wr(struct mt76_dev *mdev, u32 offset, u32 val)
 
 static u32 mt7902_rmw(struct mt76_dev *mdev, u32 offset, u32 mask, u32 val)
 {
+	//printk(KERN_DEBUG "mmio.c - mt7902_rmw");
 	struct mt7902_dev *dev = container_of(mdev, struct mt7902_dev, mt76);
 	u32 addr = __mt7902_reg_addr(dev, offset);
 
@@ -581,6 +589,7 @@ static u32 mt7902_rmw(struct mt76_dev *mdev, u32 offset, u32 mask, u32 val)
 static void mt7902_mmio_wed_update_rx_stats(struct mtk_wed_device *wed,
 					    struct mtk_wed_wo_rx_stats *stats)
 {
+	printk(KERN_DEBUG "mmio.c - mt7902_mmio_wed_update_rx_stats");
 	int idx = le16_to_cpu(stats->wlan_idx);
 	struct mt7902_dev *dev;
 	struct mt76_wcid *wcid;
@@ -602,6 +611,7 @@ static void mt7902_mmio_wed_update_rx_stats(struct mtk_wed_device *wed,
 
 static int mt7902_mmio_wed_reset(struct mtk_wed_device *wed)
 {
+	printk(KERN_DEBUG "mmio.c - mt7902_mmio_wed_reset");
 	struct mt76_dev *mdev = container_of(wed, struct mt76_dev, mmio.wed);
 	struct mt7902_dev *dev = container_of(mdev, struct mt7902_dev, mt76);
 	struct mt76_phy *mphy = &dev->mphy;
@@ -633,6 +643,7 @@ out:
 int mt7902_mmio_wed_init(struct mt7902_dev *dev, void *pdev_ptr,
 			 bool pci, int *irq)
 {
+	printk(KERN_DEBUG "mmio.c - mt7902_mmio_wed_init");
 #ifdef CONFIG_NET_MEDIATEK_SOC_WED
 	struct mtk_wed_device *wed = &dev->mt76.mmio.wed;
 	int ret;
@@ -741,6 +752,7 @@ static int mt7902_mmio_init(struct mt76_dev *mdev,
 			    void __iomem *mem_base,
 			    u32 device_id)
 {
+	printk(KERN_DEBUG "mmio.c - mt7902_mmio_init");
 	struct mt76_bus_ops *bus_ops;
 	struct mt7902_dev *dev;
 
@@ -749,7 +761,7 @@ static int mt7902_mmio_init(struct mt76_dev *mdev,
 	spin_lock_init(&dev->reg_lock);
 
 	switch (device_id) {
-	case 0x7915:
+	case 0x7902:
 		dev->reg.reg_rev = mt7902_reg;
 		dev->reg.offs_rev = mt7902_offs;
 		dev->reg.map = mt7902_reg_map;
@@ -794,6 +806,7 @@ void mt7902_dual_hif_set_irq_mask(struct mt7902_dev *dev,
 				  bool write_reg,
 				  u32 clear, u32 set)
 {
+	printk(KERN_DEBUG "mmio.c - mt7902_dual_hif_set_irq_mask");
 	struct mt76_dev *mdev = &dev->mt76;
 	unsigned long flags;
 
@@ -817,6 +830,7 @@ void mt7902_dual_hif_set_irq_mask(struct mt7902_dev *dev,
 static void mt7902_rx_poll_complete(struct mt76_dev *mdev,
 				    enum mt76_rxq_id q)
 {
+	printk(KERN_DEBUG "mmio.c - mt7902_rx_poll_complete");
 	struct mt7902_dev *dev = container_of(mdev, struct mt7902_dev, mt76);
 
 	mt7902_irq_enable(dev, MT_INT_RX(q));
@@ -825,6 +839,7 @@ static void mt7902_rx_poll_complete(struct mt76_dev *mdev,
 /* TODO: support 2/4/6/8 MSI-X vectors */
 static void mt7902_irq_tasklet(struct tasklet_struct *t)
 {
+	printk(KERN_DEBUG "mmio.c - mt7902_irq_tasklet");
 	struct mt7902_dev *dev = from_tasklet(dev, t, mt76.irq_tasklet);
 	struct mtk_wed_device *wed = &dev->mt76.mmio.wed;
 	u32 intr, intr1, mask;
@@ -895,6 +910,7 @@ static void mt7902_irq_tasklet(struct tasklet_struct *t)
 
 irqreturn_t mt7902_irq_handler(int irq, void *dev_instance)
 {
+	printk(KERN_DEBUG "mmio.c - mt7902_irq_handler");
 	struct mt7902_dev *dev = dev_instance;
 	struct mtk_wed_device *wed = &dev->mt76.mmio.wed;
 
@@ -917,6 +933,7 @@ irqreturn_t mt7902_irq_handler(int irq, void *dev_instance)
 struct mt7902_dev *mt7902_mmio_probe(struct device *pdev,
 				     void __iomem *mem_base, u32 device_id)
 {
+	printk(KERN_DEBUG "mmio.c - mt7902_mmio_probe");
 	static const struct mt76_driver_ops drv_ops = {
 		/* txwi_size = txd size + txp size */
 		.txwi_size = MT_TXD_SIZE + sizeof(struct mt76_connac_fw_txp),
@@ -963,6 +980,7 @@ error:
 
 static int __init mt7902_init(void)
 {
+	printk(KERN_DEBUG "mmio.c - mt7902_init");
 	int ret;
 
 	ret = pci_register_driver(&mt7902_hif_driver);
@@ -991,6 +1009,7 @@ error_pci:
 
 static void __exit mt7902_exit(void)
 {
+	printk(KERN_DEBUG "mmio.c - mt7902_exit");
 	if (IS_ENABLED(CONFIG_MT798X_WMAC))
 		platform_driver_unregister(&mt798x_wmac_driver);
 

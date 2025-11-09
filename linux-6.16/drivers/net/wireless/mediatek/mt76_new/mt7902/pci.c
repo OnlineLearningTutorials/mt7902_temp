@@ -22,7 +22,7 @@ static const struct pci_device_id mt7902_pci_device_table[] = {
 };
 
 static const struct pci_device_id mt7902_hif_device_table[] = {
-	{ PCI_DEVICE(PCI_VENDOR_ID_MEDIATEK, 0x7902) },
+	//{ PCI_DEVICE(PCI_VENDOR_ID_MEDIATEK, 0x7902) },
 	{ },
 };
 
@@ -41,7 +41,7 @@ static struct mt7902_hif *mt7902_pci_get_hif2(u32 idx)
 			continue;
 
 		get_device(hif->dev);
-		hif->index = idx;
+		//hif->index = idx;
 		goto out;
 	}
 	hif = NULL;
@@ -64,17 +64,21 @@ static void mt7902_put_hif2(struct mt7902_hif *hif)
 static struct mt7902_hif *mt7902_pci_init_hif2(struct pci_dev *pdev)
 {
 	printk(KERN_DEBUG "pci.c - mt7902_pci_init_hif2");
-	struct pci_dev *tmp_pdev;
+	//struct pci_dev *tmp_pdev;
 
 	hif_idx++;
 
-	tmp_pdev = pci_get_device(PCI_VENDOR_ID_MEDIATEK, 0x7916, NULL);
-	if (!tmp_pdev) {
-		tmp_pdev = pci_get_device(PCI_VENDOR_ID_MEDIATEK, 0x790a, NULL);
-		if (!tmp_pdev)
-			return NULL;
-	}
-	pci_dev_put(tmp_pdev);
+	// tmp_pdev = pci_get_device(PCI_VENDOR_ID_MEDIATEK, 0x7916, NULL);
+	// if (!tmp_pdev) {
+	// 	tmp_pdev = pci_get_device(PCI_VENDOR_ID_MEDIATEK, 0x790a, NULL);
+	// 	if (!tmp_pdev)
+	// 		return NULL;
+	// }
+	// pci_dev_put(tmp_pdev);
+
+	if (!pci_get_device(PCI_VENDOR_ID_MEDIATEK, 0x7916, NULL) &&
+	    !pci_get_device(PCI_VENDOR_ID_MEDIATEK, 0x790a, NULL))
+		return NULL;
 
 	writel(hif_idx | MT_PCIE_RECOG_ID_SEM,
 	       pcim_iomap_table(pdev)[0] + MT_PCIE_RECOG_ID);
@@ -106,7 +110,7 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 			    const struct pci_device_id *id)
 {
 	printk(KERN_DEBUG "pci.c - mt7902_pci_probe");
-	struct mt7902_hif *hif2 = NULL;
+	struct mt7902_hif *hif2;
 	struct mt7902_dev *dev;
 	struct mt76_dev *mdev;
 	int irq;
@@ -128,7 +132,7 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 
 	mt76_pci_disable_aspm(pdev);
 
-	if (id->device == 0x7916 || id->device == 0x790a)
+	if (id->device == 0x790a)
 		return mt7902_pci_hif2_probe(pdev);
 
 	dev = mt7902_mmio_probe(&pdev->dev, pcim_iomap_table(pdev)[0],

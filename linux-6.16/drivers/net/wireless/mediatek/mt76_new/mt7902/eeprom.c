@@ -12,6 +12,7 @@ MODULE_PARM_DESC(enable_6ghz, "Enable 6 GHz instead of 5 GHz on hardware that su
 
 static int mt7902_eeprom_load_precal(struct mt7902_dev *dev)
 {
+	printk(KERN_DEBUG "eeprom.c - ");
 	struct mt76_dev *mdev = &dev->mt76;
 	u8 *eeprom = mdev->eeprom.data;
 	u32 offs = is_mt7902(&dev->mt76) ? MT_EE_DO_PRE_CAL : MT_EE_DO_PRE_CAL_V2;
@@ -46,6 +47,7 @@ static int mt7902_eeprom_load_precal(struct mt7902_dev *dev)
 
 static int mt7902_check_eeprom(struct mt7902_dev *dev)
 {
+	printk(KERN_DEBUG "eeprom.c - ");
 	u8 *eeprom = dev->mt76.eeprom.data;
 	u16 val = get_unaligned_le16(eeprom);
 
@@ -66,6 +68,7 @@ static int mt7902_check_eeprom(struct mt7902_dev *dev)
 
 static char *mt7902_eeprom_name(struct mt7902_dev *dev)
 {
+	printk(KERN_DEBUG "eeprom.c - ");
 	switch (mt76_chip(&dev->mt76)) {
 	case 0x7915:
 		return dev->dbdc_support ?
@@ -97,6 +100,7 @@ static char *mt7902_eeprom_name(struct mt7902_dev *dev)
 static int
 mt7902_eeprom_load_default(struct mt7902_dev *dev)
 {
+	printk(KERN_DEBUG "eeprom.c - ");
 	u8 *eeprom = dev->mt76.eeprom.data;
 	const struct firmware *fw = NULL;
 	int ret;
@@ -122,6 +126,7 @@ out:
 
 static int mt7902_eeprom_load(struct mt7902_dev *dev)
 {
+	printk(KERN_DEBUG "eeprom.c - ");
 	int ret;
 	u16 eeprom_size = mt7902_eeprom_size(dev);
 
@@ -158,6 +163,7 @@ static int mt7902_eeprom_load(struct mt7902_dev *dev)
 
 static void mt7902_eeprom_parse_band_config(struct mt7902_phy *phy)
 {
+	printk(KERN_DEBUG "eeprom.c - ");
 	struct mt7902_dev *dev = phy->dev;
 	u8 *eeprom = dev->mt76.eeprom.data;
 	u8 band = phy->mt76->band_idx;
@@ -215,6 +221,7 @@ static void mt7902_eeprom_parse_band_config(struct mt7902_phy *phy)
 void mt7902_eeprom_parse_hw_cap(struct mt7902_dev *dev,
 				struct mt7902_phy *phy)
 {
+	printk(KERN_DEBUG "eeprom.c - ");
 	u8 path, nss, nss_max = 4, *eeprom = dev->mt76.eeprom.data;
 	struct mt76_phy *mphy = phy->mt76;
 	u8 band = phy->mt76->band_idx;
@@ -266,6 +273,7 @@ void mt7902_eeprom_parse_hw_cap(struct mt7902_dev *dev,
 
 int mt7902_eeprom_init(struct mt7902_dev *dev)
 {
+	printk(KERN_DEBUG "eeprom.c - ");
 	int ret;
 
 	ret = mt7902_eeprom_load(dev);
@@ -293,6 +301,7 @@ int mt7902_eeprom_get_target_power(struct mt7902_dev *dev,
 				   struct ieee80211_channel *chan,
 				   u8 chain_idx)
 {
+	printk(KERN_DEBUG "eeprom.c - ");
 	u8 *eeprom = dev->mt76.eeprom.data;
 	int index, target_power;
 	bool tssi_on, is_7976;
@@ -339,6 +348,7 @@ int mt7902_eeprom_get_target_power(struct mt7902_dev *dev,
 
 s8 mt7902_eeprom_get_power_delta(struct mt7902_dev *dev, int band)
 {
+	printk(KERN_DEBUG "eeprom.c - ");
 	u8 *eeprom = dev->mt76.eeprom.data;
 	u32 val, offs;
 	s8 delta;
@@ -364,6 +374,7 @@ s8 mt7902_eeprom_get_power_delta(struct mt7902_dev *dev, int band)
 bool
 mt7902_eeprom_has_background_radar(struct mt7902_dev *dev)
 {
+	printk(KERN_DEBUG "eeprom.c - ");
 	u8 val, buf[mt7902_EEPROM_BLOCK_SIZE];
 	u8 band_sel, tx_path, rx_path;
 	int offs = MT_EE_WIFI_CONF + 1;

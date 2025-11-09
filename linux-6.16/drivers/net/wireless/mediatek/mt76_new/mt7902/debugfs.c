@@ -21,6 +21,7 @@ struct hw_queue_map {
 static int
 mt7902_implicit_txbf_set(void *data, u64 val)
 {
+	printk(KERN_DEBUG "debugfs.c - ");
 	struct mt7902_dev *dev = data;
 
 	/* The existing connected stations shall reconnect to apply
@@ -34,6 +35,7 @@ mt7902_implicit_txbf_set(void *data, u64 val)
 static int
 mt7902_implicit_txbf_get(void *data, u64 *val)
 {
+	printk(KERN_DEBUG "debugfs.c - ");
 	struct mt7902_dev *dev = data;
 
 	*val = dev->ibf;
@@ -49,6 +51,7 @@ static ssize_t
 mt7902_sys_recovery_set(struct file *file, const char __user *user_buf,
 			size_t count, loff_t *ppos)
 {
+	printk(KERN_DEBUG "debugfs.c - ");
 	struct mt7902_phy *phy = file->private_data;
 	struct mt7902_dev *dev = phy->dev;
 	bool band = phy->mt76->band_idx;
@@ -125,6 +128,7 @@ static ssize_t
 mt7902_sys_recovery_get(struct file *file, char __user *user_buf,
 			size_t count, loff_t *ppos)
 {
+	printk(KERN_DEBUG "debugfs.c - ");
 	struct mt7902_phy *phy = file->private_data;
 	struct mt7902_dev *dev = phy->dev;
 	char *buff;
@@ -211,6 +215,7 @@ static const struct file_operations mt7902_sys_recovery_ops = {
 static int
 mt7902_radar_trigger(void *data, u64 val)
 {
+	printk(KERN_DEBUG "debugfs.c - ");
 #define RADAR_MAIN_CHAIN	1
 #define RADAR_BACKGROUND	2
 	struct mt7902_phy *phy = data;
@@ -241,6 +246,7 @@ DEFINE_DEBUGFS_ATTRIBUTE(fops_radar_trigger, NULL,
 static int
 mt7902_muru_debug_set(void *data, u64 val)
 {
+	printk(KERN_DEBUG "debugfs.c - ");
 	struct mt7902_dev *dev = data;
 
 	dev->muru_debug = val;
@@ -252,6 +258,7 @@ mt7902_muru_debug_set(void *data, u64 val)
 static int
 mt7902_muru_debug_get(void *data, u64 *val)
 {
+	printk(KERN_DEBUG "debugfs.c - ");
 	struct mt7902_dev *dev = data;
 
 	*val = dev->muru_debug;
@@ -264,6 +271,7 @@ DEFINE_DEBUGFS_ATTRIBUTE(fops_muru_debug, mt7902_muru_debug_get,
 
 static int mt7902_muru_stats_show(struct seq_file *file, void *data)
 {
+	printk(KERN_DEBUG "debugfs.c - ");
 	struct mt7902_phy *phy = file->private;
 	struct mt7902_dev *dev = phy->dev;
 	static const char * const dl_non_he_type[] = {
@@ -453,6 +461,7 @@ DEFINE_SHOW_ATTRIBUTE(mt7902_muru_stats);
 static int
 mt7902_rdd_monitor(struct seq_file *s, void *data)
 {
+	printk(KERN_DEBUG "debugfs.c - ");
 	struct mt7902_dev *dev = dev_get_drvdata(s->private);
 	struct cfg80211_chan_def *chandef = &dev->rdd2_chandef;
 	const char *bw;
@@ -505,6 +514,7 @@ out:
 static int
 mt7902_fw_debug_wm_set(void *data, u64 val)
 {
+	printk(KERN_DEBUG "debugfs.c - ");
 	struct mt7902_dev *dev = data;
 	enum {
 		DEBUG_TXCMD = 62,
@@ -559,6 +569,7 @@ out:
 static int
 mt7902_fw_debug_wm_get(void *data, u64 *val)
 {
+	printk(KERN_DEBUG "debugfs.c - ");
 	struct mt7902_dev *dev = data;
 
 	*val = dev->fw.debug_wm;
@@ -572,6 +583,7 @@ DEFINE_DEBUGFS_ATTRIBUTE(fops_fw_debug_wm, mt7902_fw_debug_wm_get,
 static int
 mt7902_fw_debug_wa_set(void *data, u64 val)
 {
+	printk(KERN_DEBUG "debugfs.c - ");
 	struct mt7902_dev *dev = data;
 	int ret;
 
@@ -593,6 +605,7 @@ out:
 static int
 mt7902_fw_debug_wa_get(void *data, u64 *val)
 {
+	printk(KERN_DEBUG "debugfs.c - ");
 	struct mt7902_dev *dev = data;
 
 	*val = dev->fw.debug_wa;
@@ -607,6 +620,7 @@ static struct dentry *
 create_buf_file_cb(const char *filename, struct dentry *parent, umode_t mode,
 		   struct rchan_buf *buf, int *is_global)
 {
+	printk(KERN_DEBUG "debugfs.c - ");
 	struct dentry *f;
 
 	f = debugfs_create_file("fwlog_data", mode, parent, buf,
@@ -622,6 +636,7 @@ create_buf_file_cb(const char *filename, struct dentry *parent, umode_t mode,
 static int
 remove_buf_file_cb(struct dentry *f)
 {
+	printk(KERN_DEBUG "debugfs.c - ");
 	debugfs_remove(f);
 
 	return 0;
@@ -630,6 +645,7 @@ remove_buf_file_cb(struct dentry *f)
 static int
 mt7902_fw_debug_bin_set(void *data, u64 val)
 {
+	printk(KERN_DEBUG "debugfs.c - ");
 	static struct rchan_callbacks relay_cb = {
 		.create_buf_file = create_buf_file_cb,
 		.remove_buf_file = remove_buf_file_cb,
@@ -652,6 +668,7 @@ mt7902_fw_debug_bin_set(void *data, u64 val)
 static int
 mt7902_fw_debug_bin_get(void *data, u64 *val)
 {
+	printk(KERN_DEBUG "debugfs.c - ");
 	struct mt7902_dev *dev = data;
 
 	*val = dev->fw.debug_bin;
@@ -665,6 +682,7 @@ DEFINE_DEBUGFS_ATTRIBUTE(fops_fw_debug_bin, mt7902_fw_debug_bin_get,
 static int
 mt7902_fw_util_wm_show(struct seq_file *file, void *data)
 {
+	printk(KERN_DEBUG "debugfs.c - ");
 	struct mt7902_dev *dev = file->private;
 
 	seq_printf(file, "Program counter: 0x%x\n", mt76_rr(dev, MT_WM_MCU_PC));
@@ -686,6 +704,7 @@ DEFINE_SHOW_ATTRIBUTE(mt7902_fw_util_wm);
 static int
 mt7902_fw_util_wa_show(struct seq_file *file, void *data)
 {
+	printk(KERN_DEBUG "debugfs.c - ");
 	struct mt7902_dev *dev = file->private;
 
 	seq_printf(file, "Program counter: 0x%x\n", mt76_rr(dev, MT_WA_MCU_PC));
@@ -703,6 +722,7 @@ static void
 mt7902_ampdu_stat_read_phy(struct mt7902_phy *phy,
 			   struct seq_file *file)
 {
+	printk(KERN_DEBUG "debugfs.c - ");
 	struct mt7902_dev *dev = phy->dev;
 	bool ext_phy = phy != &dev->phy;
 	int bound[15], range[4], i;
@@ -733,6 +753,7 @@ mt7902_ampdu_stat_read_phy(struct mt7902_phy *phy,
 static void
 mt7902_txbf_stat_read_phy(struct mt7902_phy *phy, struct seq_file *s)
 {
+	printk(KERN_DEBUG "debugfs.c - ");
 	struct mt76_mib_stats *mib = &phy->mib;
 	static const char * const bw[] = {
 		"BW20", "BW40", "BW80", "BW160"
@@ -780,6 +801,7 @@ mt7902_txbf_stat_read_phy(struct mt7902_phy *phy, struct seq_file *s)
 static int
 mt7902_tx_stats_show(struct seq_file *file, void *data)
 {
+	printk(KERN_DEBUG "debugfs.c - ");
 	struct mt7902_phy *phy = file->private;
 	struct mt7902_dev *dev = phy->dev;
 	struct mt76_mib_stats *mib = &phy->mib;
@@ -814,6 +836,7 @@ static void
 mt7902_hw_queue_read(struct seq_file *s, u32 size,
 		     const struct hw_queue_map *map)
 {
+	printk(KERN_DEBUG "debugfs.c - ");
 	struct mt7902_phy *phy = s->private;
 	struct mt7902_dev *dev = phy->dev;
 	u32 i, val;
@@ -844,6 +867,7 @@ mt7902_hw_queue_read(struct seq_file *s, u32 size,
 static void
 mt7902_sta_hw_queue_read(void *data, struct ieee80211_sta *sta)
 {
+	printk(KERN_DEBUG "debugfs.c - ");
 	struct mt7902_sta *msta = (struct mt7902_sta *)sta->drv_priv;
 	struct mt7902_dev *dev = msta->vif->phy->dev;
 	struct seq_file *s = data;
@@ -872,6 +896,7 @@ mt7902_sta_hw_queue_read(void *data, struct ieee80211_sta *sta)
 static int
 mt7902_hw_queues_show(struct seq_file *file, void *data)
 {
+	printk(KERN_DEBUG "debugfs.c - ");
 	struct mt7902_phy *phy = file->private;
 	struct mt7902_dev *dev = phy->dev;
 	static const struct hw_queue_map ple_queue_map[] = {
@@ -942,6 +967,7 @@ DEFINE_SHOW_ATTRIBUTE(mt7902_hw_queues);
 static int
 mt7902_xmit_queues_show(struct seq_file *file, void *data)
 {
+	printk(KERN_DEBUG "debugfs.c - ");
 	struct mt7902_phy *phy = file->private;
 	struct mt7902_dev *dev = phy->dev;
 	struct {
@@ -994,6 +1020,7 @@ static ssize_t
 mt7902_rate_txpower_get(struct file *file, char __user *user_buf,
 			size_t count, loff_t *ppos)
 {
+	printk(KERN_DEBUG "debugfs.c - ");
 	struct mt7902_phy *phy = file->private_data;
 	struct mt7902_dev *dev = phy->dev;
 	s8 txpwr[mt7902_SKU_RATE_NUM];
@@ -1071,6 +1098,7 @@ static ssize_t
 mt7902_rate_txpower_set(struct file *file, const char __user *user_buf,
 			size_t count, loff_t *ppos)
 {
+	printk(KERN_DEBUG "debugfs.c - ");
 	int i, ret, pwr, pwr160 = 0, pwr80 = 0, pwr40 = 0, pwr20 = 0;
 	struct mt7902_phy *phy = file->private_data;
 	struct mt7902_dev *dev = phy->dev;
@@ -1171,6 +1199,7 @@ static const struct file_operations mt7902_rate_txpower_fops = {
 static int
 mt7902_twt_stats(struct seq_file *s, void *data)
 {
+	printk(KERN_DEBUG "debugfs.c - ");
 	struct mt7902_dev *dev = dev_get_drvdata(s->private);
 	struct mt7902_twt_flow *iter;
 
@@ -1200,6 +1229,7 @@ mt7902_twt_stats(struct seq_file *s, void *data)
 static int
 mt7902_rf_regval_get(void *data, u64 *val)
 {
+	printk(KERN_DEBUG "debugfs.c - ");
 	struct mt7902_dev *dev = data;
 	u32 regval;
 	int ret;
@@ -1216,6 +1246,7 @@ mt7902_rf_regval_get(void *data, u64 *val)
 static int
 mt7902_rf_regval_set(void *data, u64 val)
 {
+	printk(KERN_DEBUG "debugfs.c - ");
 	struct mt7902_dev *dev = data;
 	u32 val32 = val;
 
@@ -1227,6 +1258,7 @@ DEFINE_DEBUGFS_ATTRIBUTE(fops_rf_regval, mt7902_rf_regval_get,
 
 int mt7902_init_debugfs(struct mt7902_phy *phy)
 {
+	printk(KERN_DEBUG "debugfs.c - ");
 	struct mt7902_dev *dev = phy->dev;
 	bool ext_phy = phy != &dev->phy;
 	struct dentry *dir;
@@ -1278,6 +1310,7 @@ static void
 mt7902_debugfs_write_fwlog(struct mt7902_dev *dev, const void *hdr, int hdrlen,
 			 const void *data, int len)
 {
+	printk(KERN_DEBUG "debugfs.c - ");
 	static DEFINE_SPINLOCK(lock);
 	unsigned long flags;
 	void *dest;
@@ -1301,6 +1334,7 @@ mt7902_debugfs_write_fwlog(struct mt7902_dev *dev, const void *hdr, int hdrlen,
 
 void mt7902_debugfs_rx_fw_monitor(struct mt7902_dev *dev, const void *data, int len)
 {
+	printk(KERN_DEBUG "debugfs.c - ");
 	struct {
 		__le32 magic;
 		__le32 timestamp;
@@ -1321,6 +1355,7 @@ void mt7902_debugfs_rx_fw_monitor(struct mt7902_dev *dev, const void *data, int 
 
 bool mt7902_debugfs_rx_log(struct mt7902_dev *dev, const void *data, int len)
 {
+	printk(KERN_DEBUG "debugfs.c - ");
 	if (get_unaligned_le32(data) != FW_BIN_LOG_MAGIC)
 		return false;
 
@@ -1337,6 +1372,7 @@ static ssize_t mt7902_sta_fixed_rate_set(struct file *file,
 					 const char __user *user_buf,
 					 size_t count, loff_t *ppos)
 {
+	printk(KERN_DEBUG "debugfs.c - ");
 	struct ieee80211_sta *sta = file->private_data;
 	struct mt7902_sta *msta = (struct mt7902_sta *)sta->drv_priv;
 	struct mt7902_dev *dev = msta->vif->phy->dev;
@@ -1402,6 +1438,7 @@ static const struct file_operations fops_fixed_rate = {
 static int
 mt7902_queues_show(struct seq_file *s, void *data)
 {
+	printk(KERN_DEBUG "debugfs.c - ");
 	struct ieee80211_sta *sta = s->private;
 
 	mt7902_sta_hw_queue_read(s, sta);
@@ -1414,6 +1451,7 @@ DEFINE_SHOW_ATTRIBUTE(mt7902_queues);
 void mt7902_sta_add_debugfs(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
 			    struct ieee80211_sta *sta, struct dentry *dir)
 {
+	printk(KERN_DEBUG "debugfs.c - ");
 	debugfs_create_file("fixed_rate", 0600, dir, sta, &fops_fixed_rate);
 	debugfs_create_file("hw-queues", 0400, dir, sta, &mt7902_queues_fops);
 }

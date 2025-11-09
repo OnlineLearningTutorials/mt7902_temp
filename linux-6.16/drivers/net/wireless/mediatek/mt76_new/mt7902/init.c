@@ -47,7 +47,7 @@ static ssize_t mt7902_thermal_temp_show(struct device *dev,
 					struct device_attribute *attr,
 					char *buf)
 {
-	printk(KERN_DEBUG "init.c - ");
+	printk(KERN_DEBUG "init.c - mt7902_thermal_temp_show");
 	struct mt7902_phy *phy = dev_get_drvdata(dev);
 	int i = to_sensor_dev_attr(attr)->index;
 	int temperature;
@@ -76,7 +76,7 @@ static ssize_t mt7902_thermal_temp_store(struct device *dev,
 					 struct device_attribute *attr,
 					 const char *buf, size_t count)
 {
-	printk(KERN_DEBUG "init.c - ");
+	printk(KERN_DEBUG "init.c - mt7902_thermal_temp_store");
 	struct mt7902_phy *phy = dev_get_drvdata(dev);
 	int ret, i = to_sensor_dev_attr(attr)->index;
 	long val;
@@ -125,7 +125,7 @@ static int
 mt7902_thermal_get_max_throttle_state(struct thermal_cooling_device *cdev,
 				      unsigned long *state)
 {
-	printk(KERN_DEBUG "init.c - ");
+	printk(KERN_DEBUG "init.c - mt7902_thermal_get_max_throttle_state");
 	*state = mt7902_CDEV_THROTTLE_MAX;
 
 	return 0;
@@ -135,7 +135,7 @@ static int
 mt7902_thermal_get_cur_throttle_state(struct thermal_cooling_device *cdev,
 				      unsigned long *state)
 {
-	printk(KERN_DEBUG "init.c - ");
+	printk(KERN_DEBUG "init.c - mt7902_thermal_get_cur_throttle_state");
 	struct mt7902_phy *phy = cdev->devdata;
 
 	*state = phy->cdev_state;
@@ -147,7 +147,7 @@ static int
 mt7902_thermal_set_cur_throttle_state(struct thermal_cooling_device *cdev,
 				      unsigned long state)
 {
-	printk(KERN_DEBUG "init.c - ");
+	printk(KERN_DEBUG "init.c - mt7902_thermal_set_cur_throttle_state");
 	struct mt7902_phy *phy = cdev->devdata;
 	u8 throttling = mt7902_THERMAL_THROTTLE_MAX - state;
 	int ret;
@@ -184,7 +184,7 @@ static const struct thermal_cooling_device_ops mt7902_thermal_ops = {
 
 static void mt7902_unregister_thermal(struct mt7902_phy *phy)
 {
-	printk(KERN_DEBUG "init.c - ");
+	printk(KERN_DEBUG "init.c - mt7902_unregister_thermal");
 	struct wiphy *wiphy = phy->mt76->hw->wiphy;
 
 	if (!phy->cdev)
@@ -196,7 +196,7 @@ static void mt7902_unregister_thermal(struct mt7902_phy *phy)
 
 static int mt7902_thermal_init(struct mt7902_phy *phy)
 {
-	printk(KERN_DEBUG "init.c - ");
+	printk(KERN_DEBUG "init.c - mt7902_thermal_init");
 	struct wiphy *wiphy = phy->mt76->hw->wiphy;
 	struct thermal_cooling_device *cdev;
 	struct device *hwmon;
@@ -231,7 +231,7 @@ static int mt7902_thermal_init(struct mt7902_phy *phy)
 static void mt7902_led_set_config(struct led_classdev *led_cdev,
 				  u8 delay_on, u8 delay_off)
 {
-	printk(KERN_DEBUG "init.c - ");
+	printk(KERN_DEBUG "init.c - mt7902_led_set_config");
 	struct mt7902_dev *dev;
 	struct mt76_phy *mphy;
 	u32 val;
@@ -264,7 +264,7 @@ static int mt7902_led_set_blink(struct led_classdev *led_cdev,
 				unsigned long *delay_on,
 				unsigned long *delay_off)
 {
-	printk(KERN_DEBUG "init.c - ");
+	printk(KERN_DEBUG "init.c - mt7902_led_set_blink");
 	u16 delta_on = 0, delta_off = 0;
 
 #define HW_TICK		10
@@ -283,7 +283,7 @@ static int mt7902_led_set_blink(struct led_classdev *led_cdev,
 static void mt7902_led_set_brightness(struct led_classdev *led_cdev,
 				      enum led_brightness brightness)
 {
-	printk(KERN_DEBUG "init.c - ");
+	printk(KERN_DEBUG "init.c - mt7902_led_set_brightness");
 	if (!brightness)
 		mt7902_led_set_config(led_cdev, 0, 0xff);
 	else
@@ -293,7 +293,7 @@ static void mt7902_led_set_brightness(struct led_classdev *led_cdev,
 static void __mt7902_init_txpower(struct mt7902_phy *phy,
 				  struct ieee80211_supported_band *sband)
 {
-	printk(KERN_DEBUG "init.c - ");
+	printk(KERN_DEBUG "init.c - __mt7902_init_txpower");
 	struct mt7902_dev *dev = phy->dev;
 	int i, n_chains = hweight16(phy->mt76->chainmask);
 	int path_delta = mt76_tx_power_path_delta(n_chains);
@@ -326,7 +326,7 @@ static void __mt7902_init_txpower(struct mt7902_phy *phy,
 
 void mt7902_init_txpower(struct mt7902_phy *phy)
 {
-	printk(KERN_DEBUG "init.c - ");
+	printk(KERN_DEBUG "init.c - mt7902_init_txpower");
 	if (!phy)
 		return;
 
@@ -342,7 +342,7 @@ static void
 mt7902_regd_notifier(struct wiphy *wiphy,
 		     struct regulatory_request *request)
 {
-	printk(KERN_DEBUG "init.c - ");
+	printk(KERN_DEBUG "init.c - mt7902_regd_notifier");
 	struct ieee80211_hw *hw = wiphy_to_ieee80211_hw(wiphy);
 	struct mt7902_dev *dev = mt7902_hw_dev(hw);
 	struct mt76_phy *mphy = hw->priv;
@@ -363,7 +363,7 @@ mt7902_regd_notifier(struct wiphy *wiphy,
 static void
 mt7902_init_wiphy(struct mt7902_phy *phy)
 {
-	printk(KERN_DEBUG "init.c - ");
+	printk(KERN_DEBUG "init.c - mt7902_init_wiphy");
 	struct mt76_phy *mphy = phy->mt76;
 	struct ieee80211_hw *hw = mphy->hw;
 	struct mt76_dev *mdev = &phy->dev->mt76;
@@ -490,7 +490,7 @@ mt7902_init_wiphy(struct mt7902_phy *phy)
 static void
 mt7902_mac_init_band(struct mt7902_dev *dev, u8 band)
 {
-	printk(KERN_DEBUG "init.c - ");
+	printk(KERN_DEBUG "init.c - mt7902_mac_init_band");
 	u32 mask, set;
 
 	mt76_rmw_field(dev, MT_TMAC_CTCR0(band),
@@ -562,7 +562,7 @@ mt7902_mac_init_band(struct mt7902_dev *dev, u8 band)
 static void
 mt7902_init_led_mux(struct mt7902_dev *dev)
 {
-	printk(KERN_DEBUG "init.c - ");
+	printk(KERN_DEBUG "init.c - mt7902_init_led_mux");
 	if (!IS_ENABLED(CONFIG_MT76_LEDS))
 		return;
 
@@ -628,7 +628,7 @@ mt7902_init_led_mux(struct mt7902_dev *dev)
 
 void mt7902_mac_init(struct mt7902_dev *dev)
 {
-	printk(KERN_DEBUG "init.c - ");
+	printk(KERN_DEBUG "init.c - mt7902_mac_init");
 	int i;
 	u32 rx_len = is_mt7902(&dev->mt76) ? 0x400 : 0x680;
 
@@ -658,7 +658,7 @@ void mt7902_mac_init(struct mt7902_dev *dev)
 
 int mt7902_txbf_init(struct mt7902_dev *dev)
 {
-	printk(KERN_DEBUG "init.c - ");
+	printk(KERN_DEBUG "init.c - mt7902_txbf_init");
 	int ret;
 
 	if (dev->dbdc_support) {
@@ -679,7 +679,7 @@ int mt7902_txbf_init(struct mt7902_dev *dev)
 static struct mt7902_phy *
 mt7902_alloc_ext_phy(struct mt7902_dev *dev)
 {
-	printk(KERN_DEBUG "init.c - ");
+	printk(KERN_DEBUG "init.c - mt7902_alloc_ext_phy");
 	struct mt7902_phy *phy;
 	struct mt76_phy *mphy;
 
@@ -703,7 +703,7 @@ mt7902_alloc_ext_phy(struct mt7902_dev *dev)
 static int
 mt7902_register_ext_phy(struct mt7902_dev *dev, struct mt7902_phy *phy)
 {
-	printk(KERN_DEBUG "init.c - ");
+	printk(KERN_DEBUG "init.c - mt7902_register_ext_phy");
 	struct mt76_phy *mphy = phy->mt76;
 	int ret;
 
@@ -747,7 +747,7 @@ unreg:
 
 static void mt7902_init_work(struct work_struct *work)
 {
-	printk(KERN_DEBUG "init.c - ");
+	printk(KERN_DEBUG "init.c - mt7902_init_work");
 	struct mt7902_dev *dev = container_of(work, struct mt7902_dev,
 				 init_work);
 
@@ -758,7 +758,7 @@ static void mt7902_init_work(struct work_struct *work)
 
 void mt7902_wfsys_reset(struct mt7902_dev *dev)
 {
-	printk(KERN_DEBUG "init.c - ");
+	printk(KERN_DEBUG "init.c - mt7902_wfsys_reset");
 #define MT_MCU_DUMMY_RANDOM	GENMASK(15, 0)
 #define MT_MCU_DUMMY_DEFAULT	GENMASK(31, 16)
 
@@ -813,7 +813,7 @@ void mt7902_wfsys_reset(struct mt7902_dev *dev)
 
 static bool mt7902_band_config(struct mt7902_dev *dev)
 {
-	printk(KERN_DEBUG "init.c - ");
+	printk(KERN_DEBUG "init.c - mt7902_band_config");
 	bool ret = true;
 
 	dev->phy.mt76->band_idx = 0;
@@ -841,7 +841,7 @@ static bool mt7902_band_config(struct mt7902_dev *dev)
 static int
 mt7902_init_hardware(struct mt7902_dev *dev, struct mt7902_phy *phy2)
 {
-	printk(KERN_DEBUG "init.c - ");
+	printk(KERN_DEBUG "init.c - mt7902_init_hardware");
 	int ret, idx;
 
 	mt76_wr(dev, MT_INT_MASK_CSR, 0);
@@ -884,7 +884,7 @@ mt7902_init_hardware(struct mt7902_dev *dev, struct mt7902_phy *phy2)
 
 void mt7902_set_stream_vht_txbf_caps(struct mt7902_phy *phy)
 {
-	printk(KERN_DEBUG "init.c - ");
+	printk(KERN_DEBUG "init.c - mt7902_set_stream_vht_txbf_caps");
 	int sts;
 	u32 *cap;
 
@@ -916,7 +916,7 @@ static void
 mt7902_set_stream_he_txbf_caps(struct mt7902_phy *phy,
 			       struct ieee80211_sta_he_cap *he_cap, int vif)
 {
-	printk(KERN_DEBUG "init.c - ");
+	printk(KERN_DEBUG "init.c - mt7902_set_stream_he_txbf_caps");
 	struct mt7902_dev *dev = phy->dev;
 	struct ieee80211_he_cap_elem *elem = &he_cap->he_cap_elem;
 	int sts = hweight8(phy->mt76->chainmask);
@@ -1007,7 +1007,7 @@ static int
 mt7902_init_he_caps(struct mt7902_phy *phy, enum nl80211_band band,
 		    struct ieee80211_sband_iftype_data *data)
 {
-	printk(KERN_DEBUG "init.c - ");
+	printk(KERN_DEBUG "init.c - mt7902_init_he_caps");
 	struct mt7902_dev *dev = phy->dev;
 	int i, idx = 0, nss = hweight8(phy->mt76->antenna_mask);
 	u16 mcs_map = 0;
@@ -1182,7 +1182,7 @@ mt7902_init_he_caps(struct mt7902_phy *phy, enum nl80211_band band,
 
 void mt7902_set_stream_he_caps(struct mt7902_phy *phy)
 {
-	printk(KERN_DEBUG "init.c - ");
+	printk(KERN_DEBUG "init.c - mt7902_set_stream_he_caps");
 	struct ieee80211_sband_iftype_data *data;
 	struct ieee80211_supported_band *band;
 	int n;
@@ -1214,7 +1214,7 @@ void mt7902_set_stream_he_caps(struct mt7902_phy *phy)
 
 static void mt7902_unregister_ext_phy(struct mt7902_dev *dev)
 {
-	printk(KERN_DEBUG "init.c - ");
+	printk(KERN_DEBUG "init.c - mt7902_unregister_ext_phy");
 	struct mt7902_phy *phy = mt7902_ext_phy(dev);
 	struct mt76_phy *mphy = dev->mt76.phys[MT_BAND1];
 
@@ -1228,7 +1228,7 @@ static void mt7902_unregister_ext_phy(struct mt7902_dev *dev)
 
 static void mt7902_stop_hardware(struct mt7902_dev *dev)
 {
-	printk(KERN_DEBUG "init.c - ");
+	printk(KERN_DEBUG "init.c - mt7902_stop_hardware");
 	mt7902_mcu_exit(dev);
 	mt76_connac2_tx_token_put(&dev->mt76);
 	mt7902_dma_cleanup(dev);
@@ -1240,7 +1240,7 @@ static void mt7902_stop_hardware(struct mt7902_dev *dev)
 
 int mt7902_register_device(struct mt7902_dev *dev)
 {
-	printk(KERN_DEBUG "init.c - ");
+	printk(KERN_DEBUG "init.c - mt7902_register_device");
 	struct mt7902_phy *phy2;
 	int ret;
 
@@ -1316,7 +1316,7 @@ free_phy2:
 
 void mt7902_unregister_device(struct mt7902_dev *dev)
 {
-	printk(KERN_DEBUG "init.c - ");
+	printk(KERN_DEBUG "init.c - mt7902_unregister_device");
 	mt7902_unregister_ext_phy(dev);
 	mt7902_coredump_unregister(dev);
 	mt7902_unregister_thermal(&dev->phy);
