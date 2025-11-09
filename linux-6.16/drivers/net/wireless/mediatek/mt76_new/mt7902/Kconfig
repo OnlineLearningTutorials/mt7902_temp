@@ -1,0 +1,25 @@
+# SPDX-License-Identifier: ISC
+config mt7902E
+	tristate "MediaTek mt7902E (PCIe) support"
+	select MT76_CONNAC_LIB
+	select WANT_DEV_COREDUMP
+	depends on MAC80211
+	depends on PCI
+	select RELAY
+	help
+	  This adds support for mt7902-based PCIe wireless devices,
+	  which support concurrent dual-band operation at both 5GHz
+	  and 2.4GHz IEEE 802.11ax 4x4:4SS 1024-QAM, 160MHz channels,
+	  OFDMA, spatial reuse and dual carrier modulation.
+
+	  To compile this driver as a module, choose M here.
+
+config MT798X_WMAC
+	bool "MT798x (SoC) WMAC support"
+	depends on mt7902E
+	depends on ARCH_MEDIATEK || COMPILE_TEST
+	select REGMAP
+	help
+	  This adds support for the built-in WMAC on MT7981 and MT7986 SoC device
+	  which has the same feature set as a mt7902, but enables 6E
+	  support.
