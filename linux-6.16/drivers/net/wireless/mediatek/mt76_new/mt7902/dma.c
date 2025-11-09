@@ -34,15 +34,13 @@ static int mt7902_poll_tx(struct napi_struct *napi, int budget)
 	dev = container_of(napi, struct mt7902_dev, mt76.tx_napi);
 
 	mt76_connac_tx_cleanup(&dev->mt76);
+
 	if (napi_complete_done(napi, 0))
 		mt7902_irq_enable(dev, MT_INT_TX_DONE_MCU);
 
 	return 0;
 }
 
-static void mt7902_dma_config(struct mt7902_dev *dev)
-{
-	printk(KERN_DEBUG "dma.c - mt7902_dma_config");
 #define Q_CONFIG(q, wfdma, int, id) do {		\
 		if (wfdma)				\
 			dev->wfdma_mask |= (1 << (q));	\
@@ -54,116 +52,168 @@ static void mt7902_dma_config(struct mt7902_dev *dev)
 #define RXQ_CONFIG(q, wfdma, int, id)	Q_CONFIG(__RXQ(q), (wfdma), (int), (id))
 #define TXQ_CONFIG(q, wfdma, int, id)	Q_CONFIG(__TXQ(q), (wfdma), (int), (id))
 
-	if (is_mt7902(&dev->mt76)) {
-		RXQ_CONFIG(MT_RXQ_MAIN, WFDMA0, MT_INT_RX_DONE_BAND0,
-			   mt7902_RXQ_BAND0);
-		RXQ_CONFIG(MT_RXQ_MCU, WFDMA1, MT_INT_RX_DONE_WM,
-			   mt7902_RXQ_MCU_WM);
-		RXQ_CONFIG(MT_RXQ_MCU_WA, WFDMA1, MT_INT_RX_DONE_WA,
-			   mt7902_RXQ_MCU_WA);
-		RXQ_CONFIG(MT_RXQ_BAND1, WFDMA0, MT_INT_RX_DONE_BAND1,
-			   mt7902_RXQ_BAND1);
-		RXQ_CONFIG(MT_RXQ_BAND1_WA, WFDMA1, MT_INT_RX_DONE_WA_EXT,
-			   mt7902_RXQ_MCU_WA_EXT);
-		RXQ_CONFIG(MT_RXQ_MAIN_WA, WFDMA1, MT_INT_RX_DONE_WA_MAIN,
-			   mt7902_RXQ_MCU_WA);
-		TXQ_CONFIG(0, WFDMA1, MT_INT_TX_DONE_BAND0, mt7902_TXQ_BAND0);
-		TXQ_CONFIG(1, WFDMA1, MT_INT_TX_DONE_BAND1, mt7902_TXQ_BAND1);
-		MCUQ_CONFIG(MT_MCUQ_WM, WFDMA1, MT_INT_TX_DONE_MCU_WM,
-			    mt7902_TXQ_MCU_WM);
-		MCUQ_CONFIG(MT_MCUQ_WA, WFDMA1, MT_INT_TX_DONE_MCU_WA,
-			    mt7902_TXQ_MCU_WA);
-		MCUQ_CONFIG(MT_MCUQ_FWDL, WFDMA1, MT_INT_TX_DONE_FWDL,
-			    mt7902_TXQ_FWDL);
-	} else {
-		RXQ_CONFIG(MT_RXQ_MCU, WFDMA0, MT_INT_RX_DONE_WM,
-			   MT7916_RXQ_MCU_WM);
-		RXQ_CONFIG(MT_RXQ_BAND1_WA, WFDMA0, MT_INT_RX_DONE_WA_EXT_MT7916,
-			   MT7916_RXQ_MCU_WA_EXT);
-		MCUQ_CONFIG(MT_MCUQ_WM, WFDMA0, MT_INT_TX_DONE_MCU_WM,
-			    mt7902_TXQ_MCU_WM);
-		MCUQ_CONFIG(MT_MCUQ_WA, WFDMA0, MT_INT_TX_DONE_MCU_WA_MT7916,
-			    mt7902_TXQ_MCU_WA);
-		MCUQ_CONFIG(MT_MCUQ_FWDL, WFDMA0, MT_INT_TX_DONE_FWDL,
-			    mt7902_TXQ_FWDL);
 
-		if (is_mt7916(&dev->mt76) && mtk_wed_device_active(&dev->mt76.mmio.wed)) {
-			RXQ_CONFIG(MT_RXQ_MAIN, WFDMA0, MT_INT_WED_RX_DONE_BAND0_MT7916,
-				   MT7916_RXQ_BAND0);
-			RXQ_CONFIG(MT_RXQ_MCU_WA, WFDMA0, MT_INT_WED_RX_DONE_WA_MT7916,
-				   MT7916_RXQ_MCU_WA);
-			if (dev->hif2)
-				RXQ_CONFIG(MT_RXQ_BAND1, WFDMA0,
-					   MT_INT_RX_DONE_BAND1_MT7916,
-					   MT7916_RXQ_BAND1);
-			else
-				RXQ_CONFIG(MT_RXQ_BAND1, WFDMA0,
-					   MT_INT_WED_RX_DONE_BAND1_MT7916,
-					   MT7916_RXQ_BAND1);
-			RXQ_CONFIG(MT_RXQ_MAIN_WA, WFDMA0, MT_INT_WED_RX_DONE_WA_MAIN_MT7916,
-				   MT7916_RXQ_MCU_WA_MAIN);
-			TXQ_CONFIG(0, WFDMA0, MT_INT_WED_TX_DONE_BAND0,
-				   mt7902_TXQ_BAND0);
-			TXQ_CONFIG(1, WFDMA0, MT_INT_WED_TX_DONE_BAND1,
-				   mt7902_TXQ_BAND1);
-		} else {
-			RXQ_CONFIG(MT_RXQ_MAIN, WFDMA0, MT_INT_RX_DONE_BAND0_MT7916,
-				   MT7916_RXQ_BAND0);
-			RXQ_CONFIG(MT_RXQ_MCU_WA, WFDMA0, MT_INT_RX_DONE_WA,
-				   MT7916_RXQ_MCU_WA);
-			RXQ_CONFIG(MT_RXQ_BAND1, WFDMA0, MT_INT_RX_DONE_BAND1_MT7916,
-				   MT7916_RXQ_BAND1);
-			RXQ_CONFIG(MT_RXQ_MAIN_WA, WFDMA0, MT_INT_RX_DONE_WA_MAIN_MT7916,
-				   MT7916_RXQ_MCU_WA_MAIN);
-			TXQ_CONFIG(0, WFDMA0, MT_INT_TX_DONE_BAND0,
-				   mt7902_TXQ_BAND0);
-			TXQ_CONFIG(1, WFDMA0, MT_INT_TX_DONE_BAND1,
-				   mt7902_TXQ_BAND1);
-		}
-	}
+static void mt7902_dma_config(struct mt7902_dev *dev)
+{
+	printk(KERN_DEBUG "dma.c - mt7902_dma_config");
+
+	RXQ_CONFIG(MT_RXQ_MAIN, WFDMA0, MT_INT_RX_DONE_BAND0, mt7902_RXQ_BAND0);
+	RXQ_CONFIG(MT_RXQ_MCU, WFDMA0, MT_INT_RX_DONE_WM, mt7902_RXQ_MCU_WM);
+	RXQ_CONFIG(MT_RXQ_MCU_WA, WFDMA0, MT_INT_RX_DONE_WA, mt7902_RXQ_MCU_WA);
+	RXQ_CONFIG(MT_RXQ_BAND1, WFDMA0, MT_INT_RX_DONE_BAND1, mt7902_RXQ_BAND1);
+	RXQ_CONFIG(MT_RXQ_BAND1_WA, WFDMA0, MT_INT_RX_DONE_WA_EXT, mt7902_RXQ_MCU_WA_EXT);
+	RXQ_CONFIG(MT_RXQ_MAIN_WA, WFDMA0, MT_INT_RX_DONE_WA_MAIN, mt7902_RXQ_MCU_WA);
+	RXQ_CONFIG(MT_RXQ_BAND2, WFDMA0, MT_INT_RX_DONE_BAND2, mt7902_RXQ_BAND2);
+	RXQ_CONFIG(MT_RXQ_BAND2_WA, WFDMA0, MT_INT_RX_DONE_WA_TRI, mt7902_RXQ_MCU_WA_TRI);
+
+	TXQ_CONFIG(0, WFDMA0, MT_INT_TX_DONE_BAND0, mt7902_TXQ_BAND0);
+	TXQ_CONFIG(1, WFDMA0, MT_INT_TX_DONE_BAND1, mt7902_TXQ_BAND1);
+	TXQ_CONFIG(2, WFDMA0, MT_INT_TX_DONE_BAND2, mt7902_TXQ_BAND2);
+
+	MCUQ_CONFIG(MT_MCUQ_WM, WFDMA0, MT_INT_TX_DONE_MCU_WM, mt7902_TXQ_MCU_WM);
+	MCUQ_CONFIG(MT_MCUQ_WA, WFDMA0, MT_INT_TX_DONE_MCU_WA, mt7902_TXQ_MCU_WA);
+	MCUQ_CONFIG(MT_MCUQ_FWDL, WFDMA0, MT_INT_TX_DONE_FWDL, mt7902_TXQ_FWDL);
+
+
+// #define Q_CONFIG(q, wfdma, int, id) do {		\
+// 		if (wfdma)				\
+// 			dev->wfdma_mask |= (1 << (q));	\
+// 		dev->q_int_mask[(q)] = int;		\
+// 		dev->q_id[(q)] = id;			\
+// 	} while (0)
+
+// #define MCUQ_CONFIG(q, wfdma, int, id)	Q_CONFIG(q, (wfdma), (int), (id))
+// #define RXQ_CONFIG(q, wfdma, int, id)	Q_CONFIG(__RXQ(q), (wfdma), (int), (id))
+// #define TXQ_CONFIG(q, wfdma, int, id)	Q_CONFIG(__TXQ(q), (wfdma), (int), (id))
+
+// 	if (is_mt7902(&dev->mt76)) {
+// 		RXQ_CONFIG(MT_RXQ_MAIN, WFDMA0, MT_INT_RX_DONE_BAND0,
+// 			   mt7902_RXQ_BAND0);
+// 		RXQ_CONFIG(MT_RXQ_MCU, WFDMA1, MT_INT_RX_DONE_WM,
+// 			   mt7902_RXQ_MCU_WM);
+// 		RXQ_CONFIG(MT_RXQ_MCU_WA, WFDMA1, MT_INT_RX_DONE_WA,
+// 			   mt7902_RXQ_MCU_WA);
+// 		RXQ_CONFIG(MT_RXQ_BAND1, WFDMA0, MT_INT_RX_DONE_BAND1,
+// 			   mt7902_RXQ_BAND1);
+// 		RXQ_CONFIG(MT_RXQ_BAND1_WA, WFDMA1, MT_INT_RX_DONE_WA_EXT,
+// 			   mt7902_RXQ_MCU_WA_EXT);
+// 		RXQ_CONFIG(MT_RXQ_MAIN_WA, WFDMA1, MT_INT_RX_DONE_WA_MAIN,
+// 			   mt7902_RXQ_MCU_WA);
+// 		TXQ_CONFIG(0, WFDMA1, MT_INT_TX_DONE_BAND0, mt7902_TXQ_BAND0);
+// 		TXQ_CONFIG(1, WFDMA1, MT_INT_TX_DONE_BAND1, mt7902_TXQ_BAND1);
+// 		MCUQ_CONFIG(MT_MCUQ_WM, WFDMA1, MT_INT_TX_DONE_MCU_WM,
+// 			    mt7902_TXQ_MCU_WM);
+// 		MCUQ_CONFIG(MT_MCUQ_WA, WFDMA1, MT_INT_TX_DONE_MCU_WA,
+// 			    mt7902_TXQ_MCU_WA);
+// 		MCUQ_CONFIG(MT_MCUQ_FWDL, WFDMA1, MT_INT_TX_DONE_FWDL,
+// 			    mt7902_TXQ_FWDL);
+// 	} else {
+// 		RXQ_CONFIG(MT_RXQ_MCU, WFDMA0, MT_INT_RX_DONE_WM,
+// 			   MT7916_RXQ_MCU_WM);
+// 		RXQ_CONFIG(MT_RXQ_BAND1_WA, WFDMA0, MT_INT_RX_DONE_WA_EXT_MT7916,
+// 			   MT7916_RXQ_MCU_WA_EXT);
+// 		MCUQ_CONFIG(MT_MCUQ_WM, WFDMA0, MT_INT_TX_DONE_MCU_WM,
+// 			    mt7902_TXQ_MCU_WM);
+// 		MCUQ_CONFIG(MT_MCUQ_WA, WFDMA0, MT_INT_TX_DONE_MCU_WA_MT7916,
+// 			    mt7902_TXQ_MCU_WA);
+// 		MCUQ_CONFIG(MT_MCUQ_FWDL, WFDMA0, MT_INT_TX_DONE_FWDL,
+// 			    mt7902_TXQ_FWDL);
+
+// 		if (is_mt7916(&dev->mt76) && mtk_wed_device_active(&dev->mt76.mmio.wed)) {
+// 			RXQ_CONFIG(MT_RXQ_MAIN, WFDMA0, MT_INT_WED_RX_DONE_BAND0_MT7916,
+// 				   MT7916_RXQ_BAND0);
+// 			RXQ_CONFIG(MT_RXQ_MCU_WA, WFDMA0, MT_INT_WED_RX_DONE_WA_MT7916,
+// 				   MT7916_RXQ_MCU_WA);
+// 			if (dev->hif2)
+// 				RXQ_CONFIG(MT_RXQ_BAND1, WFDMA0,
+// 					   MT_INT_RX_DONE_BAND1_MT7916,
+// 					   MT7916_RXQ_BAND1);
+// 			else
+// 				RXQ_CONFIG(MT_RXQ_BAND1, WFDMA0,
+// 					   MT_INT_WED_RX_DONE_BAND1_MT7916,
+// 					   MT7916_RXQ_BAND1);
+// 			RXQ_CONFIG(MT_RXQ_MAIN_WA, WFDMA0, MT_INT_WED_RX_DONE_WA_MAIN_MT7916,
+// 				   MT7916_RXQ_MCU_WA_MAIN);
+// 			TXQ_CONFIG(0, WFDMA0, MT_INT_WED_TX_DONE_BAND0,
+// 				   mt7902_TXQ_BAND0);
+// 			TXQ_CONFIG(1, WFDMA0, MT_INT_WED_TX_DONE_BAND1,
+// 				   mt7902_TXQ_BAND1);
+// 		} else {
+// 			RXQ_CONFIG(MT_RXQ_MAIN, WFDMA0, MT_INT_RX_DONE_BAND0_MT7916,
+// 				   MT7916_RXQ_BAND0);
+// 			RXQ_CONFIG(MT_RXQ_MCU_WA, WFDMA0, MT_INT_RX_DONE_WA,
+// 				   MT7916_RXQ_MCU_WA);
+// 			RXQ_CONFIG(MT_RXQ_BAND1, WFDMA0, MT_INT_RX_DONE_BAND1_MT7916,
+// 				   MT7916_RXQ_BAND1);
+// 			RXQ_CONFIG(MT_RXQ_MAIN_WA, WFDMA0, MT_INT_RX_DONE_WA_MAIN_MT7916,
+// 				   MT7916_RXQ_MCU_WA_MAIN);
+// 			TXQ_CONFIG(0, WFDMA0, MT_INT_TX_DONE_BAND0,
+// 				   mt7902_TXQ_BAND0);
+// 			TXQ_CONFIG(1, WFDMA0, MT_INT_TX_DONE_BAND1,
+// 				   mt7902_TXQ_BAND1);
+// 		}
+// 	}
 }
 
 static void __mt7902_dma_prefetch(struct mt7902_dev *dev, u32 ofs)
 {
 	printk(KERN_DEBUG "dma.c - __mt7902_dma_prefetch");
 #define PREFETCH(_base, _depth)	((_base) << 16 | (_depth))
-	u32 base = 0;
-
 	/* prefetch SRAM wrapping boundary for tx/rx ring. */
 	mt76_wr(dev, MT_MCUQ_EXT_CTRL(MT_MCUQ_FWDL) + ofs, PREFETCH(0x0, 0x4));
 	mt76_wr(dev, MT_MCUQ_EXT_CTRL(MT_MCUQ_WM) + ofs, PREFETCH(0x40, 0x4));
 	mt76_wr(dev, MT_TXQ_EXT_CTRL(0) + ofs, PREFETCH(0x80, 0x4));
 	mt76_wr(dev, MT_TXQ_EXT_CTRL(1) + ofs, PREFETCH(0xc0, 0x4));
 	mt76_wr(dev, MT_MCUQ_EXT_CTRL(MT_MCUQ_WA) + ofs, PREFETCH(0x100, 0x4));
+	mt76_wr(dev, MT_TXQ_EXT_CTRL(2) + ofs, PREFETCH(0x140, 0x4));
 
-	mt76_wr(dev, MT_RXQ_BAND1_CTRL(MT_RXQ_MCU) + ofs,
-		PREFETCH(0x140, 0x4));
-	mt76_wr(dev, MT_RXQ_BAND1_CTRL(MT_RXQ_MCU_WA) + ofs,
-		PREFETCH(0x180, 0x4));
-	if (!is_mt7902(&dev->mt76)) {
-		mt76_wr(dev, MT_RXQ_BAND1_CTRL(MT_RXQ_MAIN_WA) + ofs,
-			PREFETCH(0x1c0, 0x4));
-		base = 0x40;
-	}
-	mt76_wr(dev, MT_RXQ_BAND1_CTRL(MT_RXQ_BAND1_WA) + ofs,
-		PREFETCH(0x1c0 + base, 0x4));
-	mt76_wr(dev, MT_RXQ_BAND1_CTRL(MT_RXQ_MAIN) + ofs,
-		PREFETCH(0x200 + base, 0x4));
-	mt76_wr(dev, MT_RXQ_BAND1_CTRL(MT_RXQ_BAND1) + ofs,
-		PREFETCH(0x240 + base, 0x4));
+	mt76_wr(dev, MT_RXQ_BAND1_CTRL(MT_RXQ_MCU) + ofs, PREFETCH(0x180, 0x4));
+	mt76_wr(dev, MT_RXQ_BAND1_CTRL(MT_RXQ_MCU_WA) + ofs, PREFETCH(0x1c0, 0x4));
+	//mt76_wr(dev, MT_RXQ_BAND1_CTRL(MT_RXQ_MAIN_WA) + ofs, PREFETCH(0x1c0, 0x4));
+	mt76_wr(dev, MT_RXQ_BAND1_CTRL(MT_RXQ_BAND1_WA) + ofs, PREFETCH(0x200, 0x4));
+	mt76_wr(dev, MT_RXQ_BAND1_CTRL(MT_RXQ_MAIN) + ofs, PREFETCH(0x240, 0x4));
+	mt76_wr(dev, MT_RXQ_BAND1_CTRL(MT_RXQ_BAND1) + ofs, PREFETCH(0x280, 0x4));
+	mt76_wr(dev, MT_RXQ_BAND1_CTRL(MT_RXQ_BAND2) + ofs, PREFETCH(0x2c0, 0x4));
 
-	/* for mt7902, the ring which is next the last
-	 * used ring must be initialized.
-	 */
-	if (is_mt7902(&dev->mt76)) {
-		ofs += 0x4;
-		mt76_wr(dev, MT_MCUQ_EXT_CTRL(MT_MCUQ_WA) + ofs,
-			PREFETCH(0x140, 0x0));
-		mt76_wr(dev, MT_RXQ_BAND1_CTRL(MT_RXQ_BAND1_WA) + ofs,
-			PREFETCH(0x200 + base, 0x0));
-		mt76_wr(dev, MT_RXQ_BAND1_CTRL(MT_RXQ_BAND1) + ofs,
-			PREFETCH(0x280 + base, 0x0));
-	}
+
+
+	// u32 base = 0;
+
+	// /* prefetch SRAM wrapping boundary for tx/rx ring. */
+	// mt76_wr(dev, MT_MCUQ_EXT_CTRL(MT_MCUQ_FWDL) + ofs, PREFETCH(0x0, 0x4));
+	// mt76_wr(dev, MT_MCUQ_EXT_CTRL(MT_MCUQ_WM) + ofs, PREFETCH(0x40, 0x4));
+	// mt76_wr(dev, MT_TXQ_EXT_CTRL(0) + ofs, PREFETCH(0x80, 0x4));
+	// mt76_wr(dev, MT_TXQ_EXT_CTRL(1) + ofs, PREFETCH(0xc0, 0x4));
+	// mt76_wr(dev, MT_MCUQ_EXT_CTRL(MT_MCUQ_WA) + ofs, PREFETCH(0x100, 0x4));
+
+	// mt76_wr(dev, MT_RXQ_BAND1_CTRL(MT_RXQ_MCU) + ofs,
+	// 	PREFETCH(0x140, 0x4));
+	// mt76_wr(dev, MT_RXQ_BAND1_CTRL(MT_RXQ_MCU_WA) + ofs,
+	// 	PREFETCH(0x180, 0x4));
+	// if (!is_mt7902(&dev->mt76)) {
+	// 	mt76_wr(dev, MT_RXQ_BAND1_CTRL(MT_RXQ_MAIN_WA) + ofs,
+	// 		PREFETCH(0x1c0, 0x4));
+	// 	base = 0x40;
+	// }
+	// mt76_wr(dev, MT_RXQ_BAND1_CTRL(MT_RXQ_BAND1_WA) + ofs,
+	// 	PREFETCH(0x1c0 + base, 0x4));
+	// mt76_wr(dev, MT_RXQ_BAND1_CTRL(MT_RXQ_MAIN) + ofs,
+	// 	PREFETCH(0x200 + base, 0x4));
+	// mt76_wr(dev, MT_RXQ_BAND1_CTRL(MT_RXQ_BAND1) + ofs,
+	// 	PREFETCH(0x240 + base, 0x4));
+
+	// /* for mt7902, the ring which is next the last
+	//  * used ring must be initialized.
+	//  */
+	// if (is_mt7902(&dev->mt76)) {
+	// 	ofs += 0x4;
+	// 	mt76_wr(dev, MT_MCUQ_EXT_CTRL(MT_MCUQ_WA) + ofs,
+	// 		PREFETCH(0x140, 0x0));
+	// 	mt76_wr(dev, MT_RXQ_BAND1_CTRL(MT_RXQ_BAND1_WA) + ofs,
+	// 		PREFETCH(0x200 + base, 0x0));
+	// 	mt76_wr(dev, MT_RXQ_BAND1_CTRL(MT_RXQ_BAND1) + ofs,
+	// 		PREFETCH(0x280 + base, 0x0));
+	// }
 }
 
 void mt7902_dma_prefetch(struct mt7902_dev *dev)

@@ -762,80 +762,29 @@ void mt7902_wfsys_reset(struct mt7902_dev *dev)
 #define MT_MCU_DUMMY_RANDOM	GENMASK(15, 0)
 #define MT_MCU_DUMMY_DEFAULT	GENMASK(31, 16)
 
-	if (is_mt7902(&dev->mt76)) {
-		u32 val = MT_TOP_PWR_KEY | MT_TOP_PWR_SW_PWR_ON | MT_TOP_PWR_PWR_ON;
+	if (is_mt7902(&dev->mt76)) 
+		return;
 
-		mt76_wr(dev, MT_MCU_WFDMA0_DUMMY_CR, MT_MCU_DUMMY_RANDOM);
+	mt76_set(dev, MT_WF_SUBSYS_RST, 0x1);
+	msleep(20);
 
-		/* change to software control */
-		val |= MT_TOP_PWR_SW_RST;
-		mt76_wr(dev, MT_TOP_PWR_CTRL, val);
-
-		/* reset wfsys */
-		val &= ~MT_TOP_PWR_SW_RST;
-		mt76_wr(dev, MT_TOP_PWR_CTRL, val);
-
-		/* release wfsys then mcu re-executes romcode */
-		val |= MT_TOP_PWR_SW_RST;
-		mt76_wr(dev, MT_TOP_PWR_CTRL, val);
-
-		/* switch to hw control */
-		val &= ~MT_TOP_PWR_SW_RST;
-		val |= MT_TOP_PWR_HW_CTRL;
-		mt76_wr(dev, MT_TOP_PWR_CTRL, val);
-
-		/* check whether mcu resets to default */
-		if (!mt76_poll_msec(dev, MT_MCU_WFDMA0_DUMMY_CR,
-				    MT_MCU_DUMMY_DEFAULT, MT_MCU_DUMMY_DEFAULT,
-				    1000)) {
-			dev_err(dev->mt76.dev, "wifi subsystem reset failure\n");
-			return;
-		}
-
-		/* wfsys reset won't clear host registers */
-		mt76_clear(dev, MT_TOP_MISC, MT_TOP_MISC_FW_STATE);
-
-		msleep(100);
-	} else if (is_mt798x(&dev->mt76)) {
-		mt7986_wmac_disable(dev);
-		msleep(20);
-
-		mt7986_wmac_enable(dev);
-		msleep(20);
-	} else {
-		mt76_set(dev, MT_WF_SUBSYS_RST, 0x1);
-		msleep(20);
-
-		mt76_clear(dev, MT_WF_SUBSYS_RST, 0x1);
-		msleep(20);
-	}
+	mt76_clear(dev, MT_WF_SUBSYS_RST, 0x1);
+	msleep(20);
 }
 
 static bool mt7902_band_config(struct mt7902_dev *dev)
 {
 	printk(KERN_DEBUG "init.c - mt7902_band_config");
-	bool ret = true;
+	dev->phy.mt76->band_idx = MT_BAND0;
+	//dev->mphy.mt76->band_idx = MT_BAND0;
+	//dev->tbtc_support = false;
 
-	dev->phy.mt76->band_idx = 0;
+	// if(is_mt7902(&dev->mt76)) {
+	// 	dev->tbtc_support = true;
+	// 	return false;
+	// }
 
-	if (is_mt798x(&dev->mt76)) {
-		u32 sku = mt7902_check_adie(dev, true);
-
-		/*
-		 * for mt7986, dbdc support is determined by the number
-		 * of adie chips and the main phy is bound to band1 when
-		 * dbdc is disabled.
-		 */
-		if (sku == MT7975_ONE_ADIE || sku == MT7976_ONE_ADIE) {
-			dev->phy.mt76->band_idx = 1;
-			ret = false;
-		}
-	} else {
-		ret = is_mt7902(&dev->mt76) ?
-		      !!(mt76_rr(dev, MT_HW_BOUND) & BIT(5)) : true;
-	}
-
-	return ret;
+	return true;
 }
 
 static int

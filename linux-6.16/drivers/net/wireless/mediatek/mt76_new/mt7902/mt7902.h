@@ -74,7 +74,7 @@
 #define mt7902_MAX_TWT_AGRT		16
 #define mt7902_MAX_STA_TWT_AGRT		8
 #define mt7902_MIN_TWT_DUR 64
-#define mt7902_MAX_QUEUE		(MT_RXQ_BAND2 + __MT_MCUQ_MAX + 2)
+#define mt7902_MAX_QUEUE		(__MT_RXQ_MAX + __MT_MCUQ_MAX + 2)
 
 #define mt7902_WED_RX_TOKEN_SIZE	12288
 
@@ -94,14 +94,24 @@ enum mt7902_txq_id {
 	mt7902_TXQ_BAND0,
 	mt7902_TXQ_BAND1,
 	mt7902_TXQ_MCU_WA,
+	mt7902_TXQ_BAND2,
 };
 
 enum mt7902_rxq_id {
-	mt7902_RXQ_BAND0 = 0,
-	mt7902_RXQ_BAND1,
 	mt7902_RXQ_MCU_WM = 0,
 	mt7902_RXQ_MCU_WA,
-	mt7902_RXQ_MCU_WA_EXT,
+	mt7902_RXQ_MCU_WA_MAIN,
+	mt7902_RXQ_MCU_WA_EXT = 2,
+	mt7902_RXQ_MCU_WA_TRI = 2,
+	mt7902_RXQ_BAND0 = 4,
+	mt7902_RXQ_BAND1,
+	mt7902_RXQ_BAND2 = 8,
+
+	// mt7902_RXQ_BAND0 = 0,
+	// mt7902_RXQ_BAND1,
+	// mt7902_RXQ_MCU_WM = 0,
+	// mt7902_RXQ_MCU_WA,
+	// mt7902_RXQ_MCU_WA_EXT,
 };
 
 enum mt7916_rxq_id {

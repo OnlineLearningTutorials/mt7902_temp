@@ -109,7 +109,7 @@ static int mt7902_pci_hif2_probe(struct pci_dev *pdev)
 static int mt7902_pci_probe(struct pci_dev *pdev,
 			    const struct pci_device_id *id)
 {
-	printk(KERN_DEBUG "pci.c - mt7902_pci_probe");
+	printk(KERN_DEBUG "pci.c - mt7902_pci_probe    ===============================================================");
 	struct mt7902_hif *hif2;
 	struct mt7902_dev *dev;
 	struct mt76_dev *mdev;
