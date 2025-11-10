@@ -631,5 +631,6 @@ void mt7902_sta_add_debugfs(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
 int mt7902_mmio_wed_init(struct mt7902_dev *dev, void *pdev_ptr,
 			 bool pci, int *irq);
 int mt7902_rom_start(struct mt7902_dev *dev);
+int mt7902_init_tx_queues(struct mt7902_phy *phy, int idx, int n_desc, int ring_base);
 
 #endif

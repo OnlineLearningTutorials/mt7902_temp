@@ -640,113 +640,113 @@ out:
 }
 #endif
 
-int mt7902_mmio_wed_init(struct mt7902_dev *dev, void *pdev_ptr,
-			 bool pci, int *irq)
-{
-	printk(KERN_DEBUG "mmio.c - mt7902_mmio_wed_init");
-#ifdef CONFIG_NET_MEDIATEK_SOC_WED
-	struct mtk_wed_device *wed = &dev->mt76.mmio.wed;
-	int ret;
+// int mt7902_mmio_wed_init(struct mt7902_dev *dev, void *pdev_ptr,
+// 			 bool pci, int *irq)
+// {
+// 	printk(KERN_DEBUG "mmio.c - mt7902_mmio_wed_init");
+// #ifdef CONFIG_NET_MEDIATEK_SOC_WED
+// 	struct mtk_wed_device *wed = &dev->mt76.mmio.wed;
+// 	int ret;
 
-	if (!wed_enable)
-		return 0;
+// 	if (!wed_enable)
+// 		return 0;
 
-	if (pci) {
-		struct pci_dev *pci_dev = pdev_ptr;
+// 	if (pci) {
+// 		struct pci_dev *pci_dev = pdev_ptr;
 
-		wed->wlan.pci_dev = pci_dev;
-		wed->wlan.bus_type = MTK_WED_BUS_PCIE;
-		wed->wlan.base = devm_ioremap(dev->mt76.dev,
-					      pci_resource_start(pci_dev, 0),
-					      pci_resource_len(pci_dev, 0));
-		if (!wed->wlan.base)
-			return -ENOMEM;
+// 		wed->wlan.pci_dev = pci_dev;
+// 		wed->wlan.bus_type = MTK_WED_BUS_PCIE;
+// 		wed->wlan.base = devm_ioremap(dev->mt76.dev,
+// 					      pci_resource_start(pci_dev, 0),
+// 					      pci_resource_len(pci_dev, 0));
+// 		if (!wed->wlan.base)
+// 			return -ENOMEM;
 
-		wed->wlan.phy_base = pci_resource_start(pci_dev, 0);
-		wed->wlan.wpdma_int = pci_resource_start(pci_dev, 0) +
-				      MT_INT_WED_SOURCE_CSR;
-		wed->wlan.wpdma_mask = pci_resource_start(pci_dev, 0) +
-				       MT_INT_WED_MASK_CSR;
-		wed->wlan.wpdma_phys = pci_resource_start(pci_dev, 0) +
-				       MT_WFDMA_EXT_CSR_BASE;
-		wed->wlan.wpdma_tx = pci_resource_start(pci_dev, 0) +
-				     MT_TXQ_WED_RING_BASE;
-		wed->wlan.wpdma_txfree = pci_resource_start(pci_dev, 0) +
-					 MT_RXQ_WED_RING_BASE;
-		wed->wlan.wpdma_rx_glo = pci_resource_start(pci_dev, 0) +
-					 MT_WPDMA_GLO_CFG;
-		wed->wlan.wpdma_rx = pci_resource_start(pci_dev, 0) +
-				     MT_RXQ_WED_DATA_RING_BASE;
-	} else {
-		struct platform_device *plat_dev = pdev_ptr;
-		struct resource *res;
+// 		wed->wlan.phy_base = pci_resource_start(pci_dev, 0);
+// 		wed->wlan.wpdma_int = pci_resource_start(pci_dev, 0) +
+// 				      MT_INT_WED_SOURCE_CSR;
+// 		wed->wlan.wpdma_mask = pci_resource_start(pci_dev, 0) +
+// 				       MT_INT_WED_MASK_CSR;
+// 		wed->wlan.wpdma_phys = pci_resource_start(pci_dev, 0) +
+// 				       MT_WFDMA_EXT_CSR_BASE;
+// 		wed->wlan.wpdma_tx = pci_resource_start(pci_dev, 0) +
+// 				     MT_TXQ_WED_RING_BASE;
+// 		wed->wlan.wpdma_txfree = pci_resource_start(pci_dev, 0) +
+// 					 MT_RXQ_WED_RING_BASE;
+// 		wed->wlan.wpdma_rx_glo = pci_resource_start(pci_dev, 0) +
+// 					 MT_WPDMA_GLO_CFG;
+// 		wed->wlan.wpdma_rx = pci_resource_start(pci_dev, 0) +
+// 				     MT_RXQ_WED_DATA_RING_BASE;
+// 	} else {
+// 		struct platform_device *plat_dev = pdev_ptr;
+// 		struct resource *res;
 
-		res = platform_get_resource(plat_dev, IORESOURCE_MEM, 0);
-		if (!res)
-			return 0;
+// 		res = platform_get_resource(plat_dev, IORESOURCE_MEM, 0);
+// 		if (!res)
+// 			return 0;
 
-		wed->wlan.platform_dev = plat_dev;
-		wed->wlan.bus_type = MTK_WED_BUS_AXI;
-		wed->wlan.base = devm_ioremap(dev->mt76.dev, res->start,
-					      resource_size(res));
-		if (!wed->wlan.base)
-			return -ENOMEM;
+// 		wed->wlan.platform_dev = plat_dev;
+// 		wed->wlan.bus_type = MTK_WED_BUS_AXI;
+// 		wed->wlan.base = devm_ioremap(dev->mt76.dev, res->start,
+// 					      resource_size(res));
+// 		if (!wed->wlan.base)
+// 			return -ENOMEM;
 
-		wed->wlan.phy_base = res->start;
-		wed->wlan.wpdma_int = res->start + MT_INT_SOURCE_CSR;
-		wed->wlan.wpdma_mask = res->start + MT_INT_MASK_CSR;
-		wed->wlan.wpdma_tx = res->start + MT_TXQ_WED_RING_BASE;
-		wed->wlan.wpdma_txfree = res->start + MT_RXQ_WED_RING_BASE;
-		wed->wlan.wpdma_rx_glo = res->start + MT_WPDMA_GLO_CFG;
-		wed->wlan.wpdma_rx = res->start + MT_RXQ_WED_DATA_RING_BASE;
-	}
-	wed->wlan.nbuf = mt7902_HW_TOKEN_SIZE;
-	wed->wlan.tx_tbit[0] = is_mt7902(&dev->mt76) ? 4 : 30;
-	wed->wlan.tx_tbit[1] = is_mt7902(&dev->mt76) ? 5 : 31;
-	wed->wlan.txfree_tbit = is_mt798x(&dev->mt76) ? 2 : 1;
-	wed->wlan.token_start = mt7902_TOKEN_SIZE - wed->wlan.nbuf;
-	wed->wlan.wcid_512 = !is_mt7902(&dev->mt76);
+// 		wed->wlan.phy_base = res->start;
+// 		wed->wlan.wpdma_int = res->start + MT_INT_SOURCE_CSR;
+// 		wed->wlan.wpdma_mask = res->start + MT_INT_MASK_CSR;
+// 		wed->wlan.wpdma_tx = res->start + MT_TXQ_WED_RING_BASE;
+// 		wed->wlan.wpdma_txfree = res->start + MT_RXQ_WED_RING_BASE;
+// 		wed->wlan.wpdma_rx_glo = res->start + MT_WPDMA_GLO_CFG;
+// 		wed->wlan.wpdma_rx = res->start + MT_RXQ_WED_DATA_RING_BASE;
+// 	}
+// 	wed->wlan.nbuf = mt7902_HW_TOKEN_SIZE;
+// 	wed->wlan.tx_tbit[0] = is_mt7902(&dev->mt76) ? 4 : 30;
+// 	wed->wlan.tx_tbit[1] = is_mt7902(&dev->mt76) ? 5 : 31;
+// 	wed->wlan.txfree_tbit = is_mt798x(&dev->mt76) ? 2 : 1;
+// 	wed->wlan.token_start = mt7902_TOKEN_SIZE - wed->wlan.nbuf;
+// 	wed->wlan.wcid_512 = !is_mt7902(&dev->mt76);
 
-	wed->wlan.rx_nbuf = 65536;
-	wed->wlan.rx_npkt = mt7902_WED_RX_TOKEN_SIZE;
-	wed->wlan.rx_size = SKB_WITH_OVERHEAD(MT_RX_BUF_SIZE);
-	if (is_mt7902(&dev->mt76)) {
-		wed->wlan.rx_tbit[0] = 16;
-		wed->wlan.rx_tbit[1] = 17;
-	} else if (is_mt798x(&dev->mt76)) {
-		wed->wlan.rx_tbit[0] = 22;
-		wed->wlan.rx_tbit[1] = 23;
-	} else {
-		wed->wlan.rx_tbit[0] = 18;
-		wed->wlan.rx_tbit[1] = 19;
-	}
+// 	wed->wlan.rx_nbuf = 65536;
+// 	wed->wlan.rx_npkt = mt7902_WED_RX_TOKEN_SIZE;
+// 	wed->wlan.rx_size = SKB_WITH_OVERHEAD(MT_RX_BUF_SIZE);
+// 	if (is_mt7902(&dev->mt76)) {
+// 		wed->wlan.rx_tbit[0] = 16;
+// 		wed->wlan.rx_tbit[1] = 17;
+// 	} else if (is_mt798x(&dev->mt76)) {
+// 		wed->wlan.rx_tbit[0] = 22;
+// 		wed->wlan.rx_tbit[1] = 23;
+// 	} else {
+// 		wed->wlan.rx_tbit[0] = 18;
+// 		wed->wlan.rx_tbit[1] = 19;
+// 	}
 
-	wed->wlan.init_buf = mt7902_wed_init_buf;
-	wed->wlan.offload_enable = mt76_wed_offload_enable;
-	wed->wlan.offload_disable = mt76_wed_offload_disable;
-	wed->wlan.init_rx_buf = mt76_wed_init_rx_buf;
-	wed->wlan.release_rx_buf = mt76_wed_release_rx_buf;
-	wed->wlan.update_wo_rx_stats = mt7902_mmio_wed_update_rx_stats;
-	wed->wlan.reset = mt7902_mmio_wed_reset;
-	wed->wlan.reset_complete = mt76_wed_reset_complete;
+// 	wed->wlan.init_buf = mt7902_wed_init_buf;
+// 	wed->wlan.offload_enable = mt76_wed_offload_enable;
+// 	wed->wlan.offload_disable = mt76_wed_offload_disable;
+// 	wed->wlan.init_rx_buf = mt76_wed_init_rx_buf;
+// 	wed->wlan.release_rx_buf = mt76_wed_release_rx_buf;
+// 	wed->wlan.update_wo_rx_stats = mt7902_mmio_wed_update_rx_stats;
+// 	wed->wlan.reset = mt7902_mmio_wed_reset;
+// 	wed->wlan.reset_complete = mt76_wed_reset_complete;
 
-	dev->mt76.rx_token_size = wed->wlan.rx_npkt;
+// 	dev->mt76.rx_token_size = wed->wlan.rx_npkt;
 
-	if (mtk_wed_device_attach(wed))
-		return 0;
+// 	if (mtk_wed_device_attach(wed))
+// 		return 0;
 
-	*irq = wed->irq;
-	dev->mt76.dma_dev = wed->dev;
+// 	*irq = wed->irq;
+// 	dev->mt76.dma_dev = wed->dev;
 
-	ret = dma_set_mask(wed->dev, DMA_BIT_MASK(32));
-	if (ret)
-		return ret;
+// 	ret = dma_set_mask(wed->dev, DMA_BIT_MASK(32));
+// 	if (ret)
+// 		return ret;
 
-	return 1;
-#else
-	return 0;
-#endif
-}
+// 	return 1;
+// #else
+// 	return 0;
+// #endif
+// }
 
 static int mt7902_mmio_init(struct mt76_dev *mdev,
 			    void __iomem *mem_base,
@@ -758,7 +758,7 @@ static int mt7902_mmio_init(struct mt76_dev *mdev,
 
 	dev = container_of(mdev, struct mt7902_dev, mt76);
 	mt76_mmio_init(&dev->mt76, mem_base);
-	spin_lock_init(&dev->reg_lock);
+	//spin_lock_init(&dev->reg_lock);
 
 	switch (device_id) {
 	case 0x7902:
@@ -766,19 +766,6 @@ static int mt7902_mmio_init(struct mt76_dev *mdev,
 		dev->reg.offs_rev = mt7902_offs;
 		dev->reg.map = mt7902_reg_map;
 		dev->reg.map_size = ARRAY_SIZE(mt7902_reg_map);
-		break;
-	case 0x7906:
-		dev->reg.reg_rev = mt7916_reg;
-		dev->reg.offs_rev = mt7916_offs;
-		dev->reg.map = mt7916_reg_map;
-		dev->reg.map_size = ARRAY_SIZE(mt7916_reg_map);
-		break;
-	case 0x7981:
-	case 0x7986:
-		dev->reg.reg_rev = mt7986_reg;
-		dev->reg.offs_rev = mt7916_offs;
-		dev->reg.map = mt7986_reg_map;
-		dev->reg.map_size = ARRAY_SIZE(mt7986_reg_map);
 		break;
 	default:
 		return -EINVAL;
@@ -937,8 +924,7 @@ struct mt7902_dev *mt7902_mmio_probe(struct device *pdev,
 	static const struct mt76_driver_ops drv_ops = {
 		/* txwi_size = txd size + txp size */
 		.txwi_size = MT_TXD_SIZE + sizeof(struct mt76_connac_fw_txp),
-		.drv_flags = MT_DRV_TXWI_NO_FREE | MT_DRV_HW_MGMT_TXQ |
-			     MT_DRV_AMSDU_OFFLOAD,
+		.drv_flags = MT_DRV_TXWI_NO_FREE | MT_DRV_HW_MGMT_TXQ,
 		.survey_flags = SURVEY_INFO_TIME_TX |
 				SURVEY_INFO_TIME_RX |
 				SURVEY_INFO_TIME_BSS_RX,
@@ -948,15 +934,19 @@ struct mt7902_dev *mt7902_mmio_probe(struct device *pdev,
 		.rx_skb = mt7902_queue_rx_skb,
 		.rx_check = mt7902_rx_check,
 		.rx_poll_complete = mt7902_rx_poll_complete,
+		//.sta_ps = mt7902_sta_ps,
 		.sta_add = mt7902_mac_sta_add,
-		.sta_event = mt7902_mac_sta_event,
 		.sta_remove = mt7902_mac_sta_remove,
 		.update_survey = mt7902_update_channel,
-		.set_channel = mt7902_set_channel,
 	};
+	struct ieee80211_ops *ops;
 	struct mt7902_dev *dev;
 	struct mt76_dev *mdev;
 	int ret;
+
+	ops = devm_kmemdup(pdev, &mt7902_ops, sizeof(mt7902_ops), GFP_KERNEL);
+	if(!ops)
+		return ERR_PTR(-ENOMEM);
 
 	mdev = mt76_alloc_device(pdev, sizeof(*dev), &mt7902_ops, &drv_ops);
 	if (!mdev)
@@ -969,6 +959,8 @@ struct mt7902_dev *mt7902_mmio_probe(struct device *pdev,
 		goto error;
 
 	tasklet_setup(&mdev->irq_tasklet, mt7902_irq_tasklet);
+
+	mt76_wr(dev, MT_INT_MASK_CSR, 0);
 
 	return dev;
 

@@ -144,24 +144,24 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 	mt7902_wfsys_reset(dev);
 	hif2 = mt7902_pci_init_hif2(pdev);
 
-	ret = mt7902_mmio_wed_init(dev, pdev, true, &irq);
+	// ret = mt7902_mmio_wed_init(dev, pdev, true, &irq);
+	// if (ret < 0)
+	// 	goto free_wed_or_irq_vector;
+
+	// if (!ret) {
+	// 	hif2 = mt7902_pci_init_hif2(pdev);
+		
+	// }
+
+	ret = pci_alloc_irq_vectors(pdev, 1, 1, PCI_IRQ_ALL_TYPES);
 	if (ret < 0)
-		goto free_wed_or_irq_vector;
+		goto free_device;
 
-	if (!ret) {
-		hif2 = mt7902_pci_init_hif2(pdev);
-
-		ret = pci_alloc_irq_vectors(pdev, 1, 1, PCI_IRQ_ALL_TYPES);
-		if (ret < 0)
-			goto free_device;
-
-		irq = pdev->irq;
-	}
-
+	irq = pdev->irq;
 	ret = devm_request_irq(mdev->dev, irq, mt7902_irq_handler,
 			       IRQF_SHARED, KBUILD_MODNAME, dev);
 	if (ret)
-		goto free_wed_or_irq_vector;
+		goto free_irq_vector;
 
 	/* master switch of PCIe tnterrupt enable */
 	mt76_wr(dev, MT_PCIE_MAC_INT_ENABLE, 0xff);
@@ -171,10 +171,11 @@ static int mt7902_pci_probe(struct pci_dev *pdev,
 
 		mt76_wr(dev, MT_INT1_MASK_CSR, 0);
 		/* master switch of PCIe tnterrupt enable */
-		if (is_mt7902(mdev))
-			mt76_wr(dev, MT_PCIE1_MAC_INT_ENABLE, 0xff);
-		else
-			mt76_wr(dev, MT_PCIE1_MAC_INT_ENABLE_MT7916, 0xff);
+		mt76_wr(dev, MT_PCIE1_MAC_INT_ENABLE, 0xff);
+		// if (is_mt7902(mdev))
+			
+		// else
+		// 	mt76_wr(dev, MT_PCIE1_MAC_INT_ENABLE_MT7916, 0xff);
 
 		ret = devm_request_irq(mdev->dev, dev->hif2->irq,
 				       mt7902_irq_handler, IRQF_SHARED,
@@ -196,11 +197,11 @@ free_hif2:
 	if (dev->hif2)
 		put_device(dev->hif2->dev);
 	devm_free_irq(mdev->dev, irq, dev);
-free_wed_or_irq_vector:
-	if (mtk_wed_device_active(&mdev->mmio.wed))
-		mtk_wed_device_detach(&mdev->mmio.wed);
-	else
-		pci_free_irq_vectors(pdev);
+free_irq_vector:
+	// if (mtk_wed_device_active(&mdev->mmio.wed))
+	// 	mtk_wed_device_detach(&mdev->mmio.wed);
+	// else
+	pci_free_irq_vectors(pdev);
 free_device:
 	mt76_free_device(&dev->mt76);
 

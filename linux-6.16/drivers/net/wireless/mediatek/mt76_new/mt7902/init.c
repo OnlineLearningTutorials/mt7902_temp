@@ -701,11 +701,28 @@ mt7902_alloc_ext_phy(struct mt7902_dev *dev)
 }
 
 static int
-mt7902_register_ext_phy(struct mt7902_dev *dev, struct mt7902_phy *phy)
+mt7902_register_ext_phy(struct mt7902_dev *dev)
 {
 	printk(KERN_DEBUG "init.c - mt7902_register_ext_phy");
-	struct mt76_phy *mphy = phy->mt76;
+	struct mt7902_phy *phy = mt7902_ext_phy(dev);
+	struct mt76_phy *mphy; // = phy->mt76;
 	int ret;
+
+	if (!dev->dbdc_support)
+		return 0;
+
+	if (phy)
+		return 0;
+
+	mphy = mt76_alloc_phy(&dev->mt76, sizeof(*phy), &mt7902_ops, MT_BAND1);
+	if (!mphy)
+		return -ENOMEM;
+
+	phy = mphy->priv;
+	phy->dev = dev;
+	phy->mt76 = mphy;
+	//phy->band_idx = MT_BAND1;
+	//mphy->dev->phy2 = mphy;
 
 	INIT_DELAYED_WORK(&mphy->mac_work, mt7902_mac_work);
 
@@ -726,22 +743,32 @@ mt7902_register_ext_phy(struct mt7902_dev *dev, struct mt7902_phy *phy)
 
 	/* init wiphy according to mphy and phy */
 	mt7902_init_wiphy(phy);
+	ret = mt7902_init_tx_queues(phy, MT_TXQ_ID(phy->band_idx),
+				    mt7902_TX_RING_SIZE,
+				    MT_TXQ_RING_BASE(1));
+	if (ret)
+		goto error;
+
 
 	ret = mt76_register_phy(mphy, true, mt76_rates,
 				ARRAY_SIZE(mt76_rates));
 	if (ret)
-		return ret;
+		goto error;
 
 	ret = mt7902_thermal_init(phy);
 	if (ret)
-		goto unreg;
+		goto error;
 
 	mt7902_init_debugfs(phy);
+	if(ret)
+		goto error;
 
 	return 0;
 
-unreg:
-	mt76_unregister_phy(mphy);
+error:
+	mphy->dev->phy2 = NULL;
+	ieee80211_free_hw(mphy->hw);
+	//mt76_unregister_phy(mphy);
 	return ret;
 }
 
@@ -786,6 +813,75 @@ static bool mt7902_band_config(struct mt7902_dev *dev)
 
 	return true;
 }
+
+
+static int mt7902_register_tri_phy(struct mt7902_dev *dev)
+{
+	struct mt7902_phy *phy = mt7902_tri_phy(dev);
+	struct mt76_phy *mphy;
+	int ret;
+
+	if (!dev->tbtc_support)
+		return 0;
+
+	if (phy)
+		return 0;
+
+	mphy = mt76_alloc_phy(&dev->mt76, sizeof(*phy), &mt7902_ops, MT_BAND2);
+	if (!mphy)
+		return -ENOMEM;
+
+	phy = mphy->priv;
+	phy->dev = dev;
+	phy->mt76 = mphy;
+	phy->band_idx = MT_BAND2;
+	mphy->dev->phy3 = mphy;
+
+	INIT_DELAYED_WORK(&mphy->mac_work, mt7902_mac_work);
+
+	mt7902_eeprom_parse_hw_cap(dev, phy);
+
+	/* Make the secondary PHY MAC address local without overlapping with
+	 * the usual MAC address allocation scheme on multiple virtual interfaces
+	 */
+	if (!is_valid_ether_addr(mphy->macaddr)) {
+		memcpy(mphy->macaddr, dev->mt76.eeprom.data + MT_EE_MAC_ADDR,
+		       ETH_ALEN);
+		mphy->macaddr[0] |= 2;
+		mphy->macaddr[0] ^= BIT(6);
+		mphy->macaddr[0] ^= BIT(7);
+	}
+	mt76_eeprom_override(mphy);
+
+	/* init wiphy according to mphy and phy */
+	mt7902_init_wiphy(mphy->hw);
+	ret = mt7902_init_tx_queues(phy, MT_TXQ_ID(phy->band_idx),
+				    mt7902_TX_RING_SIZE,
+				    MT_TXQ_RING_BASE(2));
+	if (ret)
+		goto error;
+
+	ret = mt76_register_phy(mphy, true, mt76_rates,
+				ARRAY_SIZE(mt76_rates));
+	if (ret)
+		goto error;
+
+	ret = mt7902_thermal_init(phy);
+	if (ret)
+		goto error;
+
+	ret = mt7902_init_debugfs(phy);
+	if (ret)
+		goto error;
+
+	return 0;
+
+error:
+	mphy->dev->phy3 = NULL;
+	ieee80211_free_hw(mphy->hw);
+	return ret;
+}
+
 
 static int
 mt7902_init_hardware(struct mt7902_dev *dev, struct mt7902_phy *phy2)
@@ -1211,14 +1307,14 @@ int mt7902_register_device(struct mt7902_dev *dev)
 
 	init_waitqueue_head(&dev->reset_wait);
 	INIT_WORK(&dev->reset_work, mt7902_mac_reset_work);
-	INIT_WORK(&dev->dump_work, mt7902_mac_dump_work);
-	mutex_init(&dev->dump_mutex);
+	// INIT_WORK(&dev->dump_work, mt7902_mac_dump_work);
+	// mutex_init(&dev->dump_mutex);
 
-	dev->dbdc_support = mt7902_band_config(dev);
+	// dev->dbdc_support = mt7902_band_config(dev);
 
-	phy2 = mt7902_alloc_ext_phy(dev);
-	if (IS_ERR(phy2))
-		return PTR_ERR(phy2);
+	// phy2 = mt7902_alloc_ext_phy(dev);
+	// if (IS_ERR(phy2))
+	// 	return PTR_ERR(phy2);
 
 	ret = mt7902_init_hardware(dev, phy2);
 	if (ret)
@@ -1230,45 +1326,64 @@ int mt7902_register_device(struct mt7902_dev *dev)
 	dev->mt76.test_ops = &mt7902_testmode_ops;
 #endif
 
+/* init led callbacks */
+	// if (IS_ENABLED(CONFIG_MT76_LEDS)) {
+	// 	dev->mt76.led_cdev.brightness_set = mt7902_led_set_brightness;
+	// 	dev->mt76.led_cdev.blink_set = mt7902_led_set_blink;
+	// }
+
 	ret = mt76_register_device(&dev->mt76, true, mt76_rates,
 				   ARRAY_SIZE(mt76_rates));
 	if (ret)
-		goto stop_hw;
+		return ret;
+		//goto stop_hw;
 
 	ret = mt7902_thermal_init(&dev->phy);
 	if (ret)
-		goto unreg_dev;
+		return ret;
+		//goto unreg_dev;
 
-	if (phy2) {
-		ret = mt7902_register_ext_phy(dev, phy2);
-		if (ret)
-			goto unreg_thermal;
-	}
+	// if (phy2) {
+	// 	ret = mt7902_register_ext_phy(dev, phy2);
+	// 	if (ret)
+	// 		goto unreg_thermal;
+	// }
 
 	ieee80211_queue_work(mt76_hw(dev), &dev->init_work);
 
-	dev->recovery.hw_init_done = true;
-
-	ret = mt7902_init_debugfs(&dev->phy);
+	ret = mt7902_register_ext_phy(dev);
 	if (ret)
-		goto unreg_thermal;
+		return ret;
 
-	ret = mt7902_coredump_register(dev);
+	ret = mt7902_register_tri_phy(dev);
 	if (ret)
-		goto unreg_thermal;
+		return ret;
 
-	return 0;
+	return mt7902_init_debugfs(&dev->phy);
 
-unreg_thermal:
-	mt7902_unregister_thermal(&dev->phy);
-unreg_dev:
-	mt76_unregister_device(&dev->mt76);
-stop_hw:
-	mt7902_stop_hardware(dev);
-free_phy2:
-	if (phy2)
-		ieee80211_free_hw(phy2->mt76->hw);
-	return ret;
+
+// 	dev->recovery.hw_init_done = true;
+
+// 	ret = mt7902_init_debugfs(&dev->phy);
+// 	if (ret)
+// 		goto unreg_thermal;
+
+// 	ret = mt7902_coredump_register(dev);
+// 	if (ret)
+// 		goto unreg_thermal;
+
+// 	return 0;
+
+// unreg_thermal:
+// 	mt7902_unregister_thermal(&dev->phy);
+// unreg_dev:
+// 	mt76_unregister_device(&dev->mt76);
+// stop_hw:
+// 	mt7902_stop_hardware(dev);
+// free_phy2:
+// 	if (phy2)
+// 		ieee80211_free_hw(phy2->mt76->hw);
+// 	return ret;
 }
 
 void mt7902_unregister_device(struct mt7902_dev *dev)

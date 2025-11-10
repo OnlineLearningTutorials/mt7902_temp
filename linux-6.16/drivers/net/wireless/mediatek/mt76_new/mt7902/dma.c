@@ -9,21 +9,33 @@ static int
 mt7902_init_tx_queues(struct mt7902_phy *phy, int idx, int n_desc, int ring_base)
 {
 	printk(KERN_DEBUG "dma.c - mt7902_init_tx_queues");
-	struct mt7902_dev *dev = phy->dev;
-	struct mtk_wed_device *wed = NULL;
+		int i, err;
 
-	if (mtk_wed_device_active(&dev->mt76.mmio.wed)) {
-		if (is_mt798x(&dev->mt76))
-			ring_base += MT_TXQ_ID(0) * MT_RING_SIZE;
-		else
-			ring_base = MT_WED_TX_RING_BASE;
+	err = mt76_init_tx_queue(phy->mt76, 0, idx, n_desc, ring_base);
+	if (err < 0)
+		return err;
 
-		idx -= MT_TXQ_ID(0);
-		wed = &dev->mt76.mmio.wed;
-	}
+	for (i = 0; i <= MT_TXQ_PSD; i++)
+		phy->mt76->q_tx[i] = phy->mt76->q_tx[0];
 
-	return mt76_connac_init_tx_queues(phy->mt76, idx, n_desc, ring_base,
-					  wed, MT_WED_Q_TX(idx));
+	return 0;
+
+	
+	// struct mt7902_dev *dev = phy->dev;
+	// struct mtk_wed_device *wed = NULL;
+
+	// if (mtk_wed_device_active(&dev->mt76.mmio.wed)) {
+	// 	if (is_mt798x(&dev->mt76))
+	// 		ring_base += MT_TXQ_ID(0) * MT_RING_SIZE;
+	// 	else
+	// 		ring_base = MT_WED_TX_RING_BASE;
+
+	// 	idx -= MT_TXQ_ID(0);
+	// 	wed = &dev->mt76.mmio.wed;
+	// }
+
+	// return mt76_connac_init_tx_queues(phy->mt76, idx, n_desc, ring_base,
+	// 				  wed, MT_WED_Q_TX(idx));
 }
 
 static int mt7902_poll_tx(struct napi_struct *napi, int budget)
