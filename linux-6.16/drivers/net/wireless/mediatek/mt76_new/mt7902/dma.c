@@ -9,33 +9,33 @@
 mt7902_init_tx_queues(struct mt7902_phy *phy, int idx, int n_desc, int ring_base)
 {
 	printk(KERN_DEBUG "dma.c - mt7902_init_tx_queues");
-	int i, err;
-	struct mtk_wed_device *wed = NULL;
-	err = mt76_connac_init_tx_queues(phy->mt76, 0, idx, n_desc, ring_base);
-	if (err < 0)
-		return err;
+	// int i, err;
+	// struct mtk_wed_device *wed = NULL;
+	// err = mt76_init_tx_queue(phy->mt76, 0, idx, n_desc, ring_base);
+	// if (err < 0)
+	// 	return err;
 
-	for (i = 0; i <= MT_TXQ_PSD; i++)
-		phy->mt76->q_tx[i] = phy->mt76->q_tx[0];
+	// for (i = 0; i <= MT_TXQ_PSD; i++)
+	// 	phy->mt76->q_tx[i] = phy->mt76->q_tx[0];
 
-	return 0;
+	// return 0;
 
 	
-	// struct mt7902_dev *dev = phy->dev;
-	// struct mtk_wed_device *wed = NULL;
+	struct mt7902_dev *dev = phy->dev;
+	struct mtk_wed_device *wed = NULL;
 
-	// if (mtk_wed_device_active(&dev->mt76.mmio.wed)) {
-	// 	if (is_mt798x(&dev->mt76))
-	// 		ring_base += MT_TXQ_ID(0) * MT_RING_SIZE;
-	// 	else
-	// 		ring_base = MT_WED_TX_RING_BASE;
+	if (mtk_wed_device_active(&dev->mt76.mmio.wed)) {
+		if (is_mt798x(&dev->mt76))
+			ring_base += MT_TXQ_ID(0) * MT_RING_SIZE;
+		else
+			ring_base = MT_WED_TX_RING_BASE;
 
-	// 	idx -= MT_TXQ_ID(0);
-	// 	wed = &dev->mt76.mmio.wed;
-	// }
+		idx -= MT_TXQ_ID(0);
+		wed = &dev->mt76.mmio.wed;
+	}
 
-	// return mt76_connac_init_tx_queues(phy->mt76, idx, n_desc, ring_base,
-	// 				  wed, MT_WED_Q_TX(idx));
+	return mt76_connac_init_tx_queues(phy->mt76, idx, n_desc, ring_base,
+					  wed, MT_WED_Q_TX(idx));
 }
 
 static int mt7902_poll_tx(struct napi_struct *napi, int budget)
@@ -330,39 +330,25 @@ int mt7902_dma_start(struct mt7902_dev *dev, bool reset, bool wed_reset)
 	if (dev->hif2)
 		hif1_ofs = MT_WFDMA0_PCIE1(0) - MT_WFDMA0(0);
 
-	/* enable wpdma tx/rx */
-	if (!reset) {
-		mt76_set(dev, MT_WFDMA0_GLO_CFG,
-			MT_WFDMA0_GLO_CFG_TX_DMA_EN |
-			MT_WFDMA0_GLO_CFG_RX_DMA_EN |
-			MT_WFDMA0_GLO_CFG_OMIT_TX_INFO |
-			MT_WFDMA0_GLO_CFG_OMIT_RX_INFO_PFET2);
+	// /* enable wpdma tx/rx */
+	// if (!reset) {
+	// 	mt76_set(dev, MT_WFDMA0_GLO_CFG,
+	// 		MT_WFDMA0_GLO_CFG_TX_DMA_EN |
+	// 		MT_WFDMA0_GLO_CFG_RX_DMA_EN |
+	// 		MT_WFDMA0_GLO_CFG_OMIT_TX_INFO |
+	// 		MT_WFDMA0_GLO_CFG_OMIT_RX_INFO_PFET2);
 
-		if (is_mt7902(mdev))
-			mt76_set(dev, MT_WFDMA1_GLO_CFG,
-				MT_WFDMA1_GLO_CFG_TX_DMA_EN |
-				MT_WFDMA1_GLO_CFG_RX_DMA_EN |
-				MT_WFDMA1_GLO_CFG_OMIT_TX_INFO |
-				MT_WFDMA1_GLO_CFG_OMIT_RX_INFO);
+	// 	if (dev->hif2) {
+	// 		mt76_set(dev, MT_WFDMA0_GLO_CFG + hif1_ofs,
+	// 			MT_WFDMA0_GLO_CFG_TX_DMA_EN |
+	// 			MT_WFDMA0_GLO_CFG_RX_DMA_EN |
+	// 			MT_WFDMA0_GLO_CFG_OMIT_TX_INFO |
+	// 			MT_WFDMA0_GLO_CFG_OMIT_RX_INFO_PFET2);
 
-		if (dev->hif2) {
-			mt76_set(dev, MT_WFDMA0_GLO_CFG + hif1_ofs,
-				MT_WFDMA0_GLO_CFG_TX_DMA_EN |
-				MT_WFDMA0_GLO_CFG_RX_DMA_EN |
-				MT_WFDMA0_GLO_CFG_OMIT_TX_INFO |
-				MT_WFDMA0_GLO_CFG_OMIT_RX_INFO_PFET2);
-
-			if (is_mt7902(mdev))
-				mt76_set(dev, MT_WFDMA1_GLO_CFG + hif1_ofs,
-					MT_WFDMA1_GLO_CFG_TX_DMA_EN |
-					MT_WFDMA1_GLO_CFG_RX_DMA_EN |
-					MT_WFDMA1_GLO_CFG_OMIT_TX_INFO |
-					MT_WFDMA1_GLO_CFG_OMIT_RX_INFO);
-
-			mt76_set(dev, MT_WFDMA_HOST_CONFIG,
-				MT_WFDMA_HOST_CONFIG_PDMA_BAND);
-		}
-	}
+	// 		mt76_set(dev, MT_WFDMA_HOST_CONFIG,
+	// 			MT_WFDMA_HOST_CONFIG_PDMA_BAND);
+	// 	}
+	// }
 
 	/* enable interrupts for TX/RX rings */
 	irq_mask = MT_INT_RX_DONE_MCU |
@@ -375,27 +361,27 @@ int mt7902_dma_start(struct mt7902_dev *dev, bool reset, bool wed_reset)
 	if (dev->dbdc_support || dev->phy.mt76->band_idx)
 		irq_mask |= MT_INT_BAND1_RX_DONE;
 
-	if (mtk_wed_device_active(&dev->mt76.mmio.wed) && wed_reset) {
-		u32 wed_irq_mask = irq_mask;
-		int ret;
+	// if (mtk_wed_device_active(&dev->mt76.mmio.wed) && wed_reset) {
+	// 	u32 wed_irq_mask = irq_mask;
+	// 	int ret;
 
-		wed_irq_mask |= MT_INT_TX_DONE_BAND0 | MT_INT_TX_DONE_BAND1;
-		if (!is_mt798x(&dev->mt76))
-			mt76_wr(dev, MT_INT_WED_MASK_CSR, wed_irq_mask);
-		else
-			mt76_wr(dev, MT_INT_MASK_CSR, wed_irq_mask);
+	// 	wed_irq_mask |= MT_INT_TX_DONE_BAND0 | MT_INT_TX_DONE_BAND1;
+	// 	if (!is_mt798x(&dev->mt76))
+	// 		mt76_wr(dev, MT_INT_WED_MASK_CSR, wed_irq_mask);
+	// 	else
+	// 		mt76_wr(dev, MT_INT_MASK_CSR, wed_irq_mask);
 
-		ret = mt7902_mcu_wed_enable_rx_stats(dev);
-		if (ret)
-			return ret;
+	// 	ret = mt7902_mcu_wed_enable_rx_stats(dev);
+	// 	if (ret)
+	// 		return ret;
 
-		mtk_wed_device_start(&dev->mt76.mmio.wed, wed_irq_mask);
-	}
+	// 	mtk_wed_device_start(&dev->mt76.mmio.wed, wed_irq_mask);
+	// }
 
 	irq_mask = reset ? MT_INT_MCU_CMD : irq_mask;
 
 	mt7902_irq_enable(dev, irq_mask);
-	mt7902_irq_disable(dev, 0);
+	// mt7902_irq_disable(dev, 0);
 
 	return 0;
 }

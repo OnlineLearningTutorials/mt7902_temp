@@ -831,20 +831,13 @@ static void mt7902_irq_tasklet(struct tasklet_struct *t)
 	struct mtk_wed_device *wed = &dev->mt76.mmio.wed;
 	u32 intr, intr1, mask;
 
-	if (mtk_wed_device_active(wed)) {
-		mtk_wed_device_irq_set_mask(wed, 0);
-		if (dev->hif2)
-			mt76_wr(dev, MT_INT1_MASK_CSR, 0);
-		intr = mtk_wed_device_irq_get(wed, dev->mt76.mmio.irqmask);
-	} else {
-		mt76_wr(dev, MT_INT_MASK_CSR, 0);
-		if (dev->hif2)
-			mt76_wr(dev, MT_INT1_MASK_CSR, 0);
+	mt76_wr(dev, MT_INT_MASK_CSR, 0);
+	if (dev->hif2)
+		mt76_wr(dev, MT_INT1_MASK_CSR, 0);
 
-		intr = mt76_rr(dev, MT_INT_SOURCE_CSR);
-		intr &= dev->mt76.mmio.irqmask;
-		mt76_wr(dev, MT_INT_SOURCE_CSR, intr);
-	}
+	intr = mt76_rr(dev, MT_INT_SOURCE_CSR);
+	intr &= dev->mt76.mmio.irqmask;
+	mt76_wr(dev, MT_INT_SOURCE_CSR, intr);
 
 	if (dev->hif2) {
 		intr1 = mt76_rr(dev, MT_INT1_SOURCE_CSR);
@@ -865,30 +858,36 @@ static void mt7902_irq_tasklet(struct tasklet_struct *t)
 	if (intr & MT_INT_TX_DONE_MCU)
 		napi_schedule(&dev->mt76.tx_napi);
 
-	if (intr & MT_INT_RX(MT_RXQ_MAIN))
+	if (intr & MT_INT_RX(MT_RXQ_MAIN) && MT_RXQ_VALID(MT_RXQ_MAIN))
 		napi_schedule(&dev->mt76.napi[MT_RXQ_MAIN]);
 
-	if (intr & MT_INT_RX(MT_RXQ_BAND1))
+	if (intr & MT_INT_RX(MT_RXQ_BAND1) && MT_RXQ_VALID(MT_RXQ_BAND1))
 		napi_schedule(&dev->mt76.napi[MT_RXQ_BAND1]);
 
-	if (intr & MT_INT_RX(MT_RXQ_MCU))
+	if (intr & MT_INT_RX(MT_RXQ_MCU) && MT_RXQ_VALID(MT_RXQ_MCU))
 		napi_schedule(&dev->mt76.napi[MT_RXQ_MCU]);
 
-	if (intr & MT_INT_RX(MT_RXQ_MCU_WA))
+	if (intr & MT_INT_RX(MT_RXQ_MCU_WA) && MT_RXQ_VALID(MT_RXQ_MCU_WA))
 		napi_schedule(&dev->mt76.napi[MT_RXQ_MCU_WA]);
 
-	if (!is_mt7902(&dev->mt76) &&
-	    (intr & MT_INT_RX(MT_RXQ_MAIN_WA)))
+	if (intr & MT_INT_RX(MT_RXQ_MAIN_WA) && MT_RXQ_VALID(MT_RXQ_MAIN_WA))
 		napi_schedule(&dev->mt76.napi[MT_RXQ_MAIN_WA]);
 
-	if (intr & MT_INT_RX(MT_RXQ_BAND1_WA))
+	if (intr & MT_INT_RX(MT_RXQ_BAND1_WA) && MT_RXQ_VALID(MT_RXQ_BAND1_WA))
 		napi_schedule(&dev->mt76.napi[MT_RXQ_BAND1_WA]);
+
+	if (intr & MT_INT_RX(MT_RXQ_BAND2_WA) && MT_RXQ_VALID(MT_RXQ_BAND2_WA))
+		napi_schedule(&dev->mt76.napi[MT_RXQ_BAND2_WA]);
 
 	if (intr & MT_INT_MCU_CMD) {
 		u32 val = mt76_rr(dev, MT_MCU_CMD);
 
 		mt76_wr(dev, MT_MCU_CMD, val);
 		if (val & (MT_MCU_CMD_ERROR_MASK | MT_MCU_CMD_WDT_MASK)) {
+			// dev->reset_state = val;
+			// ieee80211_queue_work(mt76_hw(dev), &dev->reset_work);
+			// wake_up(&dev->reset_wait);
+			
 			dev->recovery.state = val;
 			mt7902_reset(dev);
 		}

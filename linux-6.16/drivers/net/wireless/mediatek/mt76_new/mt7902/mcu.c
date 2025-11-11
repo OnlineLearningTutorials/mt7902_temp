@@ -2304,6 +2304,7 @@ static int mt7902_driver_own(struct mt7902_dev *dev, u8 band)
 
 static int mt7902_load_patch(struct mt7902_dev *dev)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_load_patch");
 	const struct mt7902_patch_hdr *hdr;
 	const struct firmware *fw = NULL;
 	int i, ret, sem;
@@ -2391,6 +2392,7 @@ mt7902_mcu_send_ram_firmware(struct mt7902_dev *dev,
 			     const struct mt7902_fw_trailer *hdr,
 			     const u8 *data, bool is_wa)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_send_ram_firmware");
 	int i, offset = 0;
 	u32 override = 0, option = 0;
 
@@ -2437,6 +2439,7 @@ mt7902_mcu_send_ram_firmware(struct mt7902_dev *dev,
 
 static int mt7902_load_ram(struct mt7902_dev *dev)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_load_ram");
 	const struct mt7902_fw_trailer *hdr;
 	const struct firmware *fw;
 	int ret;

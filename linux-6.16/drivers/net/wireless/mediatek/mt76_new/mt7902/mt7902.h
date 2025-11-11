@@ -547,10 +547,10 @@ int mt7902_mcu_fw_dbg_ctrl(struct mt7902_dev *dev, u32 module, u8 level);
 void mt7902_mcu_rx_event(struct mt7902_dev *dev, struct sk_buff *skb);
 void mt7902_mcu_exit(struct mt7902_dev *dev);
 
-static inline bool is_mt7902(struct mt76_dev *dev)
-{
-    return mt76_chip(dev) == 0x7902;
-} 
+// static inline bool is_mt7902(struct mt76_dev *dev)
+// {
+//     return mt76_chip(dev) == 0x7902;
+// } 
 
 static inline u16 mt7902_wtbl_size(struct mt7902_dev *dev)
 {

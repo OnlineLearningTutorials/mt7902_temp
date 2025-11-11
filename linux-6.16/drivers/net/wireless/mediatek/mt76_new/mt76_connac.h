@@ -197,6 +197,12 @@ static inline bool is_mt7663(struct mt76_dev *dev)
 	return mt76_chip(dev) == 0x7663;
 }
 
+static inline bool is_mt7902(struct mt76_dev *dev)
+{
+	//printk(KERN_DEBUG "mt76_connac.h - is_mt7902");
+	return mt76_chip(dev) == 0x7902;
+}
+
 static inline bool is_mt7915(struct mt76_dev *dev)
 {
 	return mt76_chip(dev) == 0x7915;

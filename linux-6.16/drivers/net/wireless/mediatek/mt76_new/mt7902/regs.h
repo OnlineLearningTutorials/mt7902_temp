@@ -682,6 +682,8 @@ enum offs_rev {
 #define __RXQ(q)			((q) + __MT_MCUQ_MAX)
 #define __TXQ(q)			(__RXQ(q) + MT_RXQ_BAND2)
 
+#define MT_RXQ_VALID(q)			(dev->mt76.q_rx[q].ndesc)
+
 #define MT_Q_ID(q)			(dev->q_id[(q)])
 #define MT_Q_BASE(q)			((dev->wfdma_mask >> (q)) & 0x1 ?	\
 					 MT_WFDMA1_BASE : MT_WFDMA0_BASE)

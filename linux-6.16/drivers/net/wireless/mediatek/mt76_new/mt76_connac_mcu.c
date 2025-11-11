@@ -53,6 +53,7 @@ EXPORT_SYMBOL_GPL(mt76_connac_mcu_start_patch);
 int mt76_connac_mcu_init_download(struct mt76_dev *dev, u32 addr, u32 len,
 				  u32 mode)
 {
+	printk(KERN_DEBUG "mt76_connac_mcu.c - mt76_connac_mcu_init_download");
 	struct {
 		__le32 addr;
 		__le32 len;
@@ -65,6 +66,7 @@ int mt76_connac_mcu_init_download(struct mt76_dev *dev, u32 addr, u32 len,
 	int cmd;
 
 	if ((!is_connac_v1(dev) && addr == MCU_PATCH_ADDRESS) ||
+		(is_mt7902(dev) && addr == 0x900000) ||
 	    (is_mt7921(dev) && addr == 0x900000) ||
 	    (is_mt7925(dev) && (addr == 0x900000 || addr == 0xe0002800)) ||
 	    (is_mt799x(dev) && addr == 0x900000))
@@ -3045,9 +3047,10 @@ EXPORT_SYMBOL_GPL(mt76_connac2_load_ram);
 
 static u32 mt76_connac2_get_data_mode(struct mt76_dev *dev, u32 info)
 {
+	printk(KERN_DEBUG "mt76_connac_mcu.c - mt76_connac2_get_data_mode");
 	u32 mode = DL_MODE_NEED_RSP;
 
-	if ((!is_mt7921(dev) && !is_mt7925(dev)) || info == PATCH_SEC_NOT_SUPPORT)
+	if ((!is_mt7921(dev) && !is_mt7925(dev) && !is_mt7902(dev) ) || info == PATCH_SEC_NOT_SUPPORT)
 		return mode;
 
 	switch (FIELD_GET(PATCH_SEC_ENC_TYPE_MASK, info)) {
