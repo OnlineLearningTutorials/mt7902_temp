@@ -5,13 +5,13 @@
 #include "../dma.h"
 #include "mac.h"
 
-static int
+ int
 mt7902_init_tx_queues(struct mt7902_phy *phy, int idx, int n_desc, int ring_base)
 {
 	printk(KERN_DEBUG "dma.c - mt7902_init_tx_queues");
-		int i, err;
-
-	err = mt76_init_tx_queue(phy->mt76, 0, idx, n_desc, ring_base);
+	int i, err;
+	struct mtk_wed_device *wed = NULL;
+	err = mt76_connac_init_tx_queues(phy->mt76, 0, idx, n_desc, ring_base);
 	if (err < 0)
 		return err;
 

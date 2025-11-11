@@ -743,7 +743,7 @@ mt7902_register_ext_phy(struct mt7902_dev *dev)
 
 	/* init wiphy according to mphy and phy */
 	mt7902_init_wiphy(phy);
-	ret = mt7902_init_tx_queues(phy, MT_TXQ_ID(phy->band_idx),
+	ret = mt7902_init_tx_queues(phy, MT_TXQ_ID(phy->mt76->band_idx),
 				    mt7902_TX_RING_SIZE,
 				    MT_TXQ_RING_BASE(1));
 	if (ret)
@@ -766,8 +766,7 @@ mt7902_register_ext_phy(struct mt7902_dev *dev)
 	return 0;
 
 error:
-	mphy->dev->phy2 = NULL;
-	ieee80211_free_hw(mphy->hw);
+	//mphy->dev->phy2 = NULLmt7902_tri_phy	ieee80211_free_hw(mphy->hw);
 	//mt76_unregister_phy(mphy);
 	return ret;
 }
@@ -821,8 +820,8 @@ static int mt7902_register_tri_phy(struct mt7902_dev *dev)
 	struct mt76_phy *mphy;
 	int ret;
 
-	if (!dev->tbtc_support)
-		return 0;
+	// if (!dev->tbtc_support)
+	// 	return 0;
 
 	if (phy)
 		return 0;
@@ -834,8 +833,8 @@ static int mt7902_register_tri_phy(struct mt7902_dev *dev)
 	phy = mphy->priv;
 	phy->dev = dev;
 	phy->mt76 = mphy;
-	phy->band_idx = MT_BAND2;
-	mphy->dev->phy3 = mphy;
+	phy->mt76->band_idx = MT_BAND2;
+	mphy->dev->phys[MT_BAND2] = mphy;
 
 	INIT_DELAYED_WORK(&mphy->mac_work, mt7902_mac_work);
 
@@ -854,8 +853,8 @@ static int mt7902_register_tri_phy(struct mt7902_dev *dev)
 	mt76_eeprom_override(mphy);
 
 	/* init wiphy according to mphy and phy */
-	mt7902_init_wiphy(mphy->hw);
-	ret = mt7902_init_tx_queues(phy, MT_TXQ_ID(phy->band_idx),
+	mt7902_init_wiphy(phy);
+	ret = mt7902_init_tx_queues(phy, MT_TXQ_ID(phy->mt76->band_idx),
 				    mt7902_TX_RING_SIZE,
 				    MT_TXQ_RING_BASE(2));
 	if (ret)
@@ -877,7 +876,7 @@ static int mt7902_register_tri_phy(struct mt7902_dev *dev)
 	return 0;
 
 error:
-	mphy->dev->phy3 = NULL;
+	mphy->dev->phys[MT_BAND2] = NULL;
 	ieee80211_free_hw(mphy->hw);
 	return ret;
 }
@@ -1318,7 +1317,7 @@ int mt7902_register_device(struct mt7902_dev *dev)
 
 	ret = mt7902_init_hardware(dev, phy2);
 	if (ret)
-		goto free_phy2;
+		return ret;
 
 	mt7902_init_wiphy(&dev->phy);
 

@@ -413,6 +413,17 @@ static inline u32 mt7902_check_adie(struct mt7902_dev *dev, bool sku)
 	return mt76_rr(dev, MT_CONNINFRA_SKU_DEC_ADDR) & mask;
 }
 
+static inline struct mt7902_phy *
+mt7902_tri_phy(struct mt7902_dev *dev)
+{
+	struct mt76_phy *phy = dev->mt76.phys[MT_BAND2];
+
+	if (!phy)
+		return NULL;
+
+	return phy->priv;
+}
+
 extern const struct ieee80211_ops mt7902_ops;
 extern const struct mt76_testmode_ops mt7902_testmode_ops;
 extern struct pci_driver mt7902_pci_driver;
