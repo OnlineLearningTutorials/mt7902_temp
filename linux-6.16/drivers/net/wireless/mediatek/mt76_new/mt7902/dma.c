@@ -176,6 +176,7 @@ static void __mt7902_dma_prefetch(struct mt7902_dev *dev, u32 ofs)
 	mt76_wr(dev, MT_MCUQ_EXT_CTRL(MT_MCUQ_WM) + ofs, PREFETCH(0x40, 0x4));
 	mt76_wr(dev, MT_TXQ_EXT_CTRL(0) + ofs, PREFETCH(0x80, 0x4));
 	mt76_wr(dev, MT_TXQ_EXT_CTRL(1) + ofs, PREFETCH(0xc0, 0x4));
+	
 	mt76_wr(dev, MT_MCUQ_EXT_CTRL(MT_MCUQ_WA) + ofs, PREFETCH(0x100, 0x4));
 	mt76_wr(dev, MT_TXQ_EXT_CTRL(2) + ofs, PREFETCH(0x140, 0x4));
 
@@ -187,6 +188,24 @@ static void __mt7902_dma_prefetch(struct mt7902_dev *dev, u32 ofs)
 	mt76_wr(dev, MT_RXQ_BAND1_CTRL(MT_RXQ_BAND1) + ofs, PREFETCH(0x280, 0x4));
 	mt76_wr(dev, MT_RXQ_BAND1_CTRL(MT_RXQ_BAND2) + ofs, PREFETCH(0x2c0, 0x4));
 
+	// from mt792x_dma.c  -     mt792x_dma_prefetch
+	// } else if (is_mt7902(&dev->mt76)) {
+	// 	/* rx ring */
+	// 	mt76_wr(dev, MT_WFDMA0_RX_RING0_EXT_CTRL, PREFETCH(0x0, 0x4));
+	// 	mt76_wr(dev, MT_WFDMA0_RX_RING1_EXT_CTRL, PREFETCH(0x40, 0x4));
+	// 	mt76_wr(dev, MT_WFDMA0_RX_RING2_EXT_CTRL, PREFETCH(0x80, 0x4));
+	// 	mt76_wr(dev, MT_WFDMA0_RX_RING3_EXT_CTRL, PREFETCH(0xc0, 0x4));
+	// 	/* tx ring */
+	// 	mt76_wr(dev, MT_WFDMA0_TX_RING0_EXT_CTRL, PREFETCH(0x100, 0x4));
+	// 	mt76_wr(dev, MT_WFDMA0_TX_RING1_EXT_CTRL, PREFETCH(0x140, 0x4));
+	// 	mt76_wr(dev, MT_WFDMA0_TX_RING2_EXT_CTRL, PREFETCH(0x180, 0x4));
+	// 	mt76_wr(dev, MT_WFDMA0_TX_RING3_EXT_CTRL, PREFETCH(0x1c0, 0x4));
+	// 	mt76_wr(dev, MT_WFDMA0_TX_RING4_EXT_CTRL, PREFETCH(0x200, 0x4));
+	// 	mt76_wr(dev, MT_WFDMA0_TX_RING5_EXT_CTRL, PREFETCH(0x240, 0x4));
+	// 	mt76_wr(dev, MT_WFDMA0_TX_RING6_EXT_CTRL, PREFETCH(0x280, 0x4));
+	// 	mt76_wr(dev, MT_WFDMA0_TX_RING15_EXT_CTRL, PREFETCH(0x2c0, 0x4));
+	// 	mt76_wr(dev, MT_WFDMA0_TX_RING16_EXT_CTRL, PREFETCH(0x300, 0x4));
+	// } else {
 
 
 	// u32 base = 0;
@@ -255,16 +274,6 @@ static void mt7902_dma_disable(struct mt7902_dev *dev, bool rst)
 			 MT_WFDMA0_RST_DMASHDL_ALL_RST |
 			 MT_WFDMA0_RST_LOGIC_RST);
 
-		// if (is_mt7902(mdev)) {
-		// 	mt76_clear(dev, MT_WFDMA1_RST,
-		// 		   MT_WFDMA1_RST_DMASHDL_ALL_RST |
-		// 		   MT_WFDMA1_RST_LOGIC_RST);
-
-		// 	mt76_set(dev, MT_WFDMA1_RST,
-		// 		 MT_WFDMA1_RST_DMASHDL_ALL_RST |
-		// 		 MT_WFDMA1_RST_LOGIC_RST);
-		// }
-
 		if (dev->hif2) {
 			mt76_clear(dev, MT_WFDMA0_RST + hif1_ofs,
 				   MT_WFDMA0_RST_DMASHDL_ALL_RST |
@@ -273,16 +282,6 @@ static void mt7902_dma_disable(struct mt7902_dev *dev, bool rst)
 			mt76_set(dev, MT_WFDMA0_RST + hif1_ofs,
 				 MT_WFDMA0_RST_DMASHDL_ALL_RST |
 				 MT_WFDMA0_RST_LOGIC_RST);
-
-			// if (is_mt7902(mdev)) {
-			// 	mt76_clear(dev, MT_WFDMA1_RST + hif1_ofs,
-			// 		   MT_WFDMA1_RST_DMASHDL_ALL_RST |
-			// 		   MT_WFDMA1_RST_LOGIC_RST);
-
-			// 	mt76_set(dev, MT_WFDMA1_RST + hif1_ofs,
-			// 		 MT_WFDMA1_RST_DMASHDL_ALL_RST |
-			// 		 MT_WFDMA1_RST_LOGIC_RST);
-			// }
 		}
 	}
 
@@ -294,14 +293,6 @@ static void mt7902_dma_disable(struct mt7902_dev *dev, bool rst)
 		   MT_WFDMA0_GLO_CFG_OMIT_RX_INFO |
 		   MT_WFDMA0_GLO_CFG_OMIT_RX_INFO_PFET2);
 
-	// if (is_mt7902(mdev))
-	// 	mt76_clear(dev, MT_WFDMA1_GLO_CFG,
-	// 		   MT_WFDMA1_GLO_CFG_TX_DMA_EN |
-	// 		   MT_WFDMA1_GLO_CFG_RX_DMA_EN |
-	// 		   MT_WFDMA1_GLO_CFG_OMIT_TX_INFO |
-	// 		   MT_WFDMA1_GLO_CFG_OMIT_RX_INFO |
-	// 		   MT_WFDMA1_GLO_CFG_OMIT_RX_INFO_PFET2);
-
 	if (dev->hif2) {
 		mt76_clear(dev, MT_WFDMA0_GLO_CFG + hif1_ofs,
 			   MT_WFDMA0_GLO_CFG_TX_DMA_EN |
@@ -309,14 +300,6 @@ static void mt7902_dma_disable(struct mt7902_dev *dev, bool rst)
 			   MT_WFDMA0_GLO_CFG_OMIT_TX_INFO |
 			   MT_WFDMA0_GLO_CFG_OMIT_RX_INFO |
 			   MT_WFDMA0_GLO_CFG_OMIT_RX_INFO_PFET2);
-
-		// if (is_mt7902(mdev))
-		// 	mt76_clear(dev, MT_WFDMA1_GLO_CFG + hif1_ofs,
-		// 		   MT_WFDMA1_GLO_CFG_TX_DMA_EN |
-		// 		   MT_WFDMA1_GLO_CFG_RX_DMA_EN |
-		// 		   MT_WFDMA1_GLO_CFG_OMIT_TX_INFO |
-		// 		   MT_WFDMA1_GLO_CFG_OMIT_RX_INFO |
-		// 		   MT_WFDMA1_GLO_CFG_OMIT_RX_INFO_PFET2);
 	}
 }
 
@@ -477,25 +460,6 @@ int mt7902_dma_init(struct mt7902_dev *dev, struct mt7902_phy *phy2)
 
 	mt7902_dma_disable(dev, true);
 
-	// if (mtk_wed_device_active(&mdev->mmio.wed)) {
-	// 	if (!is_mt798x(mdev)) {
-	// 		u8 wed_control_rx1 = is_mt7902(mdev) ? 1 : 2;
-
-	// 		mt76_set(dev, MT_WFDMA_HOST_CONFIG,
-	// 			 MT_WFDMA_HOST_CONFIG_WED);
-	// 		mt76_wr(dev, MT_WFDMA_WED_RING_CONTROL,
-	// 			FIELD_PREP(MT_WFDMA_WED_RING_CONTROL_TX0, 18) |
-	// 			FIELD_PREP(MT_WFDMA_WED_RING_CONTROL_TX1, 19) |
-	// 			FIELD_PREP(MT_WFDMA_WED_RING_CONTROL_RX1,
-	// 				   wed_control_rx1));
-	// 		if (is_mt7902(mdev))
-	// 			mt76_rmw(dev, MT_WFDMA0_EXT0_CFG, MT_WFDMA0_EXT0_RXWB_KEEP,
-	// 				 MT_WFDMA0_EXT0_RXWB_KEEP);
-	// 	}
-	// } else {
-	// 	mt76_clear(dev, MT_WFDMA_HOST_CONFIG, MT_WFDMA_HOST_CONFIG_WED);
-	// }
-
 	/* init tx queue */
 	ret = mt7902_init_tx_queues(&dev->phy,
 				    MT_TXQ_ID(dev->phy.mt76->band_idx),
@@ -503,15 +467,6 @@ int mt7902_dma_init(struct mt7902_dev *dev, struct mt7902_phy *phy2)
 				    MT_TXQ_RING_BASE(0));
 	if (ret)
 		return ret;
-
-	if (phy2) {
-		ret = mt7902_init_tx_queues(phy2,
-					    MT_TXQ_ID(phy2->mt76->band_idx),
-					    mt7902_TX_RING_SIZE,
-					    MT_TXQ_RING_BASE(1));
-		if (ret)
-			return ret;
-	}
 
 	/* command to WM */
 	ret = mt76_init_mcu_queue(&dev->mt76, MT_MCUQ_WM,
@@ -547,31 +502,28 @@ int mt7902_dma_init(struct mt7902_dev *dev, struct mt7902_phy *phy2)
 		return ret;
 
 	/* event from WA */
-	if (mtk_wed_device_active(&mdev->mmio.wed) && is_mt7902(mdev)) {
-		wa_rx_base = MT_WED_RX_RING_BASE;
-		wa_rx_idx = mt7902_RXQ_MCU_WA;
-		mdev->q_rx[MT_RXQ_MCU_WA].flags = MT_WED_Q_TXFREE;
-		mdev->q_rx[MT_RXQ_MCU_WA].wed = &mdev->mmio.wed;
-	} else {
-		wa_rx_base = MT_RXQ_RING_BASE(MT_RXQ_MCU_WA);
-		wa_rx_idx = MT_RXQ_ID(MT_RXQ_MCU_WA);
-	}
+	// if (mtk_wed_device_active(&mdev->mmio.wed) && is_mt7902(mdev)) {
+	// 	wa_rx_base = MT_WED_RX_RING_BASE;
+	// 	wa_rx_idx = mt7902_RXQ_MCU_WA;
+	// 	mdev->q_rx[MT_RXQ_MCU_WA].flags = MT_WED_Q_TXFREE;
+	// 	mdev->q_rx[MT_RXQ_MCU_WA].wed = &mdev->mmio.wed;
+	// } else {
+	// 	wa_rx_base = MT_RXQ_RING_BASE(MT_RXQ_MCU_WA);
+	// 	wa_rx_idx = MT_RXQ_ID(MT_RXQ_MCU_WA);
+	// }
+	// ret = mt76_queue_alloc(dev, &dev->mt76.q_rx[MT_RXQ_MCU_WA],
+	// 		       wa_rx_idx, mt7902_RX_MCU_RING_SIZE,
+	// 		       MT_RX_BUF_SIZE, wa_rx_base);
 	ret = mt76_queue_alloc(dev, &dev->mt76.q_rx[MT_RXQ_MCU_WA],
-			       wa_rx_idx, mt7902_RX_MCU_RING_SIZE,
-			       MT_RX_BUF_SIZE, wa_rx_base);
+			       MT_RXQ_ID(MT_RXQ_MCU_WA),
+			       mt7902_RX_MCU_RING_SIZE,
+			       MT_RX_BUF_SIZE,
+			       MT_RXQ_RING_BASE(MT_RXQ_MCU_WA));
 	if (ret)
 		return ret;
 
 	/* rx data queue for band0 */
 	if (!dev->phy.mt76->band_idx) {
-		// if (mtk_wed_device_active(&mdev->mmio.wed) &&
-		//     mtk_wed_get_rx_capa(&mdev->mmio.wed)) {
-		// 	mdev->q_rx[MT_RXQ_MAIN].flags =
-		// 		MT_WED_Q_RX(mt7902_RXQ_BAND0);
-		// 	dev->mt76.rx_token_size += mt7902_RX_RING_SIZE;
-		// 	mdev->q_rx[MT_RXQ_MAIN].wed = &mdev->mmio.wed;
-		// }
-
 		ret = mt76_queue_alloc(dev, &dev->mt76.q_rx[MT_RXQ_MAIN],
 				       MT_RXQ_ID(MT_RXQ_MAIN),
 				       mt7902_RX_RING_SIZE,
@@ -582,35 +534,19 @@ int mt7902_dma_init(struct mt7902_dev *dev, struct mt7902_phy *phy2)
 	}
 
 	/* tx free notify event from WA for band0 */
-	//if (!is_mt7902(mdev)) {
-		// wa_rx_base = MT_RXQ_RING_BASE(MT_RXQ_MAIN_WA);
-		// wa_rx_idx = MT_RXQ_ID(MT_RXQ_MAIN_WA);
-
-		// if (mtk_wed_device_active(&mdev->mmio.wed)) {
-		// 	mdev->q_rx[MT_RXQ_MAIN_WA].flags = MT_WED_Q_TXFREE;
-		// 	mdev->q_rx[MT_RXQ_MAIN_WA].wed = &mdev->mmio.wed;
-		// 	if (is_mt7916(mdev)) {
-		// 		wa_rx_base =  MT_WED_RX_RING_BASE;
-		// 		wa_rx_idx = mt7902_RXQ_MCU_WA;
-		// 	}
-		// }
-
-		ret = mt76_queue_alloc(dev, &dev->mt76.q_rx[MT_RXQ_MAIN_WA],
-				       wa_rx_idx, mt7902_RX_MCU_RING_SIZE,
-				       MT_RX_BUF_SIZE, wa_rx_base);
+		// ret = mt76_queue_alloc(dev, &dev->mt76.q_rx[MT_RXQ_MAIN_WA],
+		// 		       wa_rx_idx, mt7902_RX_MCU_RING_SIZE,
+		// 		       MT_RX_BUF_SIZE, wa_rx_base);
+	ret = mt76_queue_alloc(dev, &dev->mt76.q_rx[MT_RXQ_MAIN_WA],
+			       MT_RXQ_ID(MT_RXQ_MAIN_WA),
+			       mt7902_RX_MCU_RING_SIZE,
+			       MT_RX_BUF_SIZE,
+			       MT_RXQ_RING_BASE(MT_RXQ_MAIN_WA));
 		if (ret)
 			return ret;
 	//}
 
-	if (dev->dbdc_support || dev->phy.mt76->band_idx) {
-		// if (mtk_wed_device_active(&mdev->mmio.wed) &&
-		//     mtk_wed_get_rx_capa(&mdev->mmio.wed)) {
-		// 	mdev->q_rx[MT_RXQ_BAND1].flags =
-		// 		MT_WED_Q_RX(mt7902_RXQ_BAND1);
-		// 	dev->mt76.rx_token_size += mt7902_RX_RING_SIZE;
-		// 	mdev->q_rx[MT_RXQ_BAND1].wed = &mdev->mmio.wed;
-		// }
-
+	if (dev->dbdc_support || (dev->phy.mt76->band_idx == MT_BAND1)) {
 		/* rx data queue for band1 */
 		ret = mt76_queue_alloc(dev, &dev->mt76.q_rx[MT_RXQ_BAND1],
 				       MT_RXQ_ID(MT_RXQ_BAND1),
@@ -629,6 +565,17 @@ int mt7902_dma_init(struct mt7902_dev *dev, struct mt7902_phy *phy2)
 		if (ret)
 			return ret;
 	}
+
+	// if (dev->tbtc_support || (dev->phy.mt76->band_idx == MT_BAND2)) {
+	// 	/* rx data queue for band2 */
+	// 	ret = mt76_queue_alloc(dev, &dev->mt76.q_rx[MT_RXQ_BAND2],
+	// 			       MT_RXQ_ID(MT_RXQ_TRI),
+	// 			       mt7902_RX_RING_SIZE,
+	// 			       MT_RX_BUF_SIZE,
+	// 			       MT_RXQ_RING_BASE(MT_RXQ_BAND2) + hif1_ofs);
+	// 	if (ret)
+	// 		return ret;
+	// }
 
 	ret = mt76_init_queues(dev, mt76_dma_rx_poll);
 	if (ret < 0)

@@ -800,15 +800,16 @@ void mt7902_wfsys_reset(struct mt7902_dev *dev)
 
 static bool mt7902_band_config(struct mt7902_dev *dev)
 {
+	// struct mt76_phy *mphy;
 	printk(KERN_DEBUG "init.c - mt7902_band_config");
 	dev->phy.mt76->band_idx = MT_BAND0;
-	//dev->mphy.mt76->band_idx = MT_BAND0;
-	//dev->tbtc_support = false;
+	dev->mphy.band_idx = MT_BAND0;
+	dev->tbtc_support = false;
 
-	// if(is_mt7902(&dev->mt76)) {
-	// 	dev->tbtc_support = true;
-	// 	return false;
-	// }
+	if(is_mt7902(&dev->mt76)) {
+		dev->tbtc_support = true;
+		return false;
+	}
 
 	return true;
 }
@@ -892,7 +893,8 @@ mt7902_init_hardware(struct mt7902_dev *dev, struct mt7902_phy *phy2)
 	//mt76_wr(dev, MT_INT_SOURCE_CSR, ~0);
 
 	INIT_WORK(&dev->init_work, mt7902_init_work);
-	//dev->dbdc_support = mt7902_band_config(dev);
+
+	dev->dbdc_support = mt7902_band_config(dev);
 
 	/* bellwether do rom dl */
 	if (is_mt7902(&dev->mt76)) {
@@ -1302,7 +1304,9 @@ int mt7902_register_device(struct mt7902_dev *dev)
 	INIT_WORK(&dev->rc_work, mt7902_mac_sta_rc_work);
 	INIT_DELAYED_WORK(&dev->mphy.mac_work, mt7902_mac_work);
 	INIT_LIST_HEAD(&dev->sta_rc_list);
+	INIT_LIST_HEAD(&dev->mt76.sta_poll_list);
 	INIT_LIST_HEAD(&dev->twt_list);
+	spin_lock_init(&dev->mt76.sta_poll_lock);
 
 	init_waitqueue_head(&dev->reset_wait);
 	INIT_WORK(&dev->reset_work, mt7902_mac_reset_work);

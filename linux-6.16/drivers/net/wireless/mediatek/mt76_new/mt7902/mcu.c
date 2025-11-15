@@ -282,108 +282,105 @@ mt7902_mcu_send_message(struct mt76_dev *mdev, struct sk_buff *skb,
 			int cmd, int *wait_seq)
 {
 	printk(KERN_DEBUG "mcu.c - mt7902_mcu_send_message");
-	struct mt7902_dev *dev = container_of(mdev, struct mt7902_dev, mt76);
-	enum mt76_mcuq_id qid;
+	// struct mt7902_dev *dev = container_of(mdev, struct mt7902_dev, mt76);
+	// enum mt76_mcuq_id qid;
 
-	if (cmd == MCU_CMD(FW_SCATTER))
+	// if (cmd == MCU_CMD(FW_SCATTER))
+	// 	qid = MT_MCUQ_FWDL;
+	// else if (test_bit(MT76_STATE_MCU_RUNNING, &dev->mphy.state))
+	// 	qid = MT_MCUQ_WA;
+	// else
+	// 	qid = MT_MCUQ_WM;
+
+	//mt7902_mcu_set_timeout(mdev, cmd);
+
+struct mt7902_dev *dev = container_of(mdev, struct mt7902_dev, mt76);
+	int txd_len, mcu_cmd = FIELD_GET(__MCU_CMD_FIELD_ID, cmd);
+	struct mt7902_uni_txd *uni_txd;
+	struct mt7902_mcu_txd *mcu_txd;
+	enum mt76_mcuq_id qid;
+	__le32 *txd;
+	u32 val;
+	u8 seq;
+
+	/* TODO: make dynamic based on msg type */
+	mdev->mcu.timeout = 20 * HZ;
+
+	seq = ++dev->mt76.mcu.msg_seq & 0xf;
+	if (!seq)
+		seq = ++dev->mt76.mcu.msg_seq & 0xf;
+
+	if (cmd == MCU_CMD(FW_SCATTER)) {
 		qid = MT_MCUQ_FWDL;
-	else if (test_bit(MT76_STATE_MCU_RUNNING, &dev->mphy.state))
+		goto exit;
+	}
+
+	txd_len = cmd & __MCU_CMD_FIELD_UNI ? sizeof(*uni_txd) : sizeof(*mcu_txd);
+	txd = (__le32 *)skb_push(skb, txd_len);
+	if (test_bit(MT76_STATE_MCU_RUNNING, &dev->mphy.state))
 		qid = MT_MCUQ_WA;
 	else
 		qid = MT_MCUQ_WM;
 
-	//mt7902_mcu_set_timeout(mdev, cmd);
+	val = FIELD_PREP(MT_TXD0_TX_BYTES, skb->len) |
+	      FIELD_PREP(MT_TXD0_PKT_FMT, MT_TX_TYPE_CMD) |
+	      FIELD_PREP(MT_TXD0_Q_IDX, MT_TX_MCU_PORT_RX_Q0);
+	txd[0] = cpu_to_le32(val);
 
+	val = FIELD_PREP(MT_TXD1_HDR_FORMAT, MT_HDR_FORMAT_CMD);
+	txd[1] = cpu_to_le32(val);
 
-// 	struct mt7902_dev *dev = container_of(mdev, struct mt7902_dev, mt76);
-// 	int txd_len, mcu_cmd = FIELD_GET(__MCU_CMD_FIELD_ID, cmd);
-// 	struct mt7902_uni_txd *uni_txd;
-// 	struct mt7902_mcu_txd *mcu_txd;
-// 	enum mt76_mcuq_id qid; 
-// 	__le32 *txd;
-// 	u32 val;
-// 	u8 seq;
+	if (cmd & __MCU_CMD_FIELD_UNI) {
+		uni_txd = (struct mt7902_uni_txd *)txd;
+		uni_txd->len = cpu_to_le16(skb->len - sizeof(uni_txd->txd));
+		uni_txd->cid = cpu_to_le16(mcu_cmd);
+		uni_txd->s2d_index = MCU_S2D_H2CN;
+		uni_txd->pkt_type = MCU_PKT_ID;
+		uni_txd->seq = seq;
 
-// 	mdev->mcu.timeout = 20 * HZ;
+		if (cmd & __MCU_CMD_FIELD_QUERY)
+			uni_txd->option = MCU_CMD_UNI_QUERY_ACK;
+		else
+			uni_txd->option = MCU_CMD_UNI_EXT_ACK;
 
-// 	seq = ++dev->mt76.mcu.msg_seq & 0xf;
-// 	if(!seq)
-// 		seq = ++dev->mt76.mcu.msg_seq & 0xf;
+		if ((cmd & __MCU_CMD_FIELD_WA) && (cmd & __MCU_CMD_FIELD_WM))
+			uni_txd->s2d_index = MCU_S2D_H2CN;
+		else if (cmd & __MCU_CMD_FIELD_WA)
+			uni_txd->s2d_index = MCU_S2D_H2C;
+		else if (cmd & __MCU_CMD_FIELD_WM)
+			uni_txd->s2d_index = MCU_S2D_H2N;
 
-// 	if (cmd == MCU_CMD(FW_SCATTER)) {
-// 		qid = MT_MCUQ_FWDL;
-// 		goto exit;
-// 	}
+		goto exit;
+	}
 
-// 	txd_len = cmd & __MCU_CMD_FIELD_UNI ? sizeof(*uni_txd) : sizeof(*mcu_txd);
-// 	txd = (__le32 *)skb_push(skb, txd_len);
-// 	if (test_bit(MT76_STATE_MCU_RUNNING, &dev->mphy.state))
-// 		qid = MT_MCUQ_WA;
-// 	else
-// 		qid = MT_MCUQ_WM;
+	mcu_txd = (struct mt7902_mcu_txd *)txd;
+	mcu_txd->len = cpu_to_le16(skb->len - sizeof(mcu_txd->txd));
+	mcu_txd->pq_id = cpu_to_le16(MCU_PQ_ID(MT_TX_PORT_IDX_MCU,
+					       MT_TX_MCU_PORT_RX_Q0));
+	mcu_txd->pkt_type = MCU_PKT_ID;
+	mcu_txd->seq = seq;
 
-// 	val = FIELD_PREP(MT_TXD0_TX_BYTES, skb->len) |
-// 	      FIELD_PREP(MT_TXD0_PKT_FMT, MT_TX_TYPE_CMD) |
-// 	      FIELD_PREP(MT_TXD0_Q_IDX, MT_TX_MCU_PORT_RX_Q0);
-// 	txd[0] = cpu_to_le32(val);
+	mcu_txd->cid = FIELD_GET(__MCU_CMD_FIELD_ID, cmd);
+	mcu_txd->set_query = MCU_Q_NA;
+	mcu_txd->ext_cid = FIELD_GET(__MCU_CMD_FIELD_EXT_ID, cmd);
+	if (mcu_txd->ext_cid) {
+		mcu_txd->ext_cid_ack = 1;
 
-// 	val = FIELD_PREP(MT_TXD1_HDR_FORMAT, MT_HDR_FORMAT_CMD);
-// 	txd[1] = cpu_to_le32(val);
+		/* do not use Q_SET for efuse */
+		if (cmd & __MCU_CMD_FIELD_QUERY)
+			mcu_txd->set_query = MCU_Q_QUERY;
+		else
+			mcu_txd->set_query = MCU_Q_SET;
+	}
 
-// 	if (cmd & __MCU_CMD_FIELD_UNI) {
-// 		uni_txd = (struct mt7902_uni_txd *)txd;
-// 		uni_txd->len = cpu_to_le16(skb->len - sizeof(uni_txd->txd));
-// 		uni_txd->cid = cpu_to_le16(mcu_cmd);
-// 		uni_txd->s2d_index = MCU_S2D_H2CN;
-// 		uni_txd->pkt_type = MCU_PKT_ID;
-// 		uni_txd->seq = seq;
+	if (cmd & __MCU_CMD_FIELD_WA)
+		mcu_txd->s2d_index = MCU_S2D_H2C;
+	else
+		mcu_txd->s2d_index = MCU_S2D_H2N;
 
-// 		if (cmd & __MCU_CMD_FIELD_QUERY)
-// 			uni_txd->option = MCU_CMD_UNI_QUERY_ACK;
-// 		else
-// 			uni_txd->option = MCU_CMD_UNI_EXT_ACK;
-
-// 		if ((cmd & __MCU_CMD_FIELD_WA) && (cmd & __MCU_CMD_FIELD_WM))
-// 			uni_txd->s2d_index = MCU_S2D_H2CN;
-// 		else if (cmd & __MCU_CMD_FIELD_WA)
-// 			uni_txd->s2d_index = MCU_S2D_H2C;
-// 		else if (cmd & __MCU_CMD_FIELD_WM)
-// 			uni_txd->s2d_index = MCU_S2D_H2N;
-
-// 		goto exit;
-// 	}
-
-// 	mcu_txd = (struct mt7902_mcu_txd *)txd;
-// 	mcu_txd->len = cpu_to_le16(skb->len - sizeof(mcu_txd->txd));
-// 	mcu_txd->pq_id = cpu_to_le16(MCU_PQ_ID(MT_TX_PORT_IDX_MCU,
-// 					       MT_TX_MCU_PORT_RX_Q0));
-// 	mcu_txd->pkt_type = MCU_PKT_ID;
-// 	mcu_txd->seq = seq;
-
-// 	mcu_txd->cid = FIELD_GET(__MCU_CMD_FIELD_ID, cmd);
-// 	mcu_txd->set_query = MCU_Q_NA;
-// 	mcu_txd->ext_cid = FIELD_GET(__MCU_CMD_FIELD_EXT_ID, cmd);
-// 	if (mcu_txd->ext_cid) {
-// 		mcu_txd->ext_cid_ack = 1;
-
-// 		/* do not use Q_SET for efuse */
-// 		if (cmd & __MCU_CMD_FIELD_QUERY)
-// 			mcu_txd->set_query = MCU_Q_QUERY;
-// 		else
-// 			mcu_txd->set_query = MCU_Q_SET;
-// 	}
-
-// 	if (cmd & __MCU_CMD_FIELD_WA)
-// 		mcu_txd->s2d_index = MCU_S2D_H2C;
-// 	else
-// 		mcu_txd->s2d_index = MCU_S2D_H2N; 
-
-// exit:
-// 	if (wait_seq)
-// 		*wait_seq = seq; 
-
-
-	//mt7902_mcu_set_timeout(mdev, cmd);
+exit:
+	if (wait_seq)
+		*wait_seq = seq;
 
 	return mt76_tx_queue_skb_raw(dev, mdev->q_mcu[qid], skb, 0);
 }
@@ -2534,6 +2531,20 @@ static int mt7902_load_firmware(struct mt7902_dev *dev)
 			return ret;
 		}
 	}
+
+	// ret = mt76_connac2_load_patch(&dev->mt76, mt792x_patch_name(dev));
+	// if (ret)
+	// 	return ret;
+
+	// ret = mt76_connac2_load_ram(&dev->mt76, mt792x_ram_name(dev), NULL);
+	// if (ret)
+	// 	return ret;
+
+	// if (!mt76_poll_msec(dev, MT_CONN_ON_MISC, MT_TOP_MISC2_FW_N9_RDY,
+	// 		    MT_TOP_MISC2_FW_N9_RDY, 1500)) {
+	// 	dev_err(dev->mt76.dev, "Timeout for initializing firmware\n");
+	// 	return -EIO;
+	// }
 
 	ret = mt7902_load_patch(dev);
 	if (ret)

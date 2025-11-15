@@ -828,7 +828,7 @@ static void mt7902_irq_tasklet(struct tasklet_struct *t)
 {
 	printk(KERN_DEBUG "mmio.c - mt7902_irq_tasklet");
 	struct mt7902_dev *dev = from_tasklet(dev, t, mt76.irq_tasklet);
-	struct mtk_wed_device *wed = &dev->mt76.mmio.wed;
+	// struct mtk_wed_device *wed = &dev->mt76.mmio.wed;
 	u32 intr, intr1, mask;
 
 	mt76_wr(dev, MT_INT_MASK_CSR, 0);
@@ -875,6 +875,9 @@ static void mt7902_irq_tasklet(struct tasklet_struct *t)
 
 	if (intr & MT_INT_RX(MT_RXQ_BAND1_WA) && MT_RXQ_VALID(MT_RXQ_BAND1_WA))
 		napi_schedule(&dev->mt76.napi[MT_RXQ_BAND1_WA]);
+
+	if (intr & MT_INT_RX(MT_RXQ_BAND2) && MT_RXQ_VALID(MT_RXQ_BAND2))
+		napi_schedule(&dev->mt76.napi[MT_RXQ_BAND2]);
 
 	if (intr & MT_INT_RX(MT_RXQ_BAND2_WA) && MT_RXQ_VALID(MT_RXQ_BAND2_WA))
 		napi_schedule(&dev->mt76.napi[MT_RXQ_BAND2_WA]);

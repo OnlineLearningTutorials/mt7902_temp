@@ -26,6 +26,7 @@
 #define mt7902_RX_RING_SIZE		1536
 #define mt7902_RX_MCU_RING_SIZE		512
 
+
 #define MT7902_FIRMWARE_WA		"mediatek/mt7902_wa.bin"
 #define MT7902_FIRMWARE_WM		"mediatek/mt7902_wm.bin"
 #define MT7902_ROM_PATCH		"mediatek/mt7902_rom_patch.bin"
@@ -304,6 +305,7 @@ struct mt7902_dev {
 	u32 hw_pattern;
 
 	bool dbdc_support;
+	bool tbtc_support;
 	bool flash_mode;
 	bool muru_debug;
 	bool ibf;
