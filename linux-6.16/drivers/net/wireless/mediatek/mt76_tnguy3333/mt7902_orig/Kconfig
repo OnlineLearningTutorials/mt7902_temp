@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: ISC
+config MT7902E
+	tristate "MediaTek MT7902E (PCIe) support"
+	select MT792x_LIB
+	select WANT_DEV_COREDUMP
+	depends on MAC80211
+	depends on PCI
+	help
+	  This adds support for MT7902E 802.11ax 2x2:2SS wireless devices.
