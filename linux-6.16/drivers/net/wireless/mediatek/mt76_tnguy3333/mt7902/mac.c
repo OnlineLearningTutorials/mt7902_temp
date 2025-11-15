@@ -15,7 +15,7 @@
 
 #define MT_WTBL_AC0_CTT_OFFSET		20
 
-bool mt7902_mac_wtbl_update(struct mt7902_dev *dev, int idx, u32 mask)
+bool mt7902_mac_wtbl_update(struct mt792x_dev *dev, int idx, u32 mask)
 {
 	printk(KERN_DEBUG "mac.c - mt7902_mac_wtbl_update(dev, idx: %d, mask: 0x%08x)", idx, mask);
 	mt76_rmw(dev, MT_WTBL_UPDATE, MT_WTBL_UPDATE_WLAN_IDX,
@@ -31,7 +31,7 @@ static u32 mt7902_mac_wtbl_lmac_addr(int idx, u8 offset)
 	return MT_WTBL_LMAC_OFFS(idx, 0) + offset * 4;
 }*/
 
-u32 mt7902_mac_wtbl_lmac_addr(struct mt7902_dev *dev, u16 wcid, u8 dw)
+u32 mt7902_mac_wtbl_lmac_addr(struct mt792x_dev *dev, u16 wcid, u8 dw)
 {
 	mt76_wr(dev, MT_WTBLON_TOP_WDUCR,
 		FIELD_PREP(MT_WTBLON_TOP_WDUCR_GROUP, (wcid >> 7)));
@@ -39,7 +39,7 @@ u32 mt7902_mac_wtbl_lmac_addr(struct mt7902_dev *dev, u16 wcid, u8 dw)
 	return MT_WTBL_LMAC_OFFS(wcid, dw);
 }
 
-static void mt7902_mac_sta_poll(struct mt7902_dev *dev)
+static void mt7902_mac_sta_poll(struct mt792x_dev *dev)
 {
 	printk(KERN_DEBUG "mac.c - mt7902_mac_sta_poll");
 	static const u8 ac_to_tid[] = {
@@ -173,7 +173,7 @@ static void mt7902_mac_sta_poll(struct mt7902_dev *dev)
 }
 
 static int
-mt7902_mac_fill_rx(struct mt7902_dev *dev, struct sk_buff *skb)
+mt7902_mac_fill_rx(struct mt792x_dev *dev, struct sk_buff *skb)
 {
 	printk(KERN_DEBUG "mac.c - mt7902_mac_fill_rx(dev, skb)");
 	u32 csum_mask = MT_RXD0_NORMAL_IP_SUM | MT_RXD0_NORMAL_UDP_TCP_SUM;
@@ -183,7 +183,7 @@ mt7902_mac_fill_rx(struct mt7902_dev *dev, struct sk_buff *skb)
 	u16 hdr_gap;
 	__le32 *rxv = NULL, *rxd = (__le32 *)skb->data;
 	struct mt76_phy *mphy = &dev->mt76.phy;
-	struct mt7902_phy *phy = &dev->phy;
+	struct mt792x_phy *phy = &dev->phy;
 	struct ieee80211_supported_band *sband;
 	u32 csum_status = *(u32 *)skb->cb;
 	u32 rxd0 = le32_to_cpu(rxd[0]);
@@ -452,7 +452,7 @@ mt7902_mac_fill_rx(struct mt7902_dev *dev, struct sk_buff *skb)
 	return 0;
 }
 
-void mt7902_mac_add_txs(struct mt7902_dev *dev, void *data)
+void mt7902_mac_add_txs(struct mt792x_dev *dev, void *data)
 {
 	printk(KERN_DEBUG "mac.c - mt7902_mac_add_txs");
 	struct mt792x_link_sta *mlink;
@@ -491,7 +491,7 @@ out:
 	rcu_read_unlock();
 }
 
-static void mt7902_mac_tx_free(struct mt7902_dev *dev, void *data, int len)
+static void mt7902_mac_tx_free(struct mt792x_dev *dev, void *data, int len)
 {
 	printk(KERN_DEBUG "mac.c - mt7902_mac_tx_free");
 	struct mt76_connac_tx_free *free = data;
@@ -571,7 +571,7 @@ static void mt7902_mac_tx_free(struct mt7902_dev *dev, void *data, int len)
 bool mt7902_rx_check(struct mt76_dev *mdev, void *data, int len)
 {
 	//printk(KERN_DEBUG "mac.c - mt7902_rx_check(mdev, data, len: %d)", len);
-	struct mt7902_dev *dev = container_of(mdev, struct mt7902_dev, mt76);
+	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
 	__le32 *rxd = (__le32 *)data;
 	__le32 *end = (__le32 *)&rxd[len / 4];
 	enum rx_pkt_type type;
@@ -600,7 +600,7 @@ void mt7902_queue_rx_skb(struct mt76_dev *mdev, enum mt76_rxq_id q,
 			 struct sk_buff *skb, u32 *info)
 {
 	//printk(KERN_DEBUG "mac.c - mt7902_queue_rx_skb(mdev, q: %d, skb, info: 0x%x)", q, info);
-	struct mt7902_dev *dev = container_of(mdev, struct mt7902_dev, mt76);
+	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
 	__le32 *rxd = (__le32 *)skb->data;
 	__le32 *end = (__le32 *)&skb->data[skb->len];
 	enum rx_pkt_type type;
@@ -643,12 +643,12 @@ void mt7902_queue_rx_skb(struct mt76_dev *mdev, enum mt76_rxq_id q,
 EXPORT_SYMBOL_GPL(mt7902_queue_rx_skb);
 /*
 static void
-mt7902_vif_connect_iter(void *priv, u8 *mac,
+mt792x_vif_connect_iter(void *priv, u8 *mac,
 			struct ieee80211_vif *vif)
 {
-	printk(KERN_DEBUG "mac.c - mt7902_vif_connect_iter");
-	struct mt7902_vif *mvif = (struct mt7902_vif *)vif->drv_priv;
-	struct mt7902_dev *dev = mvif->phy->dev;
+	printk(KERN_DEBUG "mac.c - mt792x_vif_connect_iter");
+	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
+	struct mt792x_dev *dev = mvif->phy->dev;
 	//struct ieee80211_hw *hw = mt76_hw(dev);
 
 	if (vif->type == NL80211_IFTYPE_STATION)
@@ -682,7 +682,7 @@ mt7902_vif_connect_iter(void *priv, u8 *mac,
 void mt7902_mac_reset_work(struct work_struct *work)
 {
 	printk(KERN_DEBUG "mac.c - mt7902_mac_reset_work");
-	struct mt7902_dev *dev = container_of(work, struct mt7902_dev,
+	struct mt792x_dev *dev = container_of(work, struct mt792x_dev,
 					      reset_work);
 	struct ieee80211_hw *hw = mt76_hw(dev);
 	struct mt76_connac_pm *pm = &dev->pm;
@@ -699,7 +699,7 @@ void mt7902_mac_reset_work(struct work_struct *work)
 
 	for (i = 0; i < 10; i++) {
 		mutex_lock(&dev->mt76.mutex);
-		ret = mt7902_dev_reset(dev);
+		ret = mt792x_dev_reset(dev);
 		mutex_unlock(&dev->mt76.mutex);
 
 		if (!ret)
@@ -723,17 +723,17 @@ void mt7902_mac_reset_work(struct work_struct *work)
 	ieee80211_wake_queues(hw);
 	/* ieee80211_iterate_active_interfaces(hw,
 					    IEEE80211_IFACE_ITER_RESUME_ALL,
-					    mt7902_vif_connect_iter, NULL); */
+					    mt792x_vif_connect_iter, NULL); */
 	mt76_connac_power_save_sched(&dev->mt76.phy, pm);
 }
 
 void mt7902_coredump_work(struct work_struct *work)
 {
 	printk(KERN_DEBUG "mac.c - mt7902_coredump_work(work)");
-	struct mt7902_dev *dev;
+	struct mt792x_dev *dev;
 	char *dump, *data;
 
-	dev = (struct mt7902_dev *)container_of(work, struct mt7902_dev,
+	dev = (struct mt792x_dev *)container_of(work, struct mt792x_dev,
 						coredump.work.work);
 
 	if (time_is_after_jiffies(dev->coredump.last_activity +
@@ -777,7 +777,7 @@ void mt7902_coredump_work(struct work_struct *work)
 
 /* usb_sdio */
 static void
-mt7902_usb_sdio_write_txwi(struct mt7902_dev *dev, struct mt76_wcid *wcid,
+mt7902_usb_sdio_write_txwi(struct mt792x_dev *dev, struct mt76_wcid *wcid,
 			   enum mt76_txq_id qid, struct ieee80211_sta *sta,
 			   struct ieee80211_key_conf *key, int pid,
 			   struct sk_buff *skb)
@@ -796,7 +796,7 @@ int mt7902_usb_sdio_tx_prepare_skb(struct mt76_dev *mdev, void *txwi_ptr,
 				   struct mt76_tx_info *tx_info)
 {
 	printk(KERN_DEBUG "mac.c - mt7902_usb_sdio_tx_prepare_skb");
-	struct mt7902_dev *dev = container_of(mdev, struct mt7902_dev, mt76);
+	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
 	struct ieee80211_tx_info *info = IEEE80211_SKB_CB(tx_info->skb);
 	struct ieee80211_key_conf *key = info->control.hw_key;
 	struct sk_buff *skb = tx_info->skb;
@@ -864,7 +864,7 @@ EXPORT_SYMBOL_GPL(mt7902_usb_sdio_tx_complete_skb);
 bool mt7902_usb_sdio_tx_status_data(struct mt76_dev *mdev, u8 *update)
 {
 	printk(KERN_DEBUG "mac.c - mt7902_usb_sdio_tx_status_data");
-	struct mt7902_dev *dev = container_of(mdev, struct mt7902_dev, mt76);
+	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
 
 	mt792x_mutex_acquire(dev);
 	//mt7902_mac_sta_poll(dev);
@@ -878,7 +878,7 @@ EXPORT_SYMBOL_GPL(mt7902_usb_sdio_tx_status_data);
 /*
 void mt7902_set_ipv6_ns_work(struct work_struct *work)
 {
-	struct mt7902_dev *dev = container_of(work, struct mt7902_dev,
+	struct mt792x_dev *dev = container_of(work, struct mt792x_dev,
 					      ipv6_ns_work);
 	struct sk_buff *skb;
 	int ret = 0;
@@ -902,7 +902,7 @@ void mt7902_set_ipv6_ns_work(struct work_struct *work)
 
 
 static void
-mt7902_mac_write_txwi_tm(struct mt7902_phy *phy, __le32 *txwi,
+mt7902_mac_write_txwi_tm(struct mt792x_phy *phy, __le32 *txwi,
 			 struct sk_buff *skb)
 {
 #ifdef CONFIG_NL80211_TESTMODE
@@ -1039,10 +1039,10 @@ void mt7902_mac_write_txwi(struct mt76_dev *dev, __le32 *txwi,
 #endif
 
 
-void mt7902_mac_enable_rtscts(struct mt7902_dev *dev,
+void mt7902_mac_enable_rtscts(struct mt792x_dev *dev,
 			      struct ieee80211_vif *vif, bool enable)
 {
-	struct mt7902_vif *mvif = (struct mt7902_vif *)vif->drv_priv;
+	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
 	u32 addr;
 
 	addr = mt7902_mac_wtbl_lmac_addr(dev, mvif->sta.wcid.idx, 5);
@@ -1053,12 +1053,12 @@ void mt7902_mac_enable_rtscts(struct mt7902_dev *dev,
 }
 
 
-void mt7902_mac_set_timing(struct mt7902_phy *phy)
+void mt7902_mac_set_timing(struct mt792x_phy *phy)
 {
 	s16 coverage_class = phy->coverage_class;
-	struct mt7902_dev *dev = phy->dev;
-	struct mt7902_phy *ext_phy = mt7902_ext_phy(dev);
-	struct mt7902_phy *tri_phy = mt7902_tri_phy(dev);
+	struct mt792x_dev *dev = phy->dev;
+	struct mt792x_phy *ext_phy = mt7902_ext_phy(dev);
+	struct mt792x_phy *tri_phy = mt7902_tri_phy(dev);
 	u32 val, reg_offset;
 	u32 cck = FIELD_PREP(MT_TIMEOUT_VAL_PLCP, 231) |
 		  FIELD_PREP(MT_TIMEOUT_VAL_CCA, 48);

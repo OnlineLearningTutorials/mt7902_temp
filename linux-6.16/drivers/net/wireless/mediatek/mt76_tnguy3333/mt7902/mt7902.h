@@ -197,40 +197,40 @@ struct mt7902_txpwr {
 
 extern const struct ieee80211_ops mt7902_ops;
 
-u32 mt7902_reg_map(struct mt7902_dev *dev, u32 addr);
+u32 mt7902_reg_map(struct mt792x_dev *dev, u32 addr);
 
-int __mt7902_start(struct mt7902_phy *phy);
-int mt7902_register_device(struct mt7902_dev *dev);
-void mt7902_unregister_device(struct mt7902_dev *dev);
-int mt7902_firmware_state(struct mt7902_dev *dev, bool wa);
-int mt7902_load_firmware(struct mt7902_dev *dev);
-int mt7902_run_firmware(struct mt7902_dev *dev);
+int __mt7902_start(struct mt792x_phy *phy);
+int mt7902_register_device(struct mt792x_dev *dev);
+void mt7902_unregister_device(struct mt792x_dev *dev);
+int mt7902_firmware_state(struct mt792x_dev *dev, bool wa);
+int mt7902_load_firmware(struct mt792x_dev *dev);
+int mt7902_run_firmware(struct mt792x_dev *dev);
 int mt7902_set_channel(struct mt76_phy *mphy);
-int mt7902_mcu_set_bss_pm(struct mt7902_dev *dev, struct ieee80211_vif *vif,
+int mt7902_mcu_set_bss_pm(struct mt792x_dev *dev, struct ieee80211_vif *vif,
 			  bool enable);
-int mt7902_mcu_sta_update(struct mt7902_dev *dev, struct ieee80211_sta *sta,
+int mt7902_mcu_sta_update(struct mt792x_dev *dev, struct ieee80211_sta *sta,
 			  struct ieee80211_vif *vif, bool enable,
 			  enum mt76_sta_info_state state);
-int mt7902_mcu_set_chan_info(struct mt7902_phy *phy, int cmd);
-int mt7902_mcu_set_tx(struct mt7902_dev *dev, struct ieee80211_vif *vif);
-int mt7902_mcu_set_eeprom(struct mt7902_dev *dev);
-int mt7902_mcu_get_rx_rate(struct mt7902_phy *phy, struct ieee80211_vif *vif,
+int mt7902_mcu_set_chan_info(struct mt792x_phy *phy, int cmd);
+int mt7902_mcu_set_tx(struct mt792x_dev *dev, struct ieee80211_vif *vif);
+int mt7902_mcu_set_eeprom(struct mt792x_dev *dev);
+int mt7902_mcu_get_rx_rate(struct mt792x_phy *phy, struct ieee80211_vif *vif,
 			   struct ieee80211_sta *sta, struct rate_info *rate);
-int mt7902_mcu_fw_log_2_host(struct mt7902_dev *dev, u8 ctrl);
-void mt7902_mcu_rx_event(struct mt7902_dev *dev, struct sk_buff *skb);
-int mt7902_mcu_set_rxfilter(struct mt7902_dev *dev, u32 fif,
+int mt7902_mcu_fw_log_2_host(struct mt792x_dev *dev, u8 ctrl);
+void mt7902_mcu_rx_event(struct mt792x_dev *dev, struct sk_buff *skb);
+int mt7902_mcu_set_rxfilter(struct mt792x_dev *dev, u32 fif,
 			    u8 bit_op, u32 bit_map);
-int mt7902_mcu_radio_led_ctrl(struct mt7902_dev *dev, u8 value);
-int mt7902_mcu_wf_rf_pin_ctrl(struct mt7902_phy *phy, u8 action);
+int mt7902_mcu_radio_led_ctrl(struct mt792x_dev *dev, u8 value);
+int mt7902_mcu_wf_rf_pin_ctrl(struct mt792x_phy *phy, u8 action);
 
-static inline u16 mt7902_wtbl_size(struct mt7902_dev *dev)
+static inline u16 mt7902_wtbl_size(struct mt792x_dev *dev)
 {
 	//return is_mt7902(&dev->mt76) ? MT7902_WTBL_SIZE : MT7916_WTBL_SIZE;
 	return MT7902_WTBL_SIZE;
 }
 
 static inline u32
-mt7902_reg_map_l1(struct mt7902_dev *dev, u32 addr)
+mt7902_reg_map_l1(struct mt792x_dev *dev, u32 addr)
 {
 	u32 offset = FIELD_GET(MT_HIF_REMAP_L1_OFFSET, addr);
 	u32 base = FIELD_GET(MT_HIF_REMAP_L1_BASE, addr);
@@ -243,19 +243,19 @@ mt7902_reg_map_l1(struct mt7902_dev *dev, u32 addr)
 }
 
 static inline u32
-mt7902_l1_rr(struct mt7902_dev *dev, u32 addr)
+mt7902_l1_rr(struct mt792x_dev *dev, u32 addr)
 {
 	return mt76_rr(dev, mt7902_reg_map_l1(dev, addr));
 }
 
 static inline void
-mt7902_l1_wr(struct mt7902_dev *dev, u32 addr, u32 val)
+mt7902_l1_wr(struct mt792x_dev *dev, u32 addr, u32 val)
 {
 	mt76_wr(dev, mt7902_reg_map_l1(dev, addr), val);
 }
 
 static inline u32
-mt7902_l1_rmw(struct mt7902_dev *dev, u32 addr, u32 mask, u32 val)
+mt7902_l1_rmw(struct mt792x_dev *dev, u32 addr, u32 mask, u32 val)
 {
 	val |= mt7902_l1_rr(dev, addr) & ~mask;
 	mt7902_l1_wr(dev, addr, val);
@@ -266,8 +266,8 @@ mt7902_l1_rmw(struct mt7902_dev *dev, u32 addr, u32 mask, u32 val)
 #define mt7902_l1_set(dev, addr, val)	mt7902_l1_rmw(dev, addr, 0, val)
 #define mt7902_l1_clear(dev, addr, val)	mt7902_l1_rmw(dev, addr, val, 0)
 
-void mt7902_regd_update(struct mt7902_dev *dev);
-int mt7902_mac_init(struct mt7902_dev *dev);
+void mt7902_regd_update(struct mt792x_dev *dev);
+int mt7902_mac_init(struct mt792x_dev *dev);
 int mt7902_mac_sta_add(struct mt76_dev *mdev, struct ieee80211_vif *vif,
 		       struct ieee80211_sta *sta);
 int mt7902_mac_sta_event(struct mt76_dev *mdev, struct ieee80211_vif *vif,
@@ -284,24 +284,24 @@ bool mt7902_rx_check(struct mt76_dev *mdev, void *data, int len);
 void mt7902_queue_rx_skb(struct mt76_dev *mdev, enum mt76_rxq_id q,
 			 struct sk_buff *skb, u32 *info);
 void mt7902_stats_work(struct work_struct *work);
-void mt7902_set_stream_he_caps(struct mt7902_phy *phy);
-int mt7902_init_debugfs(struct mt7902_dev *dev);
+void mt7902_set_stream_he_caps(struct mt792x_phy *phy);
+int mt7902_init_debugfs(struct mt792x_dev *dev);
 
-int mt7902_mcu_set_beacon_filter(struct mt7902_dev *dev,
+int mt7902_mcu_set_beacon_filter(struct mt792x_dev *dev,
 				 struct ieee80211_vif *vif,
 				 bool enable);
-int mt7902_mcu_uni_tx_ba(struct mt7902_dev *dev,
+int mt7902_mcu_uni_tx_ba(struct mt792x_dev *dev,
 			 struct ieee80211_ampdu_params *params,
 			 bool enable);
-int mt7902_mcu_uni_rx_ba(struct mt7902_dev *dev,
+int mt7902_mcu_uni_rx_ba(struct mt792x_dev *dev,
 			 struct ieee80211_ampdu_params *params,
 			 bool enable);
 void mt7902_scan_work(struct work_struct *work);
 void mt7902_roc_work(struct work_struct *work);
 void mt7902_csa_work(struct work_struct *work);
-int mt7902_mcu_uni_bss_ps(struct mt7902_dev *dev, struct ieee80211_vif *vif);
+int mt7902_mcu_uni_bss_ps(struct mt792x_dev *dev, struct ieee80211_vif *vif);
 void mt7902_coredump_work(struct work_struct *work);
-int mt7902_get_txpwr_info(struct mt7902_dev *dev, struct mt7902_txpwr *txpwr);
+int mt7902_get_txpwr_info(struct mt792x_dev *dev, struct mt7902_txpwr *txpwr);
 int mt7902_testmode_cmd(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
 			void *data, int len);
 int mt7902_testmode_dump(struct ieee80211_hw *hw, struct sk_buff *msg,
@@ -309,27 +309,27 @@ int mt7902_testmode_dump(struct ieee80211_hw *hw, struct sk_buff *msg,
 int mt7902_mcu_parse_response(struct mt76_dev *mdev, int cmd,
 			      struct sk_buff *skb, int seq);
 
-int mt7902e_driver_own(struct mt7902_dev *dev);
-int mt7902e_mac_reset(struct mt7902_dev *dev);
-int mt7902e_mcu_init(struct mt7902_dev *dev);
-int mt7902s_wfsys_reset(struct mt7902_dev *dev);
-int mt7902s_mac_reset(struct mt7902_dev *dev);
-int mt7902s_init_reset(struct mt7902_dev *dev);
+int mt7902e_driver_own(struct mt792x_dev *dev);
+int mt7902e_mac_reset(struct mt792x_dev *dev);
+int mt7902e_mcu_init(struct mt792x_dev *dev);
+int mt7902s_wfsys_reset(struct mt792x_dev *dev);
+int mt7902s_mac_reset(struct mt792x_dev *dev);
+int mt7902s_init_reset(struct mt792x_dev *dev);
 
-int mt7902s_mcu_init(struct mt7902_dev *dev);
-int mt7902s_mcu_drv_pmctrl(struct mt7902_dev *dev);
-int mt7902s_mcu_fw_pmctrl(struct mt7902_dev *dev);
-void mt7902_mac_add_txs(struct mt7902_dev *dev, void *data);
-void mt7902_set_runtime_pm(struct mt7902_dev *dev);
+int mt7902s_mcu_init(struct mt792x_dev *dev);
+int mt7902s_mcu_drv_pmctrl(struct mt792x_dev *dev);
+int mt7902s_mcu_fw_pmctrl(struct mt792x_dev *dev);
+void mt7902_mac_add_txs(struct mt792x_dev *dev, void *data);
+void mt7902_set_runtime_pm(struct mt792x_dev *dev);
 void mt7902_mcu_set_suspend_iter(void *priv, u8 *mac,
 				 struct ieee80211_vif *vif);
 void mt7902_set_ipv6_ns_work(struct work_struct *work);
 
-int mt7902_mcu_set_sniffer(struct mt7902_dev *dev, struct ieee80211_vif *vif,
+int mt7902_mcu_set_sniffer(struct mt792x_dev *dev, struct ieee80211_vif *vif,
 			   bool enable);
 int mt7902_mcu_config_sniffer(struct mt792x_vif *vif,
 			      struct ieee80211_chanctx_conf *ctx);
-int mt7902_mcu_get_temperature(struct mt7902_phy *phy);
+int mt7902_mcu_get_temperature(struct mt792x_phy *phy);
 
 int mt7902_usb_sdio_tx_prepare_skb(struct mt76_dev *mdev, void *txwi_ptr,
 				   enum mt76_txq_id qid, struct mt76_wcid *wcid,
@@ -340,22 +340,22 @@ void mt7902_usb_sdio_tx_complete_skb(struct mt76_dev *mdev,
 bool mt7902_usb_sdio_tx_status_data(struct mt76_dev *mdev, u8 *update);
 
 /* usb */
-int mt7902_mcu_uni_add_beacon_offload(struct mt7902_dev *dev,
+int mt7902_mcu_uni_add_beacon_offload(struct mt792x_dev *dev,
 				      struct ieee80211_hw *hw,
 				      struct ieee80211_vif *vif,
 				      bool enable);
 int mt7902_set_tx_sar_pwr(struct ieee80211_hw *hw,
 			  const struct cfg80211_sar_specs *sar);
 
-int mt7902_mcu_set_clc(struct mt7902_dev *dev, u8 *alpha2,
+int mt7902_mcu_set_clc(struct mt792x_dev *dev, u8 *alpha2,
 		       enum environment_cap env_cap);
-int mt7902_mcu_set_roc(struct mt7902_phy *phy, struct mt792x_vif *vif,
+int mt7902_mcu_set_roc(struct mt792x_phy *phy, struct mt792x_vif *vif,
 		       struct ieee80211_channel *chan, int duration,
 		       enum mt7902_roc_req type, u8 token_id);
-int mt7902_mcu_abort_roc(struct mt7902_phy *phy, struct mt792x_vif *vif,
+int mt7902_mcu_abort_roc(struct mt792x_phy *phy, struct mt792x_vif *vif,
 			 u8 token_id);
-void mt7902_roc_abort_sync(struct mt7902_dev *dev);
-int mt7902_mcu_set_rssimonitor(struct mt7902_dev *dev, struct ieee80211_vif *vif);
+void mt7902_roc_abort_sync(struct mt792x_dev *dev);
+int mt7902_mcu_set_rssimonitor(struct mt792x_dev *dev, struct ieee80211_vif *vif);
 
 
 //static struct tlv *
@@ -380,11 +380,11 @@ enum {
 	CMD_BAND_5G,
 	CMD_BAND_6G,
 };
-struct mt7902_vif_cap;
+struct mt792x_vif_cap;
 struct mt7902_sta; 
 
 
-struct mt7902_vif_cap {
+struct mt792x_vif_cap {
 	bool ht_ldpc:1;
 	bool vht_ldpc:1;
 	bool he_ldpc:1;
@@ -416,7 +416,7 @@ struct mt7902_twt_flow {
 struct mt7902_sta {
 	struct mt76_wcid wcid; /* must be first */
 
-	struct mt7902_vif *vif;
+	struct mt792x_vif *vif;
 
 	struct list_head rc_list;
 	u32 airtime_ac[8];
@@ -434,9 +434,9 @@ struct mt7902_sta {
 	} twt;
 };
 
-struct mt7902_phy {
+struct mt792x_phy {
 	struct mt76_phy *mt76;
-	struct mt7902_dev *dev;
+	struct mt792x_dev *dev;
 
 	struct ieee80211_sband_iftype_data iftype[NUM_NL80211_BANDS][NUM_NL80211_IFTYPES];
 
@@ -479,7 +479,7 @@ struct mt7902_phy {
 };
 
 
-struct mt7902_dev {
+struct mt792x_dev {
 	union { /* must be first */
 		struct mt76_dev mt76;
 		struct mt76_phy mphy;
@@ -493,11 +493,11 @@ struct mt7902_dev {
 
 	const struct mt76_bus_ops *bus_ops;
 	struct tasklet_struct irq_tasklet;
-	struct mt7902_phy phy;
+	struct mt792x_phy phy;
 
 	/* monitor rx chain configured channel */
 	struct cfg80211_chan_def rdd2_chandef;
-	struct mt7902_phy *rdd2_phy;
+	struct mt792x_phy *rdd2_phy;
 
 	u32 chainmask;
 	u16 chain_shift_ext;
@@ -539,20 +539,20 @@ struct mt7902_dev {
 };
 
 
-struct mt7902_vif {
+struct mt792x_vif {
 	struct mt76_vif_link mt76; /* must be first */
 
-	struct mt7902_vif_cap cap;
+	struct mt792x_vif_cap cap;
 	struct mt7902_sta sta;
-	struct mt7902_phy *phy;
+	struct mt792x_phy *phy;
 
 	struct ieee80211_tx_queue_params queue_params[IEEE80211_NUM_ACS];
 	struct cfg80211_bitrate_mask bitrate_mask;
 };
 
 
-static inline struct mt7902_phy *
-mt7902_ext_phy(struct mt7902_dev *dev)
+static inline struct mt792x_phy *
+mt7902_ext_phy(struct mt792x_dev *dev)
 {
 	struct mt76_phy *phy = dev->mt76.phys[MT_BAND1];
 
@@ -562,8 +562,8 @@ mt7902_ext_phy(struct mt7902_dev *dev)
 	return phy->priv;
 }
 
-static inline struct mt7902_phy *
-mt7902_tri_phy(struct mt7902_dev *dev)
+static inline struct mt792x_phy *
+mt7902_tri_phy(struct mt792x_dev *dev)
 {
 	struct mt76_phy *phy = dev->mt76.phys[MT_BAND2];
 
@@ -575,15 +575,15 @@ mt7902_tri_phy(struct mt7902_dev *dev)
 
 
 
-static inline struct mt7902_dev *
+static inline struct mt792x_dev *
 mt7902_hw_dev(struct ieee80211_hw *hw)
 {
 	struct mt76_phy *phy = hw->priv;
 
-	return container_of(phy->dev, struct mt7902_dev, mt76);
+	return container_of(phy->dev, struct mt792x_dev, mt76);
 }
 
-static inline struct mt7902_phy *
+static inline struct mt792x_phy *
 mt7902_hw_phy(struct ieee80211_hw *hw)
 {
 	struct mt76_phy *phy = hw->priv;
@@ -596,17 +596,17 @@ void mt7902_mac_write_txwi(struct mt76_dev *dev, __le32 *txwi,
 			   struct ieee80211_key_conf *key,
 			   enum mt76_txq_id qid, u32 changed);
 
-int mt7902_mcu_add_dev_info(struct mt7902_phy *phy, struct ieee80211_vif *vif, bool enable);
-int mt7902_mcu_add_bss_info(struct mt7902_phy *phy, struct ieee80211_vif *vif, int enable);
-bool mt7902_mac_wtbl_update(struct mt7902_dev *dev, int idx, u32 mask);
-int mt7902_mcu_update_bss_color(struct mt7902_dev *dev, struct ieee80211_vif *vif,
+int mt7902_mcu_add_dev_info(struct mt792x_phy *phy, struct ieee80211_vif *vif, bool enable);
+int mt7902_mcu_add_bss_info(struct mt792x_phy *phy, struct ieee80211_vif *vif, int enable);
+bool mt7902_mac_wtbl_update(struct mt792x_dev *dev, int idx, u32 mask);
+int mt7902_mcu_update_bss_color(struct mt792x_dev *dev, struct ieee80211_vif *vif,
 				struct cfg80211_he_bss_color *he_bss_color);
-void mt7902_mac_enable_rtscts(struct mt7902_dev *dev,
+void mt7902_mac_enable_rtscts(struct mt792x_dev *dev,
 			      struct ieee80211_vif *vif, bool enable);
-int mt7902_mcu_add_obss_spr(struct mt7902_dev *dev, struct ieee80211_vif *vif,
+int mt7902_mcu_add_obss_spr(struct mt792x_dev *dev, struct ieee80211_vif *vif,
                             bool enable);
 
 #endif
 
 
-void mt7902_mac_set_timing(struct mt7902_phy *phy);
+void mt7902_mac_set_timing(struct mt792x_phy *phy);
