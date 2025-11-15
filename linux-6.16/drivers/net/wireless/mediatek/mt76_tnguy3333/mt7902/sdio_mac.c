@@ -132,7 +132,7 @@ int mt7902s_mac_reset(struct mt792x_dev *dev)
 	if (err)
 		goto out;
 
-	err = __mt7902_start(&dev->phy);
+	err = __mt792x_start(&dev->phy);
 out:
 
 	mt76_worker_enable(&dev->mt76.tx_worker);

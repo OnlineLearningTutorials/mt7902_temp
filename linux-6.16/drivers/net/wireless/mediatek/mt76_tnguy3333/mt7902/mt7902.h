@@ -199,7 +199,7 @@ extern const struct ieee80211_ops mt7902_ops;
 
 u32 mt7902_reg_map(struct mt792x_dev *dev, u32 addr);
 
-int __mt7902_start(struct mt792x_phy *phy);
+int __mt792x_start(struct mt792x_phy *phy);
 int mt7902_register_device(struct mt792x_dev *dev);
 void mt7902_unregister_device(struct mt792x_dev *dev);
 int mt7902_firmware_state(struct mt792x_dev *dev, bool wa);
@@ -235,9 +235,9 @@ mt7902_reg_map_l1(struct mt792x_dev *dev, u32 addr)
 	u32 offset = FIELD_GET(MT_HIF_REMAP_L1_OFFSET, addr);
 	u32 base = FIELD_GET(MT_HIF_REMAP_L1_BASE, addr);
 
-	dev->bus_ops->rmw(&dev->mt76, MT_HIF_REMAP_L1, FIELD_PREP(MT_HIF_REMAP_L1_MASK, base));
+	mt76_rmw_field(dev, MT_HIF_REMAP_L1, MT_HIF_REMAP_L1_MASK, base);
 	/* use read to push write */
-	dev->bus_ops->rr(&dev->mt76, MT_HIF_REMAP_L1);
+	mt76_rr(dev, MT_HIF_REMAP_L1);
 
 	return MT_HIF_REMAP_BASE_L1 + offset;
 }
@@ -283,7 +283,7 @@ int mt7902e_tx_prepare_skb(struct mt76_dev *mdev, void *txwi_ptr,
 bool mt7902_rx_check(struct mt76_dev *mdev, void *data, int len);
 void mt7902_queue_rx_skb(struct mt76_dev *mdev, enum mt76_rxq_id q,
 			 struct sk_buff *skb, u32 *info);
-void mt7902_stats_work(struct work_struct *work);
+void mt792x_stats_work(struct work_struct *work);
 void mt7902_set_stream_he_caps(struct mt792x_phy *phy);
 int mt7902_init_debugfs(struct mt792x_dev *dev);
 
@@ -381,7 +381,7 @@ enum {
 	CMD_BAND_6G,
 };
 struct mt792x_vif_cap;
-struct mt7902_sta; 
+struct mt792x_sta; 
 
 
 struct mt792x_vif_cap {
@@ -413,142 +413,142 @@ struct mt7902_twt_flow {
 	u8 sched:1;
 };
 
-struct mt7902_sta {
-	struct mt76_wcid wcid; /* must be first */
+// struct mt792x_sta {
+// 	struct mt76_wcid wcid; /* must be first */
 
-	struct mt792x_vif *vif;
+// 	struct mt792x_vif *vif;
 
-	struct list_head rc_list;
-	u32 airtime_ac[8];
+// 	struct list_head rc_list;
+// 	u32 airtime_ac[8];
 
-	int ack_signal;
-	struct ewma_avg_signal avg_ack_signal;
+// 	int ack_signal;
+// 	struct ewma_avg_signal avg_ack_signal;
 
-	unsigned long changed;
-	unsigned long jiffies;
-	struct mt76_connac_sta_key_conf bip;
+// 	unsigned long changed;
+// 	unsigned long jiffies;
+// 	struct mt76_connac_sta_key_conf bip;
 
-	struct {
-		u8 flowid_mask;
-		struct mt7902_twt_flow flow[MT7915_MAX_STA_TWT_AGRT];
-	} twt;
-};
+// 	struct {
+// 		u8 flowid_mask;
+// 		struct mt7902_twt_flow flow[MT7915_MAX_STA_TWT_AGRT];
+// 	} twt;
+// };
 
-struct mt792x_phy {
-	struct mt76_phy *mt76;
-	struct mt792x_dev *dev;
+// struct mt792x_phy {
+// 	struct mt76_phy *mt76;
+// 	struct mt792x_dev *dev;
 
-	struct ieee80211_sband_iftype_data iftype[NUM_NL80211_BANDS][NUM_NL80211_IFTYPES];
+// 	struct ieee80211_sband_iftype_data iftype[NUM_NL80211_BANDS][NUM_NL80211_IFTYPES];
 
-	struct ieee80211_vif *monitor_vif;
+// 	struct ieee80211_vif *monitor_vif;
 
-	struct thermal_cooling_device *cdev;
-	u8 cdev_state;
-	u8 throttle_state;
-	u32 throttle_temp[2]; /* 0: critical high, 1: maximum */
+// 	struct thermal_cooling_device *cdev;
+// 	u8 cdev_state;
+// 	u8 throttle_state;
+// 	u32 throttle_temp[2]; /* 0: critical high, 1: maximum */
 
-	u32 rxfilter;
-	u64 omac_mask;
+// 	u32 rxfilter;
+// 	u64 omac_mask;
 
-	u16 noise;
+// 	u16 noise;
 
-	s16 coverage_class;
-	u8 slottime;
+// 	s16 coverage_class;
+// 	u8 slottime;
 
-	u32 trb_ts;
+// 	u32 trb_ts;
 
-	u32 rx_ampdu_ts;
-	u32 ampdu_ref;
+// 	u32 rx_ampdu_ts;
+// 	u32 ampdu_ref;
 
-	struct mt76_mib_stats mib;
-	struct mt76_channel_state state_ts;
+// 	struct mt76_mib_stats mib;
+// 	struct mt76_channel_state state_ts;
 
-#ifdef CONFIG_NL80211_TESTMODE
-	struct {
-		u32 *reg_backup;
+// #ifdef CONFIG_NL80211_TESTMODE
+// 	struct {
+// 		u32 *reg_backup;
 
-		s32 last_freq_offset;
-		u8 last_rcpi[4];
-		s8 last_ib_rssi[4];
-		s8 last_wb_rssi[4];
-		u8 last_snr;
+// 		s32 last_freq_offset;
+// 		u8 last_rcpi[4];
+// 		s8 last_ib_rssi[4];
+// 		s8 last_wb_rssi[4];
+// 		u8 last_snr;
 
-		u8 spe_idx;
-	} test;
-#endif
-};
-
-
-struct mt792x_dev {
-	union { /* must be first */
-		struct mt76_dev mt76;
-		struct mt76_phy mphy;
-	};
-
-	struct mt7902_hif *hif2;
-	struct mt7902_reg_desc reg;
-	u8 q_id[mt7902_MAX_QUEUE];
-	u32 q_int_mask[mt7902_MAX_QUEUE];
-	u32 wfdma_mask;
-
-	const struct mt76_bus_ops *bus_ops;
-	struct tasklet_struct irq_tasklet;
-	struct mt792x_phy phy;
-
-	/* monitor rx chain configured channel */
-	struct cfg80211_chan_def rdd2_chandef;
-	struct mt792x_phy *rdd2_phy;
-
-	u32 chainmask;
-	u16 chain_shift_ext;
-	u16 chain_shift_tri;
-	u32 hif_idx;
-
-	struct work_struct init_work;
-	struct work_struct rc_work;
-	struct work_struct reset_work;
-	wait_queue_head_t reset_wait;
-	u32 reset_state;
-
-	struct list_head sta_rc_list;
-	struct list_head sta_poll_list;
-	struct list_head twt_list;
-	spinlock_t sta_poll_lock;
-
-	u32 hw_pattern;
-
-	bool dbdc_support;
-	bool tbtc_support;
-	bool flash_mode;
-	bool muru_debug;
-	bool ibf;
-	u8 fw_debug_wm;
-	u8 fw_debug_wa;
-	u8 fw_debug_bin;
-	u16 fw_debug_seq;
-
-	struct dentry *debugfs_dir;
-	struct rchan *relay_fwlog;
-
-	void *cal;
-
-	struct {
-		u8 table_mask;
-		u8 n_agrt;
-	} twt;
-};
+// 		u8 spe_idx;
+// 	} test;
+// #endif
+// };
 
 
-struct mt792x_vif {
-	struct mt76_vif_link mt76; /* must be first */
+// struct mt792x_dev {
+// 	union { /* must be first */
+// 		struct mt76_dev mt76;
+// 		struct mt76_phy mphy;
+// 	};
 
-	struct mt792x_vif_cap cap;
-	struct mt7902_sta sta;
-	struct mt792x_phy *phy;
+// 	struct mt7902_hif *hif2;
+// 	struct mt7902_reg_desc reg;
+// 	u8 q_id[mt7902_MAX_QUEUE];
+// 	u32 q_int_mask[mt7902_MAX_QUEUE];
+// 	u32 wfdma_mask;
 
-	struct ieee80211_tx_queue_params queue_params[IEEE80211_NUM_ACS];
-	struct cfg80211_bitrate_mask bitrate_mask;
-};
+// 	const struct mt76_bus_ops *bus_ops;
+// 	struct tasklet_struct irq_tasklet;
+// 	struct mt792x_phy phy;
+
+// 	/* monitor rx chain configured channel */
+// 	struct cfg80211_chan_def rdd2_chandef;
+// 	struct mt792x_phy *rdd2_phy;
+
+// 	u32 chainmask;
+// 	u16 chain_shift_ext;
+// 	u16 chain_shift_tri;
+// 	u32 hif_idx;
+
+// 	struct work_struct init_work;
+// 	struct work_struct rc_work;
+// 	struct work_struct reset_work;
+// 	wait_queue_head_t reset_wait;
+// 	u32 reset_state;
+
+// 	struct list_head sta_rc_list;
+// 	struct list_head sta_poll_list;
+// 	struct list_head twt_list;
+// 	spinlock_t sta_poll_lock;
+
+// 	u32 hw_pattern;
+
+// 	bool dbdc_support;
+// 	bool tbtc_support;
+// 	bool flash_mode;
+// 	bool muru_debug;
+// 	bool ibf;
+// 	u8 fw_debug_wm;
+// 	u8 fw_debug_wa;
+// 	u8 fw_debug_bin;
+// 	u16 fw_debug_seq;
+
+// 	struct dentry *debugfs_dir;
+// 	struct rchan *relay_fwlog;
+
+// 	void *cal;
+
+// 	struct {
+// 		u8 table_mask;
+// 		u8 n_agrt;
+// 	} twt;
+// };
+
+
+// struct mt792x_vif {
+// 	struct mt76_vif_link mt76; /* must be first */
+
+// 	struct mt792x_vif_cap cap;
+// 	struct mt792x_sta sta;
+// 	struct mt792x_phy *phy;
+
+// 	struct ieee80211_tx_queue_params queue_params[IEEE80211_NUM_ACS];
+// 	struct cfg80211_bitrate_mask bitrate_mask;
+// };
 
 
 static inline struct mt792x_phy *

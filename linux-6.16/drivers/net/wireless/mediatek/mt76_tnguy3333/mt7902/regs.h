@@ -36,7 +36,7 @@ enum base_rev {
 };
 
 
-#define __BASE(_id, _band)		(dev->reg.base[(_id)].band_base[(_band)])
+// #define __BASE(_id, _band)		(dev->reg.base[(_id)].band_base[(_band)])
 
 
 #define MT_MDP_BASE			0x820cd000
@@ -120,54 +120,54 @@ enum base_rev {
 #define MT_TRB_RXPSR0_RX_WTBL_PTR	GENMASK(25, 16)
 #define MT_TRB_RXPSR0_RX_RMAC_PTR	GENMASK(9, 0)
 
-/* TMAC: band 0(0x820e4000), band 1(0x820f4000), band 3(0x830e4000) */
-#define MT_WF_TMAC_BASE(_band)		__BASE(WF_TMAC_BASE, (_band))
-#define MT_WF_TMAC(_band, ofs)		(MT_WF_TMAC_BASE(_band) + (ofs))
+// /* TMAC: band 0(0x820e4000), band 1(0x820f4000), band 3(0x830e4000) */
+// #define MT_WF_TMAC_BASE(_band)		__BASE(WF_TMAC_BASE, (_band))
+// #define MT_WF_TMAC(_band, ofs)		(MT_WF_TMAC_BASE(_band) + (ofs))
 
-#define MT_TMAC_TCR0(_band)		MT_WF_TMAC(_band, 0)
-#define MT_TMAC_TCR0_TX_BLINK		GENMASK(7, 6)
-#define MT_TMAC_TCR0_TBTT_STOP_CTRL	BIT(25)
+// #define MT_TMAC_TCR0(_band)		MT_WF_TMAC(_band, 0)
+// #define MT_TMAC_TCR0_TX_BLINK		GENMASK(7, 6)
+// #define MT_TMAC_TCR0_TBTT_STOP_CTRL	BIT(25)
 
-#define MT_TMAC_CDTR(_band)		MT_WF_TMAC(_band, 0x0c8)
-#define MT_TMAC_ODTR(_band)		MT_WF_TMAC(_band, 0x0cc)
-#define MT_TIMEOUT_VAL_PLCP		GENMASK(15, 0)
-#define MT_TIMEOUT_VAL_CCA		GENMASK(31, 16)
+// #define MT_TMAC_CDTR(_band)		MT_WF_TMAC(_band, 0x0c8)
+// #define MT_TMAC_ODTR(_band)		MT_WF_TMAC(_band, 0x0cc)
+// #define MT_TIMEOUT_VAL_PLCP		GENMASK(15, 0)
+// #define MT_TIMEOUT_VAL_CCA		GENMASK(31, 16)
 
-#define MT_TMAC_ATCR(_band)		MT_WF_TMAC(_band, 0x00c)
-#define MT_TMAC_ATCR_TXV_TOUT		GENMASK(7, 0)
+// #define MT_TMAC_ATCR(_band)		MT_WF_TMAC(_band, 0x00c)
+// #define MT_TMAC_ATCR_TXV_TOUT		GENMASK(7, 0)
 
-#define MT_TMAC_TRCR0(_band)		MT_WF_TMAC(_band, 0x010)
-#define MT_TMAC_TRCR0_TR2T_CHK		GENMASK(8, 0)
-#define MT_TMAC_TRCR0_I2T_CHK		GENMASK(24, 16)
+// #define MT_TMAC_TRCR0(_band)		MT_WF_TMAC(_band, 0x010)
+// #define MT_TMAC_TRCR0_TR2T_CHK		GENMASK(8, 0)
+// #define MT_TMAC_TRCR0_I2T_CHK		GENMASK(24, 16)
 
-#define MT_TMAC_ICR0(_band)		MT_WF_TMAC(_band, 0x014)
-#define MT_IFS_EIFS_OFDM		GENMASK(8, 0)
-#define MT_IFS_RIFS			GENMASK(14, 10)
-#define MT_IFS_SIFS			GENMASK(22, 16)
-#define MT_IFS_SLOT			GENMASK(30, 24)
+// #define MT_TMAC_ICR0(_band)		MT_WF_TMAC(_band, 0x014)
+// #define MT_IFS_EIFS_OFDM		GENMASK(8, 0)
+// #define MT_IFS_RIFS			GENMASK(14, 10)
+// #define MT_IFS_SIFS			GENMASK(22, 16)
+// #define MT_IFS_SLOT			GENMASK(30, 24)
 
-#define MT_TMAC_ICR1(_band)		MT_WF_TMAC(_band, 0x018)
-#define MT_IFS_EIFS_CCK			GENMASK(8, 0)
+// #define MT_TMAC_ICR1(_band)		MT_WF_TMAC(_band, 0x018)
+// #define MT_IFS_EIFS_CCK			GENMASK(8, 0)
 
-#define MT_TMAC_CTCR0(_band)		MT_WF_TMAC(_band, 0x114)
-#define MT_TMAC_CTCR0_INS_DDLMT_REFTIME		GENMASK(5, 0)
-#define MT_TMAC_CTCR0_INS_DDLMT_EN		BIT(17)
-#define MT_TMAC_CTCR0_INS_DDLMT_VHT_SMPDU_EN	BIT(18)
+// #define MT_TMAC_CTCR0(_band)		MT_WF_TMAC(_band, 0x114)
+// #define MT_TMAC_CTCR0_INS_DDLMT_REFTIME		GENMASK(5, 0)
+// #define MT_TMAC_CTCR0_INS_DDLMT_EN		BIT(17)
+// #define MT_TMAC_CTCR0_INS_DDLMT_VHT_SMPDU_EN	BIT(18)
 
-#define MT_TMAC_TFCR0(_band)		MT_WF_TMAC(_band, 0x0e4)
-
-
+// #define MT_TMAC_TFCR0(_band)		MT_WF_TMAC(_band, 0x0e4)
 
 
-/* ARB: band 0(0x820e3000), band 1(0x820f3000), band 3(0x830e3000) */
-#define MT_WF_ARB_BASE(_band)		__BASE(WF_ARB_BASE, (_band))
-#define MT_WF_ARB(_band, ofs)		(MT_WF_ARB_BASE(_band) + (ofs))
 
-#define MT_ARB_SCR(_band)		MT_WF_ARB(_band, 0x000)
-#define MT_ARB_SCR_TX_DISABLE		BIT(8)
-#define MT_ARB_SCR_RX_DISABLE		BIT(9)
 
-#define MT_ARB_DRNGR0(_band, _n)	MT_WF_ARB(_band, (0x1e0 + (_n) * 4))
+// /* ARB: band 0(0x820e3000), band 1(0x820f3000), band 3(0x830e3000) */
+// #define MT_WF_ARB_BASE(_band)		__BASE(WF_ARB_BASE, (_band))
+// #define MT_WF_ARB(_band, ofs)		(MT_WF_ARB_BASE(_band) + (ofs))
+
+// #define MT_ARB_SCR(_band)		MT_WF_ARB(_band, 0x000)
+// #define MT_ARB_SCR_TX_DISABLE		BIT(8)
+// #define MT_ARB_SCR_RX_DISABLE		BIT(9)
+
+// #define MT_ARB_DRNGR0(_band, _n)	MT_WF_ARB(_band, (0x1e0 + (_n) * 4))
 
 
 

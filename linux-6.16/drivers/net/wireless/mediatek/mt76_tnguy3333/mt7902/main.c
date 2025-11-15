@@ -223,9 +223,9 @@ void mt7902_set_stream_he_caps(struct mt792x_phy *phy)
 	}
 }
 
-int __mt7902_start(struct mt792x_phy *phy)
+int __mt792x_start(struct mt792x_phy *phy)
 {
-	printk(KERN_DEBUG "main.c - __mt7902_start(phy)");
+	printk(KERN_DEBUG "main.c - __mt792x_start(phy)");
 	struct mt76_phy *mphy = phy->mt76;
 	int err;
 
@@ -267,16 +267,16 @@ int __mt7902_start(struct mt792x_phy *phy)
 
 	return 0;
 }
-EXPORT_SYMBOL_GPL(__mt7902_start);
+EXPORT_SYMBOL_GPL(__mt792x_start);
 
-static int mt7902_start(struct ieee80211_hw *hw)
+static int mt792x_start(struct ieee80211_hw *hw)
 {
-	printk(KERN_DEBUG "main.c - mt7902_start(hw)");
+	printk(KERN_DEBUG "main.c - mt792x_start(hw)");
 	struct mt792x_phy *phy = mt792x_hw_phy(hw);
 	int err;
 
 	mt792x_mutex_acquire(phy->dev);
-	err = __mt7902_start(phy);
+	err = __mt792x_start(phy);
 	mt792x_mutex_release(phy->dev);
 
 	return err;
@@ -1284,13 +1284,13 @@ mt7902_ampdu_action(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
 	return ret;
 }
 
-static int mt7902_sta_state(struct ieee80211_hw *hw,
+static int mt792x_sta_state(struct ieee80211_hw *hw,
 			    struct ieee80211_vif *vif,
 			    struct ieee80211_sta *sta,
 			    enum ieee80211_sta_state old_state,
 			    enum ieee80211_sta_state new_state)
 {
-	printk(KERN_DEBUG "main.c - mt7902_sta_state(hw, vif, sta, old_state: %d, new_state: %d)", old_state, new_state);
+	printk(KERN_DEBUG "main.c - mt792x_sta_state(hw, vif, sta, old_state: %d, new_state: %d)", old_state, new_state);
 	struct mt792x_dev *dev = mt792x_hw_dev(hw);
 
 	if (dev->pm.ds_enable) {
@@ -1365,11 +1365,11 @@ mt7902_cancel_hw_scan(struct ieee80211_hw *hw, struct ieee80211_vif *vif)
 }
 
 static int
-mt7902_start_sched_scan(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
+mt792x_start_sched_scan(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
 			struct cfg80211_sched_scan_request *req,
 			struct ieee80211_scan_ies *ies)
 {
-	printk(KERN_DEBUG "main.c - mt7902_start_sched_scan");
+	printk(KERN_DEBUG "main.c - mt792x_start_sched_scan");
 	struct mt792x_dev *dev = mt792x_hw_dev(hw);
 	struct mt76_phy *mphy = hw->priv;
 	int err;
@@ -1489,12 +1489,12 @@ static void mt7902_set_rekey_data(struct ieee80211_hw *hw,
 }*/
 #endif /* CONFIG_PM */
 
-static void mt7902_sta_set_decap_offload(struct ieee80211_hw *hw,
+static void mt792x_sta_set_decap_offload(struct ieee80211_hw *hw,
 					 struct ieee80211_vif *vif,
 					 struct ieee80211_sta *sta,
 					 bool enabled)
 {
-	printk(KERN_DEBUG "main.c - mt7902_sta_set_decap_offload");
+	printk(KERN_DEBUG "main.c - mt792x_sta_set_decap_offload");
 	struct mt792x_sta *msta = (struct mt792x_sta *)sta->drv_priv;
 	struct mt792x_dev *dev = mt792x_hw_dev(hw);
 
@@ -1627,10 +1627,10 @@ mt7902_channel_switch_beacon(struct ieee80211_hw *hw,
 }
 
 static int
-mt7902_start_ap(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
+mt792x_start_ap(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
 		struct ieee80211_bss_conf *link_conf)
 {
-	printk(KERN_DEBUG "main.c - mt7902_start_ap");
+	printk(KERN_DEBUG "main.c - mt792x_start_ap");
 	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
 	struct mt792x_dev *dev = mt792x_hw_dev(hw);
 	int err;
@@ -1860,7 +1860,7 @@ static void mt7902_rfkill_poll(struct ieee80211_hw *hw)
 
 const struct ieee80211_ops mt7902_ops = {
 	.tx = mt792x_tx,
-	.start = mt7902_start,
+	.start = mt792x_start,
 	.stop = mt7902_stop,
 	.add_interface = mt7902_add_interface,
 	.remove_interface = mt792x_remove_interface,
@@ -1868,12 +1868,12 @@ const struct ieee80211_ops mt7902_ops = {
 	.conf_tx = mt792x_conf_tx,
 	.configure_filter = mt7902_configure_filter,
 	.bss_info_changed = mt7902_bss_info_changed,
-	.start_ap = mt7902_start_ap,
+	.start_ap = mt792x_start_ap,
 	.stop_ap = mt7902_stop_ap,
-	.sta_state = mt7902_sta_state,
+	.sta_state = mt792x_sta_state,
 	.sta_pre_rcu_remove = mt76_sta_pre_rcu_remove,
 	.set_key = mt7902_set_key,
-	.sta_set_decap_offload = mt7902_sta_set_decap_offload,
+	.sta_set_decap_offload = mt792x_sta_set_decap_offload,
 #if IS_ENABLED(CONFIG_IPV6)
 	//.ipv6_addr_change = mt7902_ipv6_addr_change,
 #endif /* CONFIG_IPV6 */
@@ -1896,7 +1896,7 @@ const struct ieee80211_ops mt7902_ops = {
 	.hw_scan = mt7902_hw_scan,
 	.cancel_hw_scan = mt7902_cancel_hw_scan,
 	.sta_statistics = mt792x_sta_statistics,
-	.sched_scan_start = mt7902_start_sched_scan,
+	.sched_scan_start = mt792x_start_sched_scan,
 	.sched_scan_stop = mt7902_stop_sched_scan,
 	CFG80211_TESTMODE_CMD(mt7902_testmode_cmd)
 	CFG80211_TESTMODE_DUMP(mt7902_testmode_dump)

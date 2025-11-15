@@ -24,20 +24,20 @@ bool mt7902_mac_wtbl_update(struct mt792x_dev *dev, int idx, u32 mask)
 	return mt76_poll(dev, MT_WTBL_UPDATE, MT_WTBL_UPDATE_BUSY,
 			 0, 5000);
 }
-/*
+
 static u32 mt7902_mac_wtbl_lmac_addr(int idx, u8 offset)
 {
 	printk(KERN_DEBUG "mac.c - mt7902_mac_wtbl_lmac_addr");
 	return MT_WTBL_LMAC_OFFS(idx, 0) + offset * 4;
-}*/
-
-u32 mt7902_mac_wtbl_lmac_addr(struct mt792x_dev *dev, u16 wcid, u8 dw)
-{
-	mt76_wr(dev, MT_WTBLON_TOP_WDUCR,
-		FIELD_PREP(MT_WTBLON_TOP_WDUCR_GROUP, (wcid >> 7)));
-
-	return MT_WTBL_LMAC_OFFS(wcid, dw);
 }
+
+// u32 mt7902_mac_wtbl_lmac_addr(struct mt792x_dev *dev, u16 wcid, u8 dw)
+// {
+// 	mt76_wr(dev, MT_WTBLON_TOP_WDUCR,
+// 		FIELD_PREP(MT_WTBLON_TOP_WDUCR_GROUP, (wcid >> 7)));
+
+// 	return MT_WTBL_LMAC_OFFS(wcid, dw);
+// }
 
 static void mt7902_mac_sta_poll(struct mt792x_dev *dev)
 {
@@ -49,10 +49,12 @@ static void mt7902_mac_sta_poll(struct mt792x_dev *dev)
 		[IEEE80211_AC_VO] = 6
 	};
 	struct ieee80211_sta *sta;
-	struct mt7902_sta *msta;
-	struct rate_info *rate;
+	struct mt792x_sta *msta;
+	struct mt792x_link_sta *mlink;
 	u32 tx_time[IEEE80211_NUM_ACS], rx_time[IEEE80211_NUM_ACS];
 	LIST_HEAD(sta_poll_list);
+	struct rate_info *rate;
+	s8 rssi[4];
 	int i;
 
 	spin_lock_bh(&dev->mt76.sta_poll_lock);
@@ -63,7 +65,6 @@ static void mt7902_mac_sta_poll(struct mt792x_dev *dev)
 		bool clear = false;
 		u32 addr, val;
 		u16 idx;
-		s8 rssi[4];
 		u8 bw;
 
 		spin_lock_bh(&dev->mt76.sta_poll_lock);
@@ -71,24 +72,24 @@ static void mt7902_mac_sta_poll(struct mt792x_dev *dev)
 			spin_unlock_bh(&dev->mt76.sta_poll_lock);
 			break;
 		}
-		msta = list_first_entry(&sta_poll_list,
-					 struct mt7902_sta, wcid.poll_list);
-		//msta = container_of(mlink, struct mt792x_sta, deflink);
-		list_del_init(&msta->wcid.poll_list);
+		mlink = list_first_entry(&sta_poll_list,
+					 struct mt792x_link_sta, wcid.poll_list);
+		msta = container_of(mlink, struct mt792x_sta, deflink);
+		list_del_init(&msta->deflink.wcid.poll_list);
 		spin_unlock_bh(&dev->mt76.sta_poll_lock);
 
-		idx = msta->wcid.idx;
-		addr = mt7902_mac_wtbl_lmac_addr(dev, idx, 20);
+		idx = msta->deflink.wcid.idx;
+		addr = mt7902_mac_wtbl_lmac_addr(idx, MT_WTBL_AC0_CTT_OFFSET);
 
 		for (i = 0; i < IEEE80211_NUM_ACS; i++) {
-			u32 tx_last = msta->airtime_ac[i];
-			u32 rx_last = msta->airtime_ac[i + 4];
+			u32 tx_last = msta->deflink.airtime_ac[i];
+			u32 rx_last = msta->deflink.airtime_ac[i + 4];
 
-			msta->airtime_ac[i] = mt76_rr(dev, addr);
-			msta->airtime_ac[i + 4] = mt76_rr(dev, addr + 4);
+			msta->deflink.airtime_ac[i] = mt76_rr(dev, addr);
+			msta->deflink.airtime_ac[i + 4] = mt76_rr(dev, addr + 4);
 
-			tx_time[i] = msta->airtime_ac[i] - tx_last;
-			rx_time[i] = msta->airtime_ac[i + 4] - rx_last;
+			tx_time[i] = msta->deflink.airtime_ac[i] - tx_last;
+			rx_time[i] = msta->deflink.airtime_ac[i + 4] - rx_last;
 
 			if ((tx_last | rx_last) & BIT(30))
 				clear = true;
@@ -99,10 +100,10 @@ static void mt7902_mac_sta_poll(struct mt792x_dev *dev)
 		if (clear) {
 			mt7902_mac_wtbl_update(dev, idx,
 					       MT_WTBL_UPDATE_ADM_COUNT_CLEAR);
-			memset(msta->airtime_ac, 0, sizeof(msta->airtime_ac));
+			memset(msta->deflink.airtime_ac, 0, sizeof(msta->deflink.airtime_ac));
 		}
 
-		if (!msta->wcid.sta)
+		if (!msta->deflink.wcid.sta)
 			continue;
 
 		sta = container_of((void *)msta, struct ieee80211_sta,
@@ -125,8 +126,8 @@ static void mt7902_mac_sta_poll(struct mt792x_dev *dev)
 		 * we need to make sure that flags match so polling GI
 		 * from per-sta counters directly.
 		 */
-		rate = &msta->wcid.rate;
-		addr = mt7902_mac_wtbl_lmac_addr(dev, idx, 6);
+		rate = &msta->deflink.wcid.rate;
+		addr = mt7902_mac_wtbl_lmac_addr(idx, MT_WTBL_TXRX_CAP_RATE_OFFSET);
 		val = mt76_rr(dev, addr);
 
 		switch (rate->bw) {
@@ -157,7 +158,7 @@ static void mt7902_mac_sta_poll(struct mt792x_dev *dev)
 		}
 
 		/* get signal strength of resp frames (CTS/BA/ACK) */
-		addr = mt7902_mac_wtbl_lmac_addr(dev, idx, 30);
+		addr = mt7902_mac_wtbl_lmac_addr(idx, 30);
 		val = mt76_rr(dev, addr);
 
 		rssi[0] = to_rssi(GENMASK(7, 0), val);
@@ -165,10 +166,10 @@ static void mt7902_mac_sta_poll(struct mt792x_dev *dev)
 		rssi[2] = to_rssi(GENMASK(23, 16), val);
 		rssi[3] = to_rssi(GENMASK(31, 14), val);
 
-		msta->ack_signal =
+		msta->deflink.ack_signal =
 			mt76_rx_signal(msta->vif->phy->mt76->antenna_mask, rssi);
 
-		ewma_avg_signal_add(&msta->avg_ack_signal, -msta->ack_signal);
+		ewma_avg_signal_add(&msta->deflink.avg_ack_signal, -msta->deflink.ack_signal);
 	}
 }
 
@@ -1045,7 +1046,7 @@ void mt7902_mac_enable_rtscts(struct mt792x_dev *dev,
 	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
 	u32 addr;
 
-	addr = mt7902_mac_wtbl_lmac_addr(dev, mvif->sta.wcid.idx, 5);
+	addr = mt7902_mac_wtbl_lmac_addr(mvif->sta.deflink.wcid.idx, 5);
 	if (enable)
 		mt76_set(dev, addr, BIT(5));
 	else
@@ -1053,57 +1054,57 @@ void mt7902_mac_enable_rtscts(struct mt792x_dev *dev,
 }
 
 
-void mt7902_mac_set_timing(struct mt792x_phy *phy)
-{
-	s16 coverage_class = phy->coverage_class;
-	struct mt792x_dev *dev = phy->dev;
-	struct mt792x_phy *ext_phy = mt7902_ext_phy(dev);
-	struct mt792x_phy *tri_phy = mt7902_tri_phy(dev);
-	u32 val, reg_offset;
-	u32 cck = FIELD_PREP(MT_TIMEOUT_VAL_PLCP, 231) |
-		  FIELD_PREP(MT_TIMEOUT_VAL_CCA, 48);
-	u32 ofdm = FIELD_PREP(MT_TIMEOUT_VAL_PLCP, 60) |
-		   FIELD_PREP(MT_TIMEOUT_VAL_CCA, 28);
-	u8 band = phy->mt76->band_idx;
-	int eifs_ofdm = 84, sifs = 10, offset;
-	bool a_band = !(phy->mt76->chandef.chan->band == NL80211_BAND_2GHZ);
+// void mt7902_mac_set_timing(struct mt792x_phy *phy)
+// {
+// 	s16 coverage_class = phy->coverage_class;
+// 	struct mt792x_dev *dev = phy->dev;
+// 	struct mt792x_phy *ext_phy = mt7902_ext_phy(dev);
+// 	struct mt792x_phy *tri_phy = mt7902_tri_phy(dev);
+// 	u32 val, reg_offset;
+// 	u32 cck = FIELD_PREP(MT_TIMEOUT_VAL_PLCP, 231) |
+// 		  FIELD_PREP(MT_TIMEOUT_VAL_CCA, 48);
+// 	u32 ofdm = FIELD_PREP(MT_TIMEOUT_VAL_PLCP, 60) |
+// 		   FIELD_PREP(MT_TIMEOUT_VAL_CCA, 28);
+// 	u8 band = phy->mt76->band_idx;
+// 	int eifs_ofdm = 84, sifs = 10, offset;
+// 	bool a_band = !(phy->mt76->chandef.chan->band == NL80211_BAND_2GHZ);
 
-	if (!test_bit(MT76_STATE_RUNNING, &phy->mt76->state))
-		return;
+// 	if (!test_bit(MT76_STATE_RUNNING, &phy->mt76->state))
+// 		return;
 
-	if (ext_phy)
-		coverage_class = max_t(s16, dev->phy.coverage_class,
-				       ext_phy->coverage_class);
+// 	if (ext_phy)
+// 		coverage_class = max_t(s16, dev->phy.coverage_class,
+// 				       ext_phy->coverage_class);
 
-	if(tri_phy)
-		coverage_class = max_t(s16, coverage_class, tri_phy->coverage_class);
+// 	if(tri_phy)
+// 		coverage_class = max_t(s16, coverage_class, tri_phy->coverage_class);
 
-	mt76_set(dev, MT_ARB_SCR(band),
-		 MT_ARB_SCR_TX_DISABLE | MT_ARB_SCR_RX_DISABLE);
-	udelay(1);
+// 	mt76_set(dev, MT_ARB_SCR(band),
+// 		 MT_ARB_SCR_TX_DISABLE | MT_ARB_SCR_RX_DISABLE);
+// 	udelay(1);
 
-	offset = 3 * coverage_class;
-	reg_offset = FIELD_PREP(MT_TIMEOUT_VAL_PLCP, offset) |
-		     FIELD_PREP(MT_TIMEOUT_VAL_CCA, offset);
+// 	offset = 3 * coverage_class;
+// 	reg_offset = FIELD_PREP(MT_TIMEOUT_VAL_PLCP, offset) |
+// 		     FIELD_PREP(MT_TIMEOUT_VAL_CCA, offset);
 
-	mt76_wr(dev, MT_TMAC_CDTR(band), cck + reg_offset);
-	mt76_wr(dev, MT_TMAC_ODTR(band), ofdm + reg_offset);
-	mt76_wr(dev, MT_TMAC_ICR0(band),
-		FIELD_PREP(MT_IFS_EIFS_OFDM, a_band ? 84 : 78) |
-		FIELD_PREP(MT_IFS_RIFS, 2) |
-		FIELD_PREP(MT_IFS_SIFS, 10) |
-		FIELD_PREP(MT_IFS_SLOT, phy->slottime));
+// 	mt76_wr(dev, MT_TMAC_CDTR(band), cck + reg_offset);
+// 	mt76_wr(dev, MT_TMAC_ODTR(band), ofdm + reg_offset);
+// 	mt76_wr(dev, MT_TMAC_ICR0(band),
+// 		FIELD_PREP(MT_IFS_EIFS_OFDM, a_band ? 84 : 78) |
+// 		FIELD_PREP(MT_IFS_RIFS, 2) |
+// 		FIELD_PREP(MT_IFS_SIFS, 10) |
+// 		FIELD_PREP(MT_IFS_SLOT, phy->slottime));
 
-	mt76_wr(dev, MT_TMAC_ICR1(band), FIELD_PREP(MT_IFS_EIFS_CCK, 314));
+// 	mt76_wr(dev, MT_TMAC_ICR1(band), FIELD_PREP(MT_IFS_EIFS_CCK, 314));
 
-	if (phy->slottime < 20 || a_band)
-		val = MT7902_CFEND_RATE_DEFAULT;
-	else
-		val = MT7902_CFEND_RATE_11B;
+// 	if (phy->slottime < 20 || a_band)
+// 		val = MT7902_CFEND_RATE_DEFAULT;
+// 	else
+// 		val = MT7902_CFEND_RATE_11B;
 
-	mt76_rmw_field(dev, MT_AGG_ACR0(band), MT_AGG_ACR_CFEND_RATE, val);
-	mt76_clear(dev, MT_ARB_SCR(band),
-		   MT_ARB_SCR_TX_DISABLE | MT_ARB_SCR_RX_DISABLE);
-}
+// 	mt76_rmw_field(dev, MT_AGG_ACR0(band), MT_AGG_ACR_CFEND_RATE, val);
+// 	mt76_clear(dev, MT_ARB_SCR(band),
+// 		   MT_ARB_SCR_TX_DISABLE | MT_ARB_SCR_RX_DISABLE);
+// }
 
 

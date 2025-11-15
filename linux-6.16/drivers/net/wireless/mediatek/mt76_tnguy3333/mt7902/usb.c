@@ -129,7 +129,7 @@ static int mt7902u_mac_reset(struct mt792x_dev *dev)
 	if (err)
 		goto out;
 
-	err = __mt7902_start(&dev->phy);
+	err = __mt792x_start(&dev->phy);
 out:
 	clear_bit(MT76_RESET, &dev->mphy.state);
 
