@@ -6,22 +6,22 @@
 
 #include "mt792x_regs.h"
 
-struct __map {
-	u32 phys;
-	u32 mapped;
-	u32 size;
-};
+// struct __map {
+// 	u32 phys;
+// 	u32 mapped;
+// 	u32 size;
+// };
 
-struct __base {
-	u32 band_base[__MT_MAX_BAND];
-};
+// struct __base {
+// 	u32 band_base[__MT_MAX_BAND];
+// };
 
 /* used to differentiate between generations */
-struct mt7902_reg_desc {
-	const struct __base *base;
-	const struct __map *map;
-	u32 map_size;
-};
+// struct mt7902_reg_desc {
+// 	const struct __base *base;
+// 	const struct __map *map;
+// 	u32 map_size;
+// };
 
 enum base_rev {
 	WF_AGG_BASE,
@@ -121,8 +121,8 @@ enum base_rev {
 #define MT_TRB_RXPSR0_RX_RMAC_PTR	GENMASK(9, 0)
 
 // /* TMAC: band 0(0x820e4000), band 1(0x820f4000), band 3(0x830e4000) */
-// #define MT_WF_TMAC_BASE(_band)		__BASE(WF_TMAC_BASE, (_band))
-// #define MT_WF_TMAC(_band, ofs)		(MT_WF_TMAC_BASE(_band) + (ofs))
+#define MT_WF_TMAC_BASE(_band)		0x820e4000 //__BASE(WF_TMAC_BASE, (_band))
+#define MT_WF_TMAC(_band, ofs)		(MT_WF_TMAC_BASE(_band) + (ofs))
 
 // #define MT_TMAC_TCR0(_band)		MT_WF_TMAC(_band, 0)
 // #define MT_TMAC_TCR0_TX_BLINK		GENMASK(7, 6)
@@ -141,13 +141,13 @@ enum base_rev {
 // #define MT_TMAC_TRCR0_I2T_CHK		GENMASK(24, 16)
 
 // #define MT_TMAC_ICR0(_band)		MT_WF_TMAC(_band, 0x014)
-// #define MT_IFS_EIFS_OFDM		GENMASK(8, 0)
+#define MT_IFS_EIFS_OFDM		GENMASK(8, 0)
 // #define MT_IFS_RIFS			GENMASK(14, 10)
 // #define MT_IFS_SIFS			GENMASK(22, 16)
 // #define MT_IFS_SLOT			GENMASK(30, 24)
 
-// #define MT_TMAC_ICR1(_band)		MT_WF_TMAC(_band, 0x018)
-// #define MT_IFS_EIFS_CCK			GENMASK(8, 0)
+#define MT_TMAC_ICR1(_band)		MT_WF_TMAC(_band, 0x018)
+#define MT_IFS_EIFS_CCK			GENMASK(8, 0)
 
 // #define MT_TMAC_CTCR0(_band)		MT_WF_TMAC(_band, 0x114)
 // #define MT_TMAC_CTCR0_INS_DDLMT_REFTIME		GENMASK(5, 0)

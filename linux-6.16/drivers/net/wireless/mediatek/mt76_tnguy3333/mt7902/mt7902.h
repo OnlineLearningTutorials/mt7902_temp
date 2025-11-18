@@ -486,7 +486,7 @@ struct mt7902_twt_flow {
 // 	};
 
 // 	struct mt7902_hif *hif2;
-// 	struct mt7902_reg_desc reg;
+// struct mt7902_reg_desc reg;
 // 	u8 q_id[mt7902_MAX_QUEUE];
 // 	u32 q_int_mask[mt7902_MAX_QUEUE];
 // 	u32 wfdma_mask;

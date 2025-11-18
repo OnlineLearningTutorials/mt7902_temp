@@ -1768,8 +1768,8 @@ int mt7902_mcu_add_bss_info(struct mt792x_phy *phy,
 		mt7902_mcu_bss_ra_tlv(skb, vif, phy);   //7915
 		mt7902_mcu_bss_txcmd_tlv(skb, true);   //7996
 
-		if (vif->bss_conf.he_support)
-			mt7902_mcu_bss_he_tlv(skb, vif, phy);   //7925
+		// if (vif->bss_conf.he_support)
+		// 	mt7902_mcu_bss_he_tlv(skb, vif, phy);   //7925
 
 		/* all mt7902 ic need this tlv, no matter it supports EHT or not */
 		mt7902_mcu_bss_mld_tlv(skb);   //7925
@@ -2083,10 +2083,10 @@ mt7902_mcu_sta_bfer_tlv(struct mt792x_dev *dev, struct sk_buff *skb,
 	 */
 	if (sta->deflink.he_cap.has_he && ebf)
 		mt7902_mcu_sta_bfer_he(sta, vif, phy, bf);
-	else if (sta->deflink.vht_cap.vht_supported)
-		mt7902_mcu_sta_bfer_vht(sta, phy, bf, ebf);
-	else if (sta->deflink.ht_cap.ht_supported)
-		mt7902_mcu_sta_bfer_ht(sta, phy, bf);
+	// else if (sta->deflink.vht_cap.vht_supported)
+		// mt7902_mcu_sta_bfer_vht(sta, phy, bf, ebf);
+	// else if (sta->deflink.ht_cap.ht_supported)
+	// 	mt7902_mcu_sta_bfer_ht(sta, phy, bf);
 	else
 		return; 
 
@@ -2378,8 +2378,8 @@ mt7902_mcu_sta_bfee_tlv(struct mt792x_dev *dev, struct sk_buff *skb,
 	if (!(sta->deflink.vht_cap.vht_supported || sta->deflink.he_cap.has_he))
 		return;
 
-	if (!mt7902_is_ebf_supported(phy, vif, sta, true))
-		return;
+	// if (!mt7902_is_ebf_supported(phy, vif, sta, true))
+	// 	return;
 
 	tlv = mt76_connac_mcu_add_tlv(skb, STA_REC_BFEE, sizeof(*bfee));
 	bfee = (struct sta_rec_bfee *)tlv;
@@ -2796,136 +2796,136 @@ out:
 
 
 
-static inline bool
-mt7902_is_ebf_supported(struct mt7902_phy *phy, struct ieee80211_vif *vif,
-			struct ieee80211_sta *sta, bool bfee)
-{
-	struct mt7902_vif *mvif = (struct mt7902_vif *)vif->drv_priv;
-	int tx_ant = hweight8(phy->mt76->chainmask) - 1;
+// static inline bool
+// mt7902_is_ebf_supported(struct mt792x_phy *phy, struct ieee80211_vif *vif,
+// 			struct ieee80211_sta *sta, bool bfee)
+// {
+// 	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
+// 	int tx_ant = hweight8(phy->mt76->chainmask) - 1;
 
-	if (vif->type != NL80211_IFTYPE_STATION &&
-	    vif->type != NL80211_IFTYPE_AP)
-		return false;
+// 	if (vif->type != NL80211_IFTYPE_STATION &&
+// 	    vif->type != NL80211_IFTYPE_AP)
+// 		return false;
 
-	if (!bfee && tx_ant < 2)
-		return false;
+// 	if (!bfee && tx_ant < 2)
+// 		return false;
 
-	if (sta->he_cap.has_he) {
-		struct ieee80211_he_cap_elem *pe = &sta->he_cap.he_cap_elem;
+// 	if (sta->he_cap.has_he) {
+// 		struct ieee80211_he_cap_elem *pe = &sta->he_cap.he_cap_elem;
 
-		if (bfee)
-			return mvif->cap.he_su_ebfee &&
-			       HE_PHY(CAP3_SU_BEAMFORMER, pe->phy_cap_info[3]);
-		else
-			return mvif->cap.he_su_ebfer &&
-			       HE_PHY(CAP4_SU_BEAMFORMEE, pe->phy_cap_info[4]);
-	}
+// 		if (bfee)
+// 			return mvif->cap.he_su_ebfee &&
+// 			       HE_PHY(CAP3_SU_BEAMFORMER, pe->phy_cap_info[3]);
+// 		else
+// 			return mvif->cap.he_su_ebfer &&
+// 			       HE_PHY(CAP4_SU_BEAMFORMEE, pe->phy_cap_info[4]);
+// 	}
 
-	if (sta->vht_cap.vht_supported) {
-		u32 cap = sta->vht_cap.cap;
+// 	if (sta->vht_cap.vht_supported) {
+// 		u32 cap = sta->vht_cap.cap;
 
-		if (bfee)
-			return mvif->cap.vht_su_ebfee &&
-			       (cap & IEEE80211_VHT_CAP_SU_BEAMFORMER_CAPABLE);
-		else
-			return mvif->cap.vht_su_ebfer &&
-			       (cap & IEEE80211_VHT_CAP_SU_BEAMFORMEE_CAPABLE);
-	}
+// 		if (bfee)
+// 			return mvif->cap.vht_su_ebfee &&
+// 			       (cap & IEEE80211_VHT_CAP_SU_BEAMFORMER_CAPABLE);
+// 		else
+// 			return mvif->cap.vht_su_ebfer &&
+// 			       (cap & IEEE80211_VHT_CAP_SU_BEAMFORMEE_CAPABLE);
+// 	}
 
-	return false;
-}
-
-
-static void
-mt7902_mcu_sta_bfer_ht(struct ieee80211_sta *sta, struct mt7902_phy *phy,
-		       struct sta_rec_bf *bf)
-{
-	struct ieee80211_mcs_info *mcs = &sta->ht_cap.mcs;
-	u8 n = 0;
-
-	bf->tx_mode = MT_PHY_TYPE_HT;
-
-	if ((mcs->tx_params & IEEE80211_HT_MCS_TX_RX_DIFF) &&
-	    (mcs->tx_params & IEEE80211_HT_MCS_TX_DEFINED))
-		n = FIELD_GET(IEEE80211_HT_MCS_TX_MAX_STREAMS_MASK,
-			      mcs->tx_params);
-	else if (mcs->rx_mask[3])
-		n = 3;
-	else if (mcs->rx_mask[2])
-		n = 2;
-	else if (mcs->rx_mask[1])
-		n = 1;
-
-	bf->nrow = hweight8(phy->mt76->chainmask) - 1;
-	bf->ncol = min_t(u8, bf->nrow, n);
-	bf->ibf_ncol = n;
-}
+// 	return false;
+// }
 
 
-static void
-mt7902_mcu_bss_he_tlv(struct sk_buff *skb, struct ieee80211_vif *vif,
-		      struct mt7902_phy *phy)
-{
-#define DEFAULT_HE_PE_DURATION		4
-#define DEFAULT_HE_DURATION_RTS_THRES	1023
-	const struct ieee80211_sta_he_cap *cap;
-	struct bss_info_uni_he *he;
-	struct tlv *tlv;
+// static void
+// mt7902_mcu_sta_bfer_ht(struct ieee80211_sta *sta, struct mt792x_phy *phy,
+// 		       struct sta_rec_bf *bf)
+// {
+// 	struct ieee80211_mcs_info *mcs = &sta->ht_cap.mcs;
+// 	u8 n = 0;
 
-	cap = mt76_connac_get_he_phy_cap(phy->mt76, vif);
+// 	bf->tx_mode = MT_PHY_TYPE_HT;
 
-	tlv = mt7902_mcu_add_uni_tlv(skb, UNI_BSS_INFO_HE_BASIC, sizeof(*he));
+// 	if ((mcs->tx_params & IEEE80211_HT_MCS_TX_RX_DIFF) &&
+// 	    (mcs->tx_params & IEEE80211_HT_MCS_TX_DEFINED))
+// 		n = FIELD_GET(IEEE80211_HT_MCS_TX_MAX_STREAMS_MASK,
+// 			      mcs->tx_params);
+// 	else if (mcs->rx_mask[3])
+// 		n = 3;
+// 	else if (mcs->rx_mask[2])
+// 		n = 2;
+// 	else if (mcs->rx_mask[1])
+// 		n = 1;
 
-	he = (struct bss_info_uni_he *)tlv;
-	he->he_pe_duration = vif->bss_conf.htc_trig_based_pkt_ext;
-	if (!he->he_pe_duration)
-		he->he_pe_duration = DEFAULT_HE_PE_DURATION;
-
-	he->he_rts_thres = cpu_to_le16(vif->bss_conf.frame_time_rts_th);
-	if (!he->he_rts_thres)
-		he->he_rts_thres = cpu_to_le16(DEFAULT_HE_DURATION_RTS_THRES);
-
-	he->max_nss_mcs[CMD_HE_MCS_BW80] = cap->he_mcs_nss_supp.tx_mcs_80;
-	he->max_nss_mcs[CMD_HE_MCS_BW160] = cap->he_mcs_nss_supp.tx_mcs_160;
-	he->max_nss_mcs[CMD_HE_MCS_BW8080] = cap->he_mcs_nss_supp.tx_mcs_80p80;
-}
+// 	bf->nrow = hweight8(phy->mt76->chainmask) - 1;
+// 	bf->ncol = min_t(u8, bf->nrow, n);
+// 	bf->ibf_ncol = n;
+// }
 
 
+// static void
+// mt7902_mcu_bss_he_tlv(struct sk_buff *skb, struct ieee80211_vif *vif,
+// 		      struct mt792x_phy *phy)
+// {
+// #define DEFAULT_HE_PE_DURATION		4
+// #define DEFAULT_HE_DURATION_RTS_THRES	1023
+// 	const struct ieee80211_sta_he_cap *cap;
+// 	struct bss_info_uni_he *he;
+// 	struct tlv *tlv;
 
-static void
-mt7902_mcu_sta_bfer_vht(struct ieee80211_sta *sta, struct mt7902_phy *phy,
-			struct sta_rec_bf *bf, bool explicit)
-{
-	struct ieee80211_sta_vht_cap *pc = &sta->vht_cap;
-	struct ieee80211_sta_vht_cap *vc = &phy->mt76->sband_5g.sband.vht_cap;
-	u16 mcs_map = le16_to_cpu(pc->vht_mcs.rx_mcs_map);
-	u8 nss_mcs = mt7902_mcu_get_sta_nss(mcs_map);
-	u8 tx_ant = hweight8(phy->mt76->chainmask) - 1;
+// 	cap = mt76_connac_get_he_phy_cap(phy->mt76, vif);
 
-	bf->tx_mode = MT_PHY_TYPE_VHT;
+// 	tlv = mt7902_mcu_add_uni_tlv(skb, UNI_BSS_INFO_HE_BASIC, sizeof(*he));
 
-	if (explicit) {
-		u8 sts, snd_dim;
+// 	he = (struct bss_info_uni_he *)tlv;
+// 	he->he_pe_duration = vif->bss_conf.htc_trig_based_pkt_ext;
+// 	if (!he->he_pe_duration)
+// 		he->he_pe_duration = DEFAULT_HE_PE_DURATION;
 
-		mt7902_mcu_sta_sounding_rate(bf);
+// 	he->he_rts_thres = cpu_to_le16(vif->bss_conf.frame_time_rts_th);
+// 	if (!he->he_rts_thres)
+// 		he->he_rts_thres = cpu_to_le16(DEFAULT_HE_DURATION_RTS_THRES);
 
-		sts = FIELD_GET(IEEE80211_VHT_CAP_BEAMFORMEE_STS_MASK,
-				pc->cap);
-		snd_dim = FIELD_GET(IEEE80211_VHT_CAP_SOUNDING_DIMENSIONS_MASK,
-				    vc->cap);
-		bf->nrow = min_t(u8, min_t(u8, snd_dim, sts), tx_ant);
-		bf->ncol = min_t(u8, nss_mcs, bf->nrow);
-		bf->ibf_ncol = bf->ncol;
+// 	he->max_nss_mcs[CMD_HE_MCS_BW80] = cap->he_mcs_nss_supp.tx_mcs_80;
+// 	he->max_nss_mcs[CMD_HE_MCS_BW160] = cap->he_mcs_nss_supp.tx_mcs_160;
+// 	he->max_nss_mcs[CMD_HE_MCS_BW8080] = cap->he_mcs_nss_supp.tx_mcs_80p80;
+// }
 
-		if (sta->bandwidth == IEEE80211_STA_RX_BW_160)
-			bf->nrow = 1;
-	} else {
-		bf->nrow = tx_ant;
-		bf->ncol = min_t(u8, nss_mcs, bf->nrow);
-		bf->ibf_ncol = nss_mcs;
 
-		if (sta->bandwidth == IEEE80211_STA_RX_BW_160)
-			bf->ibf_nrow = 1;
-	}
-}
+
+// static void
+// mt7902_mcu_sta_bfer_vht(struct ieee80211_sta *sta, struct mt792x_phy *phy,
+// 			struct sta_rec_bf *bf, bool explicit)
+// {
+// 	struct ieee80211_sta_vht_cap *pc = &sta->vht_cap;
+// 	struct ieee80211_sta_vht_cap *vc = &phy->mt76->sband_5g.sband.vht_cap;
+// 	u16 mcs_map = le16_to_cpu(pc->vht_mcs.rx_mcs_map);
+// 	u8 nss_mcs = mt7902_mcu_get_sta_nss(mcs_map);
+// 	u8 tx_ant = hweight8(phy->mt76->chainmask) - 1;
+
+// 	bf->tx_mode = MT_PHY_TYPE_VHT;
+
+// 	if (explicit) {
+// 		u8 sts, snd_dim;
+
+// 		mt7902_mcu_sta_sounding_rate(bf);
+
+// 		sts = FIELD_GET(IEEE80211_VHT_CAP_BEAMFORMEE_STS_MASK,
+// 				pc->cap);
+// 		snd_dim = FIELD_GET(IEEE80211_VHT_CAP_SOUNDING_DIMENSIONS_MASK,
+// 				    vc->cap);
+// 		bf->nrow = min_t(u8, min_t(u8, snd_dim, sts), tx_ant);
+// 		bf->ncol = min_t(u8, nss_mcs, bf->nrow);
+// 		bf->ibf_ncol = bf->ncol;
+
+// 		if (sta->bandwidth == IEEE80211_STA_RX_BW_160)
+// 			bf->nrow = 1;
+// 	} else {
+// 		bf->nrow = tx_ant;
+// 		bf->ncol = min_t(u8, nss_mcs, bf->nrow);
+// 		bf->ibf_ncol = nss_mcs;
+
+// 		if (sta->bandwidth == IEEE80211_STA_RX_BW_160)
+// 			bf->ibf_nrow = 1;
+// 	}
+// }
 
