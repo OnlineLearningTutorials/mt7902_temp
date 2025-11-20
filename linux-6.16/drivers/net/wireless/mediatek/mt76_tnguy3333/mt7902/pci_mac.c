@@ -117,7 +117,7 @@ int mt7902e_mac_reset(struct mt792x_dev *dev)
 	if (err)
 		goto out;
 
-	err = __mt792x_start(&dev->phy);
+	err = __mt7902_start(&dev->phy);
 out:
 
 	napi_enable(&dev->mt76.tx_napi);

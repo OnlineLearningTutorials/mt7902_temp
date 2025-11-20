@@ -223,7 +223,7 @@ void mt7902_set_stream_he_caps(struct mt792x_phy *phy)
 	}
 }
 
-int __mt792x_start(struct mt792x_phy *phy)
+int __mt7902_start(struct mt792x_phy *phy)
 {
 	printk(KERN_DEBUG "main.c - __mt792x_start(phy)");
 	struct mt76_phy *mphy = phy->mt76;
@@ -267,16 +267,16 @@ int __mt792x_start(struct mt792x_phy *phy)
 
 	return 0;
 }
-EXPORT_SYMBOL_GPL(__mt792x_start);
+EXPORT_SYMBOL_GPL(__mt7902_start);
 
-static int mt792x_start(struct ieee80211_hw *hw)
+static int mt7902_start(struct ieee80211_hw *hw)
 {
 	printk(KERN_DEBUG "main.c - mt792x_start(hw)");
 	struct mt792x_phy *phy = mt792x_hw_phy(hw);
 	int err;
 
 	mt792x_mutex_acquire(phy->dev);
-	err = __mt792x_start(phy);
+	err = __mt7902_start(phy);
 	mt792x_mutex_release(phy->dev);
 
 	return err;
@@ -372,13 +372,13 @@ mt7902_add_interface(struct ieee80211_hw *hw, struct ieee80211_vif *vif)
 {
 	printk(KERN_DEBUG "main.c - mt7902_add_interface(hw, vif)");
 	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
-	struct mt792x_dev *dev = mt7902_hw_dev(hw);
-	struct mt792x_phy *phy = mt7902_hw_phy(hw);
+	struct mt792x_dev *dev = mt792x_hw_dev(hw);
+	struct mt792x_phy *phy = mt792x_hw_phy(hw);
 	struct mt76_txq *mtxq;
 	bool ext_phy = phy != &dev->phy;
 	int idx, ret = 0;
 
-	mutex_lock(&dev->mt76.mutex);
+	mt792x_mutex_acquire(dev);
 
 	mt76_testmode_reset(phy->mt76, true);
 
@@ -386,27 +386,28 @@ mt7902_add_interface(struct ieee80211_hw *hw, struct ieee80211_vif *vif)
 	// 	is_zero_ether_addr(vif->addr))
 	// 	phy->monitor_vif = vif;
 
-	// mvif->bss_conf.mt76.idx = __ffs64(~dev->mt76.vif_mask);
-	// if (mvif->bss_conf.mt76.idx >= (MT7902_MAX_INTERFACES << dev->dbdc_support)) {
-	// 	ret = -ENOSPC;
-	// 	goto out;
-	// }
-
-	idx = get_omac_idx(vif->type, phy->omac_mask);
-	if(idx < 0) {
+	mvif->bss_conf.mt76.idx = __ffs64(~dev->mt76.vif_mask);
+	if (mvif->bss_conf.mt76.idx >= MT792x_MAX_INTERFACES) {
 		ret = -ENOSPC;
 		goto out;
 	}
 
-	mvif->bss_conf.mt76.omac_idx = idx;
+	// idx = get_omac_idx(vif->type, phy->omac_mask);
+	// if(idx < 0) {
+	// 	ret = -ENOSPC;
+	// 	goto out;
+	// }
+
+	mvif->bss_conf.mt76.omac_idx = mvif->bss_conf.mt76.idx;
 	mvif->phy = phy;
-	//mvif->bss_conf.vif = mvif;
-	mvif->bss_conf.mt76.band_idx = phy->mt76->band_idx;
-	mvif->bss_conf.mt76.wcid = &mvif->sta.deflink.wcid;
-	
-	mvif->bss_conf.mt76.wmm_idx = vif->type != NL80211_IFTYPE_AP;
-	if(ext_phy)
-		mvif->bss_conf.mt76.wmm_idx += 2;
+	mvif->bss_conf.vif = mvif;
+	mvif->bss_conf.mt76.band_idx = 0; // phy->mt76->band_idx;
+	// mvif->bss_conf.mt76.wcid = &mvif->sta.deflink.wcid;
+	mvif->bss_conf.mt76.wmm_idx = mvif->bss_conf.mt76.idx % MT76_CONNAC_MAX_WMM_SETS;
+
+	// mvif->bss_conf.mt76.wmm_idx = vif->type != NL80211_IFTYPE_AP;
+	// if(ext_phy)
+	// 	mvif->bss_conf.mt76.wmm_idx += 2;
 
 	 // ret = mt76_connac_mcu_uni_add_dev(&dev->mphy, &vif->bss_conf,
 	 // 				  &mvif->bss_conf.mt76,
@@ -420,11 +421,13 @@ mt7902_add_interface(struct ieee80211_hw *hw, struct ieee80211_vif *vif)
 	dev->mt76.vif_mask |= BIT_ULL(mvif->bss_conf.mt76.idx);
 	phy->omac_mask |= BIT_ULL(mvif->bss_conf.mt76.omac_idx);
 
-	idx = mt76_wcid_alloc(dev->mt76.wcid_mask, mt7902_wtbl_size(dev));
-	if(idx < 0) {
-		ret = -ENOSPC;
-		goto out;
-	}
+	idx = MT792x_WTBL_RESERVED - mvif->bss_conf.mt76.idx;
+
+	// idx = mt76_wcid_alloc(dev->mt76.wcid_mask, mt7902_wtbl_size(dev));
+	// if(idx < 0) {
+	// 	ret = -ENOSPC;
+	// 	goto out;
+	// }
 
 	INIT_LIST_HEAD(&mvif->sta.deflink.wcid.poll_list);
 	mvif->sta.deflink.wcid.idx = idx;
@@ -441,7 +444,7 @@ mt7902_add_interface(struct ieee80211_hw *hw, struct ieee80211_vif *vif)
 		mtxq = (struct mt76_txq *)vif->txq->drv_priv;
 		mtxq->wcid = idx;
 	}
-
+/*
 	if(vif->type != NL80211_IFTYPE_AP && 
 		(!mvif->bss_conf.mt76.omac_idx || mvif->bss_conf.mt76.omac_idx > 3))
 		vif->offload_flags = 0;
@@ -453,16 +456,16 @@ mt7902_add_interface(struct ieee80211_hw *hw, struct ieee80211_vif *vif)
 	mt7902_mcu_add_bss_info(phy, vif, true);
 	mt7902_mcu_add_sta(dev, vif, NULL, CONN_STATE_PORT_SECURE, true);
 	rcu_assign_pointer(dev->mt76.wcid[idx], &mvif->sta.deflink.wcid);
+*/
 
-/*
 	vif->driver_flags |= IEEE80211_VIF_BEACON_FILTER;
 	if (phy->chip_cap & MT792x_CHIP_CAP_RSSI_NOTIFY_EVT_EN)
 		vif->driver_flags |= IEEE80211_VIF_SUPPORTS_CQM_RSSI;
 
 	INIT_WORK(&mvif->csa_work, mt7902_csa_work);
-	timer_setup(&mvif->csa_timer, mt792x_csa_timer, 0);  */
+	timer_setup(&mvif->csa_timer, mt792x_csa_timer, 0);  
 out:
-	mutex_unlock(&dev->mt76.mutex);
+	mt792x_mutex_release(dev);
 
 	return ret;
 }
@@ -962,11 +965,11 @@ static void mt7902_bss_info_changed(struct ieee80211_hw *hw,
 				    u64 changed)
 {
 	printk(KERN_DEBUG "main.c - mt7902_bss_info_changed(hw, vif, info, changed: 0x%x)", changed);
-	struct mt792x_phy *phy = mt7902_hw_phy(hw);
-	struct mt792x_dev *dev = mt7902_hw_dev(hw);
+	struct mt792x_phy *phy = mt792x_hw_phy(hw);
+	struct mt792x_dev *dev = mt792x_hw_dev(hw);
 	int set_bss_info = -1, set_sta = -1;
 
-	mutex_lock(&dev->mt76.mutex);
+	mt792x_mutex_acquire(dev);
 
 	/*
 	 * station mode uses BSSID to map the wlan entry to a peer,
@@ -1026,7 +1029,7 @@ static void mt7902_bss_info_changed(struct ieee80211_hw *hw,
 		       BSS_CHANGED_BEACON_ENABLED))
 		mt7902_mcu_add_beacon(hw, vif, changed);
 
-	mutex_unlock(&dev->mt76.mutex);
+	mt792x_mutex_release(dev);
 }
 
 static void
@@ -1284,7 +1287,7 @@ mt7902_ampdu_action(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
 	return ret;
 }
 
-static int mt792x_sta_state(struct ieee80211_hw *hw,
+static int mt7902_sta_state(struct ieee80211_hw *hw,
 			    struct ieee80211_vif *vif,
 			    struct ieee80211_sta *sta,
 			    enum ieee80211_sta_state old_state,
@@ -1365,7 +1368,7 @@ mt7902_cancel_hw_scan(struct ieee80211_hw *hw, struct ieee80211_vif *vif)
 }
 
 static int
-mt792x_start_sched_scan(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
+mt7902_start_sched_scan(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
 			struct cfg80211_sched_scan_request *req,
 			struct ieee80211_scan_ies *ies)
 {
@@ -1489,7 +1492,7 @@ static void mt7902_set_rekey_data(struct ieee80211_hw *hw,
 }*/
 #endif /* CONFIG_PM */
 
-static void mt792x_sta_set_decap_offload(struct ieee80211_hw *hw,
+static void mt7902_sta_set_decap_offload(struct ieee80211_hw *hw,
 					 struct ieee80211_vif *vif,
 					 struct ieee80211_sta *sta,
 					 bool enabled)
@@ -1627,7 +1630,7 @@ mt7902_channel_switch_beacon(struct ieee80211_hw *hw,
 }
 
 static int
-mt792x_start_ap(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
+mt7902_start_ap(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
 		struct ieee80211_bss_conf *link_conf)
 {
 	printk(KERN_DEBUG "main.c - mt792x_start_ap");
@@ -1860,7 +1863,7 @@ static void mt7902_rfkill_poll(struct ieee80211_hw *hw)
 
 const struct ieee80211_ops mt7902_ops = {
 	.tx = mt792x_tx,
-	.start = mt792x_start,
+	.start = mt7902_start,
 	.stop = mt7902_stop,
 	.add_interface = mt7902_add_interface,
 	.remove_interface = mt792x_remove_interface,
@@ -1868,12 +1871,12 @@ const struct ieee80211_ops mt7902_ops = {
 	.conf_tx = mt792x_conf_tx,
 	.configure_filter = mt7902_configure_filter,
 	.bss_info_changed = mt7902_bss_info_changed,
-	.start_ap = mt792x_start_ap,
+	.start_ap = mt7902_start_ap,
 	.stop_ap = mt7902_stop_ap,
-	.sta_state = mt792x_sta_state,
+	.sta_state = mt7902_sta_state,
 	.sta_pre_rcu_remove = mt76_sta_pre_rcu_remove,
 	.set_key = mt7902_set_key,
-	.sta_set_decap_offload = mt792x_sta_set_decap_offload,
+	.sta_set_decap_offload = mt7902_sta_set_decap_offload,
 #if IS_ENABLED(CONFIG_IPV6)
 	//.ipv6_addr_change = mt7902_ipv6_addr_change,
 #endif /* CONFIG_IPV6 */
@@ -1896,7 +1899,7 @@ const struct ieee80211_ops mt7902_ops = {
 	.hw_scan = mt7902_hw_scan,
 	.cancel_hw_scan = mt7902_cancel_hw_scan,
 	.sta_statistics = mt792x_sta_statistics,
-	.sched_scan_start = mt792x_start_sched_scan,
+	.sched_scan_start = mt7902_start_sched_scan,
 	.sched_scan_stop = mt7902_stop_sched_scan,
 	CFG80211_TESTMODE_CMD(mt7902_testmode_cmd)
 	CFG80211_TESTMODE_DUMP(mt7902_testmode_dump)

@@ -659,7 +659,7 @@ mt792x_vif_connect_iter(void *priv, u8 *mac,
 	// 			    &mvif->bss_conf.mt76,
 	// 			    &mvif->sta.deflink.wcid, true);
 
-    u32 ret = mt7902_mcu_add_dev_info(&dev->mphy, &vif->bss_conf, &mvif->mt76,
+    u32 ret = mt7902_mcu_add_dev_info(&dev->mphy, &vif->bss_conf, 
                     true);
 
     printk(KERN_DEBUG "vif_connect_iter: add dev info ret = %d\n", ret);
@@ -722,9 +722,9 @@ void mt7902_mac_reset_work(struct work_struct *work)
 	clear_bit(MT76_RESET, &dev->mphy.state);
 	pm->suspended = false;
 	ieee80211_wake_queues(hw);
-	/* ieee80211_iterate_active_interfaces(hw,
-					    IEEE80211_IFACE_ITER_RESUME_ALL,
-					    mt792x_vif_connect_iter, NULL); */
+	// ieee80211_iterate_active_interfaces(hw,
+	// 				    IEEE80211_IFACE_ITER_RESUME_ALL,
+	// 				    mt792x_vif_connect_iter, NULL);
 	mt76_connac_power_save_sched(&dev->mt76.phy, pm);
 }
 

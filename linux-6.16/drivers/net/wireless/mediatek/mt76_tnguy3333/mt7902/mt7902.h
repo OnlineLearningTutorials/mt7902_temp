@@ -199,7 +199,7 @@ extern const struct ieee80211_ops mt7902_ops;
 
 u32 mt7902_reg_map(struct mt792x_dev *dev, u32 addr);
 
-int __mt792x_start(struct mt792x_phy *phy);
+int __mt7902_start(struct mt792x_phy *phy);
 int mt7902_register_device(struct mt792x_dev *dev);
 void mt7902_unregister_device(struct mt792x_dev *dev);
 int mt7902_firmware_state(struct mt792x_dev *dev, bool wa);
