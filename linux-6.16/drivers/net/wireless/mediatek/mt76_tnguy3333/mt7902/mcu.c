@@ -1742,51 +1742,7 @@ static inline u8 mt7902_get_band(enum nl80211_band band)
 };
 
 
-int mt7902_mcu_add_bss_info(struct mt792x_phy *phy,
-			    struct ieee80211_vif *vif, int enable)
-{
-	printk(KERN_DEBUG "mcu.c - mt7902_mcu_add_bss_info(phy, vif, enable: %d)", enable);
-	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
-	struct mt792x_dev *dev = phy->dev;
-	struct sk_buff *skb;
 
-
-	// if (mvif->omac_idx >= REPEATER_BSSID_START) {
-	// 	mt7902_mcu_muar_config(phy, vif, false, enable);
-	// 	mt7902_mcu_muar_config(phy, vif, true, enable);
-	// }
-	
-	skb = __mt76_connac_mcu_alloc_sta_req(&dev->mt76, &mvif->bss_conf.mt76, NULL,
-					      MT7902_BSS_UPDATE_MAX_SIZE);
-	if (IS_ERR(skb))
-		return PTR_ERR(skb);
-
-	/* bss_basic must be first */
-	mt76_connac_mcu_bss_basic_tlv(skb, vif, NULL, phy->mt76,
-				      mvif->sta.deflink.wcid.idx, enable);
-	//mt7902_mcu_bss_basic_tlv(skb, vif, NULL, phy->mt76,
-	//			mvif->sta.deflink.wcid.idx, enable);
-	mt7902_mcu_bss_sec_tlv(skb, vif);        //7925
-
-	if (vif->type == NL80211_IFTYPE_MONITOR)
-		goto out;
-
-	if (enable) {
-		mt7902_mcu_bss_rfch_tlv(skb, vif, phy);  //7915
-		mt7902_mcu_bss_bmc_tlv(skb, phy);   //7925
-		mt7902_mcu_bss_ra_tlv(skb, vif, phy);   //7915
-		mt7902_mcu_bss_txcmd_tlv(skb, true);   //7996
-
-		// if (vif->bss_conf.he_support)
-		// 	mt7902_mcu_bss_he_tlv(skb, vif, phy);   //7925
-
-		/* all mt7902 ic need this tlv, no matter it supports EHT or not */
-		mt7902_mcu_bss_mld_tlv(skb);   //7925
-	}
-out:
-	return mt76_mcu_skb_send_msg(&dev->mt76, skb,
-				     MCU_EXT_CMD(BSS_INFO_UPDATE), true);
-};
 
 
 static int
@@ -1920,27 +1876,7 @@ mt7902_mcu_bss_rfch_tlv(struct sk_buff *skb, struct ieee80211_vif *vif,
 }
 
 
-static void
-mt7902_mcu_bss_bmc_tlv(struct sk_buff *skb, struct mt792x_phy *phy)
-{
-	struct bss_rate_tlv *bmc;
-	struct cfg80211_chan_def *chandef = &phy->mt76->chandef;
-	enum nl80211_band band = chandef->chan->band;
-	struct tlv *tlv;
 
-	tlv = mt76_connac_mcu_add_tlv(skb, UNI_BSS_INFO_RATE, sizeof(*bmc));
-
-	bmc = (struct bss_rate_tlv *)tlv;
-	if (band == NL80211_BAND_2GHZ) {
-		bmc->short_preamble = true;
-	} else {
-		bmc->bc_trans = cpu_to_le16(0x8080);
-		bmc->mc_trans = cpu_to_le16(0x8080);
-		bmc->bc_fixed_rate = 1;
-		bmc->mc_fixed_rate = 1;
-		bmc->short_preamble = 1;
-	}
-}
 
 static void
 mt7902_mcu_bss_ra_tlv(struct sk_buff *skb, struct ieee80211_vif *vif,
@@ -1968,6 +1904,117 @@ mt7902_mcu_bss_ra_tlv(struct sk_buff *skb, struct ieee80211_vif *vif,
 	ra->fast_interval = cpu_to_le32(100);
 }
 
+static void
+mt7902_mcu_bss_he_tlv(struct sk_buff *skb, struct ieee80211_vif *vif,
+		      struct mt792x_phy *phy)
+{
+#define DEFAULT_HE_PE_DURATION		4
+#define DEFAULT_HE_DURATION_RTS_THRES	1023
+	const struct ieee80211_sta_he_cap *cap;
+	struct bss_info_he *he;
+	struct tlv *tlv;
+
+	cap = mt76_connac_get_he_phy_cap(phy->mt76, vif);
+
+	tlv = mt76_connac_mcu_add_tlv(skb, BSS_INFO_HE_BASIC, sizeof(*he));
+
+	he = (struct bss_info_he *)tlv;
+	he->he_pe_duration = vif->bss_conf.htc_trig_based_pkt_ext;
+	if (!he->he_pe_duration)
+		he->he_pe_duration = DEFAULT_HE_PE_DURATION;
+
+	he->he_rts_thres = cpu_to_le16(vif->bss_conf.frame_time_rts_th);
+	if (!he->he_rts_thres)
+		he->he_rts_thres = cpu_to_le16(DEFAULT_HE_DURATION_RTS_THRES);
+
+	he->max_nss_mcs[CMD_HE_MCS_BW80] = cap->he_mcs_nss_supp.tx_mcs_80;
+	he->max_nss_mcs[CMD_HE_MCS_BW160] = cap->he_mcs_nss_supp.tx_mcs_160;
+	he->max_nss_mcs[CMD_HE_MCS_BW8080] = cap->he_mcs_nss_supp.tx_mcs_80p80;
+}
+
+static void
+mt7902_mcu_bss_hw_amsdu_tlv(struct sk_buff *skb)
+{
+#define TXD_CMP_MAP1		GENMASK(15, 0)
+#define TXD_CMP_MAP2		(GENMASK(31, 0) & ~BIT(23))
+	struct bss_info_hw_amsdu *amsdu;
+	struct tlv *tlv;
+
+	tlv = mt76_connac_mcu_add_tlv(skb, BSS_INFO_HW_AMSDU, sizeof(*amsdu));
+
+	amsdu = (struct bss_info_hw_amsdu *)tlv;
+	amsdu->cmp_bitmap_0 = cpu_to_le32(TXD_CMP_MAP1);
+	amsdu->cmp_bitmap_1 = cpu_to_le32(TXD_CMP_MAP2);
+	amsdu->trig_thres = cpu_to_le16(2);
+	amsdu->enable = true;
+}
+
+static void
+mt7902_mcu_bss_bmc_tlv(struct sk_buff *skb, struct mt792x_phy *phy)
+{
+	struct bss_info_bmc_rate *bmc;
+	struct cfg80211_chan_def *chandef = &phy->mt76->chandef;
+	enum nl80211_band band = chandef->chan->band;
+	struct tlv *tlv;
+
+	tlv = mt76_connac_mcu_add_tlv(skb, BSS_INFO_BMC_RATE, sizeof(*bmc));
+
+	bmc = (struct bss_info_bmc_rate *)tlv;
+	if (band == NL80211_BAND_2GHZ) {
+		bmc->short_preamble = true;
+	} else {
+		bmc->bc_trans = cpu_to_le16(0x2000);
+		bmc->mc_trans = cpu_to_le16(0x2080);
+	}
+}
+
+int mt7902_mcu_add_bss_info(struct mt792x_phy *phy,
+			    struct ieee80211_vif *vif, int enable)
+{
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_add_bss_info(phy, vif, enable: %d)", enable);
+	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
+	struct mt792x_dev *dev = phy->dev;
+	struct sk_buff *skb;
+
+
+	// if (mvif->omac_idx >= REPEATER_BSSID_START) {
+	// 	mt7902_mcu_muar_config(phy, vif, false, enable);
+	// 	mt7902_mcu_muar_config(phy, vif, true, enable);
+	// }
+	
+	skb = __mt76_connac_mcu_alloc_sta_req(&dev->mt76, &mvif->bss_conf.mt76, NULL,
+					      MT7902_BSS_UPDATE_MAX_SIZE);
+	if (IS_ERR(skb))
+		return PTR_ERR(skb);
+
+	/* bss_basic must be first */
+	mt76_connac_mcu_bss_basic_tlv(skb, vif, NULL, phy->mt76,
+				      mvif->sta.deflink.wcid.idx, enable);
+	//mt7902_mcu_bss_basic_tlv(skb, vif, NULL, phy->mt76,
+	//			mvif->sta.deflink.wcid.idx, enable);
+	mt7902_mcu_bss_sec_tlv(skb, vif);        //7925
+
+	if (vif->type == NL80211_IFTYPE_MONITOR)
+		goto out;
+
+	if (enable) {
+		mt7902_mcu_bss_rfch_tlv(skb, vif, phy);  //7915
+		mt7902_mcu_bss_bmc_tlv(skb, phy);   //7925
+		mt7902_mcu_bss_ra_tlv(skb, vif, phy);   //7915
+		mt7902_mcu_bss_hw_amsdu_tlv(skb);
+
+		mt7902_mcu_bss_txcmd_tlv(skb, true);   //7996
+
+		// if (vif->bss_conf.he_support)
+		// 	mt7902_mcu_bss_he_tlv(skb, vif, phy);   //7925
+
+		/* all mt7902 ic need this tlv, no matter it supports EHT or not */
+		mt7902_mcu_bss_mld_tlv(skb);   //7925
+	}
+out:
+	return mt76_mcu_skb_send_msg(&dev->mt76, skb,
+				     MCU_EXT_CMD(BSS_INFO_UPDATE), true);
+};
 
 static void
 mt7902_mcu_bss_txcmd_tlv(struct sk_buff *skb, bool en)
@@ -2894,33 +2941,7 @@ out:
 // }
 
 
-// static void
-// mt7902_mcu_bss_he_tlv(struct sk_buff *skb, struct ieee80211_vif *vif,
-// 		      struct mt792x_phy *phy)
-// {
-// #define DEFAULT_HE_PE_DURATION		4
-// #define DEFAULT_HE_DURATION_RTS_THRES	1023
-// 	const struct ieee80211_sta_he_cap *cap;
-// 	struct bss_info_uni_he *he;
-// 	struct tlv *tlv;
 
-// 	cap = mt76_connac_get_he_phy_cap(phy->mt76, vif);
-
-// 	tlv = mt7902_mcu_add_uni_tlv(skb, UNI_BSS_INFO_HE_BASIC, sizeof(*he));
-
-// 	he = (struct bss_info_uni_he *)tlv;
-// 	he->he_pe_duration = vif->bss_conf.htc_trig_based_pkt_ext;
-// 	if (!he->he_pe_duration)
-// 		he->he_pe_duration = DEFAULT_HE_PE_DURATION;
-
-// 	he->he_rts_thres = cpu_to_le16(vif->bss_conf.frame_time_rts_th);
-// 	if (!he->he_rts_thres)
-// 		he->he_rts_thres = cpu_to_le16(DEFAULT_HE_DURATION_RTS_THRES);
-
-// 	he->max_nss_mcs[CMD_HE_MCS_BW80] = cap->he_mcs_nss_supp.tx_mcs_80;
-// 	he->max_nss_mcs[CMD_HE_MCS_BW160] = cap->he_mcs_nss_supp.tx_mcs_160;
-// 	he->max_nss_mcs[CMD_HE_MCS_BW8080] = cap->he_mcs_nss_supp.tx_mcs_80p80;
-// }
 
 
 
