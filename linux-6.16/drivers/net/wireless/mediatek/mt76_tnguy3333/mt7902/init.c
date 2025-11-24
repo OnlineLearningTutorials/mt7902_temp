@@ -58,6 +58,8 @@ static int mt7902_thermal_init(struct mt792x_phy *phy)
 			      wiphy_name(wiphy));
 	if (!name)
 		return -ENOMEM;
+	else 
+		printk(KERN_DEBUG "init.c - mt7902_thermal_init(phy) - %s", name);
 
 	hwmon = devm_hwmon_device_register_with_groups(&wiphy->dev, name, phy,
 						       mt7902_hwmon_groups);

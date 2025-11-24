@@ -212,14 +212,13 @@ void mt7902_set_stream_he_caps(struct mt792x_phy *phy)
 
 		band = &phy->mt76->sband_5g.sband;
 		_ieee80211_set_sband_iftype_data(band, data, n);
+	}
+	if (phy->mt76->cap.has_6ghz) {
+		data = phy->iftype[NL80211_BAND_6GHZ];
+		n = mt7902_init_he_caps(phy, NL80211_BAND_6GHZ, data);
 
-		if (phy->mt76->cap.has_6ghz) {
-			data = phy->iftype[NL80211_BAND_6GHZ];
-			n = mt7902_init_he_caps(phy, NL80211_BAND_6GHZ, data);
-
-			band = &phy->mt76->sband_6g.sband;
-			_ieee80211_set_sband_iftype_data(band, data, n);
-		}
+		band = &phy->mt76->sband_6g.sband;
+		_ieee80211_set_sband_iftype_data(band, data, n);
 	}
 }
 
@@ -380,11 +379,11 @@ mt7902_add_interface(struct ieee80211_hw *hw, struct ieee80211_vif *vif)
 
 	mt792x_mutex_acquire(dev);
 
-	mt76_testmode_reset(phy->mt76, true);
+	// mt76_testmode_reset(phy->mt76, true);
 
 	// if(vif->type == NL80211_IFTYPE_MONITOR &&
 	// 	is_zero_ether_addr(vif->addr))
-	// 	phy->monitor_vif = vif;
+	// 	phy->mt76->roc_vif = vif;
 
 	mvif->bss_conf.mt76.idx = __ffs64(~dev->mt76.vif_mask);
 	if (mvif->bss_conf.mt76.idx >= MT792x_MAX_INTERFACES) {
@@ -413,10 +412,16 @@ mt7902_add_interface(struct ieee80211_hw *hw, struct ieee80211_vif *vif)
 	 // 				  &mvif->bss_conf.mt76,
 	 // 				  &mvif->sta.deflink.wcid, true);
 
-    ret = mt7902_mcu_add_dev_info(phy, vif, true);
+    	//ret = mt7902_mcu_add_dev_info(phy, vif, true);
+	ret = mt7902_mcu_add_dev_info(&dev->mphy, &vif->bss_conf, &mvif->bss_conf.mt76,
+					  true);
     printk(KERN_INFO "add_interface: add dev info, ret=%d\n", ret);
 	if (ret)
 		goto out;
+
+	// ret = mt7902_mcu_set_radio_en(phy, mvif, true);
+	// if (ret)
+	// 	goto out;
 
 	dev->mt76.vif_mask |= BIT_ULL(mvif->bss_conf.mt76.idx);
 	phy->omac_mask |= BIT_ULL(mvif->bss_conf.mt76.omac_idx);
@@ -444,19 +449,18 @@ mt7902_add_interface(struct ieee80211_hw *hw, struct ieee80211_vif *vif)
 		mtxq = (struct mt76_txq *)vif->txq->drv_priv;
 		mtxq->wcid = idx;
 	}
-/*
-	if(vif->type != NL80211_IFTYPE_AP && 
-		(!mvif->bss_conf.mt76.omac_idx || mvif->bss_conf.mt76.omac_idx > 3))
-		vif->offload_flags = 0;
-	vif->offload_flags |= IEEE80211_OFFLOAD_ENCAP_4ADDR;
+
+	// if(vif->type != NL80211_IFTYPE_AP && 
+	// 	(!mvif->bss_conf.mt76.omac_idx || mvif->bss_conf.mt76.omac_idx > 3))
+	// 	vif->offload_flags = 0;
+	// vif->offload_flags |= IEEE80211_OFFLOAD_ENCAP_4ADDR;
 
 	// mt7902_init_bitrate_mask(vif);
 	// memset(&mvif->cap, -1, sizeof(mvif->cap));
 
-	mt7902_mcu_add_bss_info(phy, vif, true);
-	mt7902_mcu_add_sta(dev, vif, NULL, CONN_STATE_PORT_SECURE, true);
-	rcu_assign_pointer(dev->mt76.wcid[idx], &mvif->sta.deflink.wcid);
-*/
+	// mt7902_mcu_add_bss_info(phy, vif, true);
+	// mt7902_mcu_add_sta(dev, vif, NULL, CONN_STATE_PORT_SECURE, true);
+
 
 	vif->driver_flags |= IEEE80211_VIF_BEACON_FILTER;
 	if (phy->chip_cap & MT792x_CHIP_CAP_RSSI_NOTIFY_EVT_EN)
@@ -975,18 +979,18 @@ static void mt7902_bss_info_changed(struct ieee80211_hw *hw,
 	 * station mode uses BSSID to map the wlan entry to a peer,
 	 * and then peer references bss_info_rfch to set bandwidth cap.
 	 */
-	if (changed & BSS_CHANGED_BSSID &&
-	    vif->type == NL80211_IFTYPE_STATION) {
-		bool join = !is_zero_ether_addr(info->bssid);
+	// if (changed & BSS_CHANGED_BSSID &&
+	//     vif->type == NL80211_IFTYPE_STATION) {
+	// 	bool join = !is_zero_ether_addr(info->bssid);
 			
-		mt7902_mcu_add_bss_info(phy, vif, join);
-		mt7902_mcu_add_sta(dev, vif, NULL, CONN_STATE_PORT_SECURE, join);
-	}
+	// 	mt7902_mcu_add_bss_info(phy, vif, join);
+	// 	mt7902_mcu_add_sta(dev, vif, NULL, CONN_STATE_PORT_SECURE, join);
+	// }
 		
-	if (changed & BSS_CHANGED_ASSOC) {
-		mt7902_mcu_add_bss_info(phy, vif, true);
-		mt7902_mcu_add_obss_spr(dev, vif, info->he_obss_pd.enable);
-	}
+	// if (changed & BSS_CHANGED_ASSOC) {
+	// 	mt7902_mcu_add_bss_info(phy, vif, true);
+	// 	mt7902_mcu_add_obss_spr(dev, vif, info->he_obss_pd.enable);
+	// }
 /*
 	if (changed & BSS_CHANGED_BEACON_ENABLED &&
 	    info->enable_beacon &&
@@ -1010,24 +1014,34 @@ static void mt7902_bss_info_changed(struct ieee80211_hw *hw,
 		}
 	}
 
-	if(changed & BSS_CHANGED_BEACON_ENABLED && info->enable_beacon) {
-		mt7902_mcu_add_bss_info(phy, vif, true);
-		mt7902_mcu_add_sta(dev, vif, NULL, CONN_STATE_PORT_SECURE, true);
-	}
+	// if(changed & BSS_CHANGED_BEACON_ENABLED && info->enable_beacon) {
+	// 	mt7902_mcu_add_bss_info(phy, vif, true);
+	// 	mt7902_mcu_add_sta(dev, vif, NULL, CONN_STATE_PORT_SECURE, true);
+	// }
 
 	/* ensure that enable txcmd_mode after bss_info */
 	if (changed & (BSS_CHANGED_QOS | BSS_CHANGED_BEACON_ENABLED))
 		mt7902_mcu_set_tx(dev, vif);
 
-	if (changed & BSS_CHANGED_HE_OBSS_PD)
-		mt7902_mcu_add_obss_spr(dev, vif, &info->he_obss_pd);
+	
+	if (changed & BSS_CHANGED_CQM)
+		mt7902_mcu_set_rssimonitor(dev, vif);
 
-	if (changed & BSS_CHANGED_HE_BSS_COLOR)
-		mt7902_update_bss_color(hw, vif, &info->he_bss_color);
+	if (changed & BSS_CHANGED_ASSOC) {
+		mt7902_mcu_sta_update(dev, NULL, vif, true,
+				      MT76_STA_INFO_STATE_ASSOC);
+		mt7902_mcu_set_beacon_filter(dev, vif, vif->cfg.assoc);
+	}
 
-	if (changed & (BSS_CHANGED_BEACON |
-		       BSS_CHANGED_BEACON_ENABLED))
-		mt7902_mcu_add_beacon(hw, vif, changed);
+	// if (changed & BSS_CHANGED_HE_OBSS_PD)
+	// 	mt7902_mcu_add_obss_spr(dev, vif, &info->he_obss_pd);
+
+	// if (changed & BSS_CHANGED_HE_BSS_COLOR)
+	// 	mt7902_update_bss_color(hw, vif, &info->he_bss_color);
+
+	// if (changed & (BSS_CHANGED_BEACON |
+	// 	       BSS_CHANGED_BEACON_ENABLED))
+	// 	mt7902_mcu_add_beacon(hw, vif, changed);
 
 	mt792x_mutex_release(dev);
 }

@@ -1,7 +1,7 @@
-
-pci.c - mt7902_pci_probe  =============================================================================================================================================================================================================================
+c - mt7902_pci_probe  =============================================================================================================================================================================================================================
 mt7902e 0000:03:00.0: enabling device (0000 -> 0002)
 mt7902e 0000:03:00.0: ASIC revision: 79020000
+mt792x_wfsys_reset
 pci.c - mt7902_dma_init(dev)
 init.c - mt7902_register_device(dev)
 init.c - mt7902_init_work(work)
@@ -16,7 +16,7 @@ mcu.c - mt7902_load_firmware - load_patch
 mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10, skb, seq: 1)
 mt7902e 0000:03:00.0: HW/SW Version: 0x8a108a10, Build Time: 20220729160652a
 
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 2)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 5, skb, seq: 2)
 mcu.c - mt7902_mcu_parse_response(mdev, cmd: 7, skb, seq: 2)
 mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10, skb, seq: 3)
 mcu.c - mt7902_load_firmware - load_ram
@@ -25,208 +25,442 @@ mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 4)
 mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 15)
 mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 12)
 mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2, skb, seq: 1)
-mt7902e 0000:03:00.0: Message 00000002 (seq 1) timeout
-mt7902e 0000:03:00.0: Failed to start WM firmware
-pci.c - mt7902e_init_reset
-init.c - __mt7902_init_hardware(dev)
-pci_mcu.c - mt7902e_mcu_init(dev)
+mcu.c - mt7902_mcu_get_nic_capability(mphy)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 4008a, skb, seq: 2)
+mcu.c - mt7902_mcu_parse_phy_cap(dev, skb)
+mcu.c - mt7902_load_clc(dev, fw_name: mediatek/WIFI_RAM_CODE_MT7902_1.bin)
+mcu.c - mt7902_mcu_read_eeprom(dev, offset: 0x0000055b, val: 0x40623d87)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 101ed, skb, seq: 3)
+mcu.c - mt7902_mcu_fw_log_2_host(dev, ctrl: 0x01)
+mcu.c - mt7902_mcu_set_eeprom(dev)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 21ed, skb, seq: 5)
+init.c - mt7902_mac_init(dev)
+mac.c - mt7902_mac_wtbl_update(dev, idx: 0, mask: 0x00001000)
+mac.c - mt7902_mac_wtbl_update(dev, idx: 1, mask: 0x00001000)
+mac.c - mt7902_mac_wtbl_update(dev, idx: 2, mask: 0x00001000)
+mac.c - mt7902_mac_wtbl_update(dev, idx: 3, mask: 0x00001000)
+mac.c - mt7902_mac_wtbl_update(dev, idx: 4, mask: 0x00001000)
+mac.c - mt7902_mac_wtbl_update(dev, idx: 5, mask: 0x00001000)
+mac.c - mt7902_mac_wtbl_update(dev, idx: 6, mask: 0x00001000)
+mac.c - mt7902_mac_wtbl_update(dev, idx: 7, mask: 0x00001000)
+mac.c - mt7902_mac_wtbl_update(dev, idx: 8, mask: 0x00001000)
+mac.c - mt7902_mac_wtbl_update(dev, idx: 9, mask: 0x00001000)
+mac.c - mt7902_mac_wtbl_update(dev, idx: 10, mask: 0x00001000)
+mac.c - mt7902_mac_wtbl_update(dev, idx: 11, mask: 0x00001000)
+mac.c - mt7902_mac_wtbl_update(dev, idx: 12, mask: 0x00001000)
+mac.c - mt7902_mac_wtbl_update(dev, idx: 13, mask: 0x00001000)
+mac.c - mt7902_mac_wtbl_update(dev, idx: 14, mask: 0x00001000)
+mac.c - mt7902_mac_wtbl_update(dev, idx: 15, mask: 0x00001000)
+mac.c - mt7902_mac_wtbl_update(dev, idx: 16, mask: 0x00001000)
+mac.c - mt7902_mac_wtbl_update(dev, idx: 17, mask: 0x00001000)
+mac.c - mt7902_mac_wtbl_update(dev, idx: 18, mask: 0x00001000)
+mac.c - mt7902_mac_wtbl_update(dev, idx: 19, mask: 0x00001000)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 3eed, skb, seq: 6)
+main.c - mt7902_set_stream_he_caps(phy)
+main.c - mt7902_init_he_caps(phy, band: 0, data)
+main.c - mt7902_init_he_caps(phy, band: 1, data)
+main.c - mt7902_init_he_caps(phy, band: 3, data)
+init.c - mt7902_regd_notifier(wiphy, request)
+init.c - mt7902_regd_update(dev)
+mcu.c - mt7902_mcu_set_clc(dev, alpha2: 0x160f7e20, env_cap)
+mcu.c - __mt7902_mcu_set_clc(dev, alpha2: 0x160f7e20, env_cap, clc, idx: 0x00)
+mcu.c - __mt7902_mcu_set_clc(dev, alpha2: 0x160f7e20, env_cap, clc, idx: 0x01)
+mcu.c - __mt7902_mcu_set_clc(dev, alpha2: 0x160f7e20, env_cap, clc, idx: 0x02)
+init.c - mt7902_regd_channel_update(wiphy, dev)
+main.c - mt7902_set_tx_sar_pwr(hw, sar)
+debugfs.c - mt7902_init_debugfs(dev)
+init.c - mt7902_thermal_init(phy)
+main.c - mt792x_start(hw)
+main.c - __mt792x_start(phy)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 46ed, skb, seq: 5)
+mcu.c - mt7902_mcu_set_chan_info(phy, cmd: 20205)
+init.c - mt7902_thermal_temp_show(dev, attr, buf)
+init.c - mt7902_thermal_temp_show(dev, attr, buf)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 4eed, skb, seq: 7)
+main.c - mt7902_set_tx_sar_pwr(hw, sar)
+mcu.c - mt7902_mcu_radio_led_ctrl(dev, value: 0x01)
+mcu.c - mt7902_mcu_radio_led_ctrl(dev, value: 0x02)
+main.c - mt7902_add_interface(hw, vif)
+mcu.c - mt7902_mcu_add_dev_info(phy, bss_conf, mvif, enable: 1)
+mcu.c - mt7902_mcu_low_power_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2aed, skb, seq: 6)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2aed, skb, seq: 6)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2aed, skb, seq: 6)
+add_interface: add dev info, ret=0
+mac.c - mt7902_mac_wtbl_update(dev, idx: 19, mask: 0x00001000)
+main.c - mt7902_bss_info_changed(hw, vif, info, changed: 0xe)
+mcu.c - mt7902_mcu_get_temperature(phy)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2ced, skb, seq: 7)
+init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 45
+mcu.c - mt7902_mcu_get_temperature(phy)
+mcu.c - mt7902_mcu_low_power_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2ced, skb, seq: 8)
+init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 45
+main.c - mt7902_bss_info_changed(hw, vif, info, changed: 0x2000)
+mcu.c - mt7902_mcu_set_tx(dev, vif)
+main.c - mt7902_config(hw, changed: 0xfffffffd)
+main.c - mt7902_set_channel(mphy)
+mcu.c - mt7902_mcu_set_chan_info(phy, cmd: 2285)
+mcu.c - mt7902_mcu_low_power_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 8ed, skb, seq: 10)
+main.c - mt7902_set_tx_sar_pwr(hw, sar)
+main.c - mt7902_configure_filter(hw, changed_flags, total_flags, multicast: 0x0)
+mcu.c - mt7902_mcu_set_rxfilter(dev, fif: 0x80000000, bit_op: 0x00, bit_map: 0x00000000)
+main.c - mt7902_config(hw, changed: 0x10)
+main.c - mt7902_configure_filter(hw, changed_flags, total_flags, multicast: 0x0)
+mcu.c - mt7902_mcu_set_rxfilter(dev, fif: 0x80000000, bit_op: 0x00, bit_map: 0x00000000)
+mac_link_bss_remove
+main.c - mt7902_stop
+mcu.c - mt7902_mcu_radio_led_ctrl(dev, value: 0x03)
+main.c - mt792x_start(hw)
+main.c - __mt792x_start(phy)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 46ed, skb, seq: 10)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 46ed, skb, seq: 10)
+mcu.c - mt7902_mcu_set_chan_info(phy, cmd: 20205)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 4eed, skb, seq: 12)
+main.c - mt7902_set_tx_sar_pwr(hw, sar)
+mcu.c - mt7902_mcu_radio_led_ctrl(dev, value: 0x01)
+mcu.c - mt7902_mcu_radio_led_ctrl(dev, value: 0x02)
+main.c - mt7902_add_interface(hw, vif)
+mcu.c - mt7902_mcu_add_dev_info(phy, bss_conf, mvif, enable: 1)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2aed, skb, seq: 11)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2aed, skb, seq: 11)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2aed, skb, seq: 11)
+add_interface: add dev info, ret=0
+mac.c - mt7902_mac_wtbl_update(dev, idx: 19, mask: 0x00001000)
+main.c - mt7902_bss_info_changed(hw, vif, info, changed: 0xe)
+main.c - mt7902_bss_info_changed(hw, vif, info, changed: 0x2000)
+mcu.c - mt7902_mcu_set_tx(dev, vif)
+main.c - mt7902_config(hw, changed: 0xffffff9d)
+main.c - mt7902_configure_filter(hw, changed_flags, total_flags, multicast: 0x0)
+mcu.c - mt7902_mcu_set_rxfilter(dev, fif: 0x80000000, bit_op: 0x00, bit_map: 0x00000000)
+main.c - mt7902_config(hw, changed: 0x10)
+main.c - mt7902_configure_filter(hw, changed_flags, total_flags, multicast: 0x0)
+mcu.c - mt7902_mcu_set_rxfilter(dev, fif: 0x80000000, bit_op: 0x00, bit_map: 0x00000000)
+main.c - mt7902_hw_scan(hw, vif, req)
+main.c - mt7902_configure_filter(hw, changed_flags, total_flags, multicast: 0x0)
+mcu.c - mt7902_mcu_set_rxfilter(dev, fif: 0x80000000, bit_op: 0x00, bit_map: 0x00000000)
+init.c - mt7902_thermal_temp_show(dev, attr, buf)
+mcu.c - mt7902_mcu_get_temperature(phy)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2ced, skb, seq: 2)
+init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 45
+init.c - mt7902_thermal_temp_show(dev, attr, buf)
+mcu.c - mt7902_mcu_get_temperature(phy)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2ced, skb, seq: 3)
+init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 45
+mcu.c - mt7902_mcu_scan_event
+mcu.c - mt7902_mcu_low_power_event(dev, skb)
+main.c - mt7902_scan_work(work)
+main.c - mt7902_hw_scan(hw, vif, req)
+init.c - mt7902_thermal_temp_show(dev, attr, buf)
+mcu.c - mt7902_mcu_get_temperature(phy)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2ced, skb, seq: 5)
+init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 45
+init.c - mt7902_thermal_temp_show(dev, attr, buf)
+mcu.c - mt7902_mcu_get_temperature(phy)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2ced, skb, seq: 6)
+init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 45
+mcu.c - mt7902_mcu_scan_event
+mcu.c - mt7902_mcu_low_power_event(dev, skb)
+main.c - mt7902_scan_work(work)
+main.c - mt7902_hw_scan(hw, vif, req)
+mac.c - mt7902_mac_fill_rx(dev, skb)
+init.c - mt7902_thermal_temp_show(dev, attr, buf)
+mcu.c - mt7902_mcu_get_temperature(phy)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2ced, skb, seq: 8)
+init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 45
+init.c - mt7902_thermal_temp_show(dev, attr, buf)
+mcu.c - mt7902_mcu_get_temperature(phy)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2ced, skb, seq: 9)
+init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 45
+mac.c - mt7902_mac_fill_rx(dev, skb)
+mac.c - mt7902_mac_fill_rx(dev, skb)
+init.c - mt7902_thermal_temp_show(dev, attr, buf)
+mcu.c - mt7902_mcu_get_temperature(phy)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2ced, skb, seq: 10)
+init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 45
+mcu.c - mt7902_mcu_scan_event
+mcu.c - mt7902_mcu_low_power_event(dev, skb)
+main.c - mt7902_scan_work(work)
+main.c - mt7902_hw_scan(hw, vif, req)
+init.c - mt7902_thermal_temp_show(dev, attr, buf)
+mcu.c - mt7902_mcu_get_temperature(phy)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2ced, skb, seq: 12)
+init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 45
+init.c - mt7902_thermal_temp_show(dev, attr, buf)
+mcu.c - mt7902_mcu_get_temperature(phy)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2ced, skb, seq: 13)
+init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 47
+init.c - mt7902_thermal_temp_show(dev, attr, buf)
+mcu.c - mt7902_mcu_get_temperature(phy)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2ced, skb, seq: 14)
+init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 47
+init.c - mt7902_thermal_temp_show(dev, attr, buf)
+mcu.c - mt7902_mcu_get_temperature(phy)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2ced, skb, seq: 15)
+init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 47
+init.c - mt7902_thermal_temp_show(dev, attr, buf)
+mcu.c - mt7902_mcu_get_temperature(phy)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2ced, skb, seq: 1)
+init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 47
+init.c - mt7902_thermal_temp_show(dev, attr, buf)
+mcu.c - mt7902_mcu_get_temperature(phy)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2ced, skb, seq: 2)
+init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 47
+init.c - mt7902_thermal_temp_show(dev, attr, buf)
+mcu.c - mt7902_mcu_get_temperature(phy)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2ced, skb, seq: 3)
+init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 47
+mac.c - mt7902_mac_fill_rx(dev, skb)
+mac.c - mt7902_mac_fill_rx(dev, skb)
+init.c - mt7902_thermal_temp_show(dev, attr, buf)
+mcu.c - mt7902_mcu_get_temperature(phy)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2ced, skb, seq: 4)
+init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 47
+init.c - mt7902_thermal_temp_show(dev, attr, buf)
+mcu.c - mt7902_mcu_get_temperature(phy)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2ced, skb, seq: 5)
+init.c - mt7902_thermal_temp_show(dev, attr, buf) - temp: 47
+mcu.c - mt7902_mcu_scan_event
+mcu.c - mt7902_mcu_low_power_event(dev, skb)
+main.c - mt7902_scan_work(work)
+main.c - mt7902_config(hw, changed: 0x100)
+main.c - mt7902_config(hw, changed: 0x40)
+main.c - mt7902_set_channel(mphy)
+mcu.c - mt7902_mcu_set_chan_info(phy, cmd: 2285)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 8ed, skb, seq: 6)
+main.c - mt7902_bss_info_changed(hw, vif, info, changed: 0x40000)
+main.c - mt7902_bss_info_changed(hw, vif, info, changed: 0x4000)
+main.c - mt7902_bss_info_changed(hw, vif, info, changed: 0xe0)
+mcu.c - mt7902_mcu_add_bss_info(phy, vif, enable: 1)
+mcu.c - mt7902_mcu_bss_txcmd_tlv
+mcu.c - mt7902_mcu_low_power_event(dev, skb)
+init.c - mt7902_thermal_temp_show(dev, attr, buf)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+init.c - mt7902_thermal_temp_show(dev, attr, buf)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_mac_fill_rx(dev, skb)
+mac.c - mt7902_mac_fill_rx(dev, skb)
+mac.c - mt7902_mac_fill_rx(dev, skb)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_mac_fill_rx(dev, skb)
+mac.c - mt7902_mac_fill_rx(dev, skb)
+mac.c - mt7902_coredump_work(work)
+pci.c - mt7902_pci_remove
+pci.c - mt7902e_unregister_device
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_mac_fill_rx(dev, skb)
+mac.c - mt7902_mac_fill_rx(dev, skb)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mac.c - mt7902_coredump_work(work)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 26ed, skb, seq: 7)
+mt7902e 0000:03:00.0: Message 000026ed (seq 7) timeout
+mcu.c - mt7902_mcu_add_sta(dev, vif, sta, enable: 1)
+mac.c - mt7902_mac_reset_work
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 36ed, skb, seq: 8)
+mt7902e 0000:03:00.0: Message 000036ed (seq 8) timeout
+main.c - mt792x_sta_state(hw, vif, sta, old_state: 0, new_state: 1)
+main.c - mt7902_mac_sta_add
+mac.c - mt7902_mac_wtbl_update(dev, idx: 1, mask: 0x00001000)
+mcu.c - mt7902_mcu_sta_update
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 25ed, skb, seq: 10)
+mt7902e 0000:03:00.0: Message 000025ed (seq 10) timeout
+mcu.c - mt7902_mcu_get_temperature(phy)
+wlan0: failed to insert STA entry for the AP (error -110)
+main.c - mt7902_bss_info_changed(hw, vif, info, changed: 0x4000)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2ced, skb, seq: 11)
+mt7902e 0000:03:00.0: Message 00002ced (seq 11) timeout
+mcu.c - mt7902_mcu_get_temperature(phy)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2ced, skb, seq: 12)
+mt7902e 0000:03:00.0: Message 00002ced (seq 12) timeout
+pci_mac.c - mt7902e_mac_reset
+mt792x_wfsys_reset
 pci_mcu.c - mt7902e_driver_own(dev)
 mcu.c - mt7902_run_firmware(dev)
 mcu.c - mt7902_load_firmware(dev)
 mcu.c - mt7902_firmware_state(dev, wa: 0)
-mcu.c - mt7902_load_firmware - load_patch
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10, skb, seq: 2)
-mt7902e 0000:03:00.0: HW/SW Version: 0x8a108a10, Build Time: 20220729160652a
-
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 3)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 7, skb, seq: 3)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10, skb, seq: 4)
-mcu.c - mt7902_load_firmware - load_ram
-mt7902e 0000:03:00.0: WM Firmware Version: ____000000, Build Time: 20220729160729
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 5)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 1)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 13)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2, skb, seq: 2)
-mt7902e 0000:03:00.0: Message 00000002 (seq 2) timeout
-mt7902e 0000:03:00.0: Failed to start WM firmware
-pci.c - mt7902e_init_reset
-init.c - __mt7902_init_hardware(dev)
-pci_mcu.c - mt7902e_mcu_init(dev)
+init.c - mt7902_thermal_temp_show(dev, attr, buf)
+mt7902e 0000:03:00.0: Timeout for initializing firmware
+mcu.c - mt7902_firmware_state(dev, wa: 0)
+mt7902e 0000:03:00.0: Timeout for initializing firmware
+mt7902e 0000:03:00.0: Firmware is not ready for download
+pci_mac.c - mt7902e_mac_reset
+mt792x_wfsys_reset
 pci_mcu.c - mt7902e_driver_own(dev)
 mcu.c - mt7902_run_firmware(dev)
 mcu.c - mt7902_load_firmware(dev)
 mcu.c - mt7902_firmware_state(dev, wa: 0)
-mcu.c - mt7902_load_firmware - load_patch
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10, skb, seq: 3)
-mt7902e 0000:03:00.0: HW/SW Version: 0x8a108a10, Build Time: 20220729160652a
-
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 4)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 7, skb, seq: 4)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10, skb, seq: 5)
-mcu.c - mt7902_load_firmware - load_ram
-mt7902e 0000:03:00.0: WM Firmware Version: ____000000, Build Time: 20220729160729
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 6)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 2)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 14)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2, skb, seq: 3)
-mt7902e 0000:03:00.0: Message 00000002 (seq 3) timeout
-mt7902e 0000:03:00.0: Failed to start WM firmware
-pci.c - mt7902e_init_reset
-init.c - __mt7902_init_hardware(dev)
-pci_mcu.c - mt7902e_mcu_init(dev)
+mt7902e 0000:03:00.0: Timeout for initializing firmware
+mcu.c - mt7902_firmware_state(dev, wa: 0)
+mt7902e 0000:03:00.0: Timeout for initializing firmware
+mt7902e 0000:03:00.0: Firmware is not ready for download
+main.c - mt7902_config(hw, changed: 0x40)
+main.c - mt7902_set_channel(mphy)
+mcu.c - mt7902_mcu_set_chan_info(phy, cmd: 2285)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 8ed, skb, seq: 15)
+mt7902e 0000:03:00.0: Message 000008ed (seq 15) timeout
+main.c - mt7902_config(hw, changed: 0x100)
+mcu.c - mt7902_mcu_get_temperature(phy)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2ced, skb, seq: 1)
+mt7902e 0000:03:00.0: Message 00002ced (seq 1) timeout
+pci_mac.c - mt7902e_mac_reset
+mt792x_wfsys_reset
 pci_mcu.c - mt7902e_driver_own(dev)
 mcu.c - mt7902_run_firmware(dev)
 mcu.c - mt7902_load_firmware(dev)
 mcu.c - mt7902_firmware_state(dev, wa: 0)
-mcu.c - mt7902_load_firmware - load_patch
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10, skb, seq: 4)
-mt7902e 0000:03:00.0: HW/SW Version: 0x8a108a10, Build Time: 20220729160652a
-
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 5)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 7, skb, seq: 5)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10, skb, seq: 6)
-mcu.c - mt7902_load_firmware - load_ram
-mt7902e 0000:03:00.0: WM Firmware Version: ____000000, Build Time: 20220729160729
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 7)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 3)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 15)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2, skb, seq: 4)
-mt7902e 0000:03:00.0: Message 00000002 (seq 4) timeout
-mt7902e 0000:03:00.0: Failed to start WM firmware
-pci.c - mt7902e_init_reset
-init.c - __mt7902_init_hardware(dev)
-pci_mcu.c - mt7902e_mcu_init(dev)
+init.c - mt7902_thermal_temp_show(dev, attr, buf)
+mt7902e 0000:03:00.0: Timeout for initializing firmware
+mcu.c - mt7902_firmware_state(dev, wa: 0)
+mt7902e 0000:03:00.0: Timeout for initializing firmware
+mt7902e 0000:03:00.0: Firmware is not ready for download
+pci_mac.c - mt7902e_mac_reset
+mt792x_wfsys_reset
 pci_mcu.c - mt7902e_driver_own(dev)
 mcu.c - mt7902_run_firmware(dev)
 mcu.c - mt7902_load_firmware(dev)
 mcu.c - mt7902_firmware_state(dev, wa: 0)
-mcu.c - mt7902_load_firmware - load_patch
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10, skb, seq: 5)
-mt7902e 0000:03:00.0: HW/SW Version: 0x8a108a10, Build Time: 20220729160652a
-
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 6)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 7, skb, seq: 6)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10, skb, seq: 7)
-mcu.c - mt7902_load_firmware - load_ram
-mt7902e 0000:03:00.0: WM Firmware Version: ____000000, Build Time: 20220729160729
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 8)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 4)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 1)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2, skb, seq: 5)
-mt7902e 0000:03:00.0: Message 00000002 (seq 5) timeout
-mt7902e 0000:03:00.0: Failed to start WM firmware
-pci.c - mt7902e_init_reset
-init.c - __mt7902_init_hardware(dev)
-pci_mcu.c - mt7902e_mcu_init(dev)
+mt7902e 0000:03:00.0: Timeout for initializing firmware
+mcu.c - mt7902_firmware_state(dev, wa: 0)
+mt7902e 0000:03:00.0: Timeout for initializing firmware
+mt7902e 0000:03:00.0: Firmware is not ready for download
+main.c - mt7902_bss_info_changed(hw, vif, info, changed: 0x80)
+mcu.c - mt7902_mcu_add_bss_info(phy, vif, enable: 0)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 26ed, skb, seq: 4)
+mt7902e 0000:03:00.0: Message 000026ed (seq 4) timeout
+mcu.c - mt7902_mcu_add_sta(dev, vif, sta, enable: 0)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 36ed, skb, seq: 5)
+mt7902e 0000:03:00.0: Message 000036ed (seq 5) timeout
+mcu.c - mt7902_mcu_get_temperature(phy)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2ced, skb, seq: 6)
+mt7902e 0000:03:00.0: Message 00002ced (seq 6) timeout
+pci_mac.c - mt7902e_mac_reset
+mt792x_wfsys_reset
 pci_mcu.c - mt7902e_driver_own(dev)
 mcu.c - mt7902_run_firmware(dev)
 mcu.c - mt7902_load_firmware(dev)
 mcu.c - mt7902_firmware_state(dev, wa: 0)
-mcu.c - mt7902_load_firmware - load_patch
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10, skb, seq: 6)
-mt7902e 0000:03:00.0: HW/SW Version: 0x8a108a10, Build Time: 20220729160652a
-
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 7)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 7, skb, seq: 7)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10, skb, seq: 8)
-mcu.c - mt7902_load_firmware - load_ram
-mt7902e 0000:03:00.0: WM Firmware Version: ____000000, Build Time: 20220729160729
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 9)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 5)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 2)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2, skb, seq: 6)
-mt7902e 0000:03:00.0: Message 00000002 (seq 6) timeout
-mt7902e 0000:03:00.0: Failed to start WM firmware
-pci.c - mt7902e_init_reset
-init.c - __mt7902_init_hardware(dev)
-pci_mcu.c - mt7902e_mcu_init(dev)
+init.c - mt7902_thermal_temp_show(dev, attr, buf)
+mt7902e 0000:03:00.0: Timeout for initializing firmware
+mcu.c - mt7902_firmware_state(dev, wa: 0)
+mt7902e 0000:03:00.0: Timeout for initializing firmware
+mt7902e 0000:03:00.0: Firmware is not ready for download
+pci_mac.c - mt7902e_mac_reset
+mt792x_wfsys_reset
 pci_mcu.c - mt7902e_driver_own(dev)
 mcu.c - mt7902_run_firmware(dev)
 mcu.c - mt7902_load_firmware(dev)
 mcu.c - mt7902_firmware_state(dev, wa: 0)
-mcu.c - mt7902_load_firmware - load_patch
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10, skb, seq: 7)
-mt7902e 0000:03:00.0: HW/SW Version: 0x8a108a10, Build Time: 20220729160652a
-
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 8)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 7, skb, seq: 8)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10, skb, seq: 9)
-mcu.c - mt7902_load_firmware - load_ram
-mt7902e 0000:03:00.0: WM Firmware Version: ____000000, Build Time: 20220729160729
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 10)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 6)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 3)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2, skb, seq: 7)
-mt7902e 0000:03:00.0: Message 00000002 (seq 7) timeout
-mt7902e 0000:03:00.0: Failed to start WM firmware
-pci.c - mt7902e_init_reset
-init.c - __mt7902_init_hardware(dev)
-pci_mcu.c - mt7902e_mcu_init(dev)
+mt7902e 0000:03:00.0: Timeout for initializing firmware
+mcu.c - mt7902_firmware_state(dev, wa: 0)
+mt7902e 0000:03:00.0: Timeout for initializing firmware
+mt7902e 0000:03:00.0: Firmware is not ready for download
+mac_link_bss_remove
+main.c - mt7902_stop
+mcu.c - mt7902_mcu_radio_led_ctrl(dev, value: 0x03)
+mcu.c - mt7902_mcu_get_temperature(phy)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2ced, skb, seq: 10)
+mt7902e 0000:03:00.0: Message 00002ced (seq 10) timeout
+pci_mac.c - mt7902e_mac_reset
+mt792x_wfsys_reset
 pci_mcu.c - mt7902e_driver_own(dev)
 mcu.c - mt7902_run_firmware(dev)
 mcu.c - mt7902_load_firmware(dev)
 mcu.c - mt7902_firmware_state(dev, wa: 0)
-mcu.c - mt7902_load_firmware - load_patch
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10, skb, seq: 8)
-mt7902e 0000:03:00.0: HW/SW Version: 0x8a108a10, Build Time: 20220729160652a
-
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 9)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 7, skb, seq: 9)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10, skb, seq: 10)
-mcu.c - mt7902_load_firmware - load_ram
-mt7902e 0000:03:00.0: WM Firmware Version: ____000000, Build Time: 20220729160729
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 11)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 7)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 4)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2, skb, seq: 8)
-mt7902e 0000:03:00.0: Message 00000002 (seq 8) timeout
-mt7902e 0000:03:00.0: Failed to start WM firmware
-pci.c - mt7902e_init_reset
-init.c - __mt7902_init_hardware(dev)
-pci_mcu.c - mt7902e_mcu_init(dev)
+init.c - mt7902_thermal_temp_show(dev, attr, buf)
+mt7902e 0000:03:00.0: Timeout for initializing firmware
+mcu.c - mt7902_firmware_state(dev, wa: 0)
+mt7902e 0000:03:00.0: Timeout for initializing firmware
+mt7902e 0000:03:00.0: Firmware is not ready for download
+pci_mac.c - mt7902e_mac_reset
+mt792x_wfsys_reset
 pci_mcu.c - mt7902e_driver_own(dev)
 mcu.c - mt7902_run_firmware(dev)
 mcu.c - mt7902_load_firmware(dev)
 mcu.c - mt7902_firmware_state(dev, wa: 0)
-mcu.c - mt7902_load_firmware - load_patch
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10, skb, seq: 9)
-mt7902e 0000:03:00.0: HW/SW Version: 0x8a108a10, Build Time: 20220729160652a
-
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 10)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 7, skb, seq: 10)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10, skb, seq: 11)
-mcu.c - mt7902_load_firmware - load_ram
-mt7902e 0000:03:00.0: WM Firmware Version: ____000000, Build Time: 20220729160729
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 12)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 8)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 5)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2, skb, seq: 9)
-mt7902e 0000:03:00.0: Message 00000002 (seq 9) timeout
-mt7902e 0000:03:00.0: Failed to start WM firmware
-pci.c - mt7902e_init_reset
-init.c - __mt7902_init_hardware(dev)
-pci_mcu.c - mt7902e_mcu_init(dev)
+mt7902e 0000:03:00.0: Timeout for initializing firmware
+mcu.c - mt7902_firmware_state(dev, wa: 0)
+mt7902e 0000:03:00.0: Timeout for initializing firmware
+mt7902e 0000:03:00.0: Firmware is not ready for download
+mcu.c - mt7902_mcu_get_temperature(phy)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2ced, skb, seq: 13)
+mt7902e 0000:03:00.0: Message 00002ced (seq 13) timeout
+pci_mac.c - mt7902e_mac_reset
+mt792x_wfsys_reset
 pci_mcu.c - mt7902e_driver_own(dev)
 mcu.c - mt7902_run_firmware(dev)
 mcu.c - mt7902_load_firmware(dev)
 mcu.c - mt7902_firmware_state(dev, wa: 0)
-mcu.c - mt7902_load_firmware - load_patch
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10, skb, seq: 10)
-mt7902e 0000:03:00.0: HW/SW Version: 0x8a108a10, Build Time: 20220729160652a
-
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 11)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 7, skb, seq: 11)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10, skb, seq: 12)
-mcu.c - mt7902_load_firmware - load_ram
-mt7902e 0000:03:00.0: WM Firmware Version: ____000000, Build Time: 20220729160729
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 13)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 9)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 6)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2, skb, seq: 10)
-mt7902e 0000:03:00.0: Message 00000002 (seq 10) timeout
-mt7902e 0000:03:00.0: Failed to start WM firmware
-pci.c - mt7902e_init_reset
-mt7902e 0000:03:00.0: hardware init failed
+init.c - mt7902_thermal_temp_show(dev, attr, buf)
+mt7902e 0000:03:00.0: Timeout for initializing firmware
+mcu.c - mt7902_firmware_state(dev, wa: 0)
+mt7902e 0000:03:00.0: Timeout for initializing firmware
+mt7902e 0000:03:00.0: Firmware is not ready for download
+pci_mac.c - mt7902e_mac_reset
+mt792x_wfsys_reset
+pci_mcu.c - mt7902e_driver_own(dev)
+mcu.c - mt7902_run_firmware(dev)
+mcu.c - mt7902_load_firmware(dev)
+mcu.c - mt7902_firmware_state(dev, wa: 0)
+mt7902e 0000:03:00.0: Timeout for initializing firmware
+mcu.c - mt7902_firmware_state(dev, wa: 0)
+mt7902e 0000:03:00.0: Timeout for initializing firmware
+mt7902e 0000:03:00.0: Firmware is not ready for download
+mt7902e 0000:03:00.0: chip reset failed
+mac.c - mt7902_coredump_work(work)
+mcu.c - mt7902_mcu_get_temperature(phy)
+mac.c - mt7902_mac_reset_work
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2ced, skb, seq: 1)
+mt7902e 0000:03:00.0: Message 00002ced (seq 1) timeout
 
 
 

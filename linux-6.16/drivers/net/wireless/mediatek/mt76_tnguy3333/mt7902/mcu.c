@@ -1627,48 +1627,57 @@ int mt7902_mcu_set_rssimonitor(struct mt792x_dev *dev, struct ieee80211_vif *vif
 				 &data, sizeof(data), false);
 };
 
-int mt7902_mcu_add_dev_info(struct mt792x_phy *phy,
-			    struct ieee80211_vif *vif, bool enable)
+int mt7902_mcu_add_dev_info(struct mt76_phy *phy,
+			    struct ieee80211_bss_conf *bss_conf,
+                struct mt76_vif_link *mvif, bool enable)
 {
 	printk(KERN_DEBUG "mcu.c - mt7902_mcu_add_dev_info(phy, bss_conf, mvif, enable: %d)", enable);
-	struct mt792x_dev *dev = phy->dev;
-	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
+	struct mt76_dev *dev = phy->dev;
+	//struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
 	struct {
 		struct req_hdr { 
 			u8 omac_idx;
-			u8 dbdc_idx;
-			u8 rsv[2];
+			u8 band_idx;
+			__le16 tlv_num;
+			u8 is_tlv_append;
+			//u8 dbdc_idx;
+			u8 rsv[3];
 		} __packed hdr;
 		struct req_tlv {
 			__le16 tag;
 			__le16 len;
 			u8 active;
-			u8 __rsv;
+			u8 band_idx;
+			//u8 __rsv;
 			u8 omac_addr[ETH_ALEN];
 		} __packed tlv;
 	} data = {
 		.hdr = {
-			.omac_idx = mvif->bss_conf.mt76.omac_idx,
-			.dbdc_idx = mvif->bss_conf.mt76.band_idx,
+			.omac_idx = mvif->omac_idx,
+			.band_idx = mvif->band_idx,
+			.tlv_num = cpu_to_le16(1),
+			.is_tlv_append = 1,
+			//.dbdc_idx = mvif->bss_conf.mt76.band_idx
 		},
 		.tlv = {
 			.tag = cpu_to_le16(DEV_INFO_ACTIVE),
 			.len = cpu_to_le16(sizeof(struct req_tlv)),
 			.active = enable,
+			.band_idx = mvif->band_idx,
 		},
 	};
 
-	if(mvif->bss_conf.mt76.omac_idx >= REPEATER_BSSID_START)
-		return mt7902_mcu_muar_config(phy, vif, false, enable);
+	// if(mvif->bss_conf.mt76.omac_idx >= REPEATER_BSSID_START)
+	// 	return mt7902_mcu_muar_config(phy, vif, false, enable);
 	
-    memcpy(data.tlv.omac_addr, vif->addr, ETH_ALEN);
+    memcpy(data.tlv.omac_addr, bss_conf->addr, ETH_ALEN);
 	// printk(KERN_DEBUG "mcu.c - mt7902_mcu_add_dev_info - data.hdr.omac_idx : %x", data.hdr.omac_idx);
 	// printk(KERN_DEBUG "mcu.c - mt7902_mcu_add_dev_info - data.hdr.band_idx : %x", data.hdr.band_idx);
 	// printk(KERN_DEBUG "mcu.c - mt7902_mcu_add_dev_info - data.hdr.is_tlv_append : %x", data.hdr.is_tlv_append);
 	// printk(KERN_DEBUG "mcu.c - mt7902_mcu_add_dev_info - data.tlv.active : %x", data.tlv.active);
 	// printk(KERN_DEBUG "mcu.c - mt7902_mcu_add_dev_info - data.tlv.band_idx : %x", data.tlv.band_idx);
 
-	return mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD(DEV_INFO_UPDATE),
+	return mt76_mcu_send_msg(dev, MCU_EXT_CMD(DEV_INFO_UPDATE),
 				 &data, sizeof(data), true);
 };
 
@@ -1879,24 +1888,34 @@ mt7902_mcu_bss_rfch_tlv(struct sk_buff *skb, struct ieee80211_vif *vif,
 			struct mt792x_phy *phy)
 {
 	struct cfg80211_chan_def *chandef = &phy->mt76->chandef;
-	struct bss_rlm_tlv *ch;
+	struct bss_info_rf_ch *ch;
 	struct tlv *tlv;
 	int freq1 = chandef->center_freq1;
 
-	tlv = mt76_connac_mcu_add_tlv(skb, UNI_BSS_INFO_RLM, sizeof(*ch));
+	tlv = mt76_connac_mcu_add_tlv(skb, BSS_INFO_RF_CH, sizeof(*ch));
 
-	ch = (struct bss_rlm_tlv *)tlv;
-	ch->control_channel = chandef->chan->hw_value;
-	ch->center_chan = ieee80211_frequency_to_channel(freq1);
+	ch = (struct bss_info_rf_ch *)tlv;
+	ch->pri_ch = chandef->chan->hw_value;
+	ch->center_ch0 = ieee80211_frequency_to_channel(freq1);
 	ch->bw = mt76_connac_chan_bw(chandef);
-	ch->tx_streams = hweight8(phy->mt76->antenna_mask);
-	ch->rx_streams = hweight8(phy->mt76->antenna_mask);
-	ch->band = mt7902_get_band(chandef->chan->band);
+	//ch->tx_streams = hweight8(phy->mt76->antenna_mask);
+	//ch->rx_streams = hweight8(phy->mt76->antenna_mask);
+	//ch->band = mt7902_get_band(chandef->chan->band);
 
 	if (chandef->width == NL80211_CHAN_WIDTH_80P80) {
 		int freq2 = chandef->center_freq2;
 
-		ch->center_chan2 = ieee80211_frequency_to_channel(freq2);
+		ch->center_ch1 = ieee80211_frequency_to_channel(freq2);
+	}
+
+	if (vif->bss_conf.he_support && vif->type == NL80211_IFTYPE_STATION) {
+		struct mt76_phy *mphy = phy->mt76;
+
+		ch->he_ru26_block =
+			mt7902_check_he_obss_narrow_bw_ru(mphy->hw, vif);
+		ch->he_all_disable = false;
+	} else {
+		ch->he_all_disable = true;
 	}
 }
 
@@ -1927,13 +1946,26 @@ static void
 mt7902_mcu_bss_ra_tlv(struct sk_buff *skb, struct ieee80211_vif *vif,
 		      struct mt792x_phy *phy)
 {
-	struct bss_ra_tlv *ra;
+	int max_nss = hweight8(phy->mt76->antenna_mask);
+	struct bss_info_ra *ra;
 	struct tlv *tlv;
 
-	tlv = mt76_connac_mcu_add_tlv(skb, UNI_BSS_INFO_RA, sizeof(*ra));
+	tlv = mt76_connac_mcu_add_tlv(skb, BSS_INFO_RA, sizeof(*ra));
 
-	ra = (struct bss_ra_tlv *)tlv;
+	ra = (struct bss_info_ra *)tlv;
+	ra->op_mode = vif->type == NL80211_IFTYPE_AP;
+	ra->adhoc_en = vif->type == NL80211_IFTYPE_ADHOC;
 	ra->short_preamble = true;
+	ra->tx_streams = max_nss;
+	ra->rx_streams = max_nss;
+	ra->algo = 4;
+	ra->train_up_rule = 2;
+	ra->train_up_high_thres = 110;
+	ra->train_up_rule_rssi = -70;
+	ra->low_traffic_thres = 2;
+	ra->phy_cap = cpu_to_le32(0xfdf);
+	ra->interval = cpu_to_le32(500);
+	ra->fast_interval = cpu_to_le32(100);
 }
 
 
@@ -2929,3 +2961,23 @@ out:
 // 	}
 // }
 
+int mt7902_mcu_set_radio_en(struct mt792x_phy *phy, struct mt792x_vif *mvif, bool enable)
+{
+	struct {
+		u8 band_idx;
+		u8 _rsv[3];
+
+		__le16 tag;
+		__le16 len;
+		u8 enable;
+		u8 _rsv2[3];
+	} __packed req = {
+		.band_idx = mvif->bss_conf.mt76.band_idx,
+		.tag = cpu_to_le16(UNI_BAND_CONFIG_RADIO_ENABLE),
+		.len = cpu_to_le16(sizeof(req) - 4),
+		.enable = enable,
+	};
+
+	return mt76_mcu_send_msg(&phy->dev->mt76, MCU_WM_UNI_CMD(BAND_CONFIG),
+				 &req, sizeof(req), true);
+}

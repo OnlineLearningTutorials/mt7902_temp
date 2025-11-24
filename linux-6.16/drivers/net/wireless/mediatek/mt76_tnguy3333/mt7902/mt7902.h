@@ -596,7 +596,9 @@ void mt7902_mac_write_txwi(struct mt76_dev *dev, __le32 *txwi,
 			   struct ieee80211_key_conf *key,
 			   enum mt76_txq_id qid, u32 changed);
 
-int mt7902_mcu_add_dev_info(struct mt792x_phy *phy, struct ieee80211_vif *vif, bool enable);
+int mt7902_mcu_add_dev_info(struct mt76_phy *phy, 
+				struct ieee80211_bss_conf *bss_conf, 
+				struct mt76_vif_link *mvif, bool enable);
 int mt7902_mcu_add_bss_info(struct mt792x_phy *phy, struct ieee80211_vif *vif, int enable);
 bool mt7902_mac_wtbl_update(struct mt792x_dev *dev, int idx, u32 mask);
 int mt7902_mcu_update_bss_color(struct mt792x_dev *dev, struct ieee80211_vif *vif,
@@ -610,3 +612,4 @@ int mt7902_mcu_add_obss_spr(struct mt792x_dev *dev, struct ieee80211_vif *vif,
 
 
 void mt7902_mac_set_timing(struct mt792x_phy *phy);
+int mt7902_mcu_set_radio_en(struct mt792x_phy *phy, struct mt792x_vif *mvif, bool enable);
