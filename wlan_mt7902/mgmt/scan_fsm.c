@@ -1,7 +1,54 @@
-/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
-/*
- * Copyright (c) 2016 MediaTek Inc.
- */
+/******************************************************************************
+ *
+ * This file is provided under a dual license.  When you use or
+ * distribute this software, you may choose to be licensed under
+ * version 2 of the GNU General Public License ("GPLv2 License")
+ * or BSD License.
+ *
+ * GPLv2 License
+ *
+ * Copyright(C) 2016 MediaTek Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of version 2 of the GNU General Public License as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See http://www.gnu.org/licenses/gpl-2.0.html for more details.
+ *
+ * BSD LICENSE
+ *
+ * Copyright(C) 2016 MediaTek Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *  * Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ *  * Neither the name of the copyright holder nor the names of its
+ *    contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ *****************************************************************************/
 /*
  * Id: //Department/DaVinci/BRANCHES/MT6620_WIFI_DRIVER_V2_3/mgmt/scan_fsm.c#2
  */
@@ -224,8 +271,8 @@ void scnSendScanReqV2(IN struct ADAPTER *prAdapter)
 	/* Modify channelList number from 32 to 54 */
 	if (prScanParam->ucScnFuncMask & ENUM_SCN_USE_PADDING_AS_BSSID) {
 		kalMemCopy(prCmdScanReq->aucExtBSSID,
-			&prScanParam->aucBSSID[0][0],
-			SCN_SSID_MAX_NUM*MAC_ADDR_LEN);
+			prScanParam->aucBSSID,
+			CFG_SCAN_OOB_MAX_NUM * MAC_ADDR_LEN);
 		prCmdScanReq->ucScnFuncMask |= ENUM_SCN_USE_PADDING_AS_BSSID;
 		DBGLOG(SCN, INFO,
 			"[56_2] Bssid! "MACSTR"\n",
@@ -245,9 +292,9 @@ void scnSendScanReqV2(IN struct ADAPTER *prAdapter)
 	prCmdScanReq->auVersion[0] = 1;
 	/* for 6G OOB scan */
 	kalMemCopy(prCmdScanReq->ucBssidMatchCh, prScanParam->ucBssidMatchCh,
-			CFG_SCAN_SSID_MAX_NUM);
+			CFG_SCAN_OOB_MAX_NUM);
 	kalMemCopy(prCmdScanReq->ucBssidMatchSsidInd,
-		prScanParam->ucBssidMatchSsidInd, CFG_SCAN_SSID_MAX_NUM);
+		prScanParam->ucBssidMatchSsidInd, CFG_SCAN_OOB_MAX_NUM);
 
 	if (kalIsValidMacAddr(prScanParam->aucRandomMac)) {
 		prCmdScanReq->ucScnFuncMask |= (ENUM_SCN_RANDOM_MAC_EN |
@@ -308,7 +355,7 @@ void scnSendScanReqV2(IN struct ADAPTER *prAdapter)
 				prScanParam->ucChannelListNum;
 			prCmdScanReq->ucChannelListExtNum = 0;
 		} else if (prScanParam->ucChannelListNum <=
-				SCAN_CMD_CHNL_NUM + SCAN_CMD_EXT_CHNL_NUM) {
+				MAXIMUM_OPERATION_CHANNEL_LIST) {
 			prCmdScanReq->ucChannelListNum =
 				SCAN_CMD_CHNL_NUM;
 			prCmdScanReq->ucChannelListExtNum =
@@ -486,7 +533,11 @@ void scnFsmMsgAbort(IN struct ADAPTER *prAdapter, IN struct MSG_HDR *prMsgHdr)
 					prScanParam->ucSeqNum);
 			}
 
-			eStatus = SCAN_STATUS_CANCELLED;
+			/* generate scan-done event for caller */
+			if (prScanCancel->fgIsOidRequest)
+				eStatus = SCAN_STATUS_CANCELLED;
+			else
+				eStatus = SCAN_STATUS_DONE;
 			scnFsmGenerateScanDoneMsg(prAdapter,
 				prScanParam->ucSeqNum,
 				prScanParam->ucBssIndex,
@@ -621,9 +672,9 @@ void scnFsmHandleScanMsgV2(IN struct ADAPTER *prAdapter,
 		MAC_ADDR_LEN);
 	/* for 6G OOB scan */
 	kalMemCopy(prScanParam->ucBssidMatchCh, prScanReqMsg->ucBssidMatchCh,
-			CFG_SCAN_SSID_MAX_NUM);
+			CFG_SCAN_OOB_MAX_NUM);
 	kalMemCopy(prScanParam->ucBssidMatchSsidInd,
-		prScanReqMsg->ucBssidMatchSsidInd, CFG_SCAN_SSID_MAX_NUM);
+		prScanReqMsg->ucBssidMatchSsidInd, CFG_SCAN_OOB_MAX_NUM);
 	prScanParam->fg6gOobRnrParseEn = prScanReqMsg->fg6gOobRnrParseEn;
 
 	if ((prScanParam->ucSSIDType & SCAN_REQ_SSID_SPECIFIED_ONLY) &&
@@ -686,9 +737,9 @@ void scnFsmHandleScanMsgV2(IN struct ADAPTER *prAdapter,
 
 	prScanParam->fgIsScanV2 = TRUE;
 
-	kalMemCopy(&prScanParam->aucBSSID[0][0],
-		&prScanReqMsg->aucExtBssid[0][0],
-		SCN_SSID_MAX_NUM*MAC_ADDR_LEN);
+	kalMemCopy(prScanParam->aucBSSID,
+		prScanReqMsg->aucExtBssid,
+		CFG_SCAN_OOB_MAX_NUM * MAC_ADDR_LEN);
 }
 
 /*----------------------------------------------------------------------------*/

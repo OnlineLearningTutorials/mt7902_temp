@@ -1,7 +1,7 @@
-/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
-/*
- * Copyright (c) 2016 MediaTek Inc.
- */
+/* SPDX-License-Identifier: GPL-2.0 */
+/* 
+* Copyright (c) 2021 MediaTek Inc.
+*/
 
 /*! \file  mt7922.h
 *    \brief This file contains the info of MT7922

@@ -1,7 +1,54 @@
-/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
-/*
- * Copyright (c) 2016 MediaTek Inc.
- */
+/******************************************************************************
+ *
+ * This file is provided under a dual license.  When you use or
+ * distribute this software, you may choose to be licensed under
+ * version 2 of the GNU General Public License ("GPLv2 License")
+ * or BSD License.
+ *
+ * GPLv2 License
+ *
+ * Copyright(C) 2016 MediaTek Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of version 2 of the GNU General Public License as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See http://www.gnu.org/licenses/gpl-2.0.html for more details.
+ *
+ * BSD LICENSE
+ *
+ * Copyright(C) 2016 MediaTek Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *  * Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ *  * Neither the name of the copyright holder nor the names of its
+ *    contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ *****************************************************************************/
 /******************************************************************************
  *[File]             hif_pdma.c
  *[Version]          v1.0
@@ -876,7 +923,7 @@ void halInitMsduTokenInfo(IN struct ADAPTER *prAdapter)
 		prToken->fgInUsed = FALSE;
 		prToken->prMsduInfo = NULL;
 
-#if CFG_HIF_TX_PREALLOC_DATA_BUFFER
+#if HIF_TX_PREALLOC_DATA_BUFFER
 		prToken->u4DmaLength = NIC_TX_MAX_SIZE_PER_FRAME +
 			u4TxHeadRoomSize;
 		if (prMemOps->allocTxDataBuf)
@@ -942,13 +989,13 @@ void halUninitMsduTokenInfo(IN struct ADAPTER *prAdapter)
 				prToken->u4Token, prToken->prMsduInfo,
 				halGetMsduTokenFreeCnt(prAdapter));
 
-#if !CFG_HIF_TX_PREALLOC_DATA_BUFFER
+#if !HIF_TX_PREALLOC_DATA_BUFFER
 			nicTxFreePacket(prAdapter, prToken->prMsduInfo, FALSE);
 			nicTxReturnMsduInfo(prAdapter, prToken->prMsduInfo);
 #endif
 		}
 
-#if CFG_HIF_TX_PREALLOC_DATA_BUFFER
+#if HIF_TX_PREALLOC_DATA_BUFFER
 		if (prMemOps->freeBuf)
 			prMemOps->freeBuf(prToken->prPacket,
 					  prToken->u4DmaLength);
@@ -1064,7 +1111,7 @@ static void halResetMsduToken(IN struct ADAPTER *prAdapter)
 				prToken->rDmaAddr = 0;
 			}
 
-#if !CFG_HIF_TX_PREALLOC_DATA_BUFFER
+#if !HIF_TX_PREALLOC_DATA_BUFFER
 			nicTxFreePacket(prAdapter, prToken->prMsduInfo, FALSE);
 			nicTxReturnMsduInfo(prAdapter, prToken->prMsduInfo);
 #endif
@@ -1240,7 +1287,7 @@ u_int8_t halProcessToken(IN struct ADAPTER *prAdapter,
 {
 	struct GL_HIF_INFO *prHifInfo;
 	struct MSDU_TOKEN_ENTRY *prTokenEntry;
-#if !CFG_HIF_TX_PREALLOC_DATA_BUFFER
+#if !HIF_TX_PREALLOC_DATA_BUFFER
 	struct MSDU_INFO *prMsduInfo;
 #endif
 	struct HIF_MEM_OPS *prMemOps;
@@ -1259,7 +1306,7 @@ u_int8_t halProcessToken(IN struct ADAPTER *prAdapter,
 	}
 #endif
 
-#if CFG_HIF_TX_PREALLOC_DATA_BUFFER
+#if HIF_TX_PREALLOC_DATA_BUFFER
 	DBGLOG_LIMITED(HAL, TRACE, "MsduRpt: Tok[%u] Free[%u]\n",
 		u4Token,
 		halGetMsduTokenFreeCnt(prAdapter));
@@ -1279,24 +1326,12 @@ u_int8_t halProcessToken(IN struct ADAPTER *prAdapter,
 	}
 #endif
 	if (prMemOps->unmapTxBuf) {
-#if (CFG_SUPPORT_TX_SG == 1)
-		int i;
-#endif
-
 		prMemOps->unmapTxBuf(prHifInfo,
 				     prTokenEntry->rPktDmaAddr,
 				     prTokenEntry->u4PktDmaLength);
 		prMemOps->unmapTxBuf(prHifInfo,
 				     prTokenEntry->rDmaAddr,
 				     prTokenEntry->u4DmaLength);
-
-#if (CFG_SUPPORT_TX_SG == 1)
-		for (i = 0; i < prTokenEntry->nr_frags; i++) {
-			prMemOps->unmapTxBuf(prHifInfo,
-					prTokenEntry->rPktDmaAddr_nr[i],
-					prTokenEntry->u4PktDmaLength_nr[i]);
-		}
-#endif
 	}
 	if (prTokenEntry->u4CpuIdx < TX_RING_SIZE) {
 		prTxRing = &prHifInfo->TxRing[prTokenEntry->u2Port];
@@ -1315,6 +1350,9 @@ static void halDefaultProcessMsduReport(IN struct ADAPTER *prAdapter,
 	struct GL_HIF_INFO *prHifInfo;
 	struct HIF_MEM_OPS *prMemOps;
 	struct HW_MAC_MSDU_REPORT *prMsduReport;
+#if !HIF_TX_PREALLOC_DATA_BUFFER
+	struct MSDU_INFO *prMsduInfo;
+#endif
 	uint16_t u2TokenCnt, u2TotalTokenCnt;
 	uint32_t u4Idx, u4Token;
 	uint8_t ucVer;
@@ -1394,7 +1432,7 @@ void halRxProcessMsduReport(IN struct ADAPTER *prAdapter,
 			prAdapter, prSwRfb, &rFreeQueue);
 	}
 
-#if !CFG_HIF_TX_PREALLOC_DATA_BUFFER
+#if !HIF_TX_PREALLOC_DATA_BUFFER
 	nicTxMsduDoneCb(prAdapter->prGlueInfo, &rFreeQueue);
 #endif
 
@@ -1421,10 +1459,6 @@ void halTxUpdateCutThroughDesc(struct GLUE_INFO *prGlueInfo,
 	uint8_t *pucBufferTxD;
 	uint32_t u4TxHeadRoomSize;
 	phys_addr_t rPhyAddr = 0;
-#if (CFG_SUPPORT_TX_SG == 1)
-	int i;
-#endif
-	uint32_t u4MapLen;
 
 	prHifInfo = &prGlueInfo->rHifInfo;
 	prMemOps = &prHifInfo->rMemOps;
@@ -1435,18 +1469,9 @@ void halTxUpdateCutThroughDesc(struct GLUE_INFO *prGlueInfo,
 		prChipInfo->txd_append_size;
 
 	if (prMemOps->mapTxBuf) {
-		u4MapLen = prMsduInfo->u2FrameLength;
-#if (CFG_SUPPORT_TX_SG == 1)
-		u4MapLen -= prDataToken->len_frags;
-		for (i = 0; i < prDataToken->nr_frags; i++) {
-			prDataToken->rPktDmaAddr_nr[i] = prMemOps->mapTxBuf(
-				prHifInfo, prDataToken->rPktDmaVAddr_nr[i], 0,
-				prDataToken->u4PktDmaLength_nr[i]);
-		}
-#endif
 		rPhyAddr = prMemOps->mapTxBuf(
 			prHifInfo, pucBufferTxD, u4TxHeadRoomSize,
-			u4MapLen);
+			prMsduInfo->u2FrameLength);
 	} else {
 		if (prDataToken->rDmaAddr)
 			rPhyAddr = prDataToken->rDmaAddr + u4TxHeadRoomSize;
@@ -2712,7 +2737,7 @@ void halWpdmaFreeMsdu(struct GLUE_INFO *prGlueInfo,
 		halTxGetCmdPageCount(prGlueInfo->prAdapter,
 		prMsduInfo->u2FrameLength, TRUE), TRUE);
 
-#if CFG_HIF_TX_PREALLOC_DATA_BUFFER
+#if HIF_TX_PREALLOC_DATA_BUFFER
 	if (!prMsduInfo->pfTxDoneHandler) {
 		nicTxFreePacket(prGlueInfo->prAdapter, prMsduInfo, FALSE);
 		nicTxReturnMsduInfo(prGlueInfo->prAdapter, prMsduInfo);
@@ -2736,9 +2761,6 @@ bool halWpdmaWriteMsdu(struct GLUE_INFO *prGlueInfo,
 	uint32_t u4TotalLen;
 	u_int8_t fgIsTxDoneHdl;
 	uint8_t ucTC;
-#if (CFG_SUPPORT_TX_SG == 1)
-	int i;
-#endif
 #if CFG_SUPPORT_PCIE_ASPM_IMPROVE
 	struct BUS_INFO *prBusInfo = NULL;
 #endif
@@ -2755,7 +2777,7 @@ bool halWpdmaWriteMsdu(struct GLUE_INFO *prGlueInfo,
 	}
 
 	pucSrc = prSkb->data;
-	u4TotalLen = prSkb->len - prSkb->data_len;
+	u4TotalLen = prSkb->len;
 
 	/* Acquire MSDU token */
 	prToken = halAcquireMsduToken(prGlueInfo->prAdapter);
@@ -2773,34 +2795,13 @@ bool halWpdmaWriteMsdu(struct GLUE_INFO *prGlueInfo,
 	/* Use MsduInfo to select TxRing */
 	prToken->prMsduInfo = prMsduInfo;
 
-#if CFG_HIF_TX_PREALLOC_DATA_BUFFER
+#if HIF_TX_PREALLOC_DATA_BUFFER
 	if (prMemOps->copyTxData)
-		prMemOps->copyTxData(prToken, pucSrc, u4TotalLen, 0);
-#if (CFG_SUPPORT_TX_SG == 1)
-	for (i = 0; i < skb_shinfo(prSkb)->nr_frags; i++) {
-		const skb_frag_t *frag = &skb_shinfo(prSkb)->frags[i];
-
-		if (prMemOps->copyTxData)
-			prMemOps->copyTxData(prToken,
-					skb_frag_address(frag),
-					skb_frag_size(frag), u4TotalLen);
-		u4TotalLen += skb_frag_size(frag);
-	}
-#endif
+		prMemOps->copyTxData(prToken, pucSrc, u4TotalLen);
 #else
 	prToken->prPacket = pucSrc;
 	prToken->u4DmaLength = u4TotalLen;
 	prMsduInfo->prToken = prToken;
-#if (CFG_SUPPORT_TX_SG == 1)
-	prToken->nr_frags = skb_shinfo(prSkb)->nr_frags;
-	prToken->len_frags = prSkb->data_len;
-	for (i = 0; i < prToken->nr_frags; i++) {
-		const skb_frag_t *frag = &skb_shinfo(prSkb)->frags[i];
-
-		prToken->rPktDmaVAddr_nr[i] = skb_frag_address(frag);
-		prToken->u4PktDmaLength_nr[i] = skb_frag_size(frag);
-	}
-#endif
 #endif
 
 	/*
@@ -2927,9 +2928,9 @@ bool halWpdmaWriteAmsdu(struct GLUE_INFO *prGlueInfo,
 
 		/* Use MsduInfo to select TxRing */
 		prToken->prMsduInfo = prMsduInfo;
-#if CFG_HIF_TX_PREALLOC_DATA_BUFFER
+#if HIF_TX_PREALLOC_DATA_BUFFER
 		if (prMemOps->copyTxData)
-			prMemOps->copyTxData(prToken, pucSrc, u4TotalLen, 0);
+			prMemOps->copyTxData(prToken, pucSrc, u4TotalLen);
 #else
 		prToken->prPacket = pucSrc;
 		prToken->u4DmaLength = u4TotalLen;
@@ -3172,7 +3173,11 @@ void halHwRecoveryTimeout(unsigned long arg)
 {
 #if KERNEL_VERSION(4, 15, 0) <= LINUX_VERSION_CODE
 	struct GL_HIF_INFO *prHif =
+#if KERNEL_VERSION(6, 16, 0) <= LINUX_VERSION_CODE
+		timer_container_of(prHif, timer, rSerTimer);
+#else
 		from_timer(prHif, timer, rSerTimer);
+#endif
 	struct GLUE_INFO *prGlueInfo =
 		container_of(prHif, typeof(*prGlueInfo), rHifInfo);
 #else
@@ -3335,7 +3340,11 @@ void halHwRecoveryFromError(IN struct ADAPTER *prAdapter)
 
 	case ERR_RECOV_WAIT_MCU_NORMAL:
 		if (u4Status & ERROR_DETECT_MCU_NORMAL_STATE) {
+#if CFG80211_VERSION_CODE >= KERNEL_VERSION(6, 15, 0)
+			timer_delete_sync(&prHifInfo->rSerTimer);
+#else
 			del_timer_sync(&prHifInfo->rSerTimer);
+#endif
 
 			/* update Beacon frame if operating in AP mode. */
 			DBGLOG(HAL, INFO, "SER(T) Host re-initialize BCN\n");

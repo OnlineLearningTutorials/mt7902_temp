@@ -1,7 +1,54 @@
-/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
-/*
- * Copyright (c) 2016 MediaTek Inc.
- */
+/*******************************************************************************
+ *
+ * This file is provided under a dual license.  When you use or
+ * distribute this software, you may choose to be licensed under
+ * version 2 of the GNU General Public License ("GPLv2 License")
+ * or BSD License.
+ *
+ * GPLv2 License
+ *
+ * Copyright(C) 2016 MediaTek Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of version 2 of the GNU General Public License as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See http://www.gnu.org/licenses/gpl-2.0.html for more details.
+ *
+ * BSD LICENSE
+ *
+ * Copyright(C) 2016 MediaTek Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *  * Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ *  * Neither the name of the copyright holder nor the names of its
+ *    contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ******************************************************************************/
 /*
  ** Id: //Department/DaVinci/BRANCHES/MT6620_WIFI_DRIVER_V2_3/os/linux
  *      /gl_wext_priv.c#8
@@ -3601,7 +3648,6 @@ reqExtSetAcpiDevicePowerState(IN struct GLUE_INFO
 #define CMD_SW_DBGCTL_ADVCTL_GET_ID 0xb1260000
 #define CMD_SET_NOISE		"SET_NOISE"
 #define CMD_GET_NOISE           "GET_NOISE"
-#define CMD_GET_SNR             "GET_SNR"
 #define CMD_SET_POP		"SET_POP"
 #if (CFG_SUPPORT_DYNAMIC_EDCCA == 1)
 #define CMD_SET_ED		"SET_ED"
@@ -3872,7 +3918,7 @@ int priv_driver_get_dbg_level(IN struct net_device
 	int32_t i4BytesWritten = 0;
 	int32_t i4Argc = 0;
 	int8_t *apcArgv[WLAN_CFG_ARGV_MAX] = {0};
-	uint32_t u4DbgIdx = 0, u4DbgMask = 0;
+	uint32_t u4DbgIdx, u4DbgMask;
 	u_int8_t fgIsCmdAccept = FALSE;
 	int32_t u4Ret = 0;
 
@@ -4032,7 +4078,7 @@ static int priv_driver_get_rx_statistics(IN struct net_device *prNetDev,
 	int32_t i4Argc = 0;
 	int8_t *apcArgv[WLAN_CFG_ARGV_MAX] = {0};
 	int32_t u4Ret = 0;
-	struct PARAM_CUSTOM_ACCESS_RX_STAT rRxStatisticsTest = {0};
+	struct PARAM_CUSTOM_ACCESS_RX_STAT rRxStatisticsTest;
 
 	ASSERT(prNetDev);
 	if (GLUE_CHK_PR2(prNetDev, pcCommand) == FALSE)
@@ -5676,7 +5722,7 @@ static int priv_driver_set_test_mode(IN struct net_device *prNetDev,
 	int32_t i4Argc = 0;
 	int8_t *apcArgv[WLAN_CFG_ARGV_MAX] = {0};
 	uint32_t u4Ret;
-	int32_t i4ArgNum = 2, u4MagicKey = 0;
+	int32_t i4ArgNum = 2, u4MagicKey;
 
 	ASSERT(prNetDev);
 	if (GLUE_CHK_PR2(prNetDev, pcCommand) == FALSE)
@@ -8049,7 +8095,7 @@ int priv_driver_set_drv_mcr(IN struct net_device *prNetDev, IN char *pcCommand,
 
 	int32_t i4ArgNum = 3;
 
-	struct CMD_ACCESS_REG rCmdAccessReg = {0};
+	struct CMD_ACCESS_REG rCmdAccessReg;
 
 	ASSERT(prNetDev);
 	if (GLUE_CHK_PR2(prNetDev, pcCommand) == FALSE)
@@ -8061,6 +8107,7 @@ int priv_driver_set_drv_mcr(IN struct net_device *prNetDev, IN char *pcCommand,
 	DBGLOG(REQ, LOUD, "argc is %i\n", i4Argc);
 
 	if (i4Argc >= i4ArgNum) {
+		rCmdAccessReg.u4Address = 0;
 		u4Ret = kalkStrtou32(apcArgv[1], 0, &(rCmdAccessReg.u4Address));
 		if (u4Ret)
 			DBGLOG(REQ, LOUD,
@@ -8102,7 +8149,7 @@ static int priv_driver_get_uhw_mcr(IN struct net_device *prNetDev,
 
 	int32_t i4ArgNum = 2;
 
-	struct CMD_ACCESS_REG rCmdAccessReg = {0};
+	struct CMD_ACCESS_REG rCmdAccessReg;
 
 	ASSERT(prNetDev);
 	if (GLUE_CHK_PR2(prNetDev, pcCommand) == FALSE)
@@ -8114,6 +8161,7 @@ static int priv_driver_get_uhw_mcr(IN struct net_device *prNetDev,
 	DBGLOG(REQ, LOUD, "argc is %i\n", i4Argc);
 
 	if (i4Argc >= i4ArgNum) {
+		rCmdAccessReg.u4Address = 0;
 		u4Ret = kalkStrtou32(apcArgv[1], 0, &(rCmdAccessReg.u4Address));
 		if (u4Ret)
 			DBGLOG(REQ, LOUD,
@@ -8167,7 +8215,7 @@ int priv_driver_set_uhw_mcr(IN struct net_device *prNetDev, IN char *pcCommand,
 
 	int32_t i4ArgNum = 3;
 
-	struct CMD_ACCESS_REG rCmdAccessReg = {0};
+	struct CMD_ACCESS_REG rCmdAccessReg;
 
 	ASSERT(prNetDev);
 	if (GLUE_CHK_PR2(prNetDev, pcCommand) == FALSE)
@@ -8179,6 +8227,7 @@ int priv_driver_set_uhw_mcr(IN struct net_device *prNetDev, IN char *pcCommand,
 	DBGLOG(REQ, LOUD, "argc is %i\n", i4Argc);
 
 	if (i4Argc >= i4ArgNum) {
+		rCmdAccessReg.u4Address = 0;
 		u4Ret = kalkStrtou32(apcArgv[1], 0, &(rCmdAccessReg.u4Address));
 		if (u4Ret)
 			DBGLOG(REQ, LOUD,
@@ -8221,7 +8270,7 @@ static int priv_driver_get_sw_ctrl(IN struct net_device *prNetDev,
 	int8_t *apcArgv[WLAN_CFG_ARGV_MAX] = {0};
 	int32_t u4Ret = 0;
 
-	struct PARAM_CUSTOM_SW_CTRL_STRUCT rSwCtrlInfo = {0};
+	struct PARAM_CUSTOM_SW_CTRL_STRUCT rSwCtrlInfo;
 
 	ASSERT(prNetDev);
 	if (GLUE_CHK_PR2(prNetDev, pcCommand) == FALSE)
@@ -9218,7 +9267,7 @@ int priv_driver_set_ap_start(IN struct net_device *prNetDev, IN char *pcCommand,
 			     IN int i4TotalLen)
 {
 
-	struct PARAM_CUSTOM_P2P_SET_STRUCT rSetP2P = {0};
+	struct PARAM_CUSTOM_P2P_SET_STRUCT rSetP2P;
 	int32_t i4Argc = 0;
 	int8_t *apcArgv[WLAN_CFG_ARGV_MAX] = { 0 };
 	uint32_t u4Ret;
@@ -9234,6 +9283,7 @@ int priv_driver_set_ap_start(IN struct net_device *prNetDev, IN char *pcCommand,
 	DBGLOG(REQ, LOUD, "argc is %i\n", i4Argc);
 
 	if (i4Argc >= i4ArgNum) {
+
 		u4Ret = kalkStrtou32(apcArgv[1], 0, &(rSetP2P.u4Mode));
 		if (u4Ret)
 			DBGLOG(REQ, LOUD,
@@ -10915,7 +10965,7 @@ static int priv_driver_set_wow_par(IN struct net_device *prNetDev,
 	int32_t i4Argc = 0;
 	int8_t *apcArgv[WLAN_CFG_ARGV_MAX] = { 0 };
 	int32_t u4Ret = 0;
-	uint8_t	ucWakeupHif = 0, GpioPin = 0, ucGpioLevel = 0, ucBlockCount = 0,
+	uint8_t	ucWakeupHif = 0, GpioPin = 0, ucGpioLevel = 0, ucBlockCount,
 		ucScenario = 0;
 	uint32_t u4GpioTimer = 0;
 
@@ -11172,8 +11222,7 @@ static int priv_driver_get_wow_port(IN struct net_device *prNetDev,
 	int32_t i4Argc = 0;
 	int8_t *apcArgv[WLAN_CFG_ARGV_MAX] = { 0 };
 	int32_t u4Ret = 0, ii;
-	uint8_t ucVer = 0;
-	uint8_t ucProto = 0;
+	uint8_t	ucVer, ucProto;
 	uint16_t ucCount;
 	uint16_t *pausPortArry;
 	int8_t *aucIp[2] = {"IPv4", "IPv6"};
@@ -11694,7 +11743,7 @@ int priv_driver_set_suspend_mode(IN struct net_device *prNetDev,
 	int32_t i4Argc = 0;
 	int8_t *apcArgv[WLAN_CFG_ARGV_MAX] = {0};
 	u_int8_t fgEnable;
-	uint32_t u4Enable = 0;
+	uint32_t u4Enable;
 	int32_t u4Ret = 0;
 
 	ASSERT(prNetDev);
@@ -12678,11 +12727,6 @@ int priv_driver_set_sr_enable(
 		kalMemAlloc(sizeof(struct _SR_CMD_SR_CAP_T),
 			    VIR_MEM_TYPE);
 
-	if (!prCmdSrCap) {
-		DBGLOG(REQ, ERROR, "alloc memory error!\n");
-		return -1;
-	}
-
 	DBGLOG(REQ, LOUD, "command is %s\n", pcCommand);
 	wlanCfgParseArgument(pcCommand, &i4Argc, apcArgv);
 
@@ -12746,10 +12790,6 @@ int priv_driver_get_sr_cap(
 	prCmdSrCap = (struct _SR_CMD_SR_CAP_T *)
 		kalMemAlloc(sizeof(struct _SR_CMD_SR_CAP_T),
 			    VIR_MEM_TYPE);
-	if (!prCmdSrCap) {
-		DBGLOG(REQ, ERROR, "alloc memory error!\n");
-		return -1;
-	}
 
 	DBGLOG(REQ, LOUD, "command is %s\n", pcCommand);
 	wlanCfgParseArgument(pcCommand, &i4Argc, apcArgv);
@@ -12803,11 +12843,6 @@ int priv_driver_get_sr_ind(
 	prCmdSrInd = (struct _SR_CMD_SR_IND_T *)
 		kalMemAlloc(sizeof(struct _SR_CMD_SR_IND_T),
 			    VIR_MEM_TYPE);
-
-	if (!prCmdSrInd) {
-		DBGLOG(REQ, ERROR, "alloc mem fail!\n");
-		return -1;
-	}
 
 	DBGLOG(REQ, LOUD, "command is %s\n", pcCommand);
 	wlanCfgParseArgument(pcCommand, &i4Argc, apcArgv);
@@ -12974,7 +13009,7 @@ int priv_driver_set_dbdc(IN struct net_device *prNetDev, IN char *pcCommand,
 	int32_t i4BytesWritten = 0;
 	int32_t i4Argc = 0;
 	int8_t *apcArgv[WLAN_CFG_ARGV_MAX] = {0};
-	uint32_t u4Ret, u4Parse = 0;
+	uint32_t u4Ret, u4Parse;
 	uint8_t ucDBDCEnable;
 	/*UINT_8 ucBssIndex;*/
 	/*P_BSS_INFO_T prBssInfo;*/
@@ -14661,54 +14696,6 @@ static int priv_driver_get_noise(IN struct net_device *prNetDev,
 
 }				/* priv_driver_get_sw_ctrl */
 
-static int priv_driver_get_snr(IN struct net_device *prNetDev,
-				 IN char *pcCommand, IN int i4TotalLen)
-{
-	struct GLUE_INFO *prGlueInfo = NULL;
-	uint32_t rStatus = WLAN_STATUS_SUCCESS;
-	uint32_t u4BufLen = 0;
-	int32_t i4BytesWritten = 0;
-	int32_t i4Argc = 0;
-	int8_t *apcArgv[WLAN_CFG_ARGV_MAX] = { 0 };
-	uint32_t u4Offset = 0;
-	struct PARAM_CUSTOM_SW_CTRL_STRUCT rSwCtrlInfo;
-	uint16_t u2Snr0, u2Snr1;
-
-	if (!prNetDev) {
-		DBGLOG(REQ, ERROR, "prNetDev error!\n");
-		return -1;
-	}
-
-	if (GLUE_CHK_PR2(prNetDev, pcCommand) == FALSE)
-		return -1;
-
-	prGlueInfo = *((struct GLUE_INFO **) netdev_priv(prNetDev));
-
-	DBGLOG(REQ, LOUD, "command is %s\n", pcCommand);
-	wlanCfgParseArgument(pcCommand, &i4Argc, apcArgv);
-
-	rSwCtrlInfo.u4Data = 0;
-	rSwCtrlInfo.u4Id = CMD_SW_DBGCTL_ADVCTL_GET_ID + CMD_ADVCTL_SNR_ID;
-	rStatus = kalIoctl(prGlueInfo, wlanoidQuerySwCtrlRead, &rSwCtrlInfo,
-			   sizeof(rSwCtrlInfo), TRUE, TRUE, TRUE, &u4BufLen);
-
-	DBGLOG(REQ, LOUD, "rStatus %u\n", rStatus);
-
-	if (rStatus != WLAN_STATUS_SUCCESS)
-		return -1;
-
-	u2Snr0 = rSwCtrlInfo.u4Data & 0xFFFF;
-	u2Snr1 = (rSwCtrlInfo.u4Data >> 16) & 0xFFFF;
-	u4Offset += kalSnprintf(pcCommand + u4Offset, i4TotalLen - u4Offset,
-			     "Snr0:%ddB    Snr1:%ddB\n",
-			     u2Snr0, u2Snr1);
-
-	i4BytesWritten = (int32_t)u4Offset;
-
-	return i4BytesWritten;
-
-}
-
 static int priv_driver_set_pop(IN struct net_device *prNetDev,
 				IN char *pcCommand, IN int i4TotalLen)
 {
@@ -15057,7 +15044,7 @@ static int priv_driver_set_twtparams(
 	struct _TWT_PARAMS_T *prTWTParams;
 	uint16_t i;
 	int32_t u4Ret = 0;
-	uint16_t au2Setting[CMD_TWT_MAX_PARAMS] = {0};
+	uint16_t au2Setting[CMD_TWT_MAX_PARAMS];
 	struct NETDEV_PRIVATE_GLUE_INFO *prNetDevPrivate = NULL;
 	struct _MSG_TWT_PARAMS_SET_T *prTWTParamSetMsg;
 #if (CFG_KEEPFULLPOWER_BEFORE_TWT_NEGO == 1)
@@ -17212,7 +17199,6 @@ struct PRIV_CMD_HANDLER priv_cmd_handlers[] = {
 #if CFG_SUPPORT_ADVANCE_CONTROL
 	{CMD_SET_NOISE, priv_driver_set_noise},
 	{CMD_GET_NOISE, priv_driver_get_noise},
-	{CMD_GET_SNR, priv_driver_get_snr},
 	{CMD_SET_POP, priv_driver_set_pop},
 #if (CFG_SUPPORT_DYNAMIC_EDCCA == 1)
 	{CMD_SET_ED, priv_driver_set_ed},
@@ -18782,11 +18768,6 @@ int32_t priv_driver_cmds(IN struct net_device *prNetDev, IN int8_t *pcCommand,
 							pcCommand, i4TotalLen);
 		}
 #endif
-		else if (strnicmp(pcCommand, CMD_GET_SNR,
-			strlen(CMD_GET_SNR)) == 0) {
-			i4BytesWritten = priv_driver_get_snr(prNetDev,
-							pcCommand, i4TotalLen);
-		}
 #if CFG_WIFI_SUPPORT_NOISE_HISTOGRAM
 		else if (strnicmp(pcCommand, CMD_NOISE_HISTOGRAM,
 			strlen(CMD_NOISE_HISTOGRAM)) == 0)

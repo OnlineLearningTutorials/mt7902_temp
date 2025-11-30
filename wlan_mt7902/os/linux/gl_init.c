@@ -1,7 +1,55 @@
-/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
-/*
- * Copyright (c) 2016 MediaTek Inc.
- */
+/*******************************************************************************
+ *
+ * This file is provided under a dual license.  When you use or
+ * distribute this software, you may choose to be licensed under
+ * version 2 of the GNU General Public License ("GPLv2 License")
+ * or BSD License.
+ *
+ * GPLv2 License
+ *
+ * Copyright(C) 2016 MediaTek Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of version 2 of the GNU General Public License as
+ * published by the Free Software Foundation.
+ *
+
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See http://www.gnu.org/licenses/gpl-2.0.html for more details.
+ *
+ * BSD LICENSE
+ *
+ * Copyright(C) 2016 MediaTek Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *  * Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ *  * Neither the name of the copyright holder nor the names of its
+ *    contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ******************************************************************************/
 /*
  ** Id: //Department/DaVinci/BRANCHES/MT6620_WIFI_DRIVER_V2_3/os/linux
  *      /gl_init.c#11
@@ -80,12 +128,6 @@ struct net_device *gprNetdev[KAL_AIS_NUM] = {};
 struct sock *nl_sk;
 #endif/* CFG_AP_80211KVR_INTERFACE */
 
-/* fos_change begin */
-#if IS_ENABLED(CONFIG_IDME)
-#define IDME_OF_MAC_ADDR	"/idme/mac_addr"
-#define IDME_OF_BOARD_ID	"/idme/board_id"
-static char idme_board_id[17];
-#endif
 /*******************************************************************************
  *                             D A T A   T Y P E S
  *******************************************************************************
@@ -109,6 +151,7 @@ MODULE_DESCRIPTION(NIC_DESC);
 MODULE_SUPPORTED_DEVICE(NIC_NAME);
 #endif
 
+/* MODULE_LICENSE("MTK Propietary"); */
 MODULE_LICENSE("Dual BSD/GPL");
 
 #ifdef CFG_DRIVER_INF_NAME_CHANGE
@@ -637,7 +680,7 @@ const uint32_t mtk_akm_suites[] = {
 	WLAN_AKM_SUITE_OWE,
 #endif
 #if CFG_SUPPORT_DPP
-	WLAN_AKM_SUITE_DPP,
+	WLAN_AKM_SUITE_WFA_DPP,
 #endif
 #if CFG_SUPPORT_SUPPLICANT_SME
 	WLAN_AKM_SUITE_SAE,
@@ -1854,8 +1897,6 @@ static void wlanSetMulticastListWorkQueue(
 			if (i < MAX_NUM_GROUP_ADDR) {
 				kalMemCopy((prMCAddrList + i * ETH_ALEN),
 					   GET_ADDR(ha), ETH_ALEN);
-				DBGLOG(INIT, LOUD, "%u MAC: "MACSTR"\n",
-					i, MAC2STR(GET_ADDR(ha)));
 				i++;
 			}
 		}
@@ -1871,13 +1912,6 @@ static void wlanSetMulticastListWorkQueue(
 
 		kalMemFree(prMCAddrList, VIR_MEM_TYPE,
 			   MAX_NUM_GROUP_ADDR * ETH_ALEN);
-	} else if (u4PacketFilter & PARAM_PACKET_FILTER_ALL_MULTICAST) {
-		DBGLOG(INIT, INFO,
-			"Clear previous MAR settings to rx all mc pkt\n");
-		kalIoctlByBssIdx(prGlueInfo,
-			 wlanoidSetMulticastList, NULL, 0,
-			 FALSE, FALSE, TRUE, &u4SetInfoLen,
-			 ucBssIndex);
 	}
 
 }				/* end of wlanSetMulticastList() */
@@ -2007,19 +2041,6 @@ netdev_tx_t wlanHardStartXmit(struct sk_buff *prSkb,
 	if (kalSwTsoXmit(&prSkb, prDev, prGlueInfo, ucBssIndex)
 		== WLAN_STATUS_SUCCESS)
 		return NETDEV_TX_OK;
-#endif
-
-#if (CFG_SUPPORT_TX_SG == 1) && (defined(_HIF_PCIE) || defined(_HIF_AXI)) && \
-	(CFG_HIF_TX_PREALLOC_DATA_BUFFER == 0)
-	if (skb_is_nonlinear(prSkb) &&
-	    skb_shinfo(prSkb)->nr_frags > HIF_TX_MAX_FRAG &&
-	    __skb_linearize(prSkb)) {
-		DBGLOG(INIT, WARN,
-			"unable handle skb with frags:%d\n",
-			skb_shinfo(prSkb)->nr_frags);
-		dev_kfree_skb(prSkb);
-		return NETDEV_TX_OK;
-	}
 #endif
 
 	if (kalHardStartXmit(prSkb, prDev, prGlueInfo,
@@ -3429,6 +3450,59 @@ void wlanSetSuspendMode(struct GLUE_INFO *prGlueInfo,
 			&u4SetInfoLen) != WLAN_STATUS_SUCCESS)
 			DBGLOG(INIT, ERROR, "set packet filter failed.\n");
 
+#if !CFG_SUPPORT_DROP_ALL_MC_PACKET
+		if (fgEnable) {
+			/* Prepare IPv6 RA packet when suspend */
+			uint8_t MC_address[ETH_ALEN] = {0x33, 0x33, 0, 0, 0, 1};
+
+			kalIoctl(prGlueInfo,
+				wlanoidSetMulticastList, MC_address, ETH_ALEN,
+				FALSE, FALSE, TRUE, &u4SetInfoLen);
+		} else if (u4PacketFilter & PARAM_PACKET_FILTER_MULTICAST) {
+			/* Prepare multicast address list when resume */
+			struct netdev_hw_addr *ha;
+			uint8_t *prMCAddrList = NULL;
+			uint32_t i = 0;
+
+			down(&g_halt_sem);
+			if (g_u4HaltFlag) {
+				up(&g_halt_sem);
+				return;
+			}
+
+			prMCAddrList = kalMemAlloc(
+				MAX_NUM_GROUP_ADDR * ETH_ALEN, VIR_MEM_TYPE);
+			if (!prMCAddrList) {
+				DBGLOG(INIT, WARN,
+					"prMCAddrList memory alloc fail!\n");
+				up(&g_halt_sem);
+				continue;
+			}
+
+			/* Avoid race condition with kernel net subsystem */
+			netif_addr_lock_bh(prDev);
+
+			netdev_for_each_mc_addr(ha, prDev) {
+				if (i < MAX_NUM_GROUP_ADDR) {
+					kalMemCopy(
+						(prMCAddrList + i * ETH_ALEN),
+						ha->addr, ETH_ALEN);
+					i++;
+				}
+			}
+
+			netif_addr_unlock_bh(prDev);
+
+			up(&g_halt_sem);
+
+			kalIoctl(prGlueInfo, wlanoidSetMulticastList,
+				prMCAddrList, (i * ETH_ALEN), FALSE, FALSE,
+				TRUE, &u4SetInfoLen);
+
+			kalMemFree(prMCAddrList, VIR_MEM_TYPE,
+				MAX_NUM_GROUP_ADDR * ETH_ALEN);
+		}
+#endif
 		kalSetNetAddressFromInterface(prGlueInfo, prDev, fgEnable);
 		wlanNotifyFwSuspend(prGlueInfo, prDev, fgEnable);
 	}
@@ -4541,51 +4615,6 @@ static void consys_log_event_notification(int cmd, int value)
 }
 #endif
 
-/* fos_change begin */
-#if IS_ENABLED(CONFIG_IDME)
-static void idme_get_mac_addr(OUT struct REG_INFO *prRegInfo)
-{
-	struct device_node *ap;
-	int32_t len = 0;
-	int32_t i, ret;
-	char buf[3] = {0};
-
-	ap = of_find_node_by_path(IDME_OF_MAC_ADDR);
-	if (likely(ap)) {
-		const char *mac_addr = of_get_property(ap, "value", &len);
-
-		if (likely(len >= 12)) {
-			for (i = 0; i < 12; i += 2) {
-				buf[0] = mac_addr[i];
-				buf[1] = mac_addr[i + 1];
-				ret = kstrtou8(buf, 16,
-					&prRegInfo->aucMacAddr[i >> 1]);
-				if (ret)
-					DBGLOG(INIT, WARN,
-					"kstrtou8 failed, i=%d\n", i);
-			}
-		}
-	}
-}
-
-static void idme_get_board_id(void)
-{
-	struct device_node *ap;
-	uint32_t len;
-
-	ap = of_find_node_by_path(IDME_OF_BOARD_ID);
-	if (likely(ap)) {
-		const char *board_id = of_get_property(ap, "value", &len);
-
-		if (board_id != NULL && likely(len >= 16)) {
-			memcpy(idme_board_id, board_id,
-				sizeof(idme_board_id) - 1);
-			idme_board_id[sizeof(idme_board_id) - 1] = '\0';
-		}
-	}
-}
-#endif /* fos_change end */
-
 static
 void wlanOnPreAdapterStart(struct GLUE_INFO *prGlueInfo,
 	struct ADAPTER *prAdapter,
@@ -4651,12 +4680,6 @@ void wlanOnPreAdapterStart(struct GLUE_INFO *prGlueInfo,
 	/* kalMemCopy(&prGlueInfo->rRegInfo, prRegInfo,
 	 *            sizeof(REG_INFO_T));
 	 */
-
-	/* fos_change begin */
-#if IS_ENABLED(CONFIG_IDME)
-	idme_get_mac_addr(&prGlueInfo->rRegInfo);
-	idme_get_board_id();
-#endif /* fos_change end */
 
 	(*pprRegInfo)->u4PowerMode = CFG_INIT_POWER_SAVE_PROF;
 #if 0
@@ -4880,15 +4903,6 @@ static int32_t wlanOnPreNetRegister(struct GLUE_INFO *prGlueInfo,
 			NETIF_F_TSO |
 			NETIF_F_TSO6 |
 			NETIF_F_GSO |
-			NETIF_F_SG;
-	}
-#endif
-
-#if (CFG_SUPPORT_TX_SG == 1)
-	for (i = 0; i < KAL_AIS_NUM; i++) {
-		if (!gprWdev[i] || !gprWdev[i]->netdev)
-			continue;
-		gprWdev[i]->netdev->features |=
 			NETIF_F_SG;
 	}
 #endif
@@ -5674,8 +5688,13 @@ int32_t wlanOffAtReset(void)
 	wlanOffStopWlanThreads(prGlueInfo);
 	if (HAL_IS_TX_DIRECT(prAdapter)) {
 		if (prAdapter->fgTxDirectInited) {
+#if CFG80211_VERSION_CODE >= KERNEL_VERSION(6, 15, 0)
+			timer_delete_sync(&prAdapter->rTxDirectSkbTimer);
+			timer_delete_sync(&prAdapter->rTxDirectHifTimer);
+#else
 			del_timer_sync(&prAdapter->rTxDirectSkbTimer);
 			del_timer_sync(&prAdapter->rTxDirectHifTimer);
+#endif
 		}
 	}
 
@@ -6301,12 +6320,8 @@ static void wlanRemove(void)
 	wlanServiceExit(prGlueInfo);
 #endif
 
-	/* Hold mutex in order to asynchronously check whether the net */
-	/* interface is available					*/
-	KAL_ACQUIRE_MUTEX(prGlueInfo->prAdapter, MUTEX_DEL_INF);
 	/* to avoid that wpa_supplicant/hostapd triogger new cfg80211 command */
 	prGlueInfo->u4ReadyFlag = 0;
-	KAL_RELEASE_MUTEX(prGlueInfo->prAdapter, MUTEX_DEL_INF);
 #if CFG_MTK_ANDROID_WMT
 	update_driver_loaded_status(prGlueInfo->u4ReadyFlag);
 #endif
@@ -6396,8 +6411,13 @@ static void wlanRemove(void)
 
 	if (HAL_IS_TX_DIRECT(prAdapter)) {
 		if (prAdapter->fgTxDirectInited) {
+#if CFG80211_VERSION_CODE >= KERNEL_VERSION(6, 15, 0)
+			timer_delete_sync(&prAdapter->rTxDirectSkbTimer);
+			timer_delete_sync(&prAdapter->rTxDirectHifTimer);
+#else
 			del_timer_sync(&prAdapter->rTxDirectSkbTimer);
 			del_timer_sync(&prAdapter->rTxDirectHifTimer);
+#endif
 		}
 	}
 

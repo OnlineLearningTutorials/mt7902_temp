@@ -1,7 +1,54 @@
-/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
-/*
- * Copyright (c) 2016 MediaTek Inc.
- */
+/******************************************************************************
+ *
+ * This file is provided under a dual license.  When you use or
+ * distribute this software, you may choose to be licensed under
+ * version 2 of the GNU General Public License ("GPLv2 License")
+ * or BSD License.
+ *
+ * GPLv2 License
+ *
+ * Copyright(C) 2016 MediaTek Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of version 2 of the GNU General Public License as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See http://www.gnu.org/licenses/gpl-2.0.html for more details.
+ *
+ * BSD LICENSE
+ *
+ * Copyright(C) 2016 MediaTek Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *  * Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ *  * Neither the name of the copyright holder nor the names of its
+ *    contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ *****************************************************************************/
 /*
  * Id: //Department/DaVinci/BRANCHES/MT6620_WIFI_DRIVER_V2_3/mgmt/rlm_domain.c#2
  */
@@ -42,34 +89,17 @@ char *g_au1TxPwrChlTypeLabel[] = {
 	"5GBAND2",
 	"5GBAND3",
 	"5GBAND4",
-#if (CFG_SUPPORT_WIFI_6G == 1)
-	"6G",
-	"6GBAND1",
-	"6GBAND2",
-	"6GBAND3",
-	"6GBAND4",
-#endif
 };
 
 char *g_au1TxPwrAppliedWayLabel[] = {
-	"WIFION",
-	"IOCTL"
+	"wifi on",
+	"ioctl"
 };
 
 char *g_au1TxPwrOperationLabel[] = {
-	"LEVEL",
-	"OFFSET"
+	"power level",
+	"power offset"
 };
-
-#if CFG_SUPPORT_DYNAMIC_PWR_LIMIT_ANT_TAG
-static struct TX_PWR_TAG_TABLE g_auTxPwrTagTable[] = {
-	{
-		"ALL_T",
-		(POWER_ANT_BAND_NUM * POWER_ANT_NUM),
-		POWER_ANT_ALL_T
-	}
-};
-#endif
 #endif
 
 /*******************************************************************************
@@ -92,48 +122,14 @@ static struct TX_PWR_TAG_TABLE g_auTxPwrTagTable[] = {
 #if CFG_SUPPORT_DYNAMIC_PWR_LIMIT
 /* dynamic tx power control */
 char *g_au1TxPwrDefaultSetting[] = {
-	"__sar;1;2;1;[6,1]",
-	"__sar;2;2;1;[6,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]",
-	"__sar;3;2;1;[6-11,1]",
-	"__sar;4;2;1;[6-11,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]",
-	"__sar;5;2;1;[ALL,1]",
-	"__sar;6;2;1;[ALL,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]",
-	"__sar;7;2;1;[2G4,1]",
-	"__sar;8;2;1;[2G4,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]",
-	"__sar;9;2;1;[5G,1]",
-	"__sar;10;2;1;[5G,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]",
-	"__sar;11;2;1;[BANDEDGE2G4,1]",
-	"__sar;12;2;1;[BANDEDGE2G4,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]",
-	"__sar;13;2;1;[BANDEDGE5G,1]",
-	"__sar;14;2;1;[BANDEDGE5G,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]",
-	"__sar;15;2;1;[5GBAND1,1]",
-	"__sar;16;2;1;[5GBAND1,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]",
-	"__sar;17;2;1;[5GBAND2,1]",
-	"__sar;18;2;1;[5GBAND2,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]",
-	"__sar;19;2;1;[5GBAND3,1]",
-	"__sar;20;2;1;[5GBAND3,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]",
-	"__sar;21;2;1;[5GBAND4,1]",
-	"__sar;22;2;1;[5GBAND4,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]",
-	"__sar;23;2;1;[1,1][6,2][11,3]",
-#if (CFG_SUPPORT_WIFI_6G == 1)
-	"__sar;24;2;1;[ALL,10]<ALL_T,-1,-2,-3,-4,-5,-2,-3,-4,-5,-1,-2,-3,-4,-5,-2,-3,-4,-5>"
-#else
-	"__sar;24;2;1;[ALL,10]<ALL_T,-1,-2,-3,-4,-5,-1,-2,-3,-4,-5>"
-#endif
+	"_SAR_PwrLevel;1;2;1;[2G4,,,,,,,,,][5G,,,,,,,,,]",
+	"_SAR_PwrOffset;1;2;2;[2G4,,,,,,,,,][5G,,,,,,,,,]",
+	"_G_Scenario;1;2;1;[ALL,1]",
+	"_G_Scenario;2;2;1;[ALL,2]",
+	"_G_Scenario;3;2;1;[ALL,3]",
+	"_G_Scenario;4;2;1;[ALL,4]",
+	"_G_Scenario;5;2;1;[ALL,5]",
 };
-
-enum ENUM_PWR_CTRL_DEBUG_TYPE {
-	DEBUG_TYPE_NULL = 0,
-	DEBUG_TYPE_DUMP_ALL,
-	DEBUG_TYPE_DUMP_ELEMENT,
-	DEBUG_TYPE_DUMP_ANT_LIMIT,
-
-	DEBUG_TYPE_NUM
-};
-static enum ENUM_PWR_CTRL_DEBUG_TYPE g_ePwrCtrlDebugType;
-static struct TX_PWR_CTRL_ELEMENT *pcDebugElement;
-static u_int8_t fgNewDebugElement = FALSE;
-
 #endif
 /* The following country or domain shall be set from host driver.
  * And host driver should pass specified DOMAIN_INFO_ENTRY to MT6620 as
@@ -452,7 +448,7 @@ static const int8_t gTx_Pwr_Limit_5g_Ch[] = {
 	36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60, 62, 64, 100, 102,
 	104, 106, 108, 110, 112, 114, 116, 118, 120, 122, 124, 126, 128, 132,
 	134, 136, 138, 140, 142, 144, 149, 151, 153, 155, 157, 159, 161, 165};
-#if (CFG_SUPPORT_WIFI_6G == 1)
+#if (CFG_SUPPORT_SINGLE_SKU_6G == 1)
 static const int8_t gTx_Pwr_Limit_6g_Ch[] = {
 	1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 33, 35,
 	37, 39,	41, 43, 45, 47, 49, 51, 53, 55, 57, 59, 61, 65, 67, 69,
@@ -466,35 +462,8 @@ static const int8_t gTx_Pwr_Limit_6g_Ch[] = {
 
 #define TX_PWR_LIMIT_2G_CH_NUM (ARRAY_SIZE(gTx_Pwr_Limit_2g_Ch))
 #define TX_PWR_LIMIT_5G_CH_NUM (ARRAY_SIZE(gTx_Pwr_Limit_5g_Ch))
-#if (CFG_SUPPORT_WIFI_6G == 1)
+#if (CFG_SUPPORT_SINGLE_SKU_6G == 1)
 #define TX_PWR_LIMIT_6G_CH_NUM (ARRAY_SIZE(gTx_Pwr_Limit_6g_Ch))
-#endif
-
-/* 5G BAND1(UNII-1): 5150MHz ~ 5250MHz*/
-#define TX_PWR_LIMIT_5G_BAND1_L	36
-#define TX_PWR_LIMIT_5G_BAND1_H	50
-/* 5G BAND2(UNII-2a): 5250MHz ~ 5350MHz*/
-#define TX_PWR_LIMIT_5G_BAND2_L	52
-#define TX_PWR_LIMIT_5G_BAND2_H	64
-/* 5G BAND3(UNII-2c): 5470MHz ~ 5725MHz*/
-#define TX_PWR_LIMIT_5G_BAND3_L	100
-#define TX_PWR_LIMIT_5G_BAND3_H	144
-/* 5G BAND4(UNII-3): 5725MHz ~ 5850MHz*/
-#define TX_PWR_LIMIT_5G_BAND4_L	146
-#define TX_PWR_LIMIT_5G_BAND4_H	165
-#if (CFG_SUPPORT_WIFI_6G == 1)
-/* 6G BAND1(UNII-5): 5925MHz ~ 6425MHz*/
-#define TX_PWR_LIMIT_6G_BAND1_L	1
-#define TX_PWR_LIMIT_6G_BAND1_H	93
-/* 6G BAND2(UNII-6): 6425MHz ~ 6525MHz*/
-#define TX_PWR_LIMIT_6G_BAND2_L	97
-#define TX_PWR_LIMIT_6G_BAND2_H	115
-/* 6G BAND3(UNII-7): 6525MHz ~ 6875MHz*/
-#define TX_PWR_LIMIT_6G_BAND3_L	117
-#define TX_PWR_LIMIT_6G_BAND3_H	185
-/* 6G BAND4(UNII-8): 6875MHz ~ 7125MHz*/
-#define TX_PWR_LIMIT_6G_BAND4_L	187
-#define TX_PWR_LIMIT_6G_BAND4_H	233
 #endif
 
 u_int8_t g_bTxBfBackoffExists = FALSE;
@@ -991,9 +960,6 @@ struct SUBBAND_CHANNEL g_rRlmSubBand[] = {
  *                                 M A C R O S
  *******************************************************************************
  */
-#ifndef MIN
-#define MIN(x, y) (((x) < (y)) ? (x) : (y))
-#endif
 
 /*******************************************************************************
  *                   F U N C T I O N   D E C L A R A T I O N S
@@ -2215,12 +2181,6 @@ void rlmDomainCountryCodeUpdate(
 	char *bt_func_name = "btmtk_set_country_code_from_wifi";
 	void *func_addr = NULL;
 #endif
-#ifdef CFG_SUPPORT_ZB_SKU
-	typedef void (*zb_fn_t) (char *);
-	zb_fn_t zb_func = NULL;
-	char *zb_func_name = "zbmtk_set_country_code_from_wifi";
-	void *zb_func_addr = NULL;
-#endif
 
 	if (rlmDomainIsUsingLocalRegDomainDataBase()) {
 		u4FinalCountryCode =
@@ -2250,29 +2210,6 @@ void rlmDomainCountryCodeUpdate(
 		DBGLOG(RLM, ERROR,
 		       "Can't find function %s\n",
 		       bt_func_name);
-	}
-#endif
-
-#ifdef CFG_SUPPORT_ZB_SKU
-#if (CFG_ENABLE_GKI_SUPPORT != 1)
-	zb_func_addr = GLUE_SYMBOL_GET(zb_func_name);
-#endif
-
-	if (zb_func_addr) {
-		zb_func = (zb_fn_t) zb_func_addr;
-		zb_func(acCountryCodeStr);
-
-		DBGLOG(RLM, INFO,
-				"Notify ZB country code(%s) done via %s\n",
-				acCountryCodeStr, zb_func_name);
-
-#if (CFG_ENABLE_GKI_SUPPORT != 1)
-		GLUE_SYMBOL_PUT(zb_func_name);
-#endif
-	} else {
-		DBGLOG(RLM, ERROR,
-				"Can't find function %s\n",
-				zb_func_name);
 	}
 #endif
 
@@ -3165,7 +3102,7 @@ void rlmDomainTxPwrLimitPerRateSetValues(
 	}
 
 	for (ucIdx = 0; ucIdx < pSetCmd->ucNum; ucIdx++) {
-		pChPwrLimit = &(pSetCmd->u.rChannelPowerLimit[ucIdx]);
+		pChPwrLimit = &(pSetCmd->rChannelPowerLimit[ucIdx]);
 		cChIdx = rlmDomainTxPwrLimitGetChIdx(pTxPwrLimit,
 			pChPwrLimit->u1CentralCh);
 
@@ -3363,372 +3300,7 @@ error:
 	return bRet;
 }
 
-#if CFG_SUPPORT_DYNAMIC_PWR_LIMIT
-static void rlmDomainUpdateChannelTxPwrLimit(
-	uint8_t ucVersion,
-	u_int8_t fgIs6GBand,
-	struct CHANNEL_TX_PWR_LIMIT *prChLimit,
-	struct TX_PWR_CTRL_CHANNEL_SETTING *prChSetting)
-{
-	uint32_t i, j;
-	int8_t sarLimit;
-
-	if (prChLimit == NULL || prChSetting == NULL)
-		return;
-
-	for (i = 0; i < gTx_Pwr_Limit_Section[ucVersion].ucSectionNum; i++) {
-		if (prChSetting->op[i] == PWR_CTRL_TYPE_NO_ACTION)
-			continue;
-
-		if ((fgIs6GBand) &&
-		    (i != PWR_LIMIT_OFDM) && (i < PWR_LIMIT_RU26))
-			continue;
-
-		if (prChSetting->op[i] == PWR_CTRL_TYPE_NEGATIVE)
-			sarLimit = 0 - prChSetting->i8PwrLimit[i];
-		else
-			sarLimit = prChSetting->i8PwrLimit[i];
-
-		for (j = 0; j < gTx_Pwr_Limit_Element_Num[ucVersion][i]; j++) {
-			prChLimit->rTxPwrLimitValue[i][j] = MIN(
-				sarLimit,
-				prChLimit->rTxPwrLimitValue[i][j]);
-			DBGLOG(RLM, TRACE,
-			       "SAR CH: %d, BAND: %s, SEC: %s, ELE: %s, VAL: %d\n",
-			       prChLimit->ucChannel,
-			       fgIs6GBand ? "6G" : "2.4G/5G",
-			       gTx_Pwr_Limit_Section[ucVersion]
-					.arSectionNames[i],
-			       gTx_Pwr_Limit_Element[ucVersion][i][j],
-			       prChLimit->rTxPwrLimitValue[i][j]);
-		}
-	}
-}
-
-static void rlmDomainUpdateChannelTxLegacyPwrLimit(
-	uint8_t ucVersion,
-	u_int8_t fgIs6GBand,
-	struct CHANNEL_TX_LEGACY_PWR_LIMIT *prChLegacyLimit,
-	struct TX_PWR_CTRL_CHANNEL_SETTING *prChSetting)
-{
-	uint32_t i, j;
-	int8_t sarLimit;
-
-	if (prChLegacyLimit == NULL || prChSetting == NULL)
-		return;
-
-	if (prChSetting->op[PWR_LIMIT_OFDM] == PWR_CTRL_TYPE_NO_ACTION)
-		return;
-
-	if (prChSetting->op[PWR_LIMIT_OFDM] == PWR_CTRL_TYPE_NEGATIVE)
-		sarLimit =  0 - prChSetting->i8PwrLimit[PWR_LIMIT_OFDM];
-	else
-		sarLimit = prChSetting->i8PwrLimit[PWR_LIMIT_OFDM];
-
-	for (i = 0;
-	     i < gTx_Legacy_Pwr_Limit_Section[ucVersion].ucLegacySectionNum;
-	     i++) {
-		for (j = 0;
-		     j < gTx_Legacy_Pwr_Limit_Element_Num[ucVersion][i];
-		     j++) {
-			prChLegacyLimit->rTxLegacyPwrLimitValue[i][j] = MIN(
-				sarLimit,
-				prChLegacyLimit->rTxLegacyPwrLimitValue[i][j]);
-			DBGLOG(RLM, TRACE,
-			       "LegacySAR CH: %d, BAND: %s, SEC: %s, ELE: %s, VAL: %d\n",
-			       prChLegacyLimit->ucChannel,
-			       fgIs6GBand ? "6G" : "2.4G/5G",
-			       gTx_Legacy_Pwr_Limit_Section[ucVersion]
-					.arLegacySectionNames[i],
-			       gTx_Legacy_Pwr_Limit_Element[ucVersion][i][j],
-			       prChLegacyLimit->rTxLegacyPwrLimitValue[i][j]);
-		}
-	}
-}
-
-static void rlmDomainUpdateTxPwrLimitData(
-	uint8_t ucVersion,
-	u_int8_t fgIs6GBand,
-	struct TX_PWR_CTRL_ELEMENT *pcElement,
-	struct TX_PWR_LIMIT_DATA *pTxPwrLimitData,
-	struct TX_PWR_LEGACY_LIMIT_DATA *pTxPwrLegacyLimitData)
-{
-	uint32_t i, j;
-	uint8_t cChIdx, cChIdxMin, cChIdxMax;
-	struct TX_PWR_CTRL_CHANNEL_SETTING *prChSetting = NULL;
-	struct CHANNEL_TX_PWR_LIMIT *prChLimit = NULL;
-	struct CHANNEL_TX_LEGACY_PWR_LIMIT *prLegacyChLimit = NULL;
-	enum ENUM_TX_POWER_CTRL_CHANNEL_TYPE eChnlType;
-
-	if (pcElement == NULL ||
-	    pTxPwrLimitData == NULL ||
-	    pTxPwrLegacyLimitData == NULL)
-		return;
-
-	DBGLOG(RLM, TRACE,
-	       "Update TxPwrLimitData by sar(%s, %d)\n",
-	       pcElement->name, pcElement->index);
-
-	for (i = 0; i < pcElement->settingCount; i++) {
-		prChSetting = &pcElement->rChlSettingList[i];
-		eChnlType = prChSetting->eChnlType;
-		if (fgIs6GBand) {
-			if ((eChnlType >= PWR_CTRL_CHNL_TYPE_2G4) &&
-			    (eChnlType <= PWR_CTRL_CHNL_TYPE_5G_BAND4))
-				continue;
-#if (CFG_SUPPORT_WIFI_6G == 1)
-		} else {
-			if (eChnlType >= PWR_CTRL_CHNL_TYPE_6G)
-				continue;
 #endif
-		}
-
-		switch (eChnlType) {
-		case PWR_CTRL_CHNL_TYPE_NORMAL:
-			cChIdxMin = prChSetting->channelParam[0];
-			cChIdxMax = prChSetting->channelParam[0];
-			break;
-		case PWR_CTRL_CHNL_TYPE_ALL:
-			if (fgIs6GBand) {
-#if (CFG_SUPPORT_WIFI_6G == 1)
-				cChIdxMin = gTx_Pwr_Limit_6g_Ch[0];
-				cChIdxMax = gTx_Pwr_Limit_6g_Ch[
-						TX_PWR_LIMIT_6G_CH_NUM - 1];
-#else
-				cChIdxMin = 0;
-				cChIdxMax = 0;
-#endif
-			} else {
-				cChIdxMin = gTx_Pwr_Limit_2g_Ch[0];
-				cChIdxMax = gTx_Pwr_Limit_5g_Ch[
-						TX_PWR_LIMIT_5G_CH_NUM - 1];
-			}
-			break;
-		case PWR_CTRL_CHNL_TYPE_RANGE:
-			cChIdxMin = prChSetting->channelParam[0];
-			cChIdxMax = prChSetting->channelParam[1];
-			break;
-		case PWR_CTRL_CHNL_TYPE_2G4:
-			cChIdxMin = gTx_Pwr_Limit_2g_Ch[0];
-			cChIdxMax = gTx_Pwr_Limit_2g_Ch[
-					TX_PWR_LIMIT_2G_CH_NUM - 1];
-			break;
-		case PWR_CTRL_CHNL_TYPE_5G:
-			cChIdxMin = gTx_Pwr_Limit_5g_Ch[0];
-			cChIdxMax = gTx_Pwr_Limit_5g_Ch[
-					TX_PWR_LIMIT_5G_CH_NUM - 1];
-			break;
-		case PWR_CTRL_CHNL_TYPE_BANDEDGE_2G4:
-			/* Not support now */
-			cChIdxMin = 0;
-			cChIdxMax = 0;
-			break;
-		case PWR_CTRL_CHNL_TYPE_BANDEDGE_5G:
-			/* Not support now */
-			cChIdxMin = 0;
-			cChIdxMax = 0;
-			break;
-		case PWR_CTRL_CHNL_TYPE_5G_BAND1:
-			cChIdxMin = TX_PWR_LIMIT_5G_BAND1_L;
-			cChIdxMax = TX_PWR_LIMIT_5G_BAND1_H;
-			break;
-		case PWR_CTRL_CHNL_TYPE_5G_BAND2:
-			cChIdxMin = TX_PWR_LIMIT_5G_BAND2_L;
-			cChIdxMax = TX_PWR_LIMIT_5G_BAND2_H;
-			break;
-		case PWR_CTRL_CHNL_TYPE_5G_BAND3:
-			cChIdxMin = TX_PWR_LIMIT_5G_BAND3_L;
-			cChIdxMax = TX_PWR_LIMIT_5G_BAND3_H;
-			break;
-		case PWR_CTRL_CHNL_TYPE_5G_BAND4:
-			cChIdxMin = TX_PWR_LIMIT_5G_BAND4_L;
-			cChIdxMax = TX_PWR_LIMIT_5G_BAND4_H;
-			break;
-#if (CFG_SUPPORT_WIFI_6G == 1)
-		case PWR_CTRL_CHNL_TYPE_6G:
-			cChIdxMin = gTx_Pwr_Limit_6g_Ch[0];
-			cChIdxMax = gTx_Pwr_Limit_6g_Ch[
-					TX_PWR_LIMIT_6G_CH_NUM - 1];
-			break;
-		case PWR_CTRL_CHNL_TYPE_6G_BAND1:
-			cChIdxMin = TX_PWR_LIMIT_6G_BAND1_L;
-			cChIdxMax = TX_PWR_LIMIT_6G_BAND1_H;
-			break;
-		case PWR_CTRL_CHNL_TYPE_6G_BAND2:
-			cChIdxMin = TX_PWR_LIMIT_6G_BAND2_L;
-			cChIdxMax = TX_PWR_LIMIT_6G_BAND2_H;
-			break;
-		case PWR_CTRL_CHNL_TYPE_6G_BAND3:
-			cChIdxMin = TX_PWR_LIMIT_6G_BAND3_L;
-			cChIdxMax = TX_PWR_LIMIT_6G_BAND3_H;
-			break;
-		case PWR_CTRL_CHNL_TYPE_6G_BAND4:
-			cChIdxMin = TX_PWR_LIMIT_6G_BAND4_L;
-			cChIdxMax = TX_PWR_LIMIT_6G_BAND4_H;
-			break;
-#endif
-		default:
-			cChIdxMin = 0;
-			cChIdxMax = 0;
-			break;
-		}
-
-		for (j = 0; j < pTxPwrLimitData->ucChNum; j++) {
-			prChLimit = &pTxPwrLimitData->rChannelTxPwrLimit[j];
-			cChIdx = prChLimit->ucChannel;
-			if (cChIdx < cChIdxMin || cChIdx > cChIdxMax)
-				continue;
-			rlmDomainUpdateChannelTxPwrLimit(ucVersion,
-							 fgIs6GBand,
-							 prChLimit,
-							 prChSetting);
-		}
-
-		for (j = 0; j < pTxPwrLegacyLimitData->ucChNum; j++) {
-			prLegacyChLimit =
-			    &pTxPwrLegacyLimitData->rChannelTxLegacyPwrLimit[j];
-			cChIdx = prLegacyChLimit->ucChannel;
-			if (cChIdx < cChIdxMin || cChIdx > cChIdxMax)
-				continue;
-			rlmDomainUpdateChannelTxLegacyPwrLimit(ucVersion,
-							       fgIs6GBand,
-							       prLegacyChLimit,
-							       prChSetting);
-		}
-	}
-}
-
-static u_int8_t rlmDomainApplySarTxPwrLimit(
-	uint8_t ucVersion,
-	u_int8_t fgIs6GBand,
-	struct ADAPTER *prAdapter,
-	struct TX_PWR_LIMIT_DATA *pTxPwrLimitData,
-	struct TX_PWR_LEGACY_LIMIT_DATA *pTxPwrLegacyLimitData)
-
-{
-	struct LINK_ENTRY *prCur, *prNext;
-	struct TX_PWR_CTRL_ELEMENT *pcElement = NULL;
-
-	if (prAdapter == NULL ||
-	    pTxPwrLimitData == NULL ||
-	    pTxPwrLegacyLimitData == NULL)
-		return FALSE;
-
-	if (ucVersion != PWR_CFG_PARM_VERSION) {
-		DBGLOG(RLM, ERROR,
-		       "TxPwrLimit version not match(%d != %d)\n",
-		       ucVersion, PWR_CFG_PARM_VERSION);
-		return FALSE;
-	}
-
-	DBGLOG(RLM, INFO, "ApplySarTxPwrLimit\n");
-	LINK_FOR_EACH_SAFE(prCur, prNext, &prAdapter->rTxPwr_DynamicList) {
-		pcElement = LINK_ENTRY(prCur, struct TX_PWR_CTRL_ELEMENT, node);
-		if (pcElement->fgApplied)
-			rlmDomainUpdateTxPwrLimitData(ucVersion,
-						      fgIs6GBand,
-						      pcElement,
-						      pTxPwrLimitData,
-						      pTxPwrLegacyLimitData);
-	}
-
-	return TRUE;
-}
-
-#if CFG_SUPPORT_DYNAMIC_PWR_LIMIT_ANT_TAG
-static u_int8_t rlmDomainUpdateAntPwrLimitData(
-	struct TX_PWR_CTRL_ELEMENT *pcElement,
-	struct CMD_TXPOWER_ANT_POWER_LIMIT *pAntPwrLimitData)
-{
-	uint32_t i, j;
-	struct TX_PWR_CTRL_ANT_SETTING *prPwrant = NULL;
-	struct CMD_ANT_TABLE_TYPE *prAntPowerLimit = NULL;
-
-	if (pcElement == NULL ||
-	    pAntPwrLimitData == NULL)
-		return FALSE;
-
-	DBGLOG(RLM, INFO, "UpdateAntPwrLimitData\n");
-	for (i = POWER_ANT_ALL_T; i < POWER_ANT_TAG_NUM; i++) {
-		prPwrant = &pcElement->aiPwrAnt[i];
-		if (!prPwrant->fgApplied)
-			continue;
-
-		if (pAntPwrLimitData->ucAntNum > POWER_ANT_NUM)
-			pAntPwrLimitData->ucAntNum = POWER_ANT_NUM;
-
-		for (j = 0; j < pAntPwrLimitData->ucAntNum; j++) {
-			prAntPowerLimit = &pAntPwrLimitData->rAntPowerLimit[j];
-			prAntPowerLimit->aucAntPowerLimit[0] =
-				MIN(prAntPowerLimit->aucAntPowerLimit[0],
-				    prPwrant->aiPwrAnt2G4[j]);
-			prAntPowerLimit->aucAntPowerLimit[1] =
-				MIN(prAntPowerLimit->aucAntPowerLimit[1],
-				    prPwrant->aiPwrAnt5GB1[j]);
-			prAntPowerLimit->aucAntPowerLimit[2] =
-				MIN(prAntPowerLimit->aucAntPowerLimit[2],
-				    prPwrant->aiPwrAnt5GB2[j]);
-			prAntPowerLimit->aucAntPowerLimit[3] =
-				MIN(prAntPowerLimit->aucAntPowerLimit[3],
-				    prPwrant->aiPwrAnt5GB3[j]);
-			prAntPowerLimit->aucAntPowerLimit[4] =
-				MIN(prAntPowerLimit->aucAntPowerLimit[4],
-				    prPwrant->aiPwrAnt5GB4[j]);
-#if (CFG_SUPPORT_WIFI_6G == 1)
-
-			prAntPowerLimit->aucAntPowerLimit[5] =
-				MIN(prAntPowerLimit->aucAntPowerLimit[5],
-				    prPwrant->aiPwrAnt6GB1[j]);
-			prAntPowerLimit->aucAntPowerLimit[6] =
-				MIN(prAntPowerLimit->aucAntPowerLimit[6],
-				    prPwrant->aiPwrAnt6GB2[j]);
-			prAntPowerLimit->aucAntPowerLimit[7] =
-				MIN(prAntPowerLimit->aucAntPowerLimit[7],
-				    prPwrant->aiPwrAnt6GB3[j]);
-			prAntPowerLimit->aucAntPowerLimit[8] =
-				MIN(prAntPowerLimit->aucAntPowerLimit[8],
-				    prPwrant->aiPwrAnt6GB4[j]);
-#endif
-			DBGLOG(RLM, TRACE,
-			       "ANT SAR (ANT %d: %d %d %d %d %d %d %d %d %d)\n",
-			       j,
-			       prAntPowerLimit->aucAntPowerLimit[0],
-			       prAntPowerLimit->aucAntPowerLimit[1],
-			       prAntPowerLimit->aucAntPowerLimit[2],
-			       prAntPowerLimit->aucAntPowerLimit[3],
-			       prAntPowerLimit->aucAntPowerLimit[4],
-			       prAntPowerLimit->aucAntPowerLimit[5],
-			       prAntPowerLimit->aucAntPowerLimit[6],
-			       prAntPowerLimit->aucAntPowerLimit[7],
-			       prAntPowerLimit->aucAntPowerLimit[8]);
-		}
-	}
-	return TRUE;
-}
-
-static u_int8_t rlmDomainApplySarAntPwrLimit(
-	struct ADAPTER *prAdapter,
-	struct CMD_TXPOWER_ANT_POWER_LIMIT *pAntPwrLimitData)
-{
-	struct LINK_ENTRY *prCur, *prNext;
-	struct TX_PWR_CTRL_ELEMENT *pcElement = NULL;
-
-	if (prAdapter == NULL ||
-	    pAntPwrLimitData == NULL)
-		return FALSE;
-
-	DBGLOG(RLM, INFO, "ApplySarAntPwrLimit\n");
-	LINK_FOR_EACH_SAFE(prCur, prNext, &prAdapter->rTxPwr_DynamicList) {
-		pcElement = LINK_ENTRY(prCur, struct TX_PWR_CTRL_ELEMENT, node);
-		if (pcElement->fgApplied)
-			rlmDomainUpdateAntPwrLimitData(pcElement,
-						       pAntPwrLimitData);
-	}
-	return TRUE;
-}
-#endif  /* #if CFG_SUPPORT_DYNAMIC_PWR_LIMIT_ANT_TAG */
-#endif  /* #if CFG_SUPPORT_DYNAMIC_PWR_LIMIT */
-#endif  /* #if (CFG_SUPPORT_SINGLE_SKU == 1) */
 
 #if CFG_SUPPORT_PWR_LIMIT_COUNTRY
 
@@ -3783,7 +3355,6 @@ void rlmDomainCheckCountryPowerLimitTable(struct ADAPTER *prAdapter)
 	u_int8_t fgPowerLimitValid = FALSE;
 	u_int8_t fgEntryRepetetion = FALSE;
 	u_int8_t fgTableValid = TRUE;
-	uint8_t limitValueStr[128];
 
 	/*1.Configuration Table Check */
 	for (i = 0; i < sizeof(PwrLmtConf) /
@@ -3824,22 +3395,22 @@ void rlmDomainCheckCountryPowerLimitTable(struct ADAPTER *prAdapter)
 
 		if (fgChannelValid == FALSE || fgPowerLimitValid == FALSE) {
 			fgTableValid = FALSE;
-			kalMemSet(limitValueStr, 0, sizeof(limitValueStr));
-			for (j = 0; j < PWR_LIMIT_NUM; j++) {
-				kalSnprintf(limitValueStr +
-						kalStrLen(limitValueStr),
-					sizeof(limitValueStr) -
-						kalStrLen(limitValueStr) - 1,
-					" %d,", PwrLmtConf[i].aucPwrLimit[j]);
-			}
 			DBGLOG(RLM, LOUD,
-			       "Domain: CC=%c%c, Ch=%d, Limit:%s Valid:%d,%d\n",
-			       PwrLmtConf[i].aucCountryCode[0],
-			       PwrLmtConf[i].aucCountryCode[1],
-			       PwrLmtConf[i].ucCentralCh,
-			       limitValueStr,
-			       fgChannelValid,
-			       fgPowerLimitValid);
+				"Domain: CC=%c%c, Ch=%d, Limit: %d,%d,%d,%d,%d,%d,%d,%d,%d, Valid:%d,%d\n",
+				PwrLmtConf[i].aucCountryCode[0],
+				PwrLmtConf[i].aucCountryCode[1],
+				PwrLmtConf[i].ucCentralCh,
+				PwrLmtConf[i].aucPwrLimit[PWR_LIMIT_CCK],
+				PwrLmtConf[i].aucPwrLimit[PWR_LIMIT_20M_L],
+				PwrLmtConf[i].aucPwrLimit[PWR_LIMIT_20M_H],
+				PwrLmtConf[i].aucPwrLimit[PWR_LIMIT_40M_L],
+				PwrLmtConf[i].aucPwrLimit[PWR_LIMIT_40M_H],
+				PwrLmtConf[i].aucPwrLimit[PWR_LIMIT_80M_L],
+				PwrLmtConf[i].aucPwrLimit[PWR_LIMIT_80M_H],
+				PwrLmtConf[i].aucPwrLimit[PWR_LIMIT_160M_L],
+				PwrLmtConf[i].aucPwrLimit[PWR_LIMIT_160M_H],
+				fgChannelValid,
+				fgPowerLimitValid);
 		}
 
 		if (u2CountryCodeTable == COUNTRY_CODE_NULL) {
@@ -4226,7 +3797,7 @@ void rlmDomainBuildCmdByConfigTable(struct ADAPTER *prAdapter,
 }
 
 #if (CFG_SUPPORT_SINGLE_SKU == 1)
-#if (CFG_SUPPORT_WIFI_6G == 1)
+#if (CFG_SUPPORT_SINGLE_SKU_6G == 1)
 struct TX_PWR_LIMIT_DATA *
 rlmDomainInitTxPwrLimitData_6G(struct ADAPTER *prAdapter)
 {
@@ -4349,7 +3920,8 @@ rlmDomainInitTxLegacyPwrLimitData_6G(struct ADAPTER *prAdapter)
 
 	return pTxLegacyPwrLimitData;
 }
-#endif /* #if (CFG_SUPPORT_WIFI_6G == 1) */
+
+#endif /* #if (CFG_SUPPORT_SINGLE_SKU_6G == 1) */
 
 struct TX_PWR_LIMIT_DATA *
 rlmDomainInitTxPwrLimitData(struct ADAPTER *prAdapter)
@@ -4641,7 +4213,7 @@ error:
 	}
 }
 
-#if (CFG_SUPPORT_WIFI_6G == 1)
+#if (CFG_SUPPORT_SINGLE_SKU_6G == 1)
 void rlmDomainTxPwrLimitSendPerRateCmd_6G(
 	struct ADAPTER *prAdapter,
 	struct CMD_SET_TXPOWER_COUNTRY_TX_POWER_LIMIT_PER_RATE *prCmd
@@ -4700,12 +4272,11 @@ void rlmDomainTxPwrLimitSendPerRateCmd_6G(
 		prTempCmd->eBand = eBand;
 		prTempCmd->u4CountryCode =
 			rlmDomainGetCountryCode();
-		prTempCmd->eLimitType = TXPOWER_LIMIT_FORMAT_CHANNEL;
 		prTempCmd->bCmdFinished = bCmdFinished;
 		u2ChIdx = i * ucCmdBatchSize;
 		kalMemCopy(
-			&prTempCmd->u.rChannelPowerLimit[0],
-			&prCmd->u.rChannelPowerLimit[u2ChIdx],
+			&prTempCmd->rChannelPowerLimit[0],
+			&prCmd->rChannelPowerLimit[u2ChIdx],
 			ucTempChNum * u4ChPwrLimitSize);
 
 		u4SetQueryInfoLen = u4BufSize;
@@ -4814,7 +4385,8 @@ void rlmDomainTxLegacyPwrLimitSendPerRateCmd_6G(
 		ucRemainChNum -= ucTempChNum;
 	}
 }
-#endif /* #if (CFG_SUPPORT_WIFI_6G == 1) */
+
+#endif /* #if (CFG_SUPPORT_SINGLE_SKU_6G == 1) */
 
 u_int32_t rlmDomainInitTxPwrLimitPerRateCmd(
 	struct ADAPTER *prAdapter,
@@ -4858,14 +4430,13 @@ u_int32_t rlmDomainInitTxPwrLimitPerRateCmd(
 		}
 
 		/*initialize tx pwr table*/
-		kalMemSet(prCmd[band_idx]->u.rChannelPowerLimit, MAX_TX_POWER,
+		kalMemSet(prCmd[band_idx]->rChannelPowerLimit, MAX_TX_POWER,
 			ch_cnt * u4ChPwrLimitSize);
 
 		prCmd[band_idx]->ucNum = ch_cnt;
 		prCmd[band_idx]->eBand =
 			(band_idx == KAL_BAND_2GHZ) ?
 				BAND_2G4 : BAND_5G;
-		prCmd[band_idx]->eLimitType = TXPOWER_LIMIT_FORMAT_CHANNEL;
 		prCmd[band_idx]->u4CountryCode = rlmDomainGetCountryCode();
 
 		DBGLOG(RLM, INFO,
@@ -4875,7 +4446,7 @@ u_int32_t rlmDomainInitTxPwrLimitPerRateCmd(
 		for (ch_idx = 0; ch_idx < ch_cnt; ch_idx++) {
 			prChPwrLimit =
 				&(prCmd[band_idx]->
-				  u.rChannelPowerLimit[ch_idx]);
+				  rChannelPowerLimit[ch_idx]);
 			prChPwrLimit->u1CentralCh =	prChannelList[ch_idx];
 		}
 
@@ -5015,13 +4586,12 @@ void rlmDomainTxPwrLimitSendPerRateCmd(
 			prTempCmd->eBand = eBand;
 			prTempCmd->u4CountryCode =
 				rlmDomainGetCountryCode();
-			prTempCmd->eLimitType = TXPOWER_LIMIT_FORMAT_CHANNEL;
 			prTempCmd->bCmdFinished = bCmdFinished;
 			u2ChIdx = i * ucCmdBatchSize;
 			kalMemCopy(
-				&prTempCmd->u.rChannelPowerLimit[0],
+				&prTempCmd->rChannelPowerLimit[0],
 				&prCmd[band_idx]->
-				 u.rChannelPowerLimit[u2ChIdx],
+				 rChannelPowerLimit[u2ChIdx],
 				ucTempChNum * u4ChPwrLimitSize);
 
 			u4SetQueryInfoLen = u4BufSize;
@@ -5261,7 +4831,7 @@ void rlmDomainTxPwrSendTxBfBackoffCmd(
 
 }
 
-#if (CFG_SUPPORT_WIFI_6G == 1)
+#if (CFG_SUPPORT_SINGLE_SKU_6G == 1)
 void
 rlmDomainSendTxPwrLimitPerRateCmd_6G(struct ADAPTER *prAdapter,
 	uint8_t ucVersion,
@@ -5297,7 +4867,7 @@ rlmDomainSendTxPwrLimitPerRateCmd_6G(struct ADAPTER *prAdapter,
 	}
 
 	/*initialize tx pwr table*/
-	kalMemSet(prTxPwrLimitPerRateCmd_6G->u.rChannelPowerLimit, MAX_TX_POWER,
+	kalMemSet(prTxPwrLimitPerRateCmd_6G->rChannelPowerLimit, MAX_TX_POWER,
 		ch_cnt * u4ChPwrLimitSize);
 
 	prTxPwrLimitPerRateCmd_6G->ucNum = ch_cnt;
@@ -5305,7 +4875,7 @@ rlmDomainSendTxPwrLimitPerRateCmd_6G(struct ADAPTER *prAdapter,
 	prTxPwrLimitPerRateCmd_6G->u4CountryCode = rlmDomainGetCountryCode();
 
 	for (ch_idx = 0; ch_idx < ch_cnt; ch_idx++) {
-	prTxPwrLimitPerRateCmd_6G->u.rChannelPowerLimit[ch_idx].u1CentralCh =
+	prTxPwrLimitPerRateCmd_6G->rChannelPowerLimit[ch_idx].u1CentralCh =
 	prChannelList[ch_idx];
 	}
 
@@ -5380,7 +4950,8 @@ rlmDomainSendTxLegacyPwrLimitPerRateCmd_6G(struct ADAPTER *prAdapter,
 	kalMemFree(prTxLegacyPwrLimitPerRateCmd_6G, VIR_MEM_TYPE,
 		u4SetCmdTableMaxSize);
 }
-#endif /* #if (CFG_SUPPORT_WIFI_6G == 1) */
+
+#endif /* #if (CFG_SUPPORT_SINGLE_SKU_6G == 1) */
 
 void
 rlmDomainSendTxPwrLimitPerRateCmd(struct ADAPTER *prAdapter,
@@ -5476,55 +5047,6 @@ error:
 	if (prTxBfBackoffCmd)
 		cnmMemFree(prAdapter, prTxBfBackoffCmd);
 }
-
-#if CFG_SUPPORT_DYNAMIC_PWR_LIMIT_ANT_TAG
-void rlmDomainSendAntPwrLimitCmd(struct ADAPTER *prAdapter,
-	u_int8_t fgNeedUpdateSkuTable)
-{
-	uint32_t rStatus;
-	struct CMD_SET_TXPOWER_COUNTRY_TX_POWER_LIMIT_PER_RATE
-		*prAntLimitCmd = NULL;
-	uint32_t u4SetAntPwrLimitCmdSize =
-		sizeof(struct CMD_SET_TXPOWER_COUNTRY_TX_POWER_LIMIT_PER_RATE);
-	uint32_t u4AntPwrLimitSize =
-		sizeof(struct CMD_ANT_TABLE_TYPE);
-	uint32_t u4BandNum = (POWER_ANT_BAND_NUM < MIN_ANT_BAND_NUM) ?
-				MIN_ANT_BAND_NUM : POWER_ANT_BAND_NUM;
-	uint32_t u4BufSize = u4SetAntPwrLimitCmdSize +
-		(POWER_ANT_NUM * u4BandNum) * u4AntPwrLimitSize;
-
-	prAntLimitCmd = cnmMemAlloc(prAdapter, RAM_TYPE_BUF, u4BufSize);
-	if (!prAntLimitCmd) {
-		DBGLOG(RLM, ERROR, "Domain: no buf to send cmd\n");
-		return;
-	}
-
-	kalMemSet(prAntLimitCmd, 0, u4BufSize);
-	prAntLimitCmd->ucNum = 0;
-	prAntLimitCmd->eBand = BAND_NULL;
-	prAntLimitCmd->bCmdFinished = fgNeedUpdateSkuTable ? FALSE : TRUE;
-	prAntLimitCmd->eLimitType = TXPOWER_LIMIT_FORMAT_ANT;
-	prAntLimitCmd->u4CountryCode = rlmDomainGetCountryCode();
-	prAntLimitCmd->u.rAntPowerLimit.ucAntSetType = ANT_SET_TYPE_ANTSWAP;
-	prAntLimitCmd->u.rAntPowerLimit.ucAntNum = POWER_ANT_NUM;
-	prAntLimitCmd->u.rAntPowerLimit.ucEntryLength = u4BandNum;
-
-	rlmDomainApplySarAntPwrLimit(prAdapter,
-				     &prAntLimitCmd->u.rAntPowerLimit);
-
-	rStatus = wlanSendSetQueryCmd(prAdapter,
-				      CMD_ID_SET_COUNTRY_POWER_LIMIT_PER_RATE,
-				      TRUE, FALSE, FALSE,
-				      NULL, NULL,
-				      u4BufSize, (uint8_t *)prAntLimitCmd,
-				      NULL, 0);
-
-	if (rStatus != WLAN_STATUS_PENDING)
-		DBGLOG(RLM, ERROR, "wlanSendSetQueryCmd error\n");
-
-	cnmMemFree(prAdapter, prAntLimitCmd);
-}
-#endif
 #endif/*CFG_SUPPORT_SINGLE_SKU*/
 
 void rlmDomainSendPwrLimitCmd_V2(struct ADAPTER *prAdapter)
@@ -5550,12 +5072,6 @@ void rlmDomainSendPwrLimitCmd_V2(struct ADAPTER *prAdapter)
 		goto error;
 	}
 
-#if CFG_SUPPORT_DYNAMIC_PWR_LIMIT_ANT_TAG
-	/* Send SAR AntPwrLimit first */
-	rlmDomainSendAntPwrLimitCmd(prAdapter, TRUE);
-#endif
-
-	/* Get Max Tx Power from MT_TxPwrLimit.dat */
 	if (!rlmDomainGetTxPwrLimit(rlmDomainGetCountryCode(),
 		&ucVersion,
 		prAdapter->prGlueInfo,
@@ -5574,14 +5090,9 @@ void rlmDomainSendPwrLimitCmd_V2(struct ADAPTER *prAdapter)
 		goto error;
 	}
 
-#if CFG_SUPPORT_DYNAMIC_PWR_LIMIT
-	/* Apply Dynamic TxPwrLimit */
-	if (!rlmDomainApplySarTxPwrLimit(ucVersion, FALSE,
-		prAdapter, pTxPwrLimitData, pTxPwrLegacyLimitData)) {
-		DBGLOG(RLM, INFO,
-			"Apply SAR TxPwrLimit failed\n");
-	}
-#endif
+	/*
+	 * Get Max Tx Power from MT_TxPwrLimit.dat
+	 */
 
 	/* Prepare to send CMD to FW */
 	if (ucVersion == 0) {
@@ -5603,7 +5114,7 @@ void rlmDomainSendPwrLimitCmd_V2(struct ADAPTER *prAdapter)
 			ucVersion);
 	}
 
-#if (CFG_SUPPORT_WIFI_6G == 1)
+#if (CFG_SUPPORT_SINGLE_SKU_6G == 1)
 	if (pTxPwrLimitData && pTxPwrLimitData->rChannelTxPwrLimit)
 		kalMemFree(pTxPwrLimitData->rChannelTxPwrLimit, VIR_MEM_TYPE,
 			sizeof(struct CHANNEL_TX_PWR_LIMIT) *
@@ -5639,7 +5150,9 @@ void rlmDomainSendPwrLimitCmd_V2(struct ADAPTER *prAdapter)
 		goto error;
 	}
 
-	/* Get Max Tx Power from MT_TxPwrLimit_6G.dat */
+	/*
+	 * Get Max Tx Power from MT_TxPwrLimit_6G.dat
+	 */
 	prAdapter->chip_info->prTxPwrLimitFile = "TxPwrLimit6G_MT79x1.dat";
 	if (!rlmDomainGetTxPwrLimit(rlmDomainGetCountryCode(),
 		&ucVersion,
@@ -5659,14 +5172,6 @@ void rlmDomainSendPwrLimitCmd_V2(struct ADAPTER *prAdapter)
 		goto error;
 	}
 
-#if CFG_SUPPORT_DYNAMIC_PWR_LIMIT
-	/* Apply Dynamic TxPwrLimit for 6G channel */
-	if (!rlmDomainApplySarTxPwrLimit(ucVersion, TRUE,
-		prAdapter, pTxPwrLimitData, pTxPwrLegacyLimitData)) {
-		DBGLOG(RLM, INFO, "Apply SAR TxPwrLimit 6G failed\n");
-	}
-#endif
-
 	/* Prepare to send CMD to FW */
 	if (ucVersion == 2) {
 		rlmDomainSendTxPwrLimitPerRateCmd_6G(prAdapter,
@@ -5681,7 +5186,7 @@ void rlmDomainSendPwrLimitCmd_V2(struct ADAPTER *prAdapter)
 
 	/* restore back to default value */
 	prAdapter->chip_info->prTxPwrLimitFile = "TxPwrLimit_MT79x1.dat";
-#endif /* #if (CFG_SUPPORT_WIFI_6G == 1) */
+#endif /* #if (CFG_SUPPORT_SINGLE_SKU_6G == 1) */
 
 error:
 	if (pTxPwrLimitData && pTxPwrLimitData->rChannelTxPwrLimit)
@@ -5893,8 +5398,6 @@ uint32_t txPwrApplyOneSetting(struct CMD_SET_COUNTRY_CHANNEL_POWER_LIMIT *prCmd,
 						fgDoArbitrator = TRUE;
 					break;
 				}
-				default:
-					break;
 			}
 			if (fgDoArbitrator)
 				txPwrArbitrator(prCurElement->eCtrlType,
@@ -5950,295 +5453,6 @@ char *txPwrGetString(char **pcContent, char *delim)
 	return result;
 }
 
-#if CFG_SUPPORT_DYNAMIC_PWR_LIMIT_ANT_TAG
-void txPwrParseTagDump(struct TX_PWR_CTRL_ELEMENT *pRecord)
-{
-	uint32_t i = 0, j = 0;
-
-	for (i = 0; i < POWER_ANT_TAG_NUM; i++) {
-		if (pRecord->aiPwrAnt[i].fgApplied == FALSE)
-			continue;
-
-		DBGLOG(RLM, TRACE, "Tag (%s) id (%d) :",
-			g_auTxPwrTagTable[i].arTagNames, i);
-
-		for (j = 0; j < POWER_ANT_NUM; j++) {
-			DBGLOG(RLM, TRACE, "2G4: [%d]",
-				pRecord->aiPwrAnt[i].aiPwrAnt2G4[j]);
-			DBGLOG(RLM, TRACE, "5GB1: [%d]",
-				pRecord->aiPwrAnt[i].aiPwrAnt5GB1[j]);
-			DBGLOG(RLM, TRACE, "5GB2: [%d]",
-				pRecord->aiPwrAnt[i].aiPwrAnt5GB2[j]);
-			DBGLOG(RLM, TRACE, "5GB3: [%d]",
-				pRecord->aiPwrAnt[i].aiPwrAnt5GB3[j]);
-			DBGLOG(RLM, TRACE, "5GB4: [%d]",
-				pRecord->aiPwrAnt[i].aiPwrAnt5GB4[j]);
-#if (CFG_SUPPORT_WIFI_6G == 1)
-			DBGLOG(RLM, TRACE, "6GB1: [%d]",
-				pRecord->aiPwrAnt[i].aiPwrAnt6GB1[j]);
-			DBGLOG(RLM, TRACE, "6GB2: [%d]",
-				pRecord->aiPwrAnt[i].aiPwrAnt6GB2[j]);
-			DBGLOG(RLM, TRACE, "6GB3: [%d]",
-				pRecord->aiPwrAnt[i].aiPwrAnt6GB3[j]);
-			DBGLOG(RLM, TRACE, "6GB4: [%d]",
-				pRecord->aiPwrAnt[i].aiPwrAnt6GB4[j]);
-#endif
-		}
-	}
-}
-
-int32_t txPwrParseTagXXXT(char *pStart, char *pEnd, uint8_t cTagParaNum,
-	struct TX_PWR_CTRL_ELEMENT *pRecord, enum ENUM_POWER_ANT_TAG eTag)
-{
-	char *pCurent = NULL, *pContent = NULL;
-	uint8_t i = 0, j = 0;
-	uint8_t ucBId = 0, ucAId = 0;
-	uint8_t op = 0, value = 0;
-	int8_t backoff = 0;
-
-	if (!pStart || !pEnd || !pRecord)
-		return -1;
-
-	DBGLOG(RLM, TRACE, "parse tag Para (%s) to aiPwrAnt[%u]", pStart, eTag);
-
-	pCurent = pStart;
-	for (i = 0; i < cTagParaNum; i++) {
-		if (!pCurent || pCurent >= pEnd)
-			break;
-
-		pContent = txPwrGetString(&pCurent, ",");
-		if (!pContent) {
-			DBGLOG(RLM, ERROR,
-			       "tag parameter format error: %s\n",
-			       pStart);
-			break;
-		}
-
-		if (txPwrParseNumber(&pContent, ",", &op, &value)) {
-			DBGLOG(RLM, ERROR,
-			       "parse parameter error: %s\n",
-			       pContent);
-			break;
-		}
-
-		backoff = (op == 1) ? value : (0 - value);
-		if (backoff < PWR_CFG_LIMIT_MIN)
-			backoff = PWR_CFG_LIMIT_MIN;
-		if (backoff > PWR_CFG_LIMIT_MAX)
-			backoff = PWR_CFG_LIMIT_MAX;
-
-		ucBId = i % POWER_ANT_BAND_NUM;
-		ucAId = i / POWER_ANT_BAND_NUM;
-		switch (ucBId) {
-		case POWER_ANT_2G4_BAND:
-			pRecord->aiPwrAnt[eTag].aiPwrAnt2G4[ucAId] = backoff;
-			break;
-		case POWER_ANT_5G_BAND1:
-			pRecord->aiPwrAnt[eTag].aiPwrAnt5GB1[ucAId] = backoff;
-			break;
-		case POWER_ANT_5G_BAND2:
-			pRecord->aiPwrAnt[eTag].aiPwrAnt5GB2[ucAId] = backoff;
-			break;
-		case POWER_ANT_5G_BAND3:
-			pRecord->aiPwrAnt[eTag].aiPwrAnt5GB3[ucAId] = backoff;
-			break;
-		case POWER_ANT_5G_BAND4:
-			pRecord->aiPwrAnt[eTag].aiPwrAnt5GB4[ucAId] = backoff;
-			break;
-#if (CFG_SUPPORT_WIFI_6G == 1)
-		case POWER_ANT_6G_BAND1:
-			pRecord->aiPwrAnt[eTag].aiPwrAnt6GB1[ucAId] = backoff;
-			break;
-		case POWER_ANT_6G_BAND2:
-			pRecord->aiPwrAnt[eTag].aiPwrAnt6GB2[ucAId] = backoff;
-			break;
-		case POWER_ANT_6G_BAND3:
-			pRecord->aiPwrAnt[eTag].aiPwrAnt6GB3[ucAId] = backoff;
-			break;
-		case POWER_ANT_6G_BAND4:
-			pRecord->aiPwrAnt[eTag].aiPwrAnt6GB4[ucAId] = backoff;
-			break;
-#endif
-		default:
-			DBGLOG(RLM, ERROR, "Never happen: %s\n", pStart);
-			return -1;
-		}
-
-		if (pCurent >= pEnd)
-			break;
-	}
-
-	if (i != cTagParaNum) {
-		DBGLOG(RLM, ERROR, "parameter number error: %s\n", pStart);
-		for (j = 0; j < POWER_ANT_TAG_NUM; j++) {
-			kalMemSet(&pRecord->aiPwrAnt[j], 0,
-				sizeof(struct TX_PWR_CTRL_ANT_SETTING));
-		}
-		return -1;
-	}
-	pRecord->aiPwrAnt[eTag].fgApplied = TRUE;
-
-	DBGLOG(RLM, TRACE, "[Success] Dump aiPwrAnt[%u] para: ", eTag);
-	for (j = 0; j < POWER_ANT_NUM; j++)
-#if (CFG_SUPPORT_WIFI_6G == 1)
-		DBGLOG(RLM, TRACE, "[%d][%d][%d][%d][%d][%d][%d][%d][%d]",
-			pRecord->aiPwrAnt[eTag].aiPwrAnt2G4[j],
-			pRecord->aiPwrAnt[eTag].aiPwrAnt5GB1[j],
-			pRecord->aiPwrAnt[eTag].aiPwrAnt5GB2[j],
-			pRecord->aiPwrAnt[eTag].aiPwrAnt5GB3[j],
-			pRecord->aiPwrAnt[eTag].aiPwrAnt5GB4[j],
-			pRecord->aiPwrAnt[eTag].aiPwrAnt6GB1[j],
-			pRecord->aiPwrAnt[eTag].aiPwrAnt6GB2[j],
-			pRecord->aiPwrAnt[eTag].aiPwrAnt6GB3[j],
-			pRecord->aiPwrAnt[eTag].aiPwrAnt6GB4[j]);
-
-#else
-		DBGLOG(RLM, TRACE, "[%d][%d][%d][%d][%d]",
-			pRecord->aiPwrAnt[eTag].aiPwrAnt2G4[j],
-			pRecord->aiPwrAnt[eTag].aiPwrAnt5GB1[j],
-			pRecord->aiPwrAnt[eTag].aiPwrAnt5GB2[j],
-			pRecord->aiPwrAnt[eTag].aiPwrAnt5GB3[j],
-			pRecord->aiPwrAnt[eTag].aiPwrAnt5GB4[j]);
-#endif
-
-	return 0;
-}
-
-int32_t txPwrParseTag(char *pTagStart, char *pTagEnd,
-	struct TX_PWR_CTRL_ELEMENT *pRecord)
-{
-	uint8_t i = 0;
-	uint8_t cTagParaNum = 0;
-	int32_t ret = 0;
-	char *pCurent = NULL, *pNext = NULL;
-
-	if (!pTagStart || !pTagEnd || !pRecord)
-		return -1;
-
-	DBGLOG(RLM, TRACE, "Parse new tag %s\n", pTagStart);
-
-	for (pCurent = pTagStart; pCurent < pTagEnd; pCurent++) {
-		if ((*pCurent) == ',')
-			cTagParaNum++;
-	}
-
-	pCurent = pTagStart;
-	pNext = txPwrGetString(&pCurent, ",");
-	if (!pNext) {
-		DBGLOG(RLM, INFO, "Parse tag name error, %s\n", pTagStart);
-		return -1;
-	}
-
-	for (i = 0;
-	     i < sizeof(g_auTxPwrTagTable)/sizeof(struct TX_PWR_TAG_TABLE);
-	     i++){
-		DBGLOG(RLM, TRACE,
-		       "Parse tag name [%s] handler name[%s]\n",
-		       pNext, g_auTxPwrTagTable[i].arTagNames);
-
-		if (kalStrCmp(pNext, g_auTxPwrTagTable[i].arTagNames) == 0) {
-			DBGLOG(RLM, TRACE,
-			       "find tag [%s] with %d para\n",
-			       g_auTxPwrTagTable[i].arTagNames, cTagParaNum);
-
-			if (cTagParaNum != g_auTxPwrTagTable[i].ucTagParaNum) {
-				DBGLOG(RLM, ERROR,
-				       "Tag para number error (%d != %d)",
-				       cTagParaNum,
-				       g_auTxPwrTagTable[i].ucTagParaNum);
-				return -1;
-			}
-
-			ret = txPwrParseTagXXXT(
-					pCurent,
-					pTagEnd,
-					cTagParaNum,
-					pRecord,
-					g_auTxPwrTagTable[i].eTag);
-
-			txPwrParseTagDump(pRecord);
-
-			return ret;
-		}
-	}
-
-	DBGLOG(RLM, INFO, "Undefined tag name [%s]\n", pCurent);
-
-	return -1;
-}
-
-int32_t txPwrOnPreParseAppendTag(struct TX_PWR_CTRL_ELEMENT *pRecord)
-{
-	if (!pRecord)
-		return -1;
-
-	kalMemSet(&(pRecord->aiPwrAnt[0]), 0,
-		POWER_ANT_TAG_NUM * sizeof(struct TX_PWR_CTRL_ANT_SETTING));
-
-	return 0;
-}
-
-int32_t txPwrParseAppendTag(char *pcStart,
-	char *pcEnd, struct TX_PWR_CTRL_ELEMENT *pRecord)
-{
-	char *pcContCur = NULL, *pcContTemp = NULL;
-	uint32_t ucTagCount1 = 0, ucTagCount2 = 0;
-	uint8_t i = 0;
-
-	if (!pcStart || !pcEnd || !pRecord) {
-		DBGLOG(RLM, INFO, "%p-%p-%p!\n", pcStart, pcEnd, pRecord);
-		return -1;
-	}
-
-	/* parse power limit append tag to list. */
-	pcContCur = pcStart;
-	pcContTemp = pcContCur;
-
-	while (pcContTemp <= pcEnd) {
-		if ((*pcContTemp) == '<')
-			ucTagCount1++;
-		if ((*pcContTemp) == '>')
-			ucTagCount2++;
-		pcContTemp++;
-	}
-	if (ucTagCount1 != ucTagCount2) {
-		DBGLOG(RLM, INFO, "Wrong tag append %s!\n", pcStart);
-		return -1;
-	}
-	if (ucTagCount1 == 0)
-		return 0;
-
-	DBGLOG(RLM, TRACE, "New config total %u tag append %s !\n",
-		ucTagCount1, pcStart);
-
-	for (i = 0; i < ucTagCount1; i++) {
-		pcContTemp = txPwrGetString(&pcContCur, "<");
-		if (!pcContCur || pcContCur > pcEnd) {
-			DBGLOG(RLM, INFO, "No content after '<' !\n");
-			return -1;
-		}
-		pcContTemp = txPwrGetString(&pcContCur, ">");
-		if (!pcContTemp) {
-			DBGLOG(RLM, INFO, "Can not find content after '<' !\n");
-			return -1;
-		}
-		if (!pcContCur || pcContCur > pcEnd) {
-			DBGLOG(RLM, INFO, "No content after '>' !\n");
-			return -1;
-		}
-		if (txPwrParseTag(pcContTemp, pcContCur - 1, pRecord)) {
-			DBGLOG(RLM, INFO, "Parse one tag fail !\n");
-			return -1;
-		}
-
-		DBGLOG(RLM, TRACE, "Parse tag (%u/%u) success!\n",
-			i + 1, ucTagCount1);
-	}
-
-	return 0;
-}
-#endif  /* CFG_SUPPORT_DYNAMIC_PWR_LIMIT_ANT_TAG */
-
 struct TX_PWR_CTRL_ELEMENT *txPwrCtrlStringToStruct(char *pcContent,
 						    u_int8_t fgSkipHeader)
 {
@@ -6289,7 +5503,7 @@ struct TX_PWR_CTRL_ELEMENT *txPwrCtrlStringToStruct(char *pcContent,
 		       pcContOld);
 		return NULL;
 	}
-	if (op != 1) {
+	if ((op != 1) || (value < 0)) {
 		DBGLOG(RLM, ERROR,
 		       "parse scenario sub index error: op=%u, val=%d\n",
 		       op, value);
@@ -6357,7 +5571,7 @@ skipLabel:
 	}
 
 	/* allocate memory for control element */
-	u4MemSize += (ucSettingCount - 1) *
+	u4MemSize += (ucSettingCount == 1) ? 0 : (ucSettingCount - 1) *
 			sizeof(struct TX_PWR_CTRL_CHANNEL_SETTING);
 	prCurElement = (struct TX_PWR_CTRL_ELEMENT *)kalMemAlloc(
 					u4MemSize, VIR_MEM_TYPE);
@@ -6400,7 +5614,7 @@ skipLabel:
 			goto clearLabel;
 		}
 
-		/* verify this setting segment number */
+		/* verify this setting has 9 segment */
 		pcContTmp = pcContCur;
 		count = 0;
 		while (pcContTmp < pcContNext) {
@@ -6408,15 +5622,14 @@ skipLabel:
 				count++;
 			pcContTmp++;
 		}
-		if ((count != PWR_LIMIT_NUM) &&
-		    (count != PWR_CFG_PRAM_NUM_ALL_RATE)) {
+		if ((count != 9) && (count != 1)) {
 			DBGLOG(RLM, ERROR,
-			       "parse error: not %d segments, %s\n",
-			       PWR_LIMIT_NUM, pcContCur);
+			       "parse error: not 9 segments, %s\n",
+			       pcContCur);
 			goto clearLabel;
 		} else {
 			ucCommaCount = count;
-			if (ucCommaCount == PWR_LIMIT_NUM)
+			if (ucCommaCount == 9)
 				carySeperator[0] = ',';
 			else
 				carySeperator[0] = ']';
@@ -6475,53 +5688,26 @@ skipLabel:
 				   PWR_CTRL_CHNL_TYPE_KEY_5G_BAND4) == 0)
 			prTmpSetting->eChnlType =
 				PWR_CTRL_CHNL_TYPE_5G_BAND4;
-#if (CFG_SUPPORT_WIFI_6G == 1)
-		/* "6G" */
-		else if (kalStrCmp(pcContTmp,
-				   PWR_CTRL_CHNL_TYPE_KEY_6G) == 0)
-			prTmpSetting->eChnlType =
-				PWR_CTRL_CHNL_TYPE_6G;
-		/* "6GBAND1" */
-		else if (kalStrCmp(pcContTmp,
-				   PWR_CTRL_CHNL_TYPE_KEY_6G_BAND1) == 0)
-			prTmpSetting->eChnlType =
-				PWR_CTRL_CHNL_TYPE_6G_BAND1;
-		/* "6GBAND2" */
-		else if (kalStrCmp(pcContTmp,
-				   PWR_CTRL_CHNL_TYPE_KEY_6G_BAND2) == 0)
-			prTmpSetting->eChnlType =
-				PWR_CTRL_CHNL_TYPE_6G_BAND2;
-		/* "6GBAND3" */
-		else if (kalStrCmp(pcContTmp,
-				   PWR_CTRL_CHNL_TYPE_KEY_6G_BAND3) == 0)
-			prTmpSetting->eChnlType =
-				PWR_CTRL_CHNL_TYPE_6G_BAND3;
-		/* "6GBAND4" */
-		else if (kalStrCmp(pcContTmp,
-				   PWR_CTRL_CHNL_TYPE_KEY_6G_BAND4) == 0)
-			prTmpSetting->eChnlType =
-				PWR_CTRL_CHNL_TYPE_6G_BAND4;
-#endif
 		else {
-			pcContCur2 = pcContTmp;
-			pcContTmp = txPwrGetString(&pcContCur2, "-");
-			if (pcContTmp == NULL) {
-				DBGLOG(RLM, ERROR,
-					"parse channel pcContTmp NULL\n");
-				goto clearLabel;
-			}
-
+			pcContCur2 = pcContOld;
 			if (pcContCur2 == NULL) { /* case: normal channel */
-				if (kalkStrtou8(pcContTmp, 0, &value) != 0) {
+				if (kalkStrtou8(pcContOld, 0, &value) != 0) {
 					DBGLOG(RLM, ERROR,
 					       "parse channel error: %s\n",
-					       pcContTmp);
+					       pcContOld);
 					goto clearLabel;
 				}
 				prTmpSetting->channelParam[0] = value;
 				prTmpSetting->eChnlType =
 						PWR_CTRL_CHNL_TYPE_NORMAL;
 			} else { /* case: channel range */
+				pcContTmp = txPwrGetString(&pcContCur2, "-");
+				if (!pcContTmp) {
+					DBGLOG(RLM, ERROR,
+						"parse channel setting type error, %s\n",
+						pcContOld);
+					goto clearLabel;
+				}
 				if (kalkStrtou8(pcContTmp, 0, &value) != 0) {
 					DBGLOG(RLM, ERROR,
 					       "parse first channel error, %s\n",
@@ -6541,75 +5727,174 @@ skipLabel:
 			}
 		}
 
-		if (count == PWR_CFG_PRAM_NUM_ALL_RATE) {
-			/* parse all rate setting */
-			pcContOld = pcContCur;
-			if (txPwrParseNumber(&pcContCur, "]", &op, &value)) {
-				DBGLOG(RLM, ERROR,
-				       "parse all rate limit error, %s\n",
-				       pcContOld);
-				goto clearLabel;
-			}
-
-			for (j = 0; j < PWR_LIMIT_NUM; j++) {
+		/* parse cck setting */
+		pcContOld = pcContCur;
+		if (txPwrParseNumber(&pcContCur, carySeperator, &op, &value)) {
+			DBGLOG(RLM, ERROR, "parse CCK error, %s\n",
+			       pcContOld);
+			goto clearLabel;
+		}
+		prTmpSetting->op[0] = (enum ENUM_TX_POWER_CTRL_VALUE_SIGN)op;
+		prTmpSetting->i8PwrLimit[0] = (op != 2) ? value : (0 - value);
+		if ((prTmpSetting->op[0] == PWR_CTRL_TYPE_POSITIVE) &&
+		    (ucOperation == PWR_CTRL_TYPE_OPERATION_POWER_OFFSET)) {
+			DBGLOG(RLM, ERROR,
+				"parse CCK error, Power_Offset value cannot be positive: %u\n",
+				value);
+			goto clearLabel;
+		}
+		if (ucCommaCount == 1) {
+			for (j = 1; j < 9; j++) {
 				prTmpSetting->op[j] = op;
-				prTmpSetting->i8PwrLimit[j] =
-					(op != 2) ? value : (0 - value);
+				prTmpSetting->i8PwrLimit[j] = (op != 2) ?
+							value : (0 - value);
 			}
-		} else if (count == PWR_LIMIT_NUM) {
-			for (j = 0; j < PWR_LIMIT_NUM; j++) {
-				if (j == PWR_LIMIT_NUM - 1)
-					carySeperator[0] = ']';
-				else
-					carySeperator[0] = ',';
-
-				pcContOld = pcContCur;
-				if (txPwrParseNumber(&pcContCur,
-					carySeperator, &op, &value)) {
-					DBGLOG(RLM, ERROR,
-					       "parse %s error, %s\n",
-					       gTx_Pwr_Limit_Section[
-							PWR_CFG_PARM_VERSION].
-							arSectionNames[j],
-					       pcContOld);
-					goto clearLabel;
-				}
-				prTmpSetting->op[j] =
-					(enum ENUM_TX_POWER_CTRL_VALUE_SIGN)op;
-				prTmpSetting->i8PwrLimit[j] =
-					(op != 2) ? value : (0 - value);
-				if ((prTmpSetting->op[j] ==
-				    PWR_CTRL_TYPE_POSITIVE) &&
-				    (ucOperation ==
-				    PWR_CTRL_TYPE_OPERATION_POWER_OFFSET)) {
-					DBGLOG(RLM, ERROR,
-					       "parse %s error, Power_Offset value cannot be positive: %u\n",
-					       gTx_Pwr_Limit_Section[
-							PWR_CFG_PARM_VERSION].
-							arSectionNames[j],
-					       value);
-					goto clearLabel;
-				}
-			}
+			goto skipLabel2;
 		}
 
+		/* parse cPwrLimit20L setting */
+		pcContOld = pcContCur;
+		if (txPwrParseNumber(&pcContCur, ",", &op, &value)) {
+			DBGLOG(RLM, ERROR, "parse HT20L error, %s\n",
+			       pcContOld);
+			goto clearLabel;
+		}
+		prTmpSetting->op[1] = (enum ENUM_TX_POWER_CTRL_VALUE_SIGN)op;
+		prTmpSetting->i8PwrLimit[1] = (op != 2) ? value : (0 - value);
+		if ((prTmpSetting->op[1] == PWR_CTRL_TYPE_POSITIVE) &&
+		    (ucOperation == PWR_CTRL_TYPE_OPERATION_POWER_OFFSET)) {
+			DBGLOG(RLM, ERROR,
+				"parse HT20L error, Power_Offset value cannot be positive: %u\n",
+				value);
+			goto clearLabel;
+		}
+
+		/* parse cPwrLimit20H setting */
+		pcContOld = pcContCur;
+		if (txPwrParseNumber(&pcContCur, ",", &op, &value)) {
+			DBGLOG(RLM, ERROR, "parse HT20H error, %s\n",
+			       pcContOld);
+			goto clearLabel;
+		}
+		prTmpSetting->op[2] = (enum ENUM_TX_POWER_CTRL_VALUE_SIGN)op;
+		prTmpSetting->i8PwrLimit[2] = (op != 2) ? value : (0 - value);
+		if ((prTmpSetting->op[2] == PWR_CTRL_TYPE_POSITIVE) &&
+		    (ucOperation == PWR_CTRL_TYPE_OPERATION_POWER_OFFSET)) {
+			DBGLOG(RLM, ERROR,
+				"parse HT20H error, Power_Offset value cannot be positive: %u\n",
+				value);
+			goto clearLabel;
+		}
+
+		/* parse cPwrLimit40L setting */
+		pcContOld = pcContCur;
+		if (txPwrParseNumber(&pcContCur, ",", &op, &value)) {
+			DBGLOG(RLM, ERROR, "parse HT40L error, %s\n",
+			       pcContOld);
+			goto clearLabel;
+		}
+		prTmpSetting->op[3] = (enum ENUM_TX_POWER_CTRL_VALUE_SIGN)op;
+		prTmpSetting->i8PwrLimit[3] = (op != 2) ? value : (0 - value);
+		if ((prTmpSetting->op[3] == PWR_CTRL_TYPE_POSITIVE) &&
+		    (ucOperation == PWR_CTRL_TYPE_OPERATION_POWER_OFFSET)) {
+			DBGLOG(RLM, ERROR,
+				"parse HT40L error, Power_Offset value cannot be positive: %u\n",
+				value);
+			goto clearLabel;
+		}
+
+		/* parse cPwrLimit40H setting */
+		pcContOld = pcContCur;
+		if (txPwrParseNumber(&pcContCur, ",", &op, &value)) {
+			DBGLOG(RLM, ERROR, "parse HT40H error, %s\n",
+			       pcContOld);
+			goto clearLabel;
+		}
+		prTmpSetting->op[4] = (enum ENUM_TX_POWER_CTRL_VALUE_SIGN)op;
+		prTmpSetting->i8PwrLimit[4] = (op != 2) ? value : (0 - value);
+		if ((prTmpSetting->op[4] == PWR_CTRL_TYPE_POSITIVE) &&
+		    (ucOperation == PWR_CTRL_TYPE_OPERATION_POWER_OFFSET)) {
+			DBGLOG(RLM, ERROR,
+				"parse HT40H error, Power_Offset value cannot be positive: %u\n",
+				value);
+			goto clearLabel;
+		}
+
+		/* parse cPwrLimit80L setting */
+		pcContOld = pcContCur;
+		if (txPwrParseNumber(&pcContCur, ",", &op, &value)) {
+			DBGLOG(RLM, ERROR,
+			       "parse HT80L error, %s\n",
+			       pcContOld);
+			goto clearLabel;
+		}
+		prTmpSetting->op[5] = (enum ENUM_TX_POWER_CTRL_VALUE_SIGN)op;
+		prTmpSetting->i8PwrLimit[5] = (op != 2) ? value : (0 - value);
+		if ((prTmpSetting->op[5] == PWR_CTRL_TYPE_POSITIVE) &&
+		    (ucOperation == PWR_CTRL_TYPE_OPERATION_POWER_OFFSET)) {
+			DBGLOG(RLM, ERROR,
+				"parse HT80L error, Power_Offset value cannot be positive: %u\n",
+				value);
+			goto clearLabel;
+		}
+
+		/* parse cPwrLimit80H setting */
+		pcContOld = pcContCur;
+		if (txPwrParseNumber(&pcContCur, ",", &op, &value)) {
+			DBGLOG(RLM, ERROR,
+			       "parse HT80H error, %s\n",
+			       pcContOld);
+			goto clearLabel;
+		}
+		prTmpSetting->op[6] = (enum ENUM_TX_POWER_CTRL_VALUE_SIGN)op;
+		prTmpSetting->i8PwrLimit[6] = (op != 2) ? value : (0 - value);
+		if ((prTmpSetting->op[6] == PWR_CTRL_TYPE_POSITIVE) &&
+		    (ucOperation == PWR_CTRL_TYPE_OPERATION_POWER_OFFSET)) {
+			DBGLOG(RLM, ERROR,
+				"parse HT80H error, Power_Offset value cannot be positive: %u\n",
+				value);
+			goto clearLabel;
+		}
+
+		/* parse cPwrLimit160L setting */
+		pcContOld = pcContCur;
+		if (txPwrParseNumber(&pcContCur, ",", &op, &value)) {
+			DBGLOG(RLM, ERROR,
+			       "parse HT160L error, %s\n",
+			       pcContOld);
+			goto clearLabel;
+		}
+		prTmpSetting->op[7] = (enum ENUM_TX_POWER_CTRL_VALUE_SIGN)op;
+		prTmpSetting->i8PwrLimit[7] = (op != 2) ? value : (0 - value);
+		if ((prTmpSetting->op[7] == PWR_CTRL_TYPE_POSITIVE) &&
+		    (ucOperation == PWR_CTRL_TYPE_OPERATION_POWER_OFFSET)) {
+			DBGLOG(RLM, ERROR,
+				"parse HT160L error, Power_Offset value cannot be positive: %u\n",
+				value);
+			goto clearLabel;
+		}
+
+		/* parse cPwrLimit160H setting */
+		pcContOld = pcContCur;
+		if (txPwrParseNumber(&pcContCur, "]", &op, &value)) {
+			DBGLOG(RLM, ERROR,
+			       "parse HT160H error, %s\n",
+			       pcContOld);
+			goto clearLabel;
+		}
+		prTmpSetting->op[8] = (enum ENUM_TX_POWER_CTRL_VALUE_SIGN)op;
+		prTmpSetting->i8PwrLimit[8] = (op != 2) ? value : (0 - value);
+		if ((prTmpSetting->op[8] == PWR_CTRL_TYPE_POSITIVE) &&
+		    (ucOperation == PWR_CTRL_TYPE_OPERATION_POWER_OFFSET)) {
+			DBGLOG(RLM, ERROR,
+				"parse HT160H error, Power_Offset value cannot be positive: %u\n",
+				value);
+			goto clearLabel;
+		}
+
+skipLabel2:
 		pcContCur = pcContNext + 2;
 	}
-
-#if CFG_SUPPORT_DYNAMIC_PWR_LIMIT_ANT_TAG
-		/* parse power limit append tag to list. */
-		pcContCur -= 1;
-
-		if (txPwrOnPreParseAppendTag(prCurElement)) {
-			DBGLOG(RLM, INFO,
-				"txPwrOnPreParseAppendTag fail.");
-		}
-
-		if (txPwrParseAppendTag(pcContCur, pcContEnd, prCurElement))
-			DBGLOG(RLM, INFO,
-			       "txPwrParseAppendTag fail (%s).",
-			       pcContent);
-#endif
 
 	return prCurElement;
 
@@ -6715,32 +6000,35 @@ void txPwrCtrlShowList(struct ADAPTER *prAdapter, uint8_t filterType,
 			       prCurElement->settingCount);
 			prChlSettingList = &(prCurElement->rChlSettingList[0]);
 			for (j = 0; j < prCurElement->settingCount; j++) {
-				DBGLOG(RLM, TRACE,
-					"Setting-%u:[%s:%u,%u],[%u,%d],[%u,%d],[%u,%d],[%u,%d],[%u,%d],[%u,%d],[%u,%d],[%u,%d],[%u,%d]\n",
-					(j + 1),
-					g_au1TxPwrChlTypeLabel[
-					(uint32_t)prChlSettingList->eChnlType],
-					prChlSettingList->channelParam[0],
-					prChlSettingList->channelParam[1],
-					prChlSettingList->op[0],
-					prChlSettingList->i8PwrLimit[0],
-					prChlSettingList->op[1],
-					prChlSettingList->i8PwrLimit[1],
-					prChlSettingList->op[2],
-					prChlSettingList->i8PwrLimit[2],
-					prChlSettingList->op[3],
-					prChlSettingList->i8PwrLimit[3],
-					prChlSettingList->op[4],
-					prChlSettingList->i8PwrLimit[4],
-					prChlSettingList->op[5],
-					prChlSettingList->i8PwrLimit[5],
-					prChlSettingList->op[6],
-					prChlSettingList->i8PwrLimit[6],
-					prChlSettingList->op[7],
-					prChlSettingList->i8PwrLimit[7],
-					prChlSettingList->op[8],
-					prChlSettingList->i8PwrLimit[8]
-				);
+				/* Coverity check */
+				if (prChlSettingList->eChnlType >= 0) {
+					DBGLOG(RLM, TRACE,
+					       "Setting-%u:[%s:%u,%u],[%u,%d],[%u,%d],[%u,%d],[%u,%d],[%u,%d],[%u,%d],[%u,%d],[%u,%d],[%u,%d]\n",
+					       (j + 1),
+					       g_au1TxPwrChlTypeLabel[
+						prChlSettingList->eChnlType],
+						prChlSettingList->channelParam[0],
+						prChlSettingList->channelParam[1],
+						prChlSettingList->op[0],
+						prChlSettingList->i8PwrLimit[0],
+						prChlSettingList->op[1],
+						prChlSettingList->i8PwrLimit[1],
+						prChlSettingList->op[2],
+						prChlSettingList->i8PwrLimit[2],
+						prChlSettingList->op[3],
+						prChlSettingList->i8PwrLimit[3],
+						prChlSettingList->op[4],
+						prChlSettingList->i8PwrLimit[4],
+						prChlSettingList->op[5],
+						prChlSettingList->i8PwrLimit[5],
+						prChlSettingList->op[6],
+						prChlSettingList->i8PwrLimit[6],
+						prChlSettingList->op[7],
+						prChlSettingList->i8PwrLimit[7],
+						prChlSettingList->op[8],
+						prChlSettingList->i8PwrLimit[8]
+					);
+				}
 				prChlSettingList++;
 			}
 		}
@@ -7026,240 +6314,6 @@ void txPwrCtrlUninit(struct ADAPTER *prAdapter)
 			}
 		}
 	}
-}
-
-static ssize_t debug_dumpElement(struct TX_PWR_CTRL_ELEMENT *pcElement,
-	char *buf, ssize_t maxSize)
-{
-	uint32_t i, j;
-	uint8_t temp[256];
-
-	if ((pcElement == NULL) || (buf == NULL) || (maxSize < 1))
-		return 0;
-
-	kalSnprintf(buf + kalStrLen(buf), maxSize - kalStrLen(buf),
-		"name : %s\n", pcElement->name);
-	kalSnprintf(buf + kalStrLen(buf), maxSize - kalStrLen(buf),
-		"index: %d\n", pcElement->index);
-	kalSnprintf(buf + kalStrLen(buf), maxSize - kalStrLen(buf),
-		"ctrl : %s\n",
-		g_au1TxPwrAppliedWayLabel[(pcElement->eCtrlType - 1) / 2]);
-	kalSnprintf(buf + kalStrLen(buf), maxSize - kalStrLen(buf),
-		"op   : %s\n",
-		g_au1TxPwrOperationLabel[(pcElement->eCtrlType - 1) % 2]);
-	kalSnprintf(buf + kalStrLen(buf), maxSize - kalStrLen(buf),
-		"apply: %s\n",
-		(pcElement->fgApplied) ? "YES" : "NO");
-	for (i = 0; i < pcElement->settingCount; i++) {
-		kalSnprintf(buf + kalStrLen(buf), maxSize - kalStrLen(buf),
-			"    setting %d/%d:\n", i + 1, pcElement->settingCount);
-		kalSnprintf(buf + kalStrLen(buf), maxSize - kalStrLen(buf),
-			"        channel type: %s\n",
-			g_au1TxPwrChlTypeLabel[
-				pcElement->rChlSettingList[i].eChnlType]);
-		kalSnprintf(buf + kalStrLen(buf), maxSize - kalStrLen(buf),
-			"        channel param: %d - %d\n",
-			pcElement->rChlSettingList[i].channelParam[0],
-			pcElement->rChlSettingList[i].channelParam[1]);
-		kalMemSet(temp, 0, sizeof(temp));
-		for (j = 0; j < PWR_LIMIT_NUM; j++) {
-			kalSnprintf(temp + kalStrLen(temp),
-				sizeof(temp) - kalStrLen(temp) - 1,
-				" %-7s",
-				gTx_Pwr_Limit_Section[PWR_CFG_PARM_VERSION].
-					arSectionNames[j]);
-		}
-		kalSnprintf(buf + kalStrLen(buf), maxSize - kalStrLen(buf),
-			"        section:%s\n", temp);
-		kalMemSet(temp, 0, sizeof(temp));
-		for (j = 0; j < PWR_LIMIT_NUM; j++) {
-			kalSnprintf(temp + kalStrLen(temp),
-				sizeof(temp) - kalStrLen(temp) - 1,
-				"%4s%-4d",
-				(pcElement->rChlSettingList[i].op[j] ==
-				PWR_CTRL_TYPE_NEGATIVE) ? "-" : " ",
-				pcElement->rChlSettingList[i].i8PwrLimit[j]);
-		}
-		kalSnprintf(buf + kalStrLen(buf), maxSize - kalStrLen(buf),
-				"        limit:%s\n", temp);
-	}
-
-#if CFG_SUPPORT_DYNAMIC_PWR_LIMIT_ANT_TAG
-	kalSnprintf(buf + kalStrLen(buf), maxSize - kalStrLen(buf), "TAGS:\n");
-	for (j = 0; j < POWER_ANT_TAG_NUM; j++) {
-		if (pcElement->aiPwrAnt[j].fgApplied == FALSE) {
-			kalSnprintf(buf + kalStrLen(buf),
-				maxSize - kalStrLen(buf),
-				"    %s: not applied\n",
-				g_auTxPwrTagTable[j].arTagNames);
-			continue;
-		}
-		kalSnprintf(buf + kalStrLen(buf),
-			maxSize - kalStrLen(buf),
-			"    %-7s: %d, %d, %d, %d, %d,",
-			g_auTxPwrTagTable[j].arTagNames,
-			pcElement->aiPwrAnt[j].aiPwrAnt2G4[POWER_ANT_WF0],
-			pcElement->aiPwrAnt[j].aiPwrAnt5GB1[POWER_ANT_WF0],
-			pcElement->aiPwrAnt[j].aiPwrAnt5GB2[POWER_ANT_WF0],
-			pcElement->aiPwrAnt[j].aiPwrAnt5GB3[POWER_ANT_WF0],
-			pcElement->aiPwrAnt[j].aiPwrAnt5GB4[POWER_ANT_WF0]);
-#if (CFG_SUPPORT_WIFI_6G == 1)
-		kalSnprintf(buf + kalStrLen(buf),
-			maxSize - kalStrLen(buf),
-			" %d, %d, %d, %d,",
-			pcElement->aiPwrAnt[j].aiPwrAnt6GB1[POWER_ANT_WF0],
-			pcElement->aiPwrAnt[j].aiPwrAnt6GB2[POWER_ANT_WF0],
-			pcElement->aiPwrAnt[j].aiPwrAnt6GB3[POWER_ANT_WF0],
-			pcElement->aiPwrAnt[j].aiPwrAnt6GB4[POWER_ANT_WF0]);
-#endif
-		kalSnprintf(buf + kalStrLen(buf),
-			maxSize - kalStrLen(buf),
-			" %d, %d, %d, %d, %d",
-			pcElement->aiPwrAnt[j].aiPwrAnt2G4[POWER_ANT_WF1],
-			pcElement->aiPwrAnt[j].aiPwrAnt5GB1[POWER_ANT_WF1],
-			pcElement->aiPwrAnt[j].aiPwrAnt5GB2[POWER_ANT_WF1],
-			pcElement->aiPwrAnt[j].aiPwrAnt5GB3[POWER_ANT_WF1],
-			pcElement->aiPwrAnt[j].aiPwrAnt5GB4[POWER_ANT_WF1]);
-#if (CFG_SUPPORT_WIFI_6G == 1)
-		kalSnprintf(buf + kalStrLen(buf),
-			maxSize - kalStrLen(buf),
-			", %d, %d, %d, %d",
-			pcElement->aiPwrAnt[j].aiPwrAnt6GB1[POWER_ANT_WF1],
-			pcElement->aiPwrAnt[j].aiPwrAnt6GB2[POWER_ANT_WF1],
-			pcElement->aiPwrAnt[j].aiPwrAnt6GB3[POWER_ANT_WF1],
-			pcElement->aiPwrAnt[j].aiPwrAnt6GB4[POWER_ANT_WF1]);
-#endif
-		kalSnprintf(buf + kalStrLen(buf),
-			maxSize - kalStrLen(buf), "\n");
-	}
-#endif  /* #if CFG_SUPPORT_DYNAMIC_PWR_LIMIT_ANT_TAG */
-
-	return kalStrLen(buf);
-}
-
-static ssize_t debug_readAntLimit(struct GLUE_INFO *prGlueInfo,
-	char *buf, ssize_t maxSize)
-{
-	struct PARAM_CUSTOM_MCR_RW_STRUCT rMcrInfo;
-	uint32_t rStatus = WLAN_STATUS_SUCCESS;
-	uint32_t u4BufLen, i;
-	int8_t acAntPwrLimit[2];
-	const uint32_t regAntLimit[2] = {0x8300C794, 0x8301C794};
-	const uint32_t regErrReturn = 0xdeaddead;
-
-	if ((prGlueInfo == NULL) || (buf == NULL) || (maxSize < 1))
-		return 0;
-
-	for (i = 0; i < 2; i++) {
-		rMcrInfo.u4McrData = 0;
-		rMcrInfo.u4McrOffset = regAntLimit[i];
-		rStatus = kalIoctl(prGlueInfo,
-			wlanoidQueryMcrRead, (void *)&rMcrInfo,
-			sizeof(rMcrInfo), TRUE, TRUE, TRUE, &u4BufLen);
-		if (rStatus != WLAN_STATUS_SUCCESS)
-			goto errReturn;
-		if (rMcrInfo.u4McrData == regErrReturn)
-			rMcrInfo.u4McrData = 0;
-		acAntPwrLimit[i] = (int8_t)(rMcrInfo.u4McrData >> 24);
-	}
-
-	kalSnprintf(buf + kalStrLen(buf), maxSize - kalStrLen(buf),
-		"Ant power limit: %d, %d\n",
-		acAntPwrLimit[0], acAntPwrLimit[1]);
-	return kalStrLen(buf);
-
-errReturn:
-	kalSnprintf(buf + kalStrLen(buf), maxSize - kalStrLen(buf),
-		"fail to get antLimit reg data\n");
-	return kalStrLen(buf);
-}
-
-void debug_write_txPwrCtrlStringToStruct(char *pcContent)
-{
-	uint32_t u4MemSize = 0;
-	uint8_t *name;
-	uint8_t id;
-	char *temp;
-	struct GLUE_INFO *prGlueInfo;
-	struct ADAPTER *prAdapter;
-
-	g_ePwrCtrlDebugType = DEBUG_TYPE_NULL;
-
-	/* readAntLimit */
-	if (kalStrStr(pcContent, "readAntLimit") == pcContent) {
-		g_ePwrCtrlDebugType = DEBUG_TYPE_DUMP_ANT_LIMIT;
-		return;
-	}
-
-	/* dumpALL */
-	if (kalStrStr(pcContent, "dumpAll") == pcContent) {
-		g_ePwrCtrlDebugType = DEBUG_TYPE_DUMP_ALL;
-		return;
-	}
-
-	if (fgNewDebugElement && (pcDebugElement != NULL)) {
-		u4MemSize = sizeof(struct TX_PWR_CTRL_ELEMENT) +
-			(pcDebugElement->settingCount - 1) *
-			sizeof(struct TX_PWR_CTRL_CHANNEL_SETTING);
-		kalMemFree(pcDebugElement, VIR_MEM_TYPE, u4MemSize);
-	}
-	fgNewDebugElement = FALSE;
-
-	/* dumpElement,name,index */
-	if (kalStrStr(pcContent, "dumpElement,") == pcContent) {
-		g_ePwrCtrlDebugType = DEBUG_TYPE_DUMP_ELEMENT;
-		prGlueInfo = wlanGetGlueInfo();
-		if (!prGlueInfo)
-			return;
-		prAdapter = prGlueInfo->prAdapter;
-		if (!prAdapter)
-			return;
-		temp = pcContent + kalStrLen("dumpElement,");
-		name = txPwrGetString(&temp, ",");
-		if ((!name) || (!temp))
-			return;
-		if (kalkStrtou8(temp, 0, &id) != 0)
-			return;
-		pcDebugElement = _txPwrCtrlFindElement(
-				prAdapter, name, id, FALSE,
-				&prAdapter->rTxPwr_DynamicList);
-		return;
-	}
-
-	/* name;id;2;1;[...]<...> */
-	fgNewDebugElement = TRUE;
-	pcDebugElement = txPwrCtrlStringToStruct(pcContent, FALSE);
-}
-
-ssize_t debug_read_txPwrCtrlStringToStruct(char *buf, ssize_t maxSize)
-{
-	struct LINK_ENTRY *prCur, *prNext;
-	struct TX_PWR_CTRL_ELEMENT *pcElement = NULL;
-	struct GLUE_INFO *prGlueInfo;
-	struct ADAPTER *prAdapter;
-
-	prGlueInfo = wlanGetGlueInfo();
-	if (!prGlueInfo)
-		return 0;
-	prAdapter = prGlueInfo->prAdapter;
-	if (!prAdapter)
-		return 0;
-
-	if (g_ePwrCtrlDebugType == DEBUG_TYPE_DUMP_ANT_LIMIT)
-		return debug_readAntLimit(prGlueInfo, buf, maxSize);
-	else if (g_ePwrCtrlDebugType == DEBUG_TYPE_DUMP_ELEMENT)
-		return debug_dumpElement(pcDebugElement, buf, maxSize);
-	else if (g_ePwrCtrlDebugType != DEBUG_TYPE_DUMP_ALL)
-		return 0;
-
-	LINK_FOR_EACH_SAFE(prCur, prNext, &prAdapter->rTxPwr_DynamicList) {
-		pcElement = LINK_ENTRY(prCur, struct TX_PWR_CTRL_ELEMENT, node);
-		kalSnprintf(buf + kalStrLen(buf), maxSize - kalStrLen(buf),
-			"    name: %s, index: %d\n",
-			pcElement->name, pcElement->index);
-	}
-
-	return kalStrLen(buf);
 }
 /* dynamic tx power control: end **********************************************/
 #endif /* CFG_SUPPORT_DYNAMIC_PWR_LIMIT */

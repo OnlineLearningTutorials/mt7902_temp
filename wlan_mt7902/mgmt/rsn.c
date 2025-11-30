@@ -1,7 +1,54 @@
-/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
-/*
- * Copyright (c) 2016 MediaTek Inc.
- */
+/******************************************************************************
+ *
+ * This file is provided under a dual license.  When you use or
+ * distribute this software, you may choose to be licensed under
+ * version 2 of the GNU General Public License ("GPLv2 License")
+ * or BSD License.
+ *
+ * GPLv2 License
+ *
+ * Copyright(C) 2016 MediaTek Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of version 2 of the GNU General Public License as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See http://www.gnu.org/licenses/gpl-2.0.html for more details.
+ *
+ * BSD LICENSE
+ *
+ * Copyright(C) 2016 MediaTek Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *  * Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ *  * Neither the name of the copyright holder nor the names of its
+ *    contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ *****************************************************************************/
 /*
  * Id: mgmt/rsn.c#3
  */
@@ -1747,8 +1794,9 @@ void rsnGenerateRSNIE(IN struct ADAPTER *prAdapter,
 		}
 
 		/* Capabilities */
-		WLAN_SET_FIELD_16(cp, GET_BSS_INFO_BY_INDEX(prAdapter,
-				  ucBssIndex)->u2RsnSelectedCapInfo);
+		uint16_t rsn_cap = GET_BSS_INFO_BY_INDEX(prAdapter,
+				  ucBssIndex)->u2RsnSelectedCapInfo;
+		WLAN_SET_FIELD_16(cp, rsn_cap);
 		DBGLOG(RSN, TRACE,
 		       "Gen RSN IE = %x\n", GET_BSS_INFO_BY_INDEX(prAdapter,
 				       ucBssIndex)->u2RsnSelectedCapInfo);
@@ -1759,14 +1807,14 @@ void rsnGenerateRSNIE(IN struct ADAPTER *prAdapter,
 				ucBssIndex) ==
 			    RSN_AUTH_MFP_REQUIRED) {
 				WLAN_SET_FIELD_16(cp,
-					ELEM_WPA_CAP_MFPC | ELEM_WPA_CAP_MFPR);
+					ELEM_WPA_CAP_MFPC | ELEM_WPA_CAP_MFPR | rsn_cap);
 					/* Capabilities */
 				DBGLOG(RSN, TRACE,
 					"RSN_AUTH_MFP - MFPC & MFPR\n");
 			} else if (kalGetRsnIeMfpCap(prAdapter->prGlueInfo,
 				ucBssIndex) ==
 				   RSN_AUTH_MFP_OPTIONAL) {
-				WLAN_SET_FIELD_16(cp, ELEM_WPA_CAP_MFPC);
+				WLAN_SET_FIELD_16(cp, ELEM_WPA_CAP_MFPC | (rsn_cap & ~ELEM_WPA_CAP_MFPR));
 					/* Capabilities */
 				DBGLOG(RSN, TRACE, "RSN_AUTH_MFP - MFPC\n");
 			} else {
@@ -2534,7 +2582,7 @@ uint8_t rsnCheckSaQueryTimeout(
 	GET_CURRENT_SYSTIME(&now);
 
 	if (CHECK_FOR_TIMEOUT(now, prBssSpecInfo->u4SaQueryStart,
-			      TU_TO_MSEC(SA_QUERY_RETRY_TIMEOUT))) {
+			      TU_TO_MSEC(1000))) {
 		DBGLOG(RSN, INFO, "association SA Query timed out\n");
 
 		prBssSpecInfo->ucSaQueryTimedOut = 1;
@@ -2720,10 +2768,11 @@ void rsnStartSaQueryTimer(IN struct ADAPTER *prAdapter,
 	nicTxEnqueueMsdu(prAdapter, prMsduInfo);
 
 	DBGLOG(RSN, INFO, "Set SA Query timer %d (%d Tu)",
-	       prBssSpecInfo->u4SaQueryCount, SA_QUERY_TIMEOUT);
+	       prBssSpecInfo->u4SaQueryCount, 201);
 
 	cnmTimerStartTimer(prAdapter, &prBssSpecInfo->rSaQueryTimer,
-			   TU_TO_MSEC(SA_QUERY_TIMEOUT));
+			   TU_TO_MSEC(201));
+
 }
 
 /*----------------------------------------------------------------------------*/
@@ -3240,7 +3289,7 @@ uint8_t rsnApCheckSaQueryTimeout(IN struct ADAPTER
 	GET_CURRENT_SYSTIME(&now);
 
 	if (CHECK_FOR_TIMEOUT(now, prStaRec->rPmfCfg.u4SAQueryStart,
-			      TU_TO_MSEC(SA_QUERY_RETRY_TIMEOUT))) {
+			      TU_TO_MSEC(1000))) {
 		DBGLOG(RSN, INFO, "association SA Query timed out\n");
 
 		/* XXX PMF TODO how to report STA REC disconnect?? */
@@ -3372,10 +3421,10 @@ void rsnApStartSaQueryTimer(IN struct ADAPTER *prAdapter,
 	nicTxEnqueueMsdu(prAdapter, prMsduInfo);
 
 	DBGLOG(RSN, INFO, "AP Set SA Query timer %d (%d Tu)\n",
-	       prStaRec->rPmfCfg.u4SAQueryCount, SA_QUERY_TIMEOUT);
+	       prStaRec->rPmfCfg.u4SAQueryCount, 201);
 
 	cnmTimerStartTimer(prAdapter,
-		&prStaRec->rPmfCfg.rSAQueryTimer, TU_TO_MSEC(SA_QUERY_TIMEOUT));
+			   &prStaRec->rPmfCfg.rSAQueryTimer, TU_TO_MSEC(201));
 
 }
 

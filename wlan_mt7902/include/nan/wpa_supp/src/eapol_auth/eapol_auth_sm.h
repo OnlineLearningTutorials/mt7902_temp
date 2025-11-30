@@ -1,7 +1,7 @@
-/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
-/*
- * Copyright (c) 2021 MediaTek Inc.
- */
+/* SPDX-License-Identifier: GPL-2.0 */
+/* 
+* Copyright (c) 2020 MediaTek Inc.
+*/
 /*
  * IEEE 802.1X-2004 Authenticator - EAPOL state machine
  * Copyright (c) 2002-2015, Jouni Malinen <j@w1.fi>

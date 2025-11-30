@@ -1,8 +1,14 @@
-/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
+/* SPDX-License-Identifier: GPL-2.0 */
+/* 
+* Copyright (c) 2020 MediaTek Inc.
+*/
 /*
- * Copyright (c) 2012 MediaTek Inc.
+ * hostapd / WPA authenticator glue code
+ * Copyright (c) 2002-2012, Jouni Malinen <j@w1.fi>
+ *
+ * This software may be distributed under the terms of the BSD license.
+ * See README for more details.
  */
-
 #include "wpa_supp/FourWayHandShake.h"
 #include "wpa_supp/src/ap/wpa_auth_glue.h"
 #include "wpa_supp/src/ap/ieee802_1x.h"

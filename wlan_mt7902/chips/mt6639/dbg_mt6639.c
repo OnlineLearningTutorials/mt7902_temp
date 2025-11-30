@@ -1,7 +1,17 @@
-/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (c) 2020 MediaTek Inc.
  */
+/******************************************************************************
+ *[File]             dbg_mt6639.c
+ *[Version]          v1.0
+ *[Revision Date]    2020-05-22
+ *[Author]
+ *[Description]
+ *    The program provides WIFI FALCON MAC Debug APIs
+ *[Copyright]
+ *    Copyright (C) 2015 MediaTek Incorporation. All Rights Reserved.
+ ******************************************************************************/
 
 #ifdef MT6639
 

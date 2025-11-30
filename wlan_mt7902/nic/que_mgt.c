@@ -1,7 +1,54 @@
-/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
-/*
- * Copyright (c) 2016 MediaTek Inc.
- */
+/******************************************************************************
+ *
+ * This file is provided under a dual license.  When you use or
+ * distribute this software, you may choose to be licensed under
+ * version 2 of the GNU General Public License ("GPLv2 License")
+ * or BSD License.
+ *
+ * GPLv2 License
+ *
+ * Copyright(C) 2016 MediaTek Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of version 2 of the GNU General Public License as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See http://www.gnu.org/licenses/gpl-2.0.html for more details.
+ *
+ * BSD LICENSE
+ *
+ * Copyright(C) 2016 MediaTek Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *  * Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ *  * Neither the name of the copyright holder nor the names of its
+ *    contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ *****************************************************************************/
 /*! \file   "que_mgt.c"
  *    \brief  TX/RX queues management
  *
@@ -959,9 +1006,8 @@ struct QUE *qmDetermineStaTxQueue(IN struct ADAPTER *prAdapter,
 		if (prStaRec->fgIsQoS) {
 			if (prMsduInfo->ucUserPriority < TX_DESC_TID_NUM) {
 				eAci = aucTid2ACI[prMsduInfo->ucUserPriority];
-				if ((uint32_t)eAci < WMM_AC_INDEX_NUM) {
-					ucQueIdx =
-						aucACI2TxQIdx[(uint32_t)eAci];
+				if (eAci >= 0 && eAci < WMM_AC_INDEX_NUM) {
+					ucQueIdx = aucACI2TxQIdx[eAci];
 					ucTC = nicTxWmmTc2ResTc(prAdapter,
 						prMsduInfo->ucBssIndex, eAci);
 				}
@@ -973,16 +1019,15 @@ struct QUE *qmDetermineStaTxQueue(IN struct ADAPTER *prAdapter,
 					"Packet TID is not in [0~7]\n");
 				ASSERT(0);
 			}
-			if ((uint32_t)eAci < WMM_AC_INDEX_NUM &&
-			(prBssInfo->arACQueParms[(uint32_t)eAci].ucIsACMSet) &&
-			!(ucActiveTs & BIT((uint32_t)eAci)) &&
-			(eAci != WMM_AC_BK_INDEX)) {
+			if (eAci >= 0 && eAci < WMM_AC_INDEX_NUM &&
+				(prBssInfo->arACQueParms[eAci].ucIsACMSet) &&
+			    !(ucActiveTs & BIT(eAci)) &&
+			    (eAci != WMM_AC_BK_INDEX)) {
 				DBGLOG(WMM, TRACE,
 					"ucUserPriority: %d, aucNextUP[eAci]: %d",
 					prMsduInfo->ucUserPriority,
-					aucNextUP[(uint32_t)eAci]);
-				prMsduInfo->ucUserPriority =
-						aucNextUP[(uint32_t)eAci];
+					aucNextUP[eAci]);
+				prMsduInfo->ucUserPriority = aucNextUP[eAci];
 				fgCheckACMAgain = TRUE;
 			}
 		} else {
@@ -9202,7 +9247,7 @@ void qmHandleDelTspec(struct ADAPTER *prAdapter, struct STA_RECORD *prStaRec,
 	uint8_t ucTc = 0;
 	struct BSS_INFO *prAisBssInfo = NULL;
 
-	if ((uint32_t)eAci >= ACI_NUM)
+	if (eAci < 0 || eAci >= ACI_NUM)
 		return;
 
 	if (!prStaRec || eAci == ACI_NUM || eAci == ACI_BK || !prAdapter) {
@@ -9222,22 +9267,20 @@ void qmHandleDelTspec(struct ADAPTER *prAdapter, struct STA_RECORD *prStaRec,
 	ucActivedTspec = wmmHasActiveTspec(
 		aisGetWMMInfo(prAdapter, prAisBssInfo->ucBssIndex));
 
-	while (prAcQueParam[(uint32_t)eAci].ucIsACMSet &&
-			!(ucActivedTspec & BIT((uint32_t)eAci)) &&
-			eAci != ACI_BK &&
-			(uint32_t)eAci < ACI_NUM) {
-		eAci = aeNextAci[(uint32_t)eAci];
-		if ((uint32_t)eAci < ACI_NUM)
-			ucNewUp = aucNextUP[(uint32_t)eAci];
+	while (prAcQueParam[eAci].ucIsACMSet &&
+			!(ucActivedTspec & BIT(eAci)) && eAci != ACI_BK
+			&& eAci >= 0 && eAci < ACI_NUM) {
+		eAci = aeNextAci[eAci];
+		if (eAci >= 0 && eAci < ACI_NUM)
+			ucNewUp = aucNextUP[eAci];
 	}
 
-	if ((uint32_t)eAci >= ACI_NUM)
+	if (eAci < 0 || eAci >= ACI_NUM)
 		return;
 
 	DBGLOG(QM, INFO, "new ACI %d, ACM %d, HasTs %d\n", eAci,
-	       prAcQueParam[(uint32_t)eAci].ucIsACMSet,
-	       !!(ucActivedTspec & BIT((uint32_t)eAci)));
-	ucTc = aucWmmAC2TcResourceSet1[(uint32_t)eAci];
+	       prAcQueParam[eAci].ucIsACMSet, !!(ucActivedTspec & BIT(eAci)));
+	ucTc = aucWmmAC2TcResourceSet1[eAci];
 	prDstQue = &prStaRec->arTxQueue[ucTc];
 	prMsduInfo = (struct MSDU_INFO *)QUEUE_GET_HEAD(prSrcQue);
 	while (prMsduInfo) {
@@ -9265,166 +9308,3 @@ void qmReleaseCHAtFinishedDhcp(struct ADAPTER *prAdapter,
 		aisFsmReleaseCh(prAdapter, ucBssIndex);
 	}
 }
-
-#if CONFIG_WIFI_RAM_MQM_BA_DELAY_SUPPORT
-void qmHandleBaOffloadBarFrame(IN struct ADAPTER *prAdapter,
-	IN uint8_t ucStaRecIdx,
-	IN uint8_t ucTid,
-	IN uint32_t u4SSN)
-{
-	struct STA_RECORD *prStaRec;
-	struct RX_BA_ENTRY *prReorderQueParm;
-	struct QUE rReturnedQue;
-	struct QUE *prReturnedQue = &rReturnedQue;
-	struct QUE *prReorderQue;
-	uint32_t u4WinStart;
-	uint32_t u4WinEnd;
-
-	DBGLOG(QM, TRACE,
-		"[BAOFD]Receive BAR sta %d tid %d SSN %d!!\n",
-		ucStaRecIdx, ucTid, u4SSN);
-
-	QUEUE_INITIALIZE(prReturnedQue);
-	/* Check whether the STA_REC is activated */
-	prStaRec = cnmGetStaRecByIndex(prAdapter, ucStaRecIdx);
-	if (prStaRec == NULL)
-		return;
-
-	/* Check whether the BA agreement exists */
-	prReorderQueParm =
-		prStaRec->aprRxReorderParamRefTbl[ucTid];
-
-	if (!prReorderQueParm) {
-		DBGLOG(QM, WARN,
-		"[BAOFD]BAR for a NULL ReorderQueParm!!\n");
-		return;
-	}
-
-	prReorderQue = &(prReorderQueParm->rReOrderQue);
-	u4WinStart = (uint32_t) (prReorderQueParm->u2WinStart);
-	u4WinEnd = (uint32_t) (prReorderQueParm->u2WinEnd);
-
-	if (qmCompareSnIsLessThan(u4WinStart, u4SSN)) {
-		prReorderQueParm->u2WinStart = (uint16_t) u4SSN;
-		prReorderQueParm->u2WinEnd =
-			((prReorderQueParm->u2WinStart) +
-			(prReorderQueParm->u2WinSize) - 1) %
-			MAX_SEQ_NO_COUNT;
-
-#if CFG_SUPPORT_RX_AMSDU
-	/* RX reorder for one MSDU in AMSDU issue */
-		prReorderQueParm->u8LastAmsduSubIdx =
-			RX_PAYLOAD_FORMAT_MSDU;
-#endif
-		DBGLOG(QM, TRACE,
-		"[BAOFD]Advance Case OldStart %d OldEnd %d WinStart %d WinEnd %d\n",
-			u4WinStart, u4WinEnd,
-			prReorderQueParm->u2WinStart,
-			prReorderQueParm->u2WinEnd);
-
-		qmPopOutDueToFallAhead(prAdapter,
-				prReorderQueParm, prReturnedQue);
-	} else {
-		DBGLOG(QM, TRACE,
-		"[BAOFD]No-Pop Case tid %d SSN %d WinStart %d WinEnd %d\n",
-			ucTid, u4SSN, u4WinStart, u4WinEnd);
-	}
-
-
-	if (QUEUE_IS_NOT_EMPTY(prReturnedQue)) {
-	DBGLOG(QM, TRACE, "[BAOFD]Need to Pop out packet\n");
-		QM_TX_SET_NEXT_MSDU_INFO(
-			 (struct SW_RFB *) QUEUE_GET_TAIL(prReturnedQue),
-					NULL);
-		wlanProcessQueuedSwRfb(prAdapter,
-			(struct SW_RFB *)QUEUE_GET_HEAD(prReturnedQue));
-	}
-}
-
-/*----------------------------------------------------------------------------*/
-/*!
-* \brief Handle BAR/ADDBA/DELBA event+ *
-* \param[in] prAdapter Adapter pointer
-* \param[in] prEvent The event packet from the FW+ *
-* \return (none)
-*/
-/*----------------------------------------------------------------------------*/
-void qmHandleEventBaOffloadIndication(
-		IN struct ADAPTER *prAdapter,
-		IN struct WIFI_EVENT *prEvent)
-{
-	struct EVENT_BAOFFLOAD_INDICATE *prEventBaOffloadIndicate;
-	struct BAOFFLOAD_INDICATE_INFO sBaOffloadInfo;
-	struct STA_RECORD *prStaRec;
-	uint8_t ucStaRecIdx;
-	uint8_t i;
-
-	if (prAdapter == NULL)
-		return;
-	kalMemZero(&sBaOffloadInfo,
-		sizeof(struct BAOFFLOAD_INDICATE_INFO));
-
-	prEventBaOffloadIndicate =
-	(struct EVENT_BAOFFLOAD_INDICATE *)(prEvent->aucBuffer);
-
-	DBGLOG(QM, TRACE, "[BAOFD]Receive BAR/ADDBA/DELBA Event count %d!!\n",
-				prEventBaOffloadIndicate->ucEventCnt);
-
-	for (i = 0; i < prEventBaOffloadIndicate->ucEventCnt; i++) {
-		kalMemCopy(&sBaOffloadInfo,
-		&prEventBaOffloadIndicate->sBaOffloadIndicateInfo[i],
-		sizeof(struct BAOFFLOAD_INDICATE_INFO));
-
-		ucStaRecIdx = sBaOffloadInfo.ucStaRecIdx;
-		prStaRec = QM_GET_STA_REC_PTR_FROM_INDEX(prAdapter,
-						ucStaRecIdx);
-
-		if (!prStaRec) {
-			DBGLOG(QM, WARN, "[BAOFD]NULL STA_REC!!\n");
-			continue;
-		}
-
-		if (sBaOffloadInfo.ucTid >= CFG_RX_MAX_BA_TID_NUM) {
-			DBGLOG(QM, WARN, "[BAOFD]Invalid TID %d!!\n",
-				sBaOffloadInfo.ucTid);
-			continue;
-		}
-
-		switch (sBaOffloadInfo.eBaOffloadIndicateType) {
-		case BAOFFLOAD_INDICATE_BAR:
-			DBGLOG(QM, TRACE,
-				"[BAOFD]Handle BAR %d %d %d!!\n",
-				ucStaRecIdx, sBaOffloadInfo.ucTid,
-				 sBaOffloadInfo.u4SSN);
-
-				qmHandleBaOffloadBarFrame(prAdapter,
-						ucStaRecIdx,
-						sBaOffloadInfo.ucTid,
-						sBaOffloadInfo.u4SSN);
-			break;
-		case BAOFFLOAD_INDICATE_ADDBA:
-			DBGLOG(QM, TRACE, "[BAOFD]Handle ADDBA %d %d %d %d!!\n",
-				ucStaRecIdx, sBaOffloadInfo.ucTid,
-				sBaOffloadInfo.u4SSN, sBaOffloadInfo.u4WinSize);
-
-			if (qmAddRxBaEntry(prAdapter, ucStaRecIdx,
-				sBaOffloadInfo.ucTid,
-				sBaOffloadInfo.u4SSN,
-				(uint16_t)sBaOffloadInfo.u4WinSize) != TRUE) {
-				DBGLOG(QM, WARN, "QM: Process ADDBA fail\n");
-			}
-			break;
-		case BAOFFLOAD_INDICATE_DELBA:
-			DBGLOG(QM, TRACE, "[BAOFD]Handle DELBA %d %d!!\n",
-				ucStaRecIdx, sBaOffloadInfo.ucTid);
-
-			qmDelRxBaEntry(prAdapter, ucStaRecIdx,
-					sBaOffloadInfo.ucTid, TRUE);
-			break;
-		default:
-			DBGLOG(QM, WARN, "[BAOFD]Should Not Enter Here!!\n");
-			break;
-		}
-	}
-}
-#endif

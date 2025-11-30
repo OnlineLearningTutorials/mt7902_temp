@@ -1,7 +1,7 @@
-/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
-/*
- * Copyright (c) 2009 MediaTek Inc.
- */
+/* SPDX-License-Identifier: GPL-2.0 */
+/* 
+* Copyright (c) 2020 MediaTek Inc.
+*/
 /*
  * SHA1 hash implementation and interface functions
  * Copyright (c) 2003-2009, Jouni Malinen <j@w1.fi>

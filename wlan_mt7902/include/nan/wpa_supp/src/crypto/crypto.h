@@ -1,7 +1,7 @@
-/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
-/*
- * Copyright (c) 2013 MediaTek Inc.
- */
+/* SPDX-License-Identifier: GPL-2.0 */
+/* 
+* Copyright (c) 2020 MediaTek Inc.
+*/
 /*
  * Wrapper functions for crypto libraries
  * Copyright (c) 2004-2013, Jouni Malinen <j@w1.fi>

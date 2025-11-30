@@ -1,7 +1,54 @@
-/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
-/*
- * Copyright (c) 2016 MediaTek Inc.
- */
+/******************************************************************************
+ *
+ * This file is provided under a dual license.  When you use or
+ * distribute this software, you may choose to be licensed under
+ * version 2 of the GNU General Public License ("GPLv2 License")
+ * or BSD License.
+ *
+ * GPLv2 License
+ *
+ * Copyright(C) 2016 MediaTek Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of version 2 of the GNU General Public License as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See http://www.gnu.org/licenses/gpl-2.0.html for more details.
+ *
+ * BSD LICENSE
+ *
+ * Copyright(C) 2016 MediaTek Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *  * Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ *  * Neither the name of the copyright holder nor the names of its
+ *    contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ *****************************************************************************/
 /*
  ** Id: @(#) gl_p2p_cfg80211.c@@
  */
@@ -1854,19 +1901,13 @@ int mtk_p2p_cfg80211_channel_switch(struct wiphy *wiphy,
 			p2pFuncSetDfsState(DFS_STATE_INACTIVE);
 
 		/* Set CSA IE parameters */
+		prGlueInfo->prAdapter->rWifiVar.fgCsaInProgress = TRUE;
 		prGlueInfo->prAdapter->rWifiVar.ucChannelSwitchMode = 1;
 		prGlueInfo->prAdapter->rWifiVar.ucNewChannelNumber =
 			nicFreq2ChannelNum(
 				params->chandef.chan->center_freq * 1000);
 		prGlueInfo->prAdapter->rWifiVar.ucChannelSwitchCount =
 			params->count;
-
-		/* To prevent race condition, we have to set CSA flags
-		* after all CSA parameters are updated. In this way,
-		* we can guarantee that CSA IE will be and only be
-		* reported once in the beacon
-		*/
-		prGlueInfo->prAdapter->rWifiVar.fgCsaInProgress = TRUE;
 
 		/* Set new channel parameters */
 		prP2pSetNewChannelMsg = (struct MSG_P2P_SET_NEW_CHANNEL *)
@@ -2002,7 +2043,12 @@ struct cfg80211_beacon_data {
 #endif
 
 int mtk_p2p_cfg80211_change_beacon(struct wiphy *wiphy,
-		struct net_device *dev, struct cfg80211_beacon_data *info)
+		struct net_device *dev,
+#if CFG80211_VERSION_CODE >= KERNEL_VERSION(6, 7, 0)
+			  struct cfg80211_ap_update *info)
+#else
+			  struct cfg80211_beacon_data *info)
+#endif
 {
 	struct GLUE_INFO *prGlueInfo = (struct GLUE_INFO *) NULL;
 	int32_t i4Rslt = -EINVAL;
@@ -2023,6 +2069,17 @@ int mtk_p2p_cfg80211_change_beacon(struct wiphy *wiphy,
 		if (mtk_Netdev_To_RoleIdx(prGlueInfo, dev, &ucRoleIdx) < 0)
 			break;
 
+#if CFG80211_VERSION_CODE >= KERNEL_VERSION(6, 7, 0)
+		if ((info->beacon.head_len != 0) || (info->beacon.tail_len != 0)) {
+			u4Len = (sizeof(struct MSG_P2P_BEACON_UPDATE)
+				+ info->beacon.head_len
+				+ info->beacon.tail_len
+				+ info->beacon.assocresp_ies_len
+#if CFG_SUPPORT_P2P_GO_OFFLOAD_PROBE_RSP
+				+ info->beacon.proberesp_ies_len
+#endif
+				);
+#else
 		if ((info->head_len != 0) || (info->tail_len != 0)) {
 			u4Len = (sizeof(struct MSG_P2P_BEACON_UPDATE)
 				+ info->head_len
@@ -2032,6 +2089,7 @@ int mtk_p2p_cfg80211_change_beacon(struct wiphy *wiphy,
 				+ info->proberesp_ies_len
 #endif
 				);
+#endif
 
 			prP2pBcnUpdateMsg = (struct MSG_P2P_BEACON_UPDATE *)
 			    cnmMemAlloc(prGlueInfo->prAdapter,
@@ -2050,6 +2108,68 @@ int mtk_p2p_cfg80211_change_beacon(struct wiphy *wiphy,
 				MID_MNY_P2P_BEACON_UPDATE;
 			pucBuffer = prP2pBcnUpdateMsg->aucBuffer;
 
+#if CFG80211_VERSION_CODE >= KERNEL_VERSION(6, 7, 0)
+			if (info->beacon.head_len != 0) {
+				kalMemCopy(pucBuffer,
+					info->beacon.head,
+					info->beacon.head_len);
+
+				prP2pBcnUpdateMsg->u4BcnHdrLen = info->beacon.head_len;
+
+				prP2pBcnUpdateMsg->pucBcnHdr = pucBuffer;
+
+				pucBuffer += info->beacon.head_len;
+			} else {
+				prP2pBcnUpdateMsg->u4BcnHdrLen = 0;
+
+				prP2pBcnUpdateMsg->pucBcnHdr = NULL;
+			}
+
+			if (info->beacon.tail_len != 0) {
+				prP2pBcnUpdateMsg->pucBcnBody = pucBuffer;
+				kalMemCopy(pucBuffer,
+					info->beacon.tail,
+					info->beacon.tail_len);
+
+				prP2pBcnUpdateMsg->u4BcnBodyLen =
+					info->beacon.tail_len;
+
+				pucBuffer += info->beacon.tail_len;
+			} else {
+				prP2pBcnUpdateMsg->u4BcnBodyLen = 0;
+				prP2pBcnUpdateMsg->pucBcnBody = NULL;
+			}
+
+			if (info->beacon.assocresp_ies_len != 0
+				&& info->beacon.assocresp_ies != NULL) {
+
+				prP2pBcnUpdateMsg->pucAssocRespIE = pucBuffer;
+				kalMemCopy(pucBuffer,
+					info->beacon.assocresp_ies,
+					info->beacon.assocresp_ies_len);
+				prP2pBcnUpdateMsg->u4AssocRespLen =
+					info->beacon.assocresp_ies_len;
+			} else {
+				prP2pBcnUpdateMsg->u4AssocRespLen = 0;
+				prP2pBcnUpdateMsg->pucAssocRespIE = NULL;
+			}
+
+#if CFG_SUPPORT_P2P_GO_OFFLOAD_PROBE_RSP
+			if (info->beacon.proberesp_ies_len != 0
+				&& info->beacon.proberesp_ies != NULL) {
+
+				prP2pBcnUpdateMsg->pucProbeRespIE = pucBuffer;
+				kalMemCopy(pucBuffer,
+					info->beacon.proberesp_ies,
+					info->beacon.proberesp_ies_len);
+				prP2pBcnUpdateMsg->u4ProbeRespLen =
+					info->beacon.proberesp_ies_len;
+			} else {
+				prP2pBcnUpdateMsg->u4ProbeRespLen = 0;
+				prP2pBcnUpdateMsg->pucProbeRespIE = NULL;
+			}
+#endif
+#else
 			if (info->head_len != 0) {
 				kalMemCopy(pucBuffer,
 					info->head,
@@ -2109,6 +2229,7 @@ int mtk_p2p_cfg80211_change_beacon(struct wiphy *wiphy,
 				prP2pBcnUpdateMsg->u4ProbeRespLen = 0;
 				prP2pBcnUpdateMsg->pucProbeRespIE = NULL;
 			}
+#endif
 #endif
 
 			kalP2PSetRole(prGlueInfo, 2, ucRoleIdx);
@@ -2260,6 +2381,7 @@ int mtk_p2p_cfg80211_auth(struct wiphy *wiphy,
 
 	prP2pConnSettings = prGlueInfo->prAdapter->rWifiVar.prP2PConnSettings[ucRoleIdx];
 
+	prP2pConnSettings->fgIsP2pConn	= TRUE;
 	ies = rcu_access_pointer(req->bss->ies);
 	if (!ies)
 		return false;
@@ -2317,52 +2439,54 @@ int mtk_p2p_cfg80211_assoc(struct wiphy *wiphy,
 	/*[TODO]may to check if assoc parameters change as cfg80211_auth*/
 	prP2pConnSettings->fgIsSendAssoc = TRUE;
 	/* skip join initial flow when it has been completed*/
-	prP2pRoleFsmInfo = P2P_ROLE_INDEX_2_ROLE_FSM_INFO(
-						prGlueInfo->prAdapter,
-						ucRoleIdx);
-	prStaRec = prP2pRoleFsmInfo->rJoinInfo.prTargetStaRec;
-	prConnReqInfo = &(prP2pRoleFsmInfo->rConnReqInfo);
-	kalMemCopy(prConnReqInfo->aucIEBuf,
-						req->ie, req->ie_len);
-	prConnReqInfo->u4BufLength = req->ie_len;
+	if (prP2pConnSettings->fgIsP2pConn) {
+		prP2pRoleFsmInfo = P2P_ROLE_INDEX_2_ROLE_FSM_INFO(
+							prGlueInfo->prAdapter,
+							ucRoleIdx);
+		prStaRec = prP2pRoleFsmInfo->rJoinInfo.prTargetStaRec;
+		prConnReqInfo = &(prP2pRoleFsmInfo->rConnReqInfo);
+		kalMemCopy(prConnReqInfo->aucIEBuf,
+							req->ie, req->ie_len);
+		prConnReqInfo->u4BufLength = req->ie_len;
 
-	/* set crypto */
-	kalP2PSetCipher(prGlueInfo, IW_AUTH_CIPHER_NONE,
-						ucRoleIdx);
-	DBGLOG(REQ, INFO,
-					"n_ciphers_pairwise %d, ciphers_pairwise[0] %#x\n",
-					req->crypto.n_ciphers_pairwise,
-					req->crypto.ciphers_pairwise[0]);
+		/* set crypto */
+		kalP2PSetCipher(prGlueInfo, IW_AUTH_CIPHER_NONE,
+							ucRoleIdx);
+		DBGLOG(REQ, INFO,
+						"n_ciphers_pairwise %d, ciphers_pairwise[0] %#x\n",
+						req->crypto.n_ciphers_pairwise,
+						req->crypto.ciphers_pairwise[0]);
 
-	if (req->crypto.n_ciphers_pairwise) {
-		switch (req->crypto.ciphers_pairwise[0]) {
-		case WLAN_CIPHER_SUITE_WEP40:
-		case WLAN_CIPHER_SUITE_WEP104:
-			kalP2PSetCipher(prGlueInfo,
-						IW_AUTH_CIPHER_WEP40,
-						ucRoleIdx);
-			break;
-		case WLAN_CIPHER_SUITE_TKIP:
-			kalP2PSetCipher(prGlueInfo,
-						IW_AUTH_CIPHER_TKIP,
-						ucRoleIdx);
-			break;
-		case WLAN_CIPHER_SUITE_CCMP:
-		case WLAN_CIPHER_SUITE_AES_CMAC:
-			kalP2PSetCipher(prGlueInfo,
-						IW_AUTH_CIPHER_CCMP,
-						ucRoleIdx);
-			break;
-		default:
-			DBGLOG(REQ, WARN,
-						"invalid cipher pairwise (%d)\n",
-						req->crypto
-						.ciphers_pairwise[0]);
-					/* do cfg80211_put_bss before return */
-					return -EINVAL;
+		if (req->crypto.n_ciphers_pairwise) {
+			switch (req->crypto.ciphers_pairwise[0]) {
+			case WLAN_CIPHER_SUITE_WEP40:
+			case WLAN_CIPHER_SUITE_WEP104:
+				kalP2PSetCipher(prGlueInfo,
+							IW_AUTH_CIPHER_WEP40,
+							ucRoleIdx);
+				break;
+			case WLAN_CIPHER_SUITE_TKIP:
+				kalP2PSetCipher(prGlueInfo,
+							IW_AUTH_CIPHER_TKIP,
+							ucRoleIdx);
+				break;
+			case WLAN_CIPHER_SUITE_CCMP:
+			case WLAN_CIPHER_SUITE_AES_CMAC:
+				kalP2PSetCipher(prGlueInfo,
+							IW_AUTH_CIPHER_CCMP,
+							ucRoleIdx);
+				break;
+			default:
+				DBGLOG(REQ, WARN,
+							"invalid cipher pairwise (%d)\n",
+							req->crypto
+							.ciphers_pairwise[0]);
+						/* do cfg80211_put_bss before return */
+						return -EINVAL;
+			}
 		}
-	}
 	/* end	*/
+	}
 
 	if (prStaRec)
 		saaSendAuthAssoc(prGlueInfo->prAdapter, prStaRec);
@@ -3158,8 +3282,16 @@ int mtk_p2p_cfg80211_disconnect(struct wiphy *wiphy,
 #if (CFG_SUPPORT_SUPPLICANT_SME == 1)
 		if (prGlueInfo->prAdapter->rWifiVar.
 			prP2PConnSettings[ucRoleIdx]->bss) {
+#if CFG80211_VERSION_CODE >= KERNEL_VERSION(6, 0, 0)
+		struct cfg80211_assoc_failure data = {
+			.bss[0] = prGlueInfo->prAdapter->rWifiVar.prP2PConnSettings[ucRoleIdx]->bss,
+			.timeout = true,
+		};
+		cfg80211_assoc_failure(dev, &data);
+#else
 			cfg80211_assoc_timeout(dev,
 				prGlueInfo->prAdapter->rWifiVar.prP2PConnSettings[ucRoleIdx]->bss);
+#endif
 			DBGLOG(P2P, EVENT, "assoc timeout notify[%d]\n", ucRoleIdx);
 			prGlueInfo->prAdapter->rWifiVar.
 				prP2PConnSettings[ucRoleIdx]->bss = NULL;

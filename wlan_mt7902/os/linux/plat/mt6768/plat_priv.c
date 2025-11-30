@@ -1,10 +1,10 @@
-/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
-/*
- * Copyright (c) 2019 MediaTek Inc.
- */
+/* SPDX-License-Identifier: GPL-2.0 */
+/* 
+* Copyright (c) 2020 MediaTek Inc.
+*/
+
 
 #include <cpu_ctrl.h>
-#define ppm_limit_data cpu_ctrl_data
 #include <topo_ctrl.h>
 #ifdef WLAN_FORCE_DDR_OPP
 #include <linux/pm_qos.h>

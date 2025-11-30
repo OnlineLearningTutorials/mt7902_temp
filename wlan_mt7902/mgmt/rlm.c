@@ -1,7 +1,54 @@
-/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
-/*
- * Copyright (c) 2016 MediaTek Inc.
- */
+/******************************************************************************
+ *
+ * This file is provided under a dual license.  When you use or
+ * distribute this software, you may choose to be licensed under
+ * version 2 of the GNU General Public License ("GPLv2 License")
+ * or BSD License.
+ *
+ * GPLv2 License
+ *
+ * Copyright(C) 2016 MediaTek Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of version 2 of the GNU General Public License as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See http://www.gnu.org/licenses/gpl-2.0.html for more details.
+ *
+ * BSD LICENSE
+ *
+ * Copyright(C) 2016 MediaTek Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *  * Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ *  * Neither the name of the copyright holder nor the names of its
+ *    contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ *****************************************************************************/
 /*
  ** Id: //Department/DaVinci/BRANCHES/MT6620_WIFI_DRIVER_V2_3/mgmt/rlm.c#3
  */
@@ -852,7 +899,7 @@ void rlmGenerateCsaIE(struct ADAPTER *prAdapter, struct MSDU_INFO *prMsduInfo)
 				    (unsigned long)prMsduInfo->u2FrameLength);
 
 		CSA_IE(pucBuffer)->ucId = ELEM_ID_CH_SW_ANNOUNCEMENT;
-		CSA_IE(pucBuffer)->ucLength = 3;
+		CSA_IE(pucBuffer)->ucLength = ELEM_MIN_LEN_CSA;
 		CSA_IE(pucBuffer)->ucChannelSwitchMode =
 			prAdapter->rWifiVar.ucChannelSwitchMode;
 		CSA_IE(pucBuffer)->ucNewChannelNum =
@@ -861,29 +908,7 @@ void rlmGenerateCsaIE(struct ADAPTER *prAdapter, struct MSDU_INFO *prMsduInfo)
 			prAdapter->rWifiVar.ucChannelSwitchCount;
 
 		prMsduInfo->u2FrameLength += IE_SIZE(pucBuffer);
-		/* Fill Secondary channel offset IE */
 		pucBuffer += IE_SIZE(pucBuffer);
-
-		SEC_OFFSET_IE(pucBuffer)->ucId = ELEM_ID_SCO;
-		SEC_OFFSET_IE(pucBuffer)->ucLength = 1;
-		SEC_OFFSET_IE(pucBuffer)->ucSecondaryOffset =
-			prAdapter->rWifiVar.ucSecondaryOffset;
-
-		prMsduInfo->u2FrameLength += IE_SIZE(pucBuffer);
-
-		/* Fill Wide Bandwidth Channel Switch IE */
-		pucBuffer += IE_SIZE(pucBuffer);
-
-		WIDE_BW_IE(pucBuffer)->ucId = ELEM_ID_WIDE_BAND_CHANNEL_SWITCH;
-		WIDE_BW_IE(pucBuffer)->ucLength = 3;
-		WIDE_BW_IE(pucBuffer)->ucNewChannelWidth =
-			prAdapter->rWifiVar.ucNewChannelWidth;
-		WIDE_BW_IE(pucBuffer)->ucChannelS1 =
-			prAdapter->rWifiVar.ucNewChannelS1;
-		WIDE_BW_IE(pucBuffer)->ucChannelS2 =
-			prAdapter->rWifiVar.ucNewChannelS2;
-
-		prMsduInfo->u2FrameLength += IE_SIZE(pucBuffer);
 	}
 }
 
@@ -8638,22 +8663,6 @@ void rlmSendChannelSwitchFrame(struct ADAPTER *prAdapter,
 		= prAdapter->rWifiVar.ucNewChannelNumber;
 	prTxFrame->aucInfoElem[4]
 		= prAdapter->rWifiVar.ucChannelSwitchCount;
-
-	/* 3.2 - Secondary Channel Offset element */
-	prTxFrame->aucInfoElem[5] = ELEM_ID_SCO;
-	prTxFrame->aucInfoElem[6] = 1;
-	prTxFrame->aucInfoElem[7]
-		= prAdapter->rWifiVar.ucSecondaryOffset;
-
-	/* 3.3 - Wide Bandwidth Channel Switch element */
-	prTxFrame->aucInfoElem[8] = ELEM_ID_WIDE_BAND_CHANNEL_SWITCH;
-	prTxFrame->aucInfoElem[9] = 3;
-	prTxFrame->aucInfoElem[10]
-		= prAdapter->rWifiVar.ucNewChannelWidth;
-	prTxFrame->aucInfoElem[11]
-		= prAdapter->rWifiVar.ucNewChannelS1;
-	prTxFrame->aucInfoElem[12]
-		= prAdapter->rWifiVar.ucNewChannelS2;
 
 	pfTxDoneHandler = rlmSendChannelSwitchTxDone;
 

@@ -1,7 +1,54 @@
-/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
-/*
- * Copyright (c) 2016 MediaTek Inc.
- */
+/******************************************************************************
+ *
+ * This file is provided under a dual license.  When you use or
+ * distribute this software, you may choose to be licensed under
+ * version 2 of the GNU General Public License ("GPLv2 License")
+ * or BSD License.
+ *
+ * GPLv2 License
+ *
+ * Copyright(C) 2016 MediaTek Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of version 2 of the GNU General Public License as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See http://www.gnu.org/licenses/gpl-2.0.html for more details.
+ *
+ * BSD LICENSE
+ *
+ * Copyright(C) 2016 MediaTek Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *  * Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ *  * Neither the name of the copyright holder nor the names of its
+ *    contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ *****************************************************************************/
 /*
  ** Id: /os/linux/include/gl_kal.h
  */
@@ -26,14 +73,14 @@
  *                    E X T E R N A L   R E F E R E N C E S
  *******************************************************************************
  */
-#include "../../../include/config.h"
+#include "config.h"
 #include "gl_typedef.h"
 #include "gl_wext_priv.h"
-#include "../../../include/link.h"
-#include "../../../include/nic/mac.h"
-#include "../../../include/nic/wlan_def.h"
-#include "../../../include/wlan_lib.h"
-//#include "wlan_oid.h"
+#include "link.h"
+#include "nic/mac.h"
+#include "nic/wlan_def.h"
+#include "wlan_lib.h"
+#include "wlan_oid.h"
 
 #if CFG_ENABLE_BT_OVER_WIFI
 #include "nic/bow.h"
@@ -1048,9 +1095,28 @@ do { \
 #endif
 
 #if defined(_HIF_PCIE)
+#if CFG80211_VERSION_CODE >= KERNEL_VERSION(5, 18, 0)
+#define KAL_DMA_TO_DEVICE	DMA_TO_DEVICE
+#define KAL_DMA_FROM_DEVICE	DMA_FROM_DEVICE
+#else
 #define KAL_DMA_TO_DEVICE	PCI_DMA_TODEVICE
 #define KAL_DMA_FROM_DEVICE	PCI_DMA_FROMDEVICE
+#endif
 
+#if CFG80211_VERSION_CODE >= KERNEL_VERSION(5, 18, 0)
+#define KAL_DMA_ALLOC_COHERENT(_dev, _size, _handle) \
+	dma_alloc_coherent(&((struct pci_dev *)(_dev))->dev, \
+			_size, _handle, GFP_ATOMIC)
+#define KAL_DMA_FREE_COHERENT(_dev, _size, _addr, _handle) \
+	dma_free_coherent(&((struct pci_dev *)(_dev))->dev, \
+			_size, _addr, _handle)
+#define KAL_DMA_MAP_SINGLE(_dev, _ptr, _size, _dir) \
+	dma_map_single(&((struct pci_dev *)(_dev))->dev, _ptr, _size, _dir)
+#define KAL_DMA_UNMAP_SINGLE(_dev, _addr, _size, _dir) \
+	dma_unmap_single(&((struct pci_dev *)(_dev))->dev, _addr, _size, _dir)
+#define KAL_DMA_MAPPING_ERROR(_dev, _addr) \
+	dma_mapping_error(&((struct pci_dev *)(_dev))->dev, _addr)
+#else
 #define KAL_DMA_ALLOC_COHERENT(_dev, _size, _handle) \
 	pci_alloc_consistent(_dev, _size, _handle)
 #define KAL_DMA_FREE_COHERENT(_dev, _size, _addr, _handle) \
@@ -1061,6 +1127,7 @@ do { \
 	pci_unmap_single(_dev, _addr, _size, _dir)
 #define KAL_DMA_MAPPING_ERROR(_dev, _addr) \
 	pci_dma_mapping_error(_dev, _addr)
+#endif
 #else
 #define KAL_DMA_TO_DEVICE	DMA_TO_DEVICE
 #define KAL_DMA_FROM_DEVICE	DMA_FROM_DEVICE

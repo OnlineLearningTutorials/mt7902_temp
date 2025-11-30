@@ -1,7 +1,8 @@
-/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
-/*
- * Copyright (c) 2017 MediaTek Inc.
- */
+/* SPDX-License-Identifier: GPL-2.0 */
+/* 
+* Copyright (c) 2020 MediaTek Inc.
+*/
+
 /*! \file   "reset.h"
 *   \brief  This file contains the declairation of reset module
 */
@@ -39,25 +40,7 @@ enum ENUM_RST_MODULE_STATE_TYPE_T {
 	RST_MODULE_STATE_KO_RMMOD,
 	RST_MODULE_STATE_PROBE_START,
 	RST_MODULE_STATE_PROBE_DONE,
-	RST_MODULE_STATE_DUMP_START,
-	RST_MODULE_STATE_DUMP_END,
 	RST_MODULE_STATE_MAX
-};
-
-enum ENUM_RST_MODULE_RET_TYPE_T {
-	RST_MODULE_RET_SUCCESS = 0,
-	RST_MODULE_RET_FAIL,
-	RST_MODULE_RET_MAX
-};
-
-struct WIFI_NOTIFY_DESC {
-	bool (*BtNotifyWifiSubResetStep1)(u_int8_t);
-};
-
-struct BT_NOTIFY_DESC {
-	int32_t (*WifiNotifyBtSubResetStep1)(int32_t);
-	int32_t (*WifiNotifyReadBtMcuPc)(uint32_t *);
-	int32_t (*WifiNotifyReadWifiMcuPc)(uint8_t, uint32_t *);
 };
 
 /*******************************************************************************
@@ -83,15 +66,8 @@ struct BT_NOTIFY_DESC {
 *                   F U N C T I O N   D E C L A R A T I O N S
 ********************************************************************************
 */
-enum ENUM_RST_MODULE_RET_TYPE_T rstNotifyWholeChipRstStatus(
-				enum ENUM_RST_MODULE_TYPE_T module,
+void rstNotifyWholeChipRstStatus(enum ENUM_RST_MODULE_TYPE_T module,
 				enum ENUM_RST_MODULE_STATE_TYPE_T status,
 				void *data);
-void register_bt_notify_callback(struct BT_NOTIFY_DESC *bt_notify_cb);
-void unregister_bt_notify_callback(void);
-struct BT_NOTIFY_DESC *get_bt_notify_callback(void);
-void register_wifi_notify_callback(struct WIFI_NOTIFY_DESC *wifi_notify_cb);
-void unregister_wifi_notify_callback(void);
-struct WIFI_NOTIFY_DESC *get_wifi_notify_callback(void);
 
 #endif /* _RESET_H */

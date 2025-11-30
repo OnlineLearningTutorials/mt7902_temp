@@ -1,8 +1,14 @@
-/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
+/* SPDX-License-Identifier: GPL-2.0 */
+/* 
+* Copyright (c) 2020 MediaTek Inc.
+*/
 /*
- * Copyright (c) 2021 MediaTek Inc.
+ * IEEE 802.11 RSN / WPA Authenticator
+ * Copyright (c) 2004-2015, Jouni Malinen <j@w1.fi>
+ *
+ * This software may be distributed under the terms of the BSD license.
+ * See README for more details.
  */
-
 #include "wpa_supp/FourWayHandShake.h"
 
 #if 0

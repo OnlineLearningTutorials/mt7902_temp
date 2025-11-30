@@ -1,8 +1,55 @@
 
-/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
-/*
- * Copyright (c) 2016 MediaTek Inc.
- */
+/*******************************************************************************
+ *
+ * This file is provided under a dual license.  When you use or
+ * distribute this software, you may choose to be licensed under
+ * version 2 of the GNU General Public License ("GPLv2 License")
+ * or BSD License.
+ *
+ * GPLv2 License
+ *
+ * Copyright(C) 2016 MediaTek Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of version 2 of the GNU General Public License as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See http://www.gnu.org/licenses/gpl-2.0.html for more details.
+ *
+ * BSD LICENSE
+ *
+ * Copyright(C) 2016 MediaTek Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *  * Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ *  * Neither the name of the copyright holder nor the names of its
+ *    contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ******************************************************************************/
 /*
  ** Id: //Department/DaVinci/BRANCHES/MT6620_WIFI_DRIVER_V2_3/os/linux/include
  *      /gl_os.h#4
@@ -49,7 +96,7 @@
 #define CFG_TX_STOP_NETIF_PER_QUEUE_THRESHOLD   256	/* packets */
 #define CFG_TX_START_NETIF_PER_QUEUE_THRESHOLD  128	/* packets */
 
-#define CHIP_NAME    "MT7902"
+#define CHIP_NAME    "MT6632"
 
 #define DRV_NAME "["CHIP_NAME"]: "
 
@@ -72,7 +119,7 @@
  *                    E X T E R N A L   R E F E R E N C E S
  *******************************************************************************
  */
-#include "../../version.h"	/* constant of kernel version */
+#include <linux/version.h>	/* constant of kernel version */
 
 #include <linux/kernel.h>	/* bitops.h */
 
@@ -91,10 +138,10 @@
 #include <linux/wakelock.h>
 #endif
 #endif
-/*
+
 #if KERNEL_VERSION(2, 6, 12) < LINUX_VERSION_CODE
-#include <linux/irq.h>		/* IRQT_FALLING * /
-#endif */
+#include <linux/irq.h>		/* IRQT_FALLING */
+#endif
 
 #include <linux/netdevice.h>	/* struct net_device, struct net_device_stats */
 #include <linux/etherdevice.h>	/* for eth_type_trans() function */
@@ -153,8 +200,8 @@
 #define CFG80211_VERSION_CODE LINUX_VERSION_CODE
 #endif
 
-#include "../../version.h"
-#include "../../../include/config.h"
+#include "version.h"
+#include "config.h"
 
 #if CFG_ENABLE_WIFI_DIRECT_CFG_80211
 #include <linux/wireless.h>
@@ -191,20 +238,20 @@
 #endif
 
 #include "gl_typedef.h"
-#include "../../../include/typedef.h"
-#include "../../../include/queue.h"
+#include "typedef.h"
+#include "queue.h"
 #include "gl_kal.h"
 #include "gl_rst.h"
-#include "../hif/pcie/include/hif.h"
+#include "hif.h"
 
 #if CFG_SUPPORT_TDLS
-#include "../../../include/mgmt/tdls.h"
+#include "tdls.h"
 #endif
 
-#include "../../../include/debug.h"
+#include "debug.h"
 
-#include "../../../include/wlan_lib.h"
-//#include "wlan_oid.h"
+#include "wlan_lib.h"
+#include "wlan_oid.h"
 
 #if CFG_ENABLE_AEE_MSG
 #ifdef CONFIG_ANDROID

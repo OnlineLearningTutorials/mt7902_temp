@@ -1,7 +1,54 @@
-/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
-/*
- * Copyright (c) 2016 MediaTek Inc.
- */
+/*******************************************************************************
+ *
+ * This file is provided under a dual license.  When you use or
+ * distribute this software, you may choose to be licensed under
+ * version 2 of the GNU General Public License ("GPLv2 License")
+ * or BSD License.
+ *
+ * GPLv2 License
+ *
+ * Copyright(C) 2016 MediaTek Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of version 2 of the GNU General Public License as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See http://www.gnu.org/licenses/gpl-2.0.html for more details.
+ *
+ * BSD LICENSE
+ *
+ * Copyright(C) 2016 MediaTek Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *  * Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ *  * Neither the name of the copyright holder nor the names of its
+ *    contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ******************************************************************************/
 /*
 	Module Name:
 	gl_qa_agent.c
@@ -2184,14 +2231,6 @@ static int32_t HQA_ReadEEPROM(struct net_device *prNetDev,
 	memcpy(&Len, HqaCmdFrame->Data + 2 * 1, 2);
 	Len = ntohs(Len);
 
-	/*  HQA_ReadEEPROM read size  only 16 bytes is used */
-	if (Len > EFUSE_BLOCK_SIZE) {
-		DBGLOG(INIT, ERROR,
-			"QA_AGENT HQA_ReadEEPROM Len : %d not supported\n",
-			Len);
-		return WLAN_STATUS_FAILURE;
-	}
-
 #if  (CFG_EEPROM_PAGE_ACCESS == 1)
 	prGlueInfo = *((struct GLUE_INFO **) netdev_priv(prNetDev));
 	if (!prGlueInfo) {
@@ -2200,19 +2239,9 @@ static int32_t HQA_ReadEEPROM(struct net_device *prNetDev,
 		return rStatus;
 	}
 
-	if (!prGlueInfo->prAdapter) {
-		log_dbg(RFTEST, ERROR, "prGlueInfo->prAdapter is NULL\n");
-		ResponseToQA(HqaCmdFrame, prIwReqData, 2, rStatus);
-		return rStatus;
-	}
-
-	if (!prGlueInfo->prAdapter->chip_info) {
-		log_dbg(RFTEST, ERROR, "prGlueInfo->prAdapter->chip_info is NULL\n");
-		ResponseToQA(HqaCmdFrame, prIwReqData, 2, rStatus);
-		return rStatus;
-	}
-
-	if (!prGlueInfo->prAdapter->chip_info->is_support_efuse) {
+	if (prGlueInfo->prAdapter &&
+	    prGlueInfo->prAdapter->chip_info &&
+	    !prGlueInfo->prAdapter->chip_info->is_support_efuse) {
 		rStatus = WLAN_STATUS_NOT_SUPPORTED;
 		log_dbg(RFTEST, WARN, "Efuse not support\n");
 		ResponseToQA(HqaCmdFrame, prIwReqData, 2, rStatus);
@@ -2364,7 +2393,6 @@ static int32_t HQA_ReadBulkEEPROM(struct net_device
 	struct PARAM_CUSTOM_ACCESS_EFUSE rAccessEfuseInfo;
 	uint32_t u4BufLen = 0;
 	uint8_t  u4Loop = 0;
-	uint32_t u4TotalOffset = 0;
 
 	uint16_t Buffer;
 	struct GLUE_INFO *prGlueInfo = NULL;
@@ -2391,24 +2419,8 @@ static int32_t HQA_ReadBulkEEPROM(struct net_device
 
 	memcpy(&Offset, HqaCmdFrame->Data + 2 * 0, 2);
 	Offset = ntohs(Offset);
-
-	if (Offset > (MAX_EEPROM_BUFFER_SIZE - 1)) {
-		DBGLOG(INIT, ERROR, "%s Offset : %d out of range (0x%x)\n",
-			__func__, Offset, MAX_EEPROM_BUFFER_SIZE);
-		return WLAN_STATUS_FAILURE;
-	}
-
 	memcpy(&Len, HqaCmdFrame->Data + 2 * 1, 2);
 	Len = ntohs(Len);
-
-    /* for bulk read, only 16 bytes is used */
-	if (Len > EFUSE_BLOCK_SIZE) {
-		DBGLOG(INIT, ERROR,
-			"QA_AGENT HQA_ReadBulkEEPROM Len : %d not supported\n",
-			Len);
-		return WLAN_STATUS_FAILURE;
-	}
-
 	tmp = Offset;
 	DBGLOG(INIT, INFO,
 	       "QA_AGENT HQA_ReadBulkEEPROM Offset : %d\n", Offset);
@@ -2451,17 +2463,8 @@ static int32_t HQA_ReadBulkEEPROM(struct net_device
 		}
 #endif
 		for (u4Loop = 0; u4Loop < Len; u4Loop += 2) {
-			/* Fix coverity issue: CID11341965 */
-			u4TotalOffset = Offset + u4Loop;
-			if ((u4TotalOffset) > EFUSE_BLOCK_SIZE - 1) {
-				DBGLOG(INIT, ERROR,
-					   "%s :Block accsess out of range, Offset %d u4Loop %d\n",
-					   __func__, Offset, u4Loop);
-				return WLAN_STATUS_FAILURE;
-			}
-
 			memcpy(&Buffer, prGlueInfo->prAdapter->aucEepromVaule +
-			       u4TotalOffset, 2);
+			       Offset + u4Loop, 2);
 			Buffer = ntohs(Buffer);
 			DBGLOG(INIT, INFO,
 			       ":From Efuse  u4Loop=%d  Buffer=%x\n",
@@ -2471,20 +2474,12 @@ static int32_t HQA_ReadBulkEEPROM(struct net_device
 
 	} else {  /* Read from EEPROM */
 		for (u4Loop = 0; u4Loop < Len; u4Loop += 2) {
-			/* Fix coverity issue: CID11353922 */
-			u4TotalOffset = Offset + u4Loop;
-			if ((u4TotalOffset) > MAX_EEPROM_BUFFER_SIZE - 1) {
-				DBGLOG(INIT, ERROR,
-					   "%s :Block accsess out of range, Offset %d u4Loop %d\n",
-					   __func__, Offset, u4Loop);
-				return WLAN_STATUS_FAILURE;
-			}
-			memcpy(&Buffer, uacEEPROMImage + u4TotalOffset, 2);
+			memcpy(&Buffer, uacEEPROMImage + Offset + u4Loop, 2);
 			Buffer = ntohs(Buffer);
 			memcpy(HqaCmdFrame->Data + 2 + u4Loop, &Buffer, 2);
 			DBGLOG(INIT, INFO,
 			       "QA_AGENT HQA_ReadBulkEEPROM u4Loop=%d  u4Value=%x\n",
-			       u4Loop, uacEEPROMImage[u4TotalOffset]);
+			       u4Loop, uacEEPROMImage[Offset + u4Loop]);
 		}
 	}
 #endif
@@ -2569,7 +2564,6 @@ static int32_t HQA_WriteBulkEEPROM(struct net_device
 	uint32_t Loop = 0, u4Index = 0;
 	uint16_t ucTemp2;
 	uint16_t i = 0;
-	uint32_t u4TotalOffset = 0;
 
 	prGlueInfo = *((struct GLUE_INFO **) netdev_priv(prNetDev));
 	prAdapter = prGlueInfo->prAdapter;
@@ -2584,21 +2578,8 @@ static int32_t HQA_WriteBulkEEPROM(struct net_device
 
 	memcpy(&Offset, HqaCmdFrame->Data + 2 * 0, 2);
 	Offset = ntohs(Offset);
-
-	if (Offset > (MAX_EEPROM_BUFFER_SIZE - 1)) {
-		DBGLOG(INIT, ERROR, "%s Offset : %d out of range (0x%x)\n",
-			__func__, Offset, MAX_EEPROM_BUFFER_SIZE);
-		return WLAN_STATUS_FAILURE;
-	}
-
 	memcpy(&Len, HqaCmdFrame->Data + 2 * 1, 2);
 	Len = ntohs(Len);
-    /* for bulk access, only 16 bytes is used */
-	if (Len > EFUSE_BLOCK_SIZE) {
-		DBGLOG(INIT, ERROR, "%s Len : %d not supported\n",
-			__func__, Len);
-		return WLAN_STATUS_FAILURE;
-	}
 
 	DBGLOG(INIT, INFO, "Offset : %x, Len : %u\n", Offset, Len);
 
@@ -2731,19 +2712,10 @@ static int32_t HQA_WriteBulkEEPROM(struct net_device
 			memcpy(uacEEPROMImage + Offset, &ucTemp2, Len);
 		} else {
 			for (i = 0 ; i < 8 ; i++) {
-				/* Fix coverity issue: CID10708595 */
-				u4TotalOffset = Offset + 2 * i;
-				if (u4TotalOffset >
-				    MAX_EEPROM_BUFFER_SIZE - 1) {
-					DBGLOG(INIT, ERROR,
-					"%s u4TotalOffset : %d not supported\n",
-						__func__, u4TotalOffset);
-					return WLAN_STATUS_FAILURE;
-				}
 				memcpy(&ucTemp2,
 				       HqaCmdFrame->Data + 2 * 2 + 2 * i, 2);
 				ucTemp2 = ntohs(ucTemp2);
-				memcpy(uacEEPROMImage + u4TotalOffset,
+				memcpy(uacEEPROMImage + Offset + 2 * i,
 				       &ucTemp2, 2);
 			}
 

@@ -1,7 +1,54 @@
-/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
-/*
- * Copyright (c) 2016 MediaTek Inc.
- */
+/*******************************************************************************
+ *
+ * This file is provided under a dual license.  When you use or
+ * distribute this software, you may choose to be licensed under
+ * version 2 of the GNU General Public License ("GPLv2 License")
+ * or BSD License.
+ *
+ * GPLv2 License
+ *
+ * Copyright(C) 2016 MediaTek Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of version 2 of the GNU General Public License as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See http://www.gnu.org/licenses/gpl-2.0.html for more details.
+ *
+ * BSD LICENSE
+ *
+ * Copyright(C) 2016 MediaTek Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *  * Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ *  * Neither the name of the copyright holder nor the names of its
+ *    contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ******************************************************************************/
 /*
  ** Id: //Department/DaVinci/BRANCHES/MT6620_WIFI_DRIVER_V2_3/os/linux/include
  *      /gl_cfg80211.h#1
@@ -374,7 +421,7 @@ int mtk_cfg80211_assoc(struct wiphy *wiphy,
 int
 mtk_cfg80211_change_station(struct wiphy *wiphy,
 			    struct net_device *ndev,
-			    const u8 *mac, struct station_parameters *params);
+			    const u8 *mac, struct station_parameters *params_main);
 
 int mtk_cfg80211_add_station(struct wiphy *wiphy,
 			     struct net_device *ndev,
@@ -480,22 +527,41 @@ int mtk_cfg_change_iface(struct wiphy *wiphy,
 			 struct vif_params *params);
 #endif
 int mtk_cfg_add_key(struct wiphy *wiphy,
-		    struct net_device *ndev, u8 key_index,
+		    struct net_device *ndev,
+#if CFG80211_VERSION_CODE >= KERNEL_VERSION(6, 1, 0)
+                     int link_id,
+#endif
+					 u8 key_index,
 		    bool pairwise, const u8 *mac_addr,
 		    struct key_params *params);
 int mtk_cfg_get_key(struct wiphy *wiphy,
-		    struct net_device *ndev, u8 key_index,
+		    struct net_device *ndev,
+#if CFG80211_VERSION_CODE >= KERNEL_VERSION(6, 1, 0)
+                     int link_id,
+#endif
+					 u8 key_index,
 		    bool pairwise, const u8 *mac_addr, void *cookie,
 		    void (*callback)(void *cookie, struct key_params *));
 int mtk_cfg_del_key(struct wiphy *wiphy,
-		    struct net_device *ndev, u8 key_index,
+		    struct net_device *ndev,
+#if CFG80211_VERSION_CODE >= KERNEL_VERSION(6, 1, 0)
+                     int link_id,
+#endif
+					 u8 key_index,
 		    bool pairwise, const u8 *mac_addr);
 int mtk_cfg_set_default_key(struct wiphy *wiphy,
 			    struct net_device *ndev,
+#if CFG80211_VERSION_CODE >= KERNEL_VERSION(6, 1, 0)
+                     int link_id,
+#endif
 			    u8 key_index, bool unicast, bool multicast);
 
 int mtk_cfg_set_default_mgmt_key(struct wiphy *wiphy,
-		struct net_device *ndev, u8 key_index);
+		struct net_device *ndev,
+#if CFG80211_VERSION_CODE >= KERNEL_VERSION(6, 1, 0)
+                     int link_id,
+#endif
+					 u8 key_index);
 
 #if KERNEL_VERSION(3, 16, 0) <= CFG80211_VERSION_CODE
 int mtk_cfg_get_station(struct wiphy *wiphy,
@@ -538,7 +604,11 @@ int mtk_cfg_tdls_oper(struct wiphy *wiphy,
 #if KERNEL_VERSION(3, 18, 0) <= CFG80211_VERSION_CODE
 int mtk_cfg_tdls_mgmt(struct wiphy *wiphy,
 		      struct net_device *ndev,
-		      const u8 *peer, u8 action_code, u8 dialog_token,
+		      const u8 *peer,
+#if CFG80211_VERSION_CODE >= KERNEL_VERSION(6, 1, 0)
+              int link_id,
+#endif
+			  u8 action_code, u8 dialog_token,
 		      u16 status_code,
 		      u32 peer_capability, bool initiator, const u8 *buf,
 		      size_t len);
@@ -676,7 +746,11 @@ int mtk_cfg_testmode_cmd(struct wiphy *wiphy, void *data,
 int mtk_cfg_start_radar_detection(struct wiphy *wiphy,
 				  struct net_device *dev,
 				  struct cfg80211_chan_def *chandef,
-				  unsigned int cac_time_ms);
+				  unsigned int cac_time_ms
+#if CFG80211_VERSION_CODE >= KERNEL_VERSION(6, 1, 0)
+                  , int link_id
+#endif
+				);
 #else
 int mtk_cfg_start_radar_detection(struct wiphy *wiphy,
 				  struct net_device *dev,
@@ -707,20 +781,48 @@ int mtk_cfg_start_ap(struct wiphy *wiphy,
 		     struct cfg80211_ap_settings *settings);
 int mtk_cfg_change_beacon(struct wiphy *wiphy,
 			  struct net_device *dev,
+#if CFG80211_VERSION_CODE >= KERNEL_VERSION(6, 7, 0)
+			  struct cfg80211_ap_update *info);
+#else
 			  struct cfg80211_beacon_data *info);
-int mtk_cfg_stop_ap(struct wiphy *wiphy,
-		    struct net_device *dev);
+#endif
+#if (CFG_ADVANCED_80211_MLO == 1)
+int mtk_cfg_stop_ap(struct wiphy *wiphy, struct net_device *dev,
+	unsigned int link_id);
+#else
+int mtk_cfg_stop_ap(struct wiphy *wiphy, struct net_device *dev);
+#endif
 int mtk_cfg_set_wiphy_params(struct wiphy *wiphy,
+#if CFG80211_VERSION_CODE >= KERNEL_VERSION(6, 17, 0)
+				 int radio_idx,
+#endif
 			     u32 changed);
+#if (CFG_ADVANCED_80211_MLO == 1)
+int mtk_cfg_set_bitrate_mask(struct wiphy *wiphy,
+			     struct net_device *dev,
+			     unsigned int link_id,
+			     const u8 *peer,
+			     const struct cfg80211_bitrate_mask *mask);
+#else
 int mtk_cfg_set_bitrate_mask(struct wiphy *wiphy,
 			     struct net_device *dev,
 			     const u8 *peer,
 			     const struct cfg80211_bitrate_mask *mask);
+#endif
 int mtk_cfg_set_txpower(struct wiphy *wiphy,
 			struct wireless_dev *wdev,
+#if CFG80211_VERSION_CODE >= KERNEL_VERSION(6, 17, 0)
+			int radio_idx,
+#endif
 			enum nl80211_tx_power_setting type, int mbm);
 int mtk_cfg_get_txpower(struct wiphy *wiphy,
 			struct wireless_dev *wdev,
+#if CFG80211_VERSION_CODE >= KERNEL_VERSION(6, 17, 0)
+			int radio_idx,
+#endif
+#if CFG80211_VERSION_CODE >= KERNEL_VERSION(6, 14, 0)
+            unsigned int link_id,
+#endif
 			int *dbm);
 #endif /* (CFG_ENABLE_WIFI_DIRECT_CFG_80211 != 0) */
 

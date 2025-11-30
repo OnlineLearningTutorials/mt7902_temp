@@ -1,7 +1,54 @@
-/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
-/*
- * Copyright (c) 2016 MediaTek Inc.
- */
+/******************************************************************************
+ *
+ * This file is provided under a dual license.  When you use or
+ * distribute this software, you may choose to be licensed under
+ * version 2 of the GNU General Public License ("GPLv2 License")
+ * or BSD License.
+ *
+ * GPLv2 License
+ *
+ * Copyright(C) 2016 MediaTek Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of version 2 of the GNU General Public License as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See http://www.gnu.org/licenses/gpl-2.0.html for more details.
+ *
+ * BSD LICENSE
+ *
+ * Copyright(C) 2016 MediaTek Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *  * Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ *  * Neither the name of the copyright holder nor the names of its
+ *    contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ *****************************************************************************/
 /*
  ** Id: //Department/DaVinci/BRANCHES/
  *      MT6620_WIFI_DRIVER_V2_3/include/nic_cmd_event.h#1
@@ -25,7 +72,7 @@
  *                    E X T E R N A L   R E F E R E N C E S
  *******************************************************************************
  */
-#include "../os/linux/include/gl_vendor.h"
+#include "gl_vendor.h"
 
 #if (CFG_SUPPORT_802_11AX == 1)
 #include "he_ie.h"
@@ -573,7 +620,6 @@ enum {
 #define WOWLAN_DETECT_TYPE_DISCONNECT           BIT(2)
 #define WOWLAN_DETECT_TYPE_GTK_REKEY_FAILURE    BIT(3)
 #define WOWLAN_DETECT_TYPE_BCN_LOST             BIT(4)
-#define WOWLAN_DETECT_TYPE_SCHD_SCAN_SSID_HIT   BIT(5)
 
 /* Wakeup command bit define */
 #define PF_WAKEUP_CMD_BIT0_OUTPUT_MODE_EN   BIT(0)
@@ -1054,77 +1100,9 @@ struct CMD_BASIC_CONFIG {
 struct CMD_MAC_MCAST_ADDR {
 	uint32_t u4NumOfGroupAddr;
 	uint8_t ucBssIndex;
-	uint8_t ucNormalMode;
-	uint8_t ucScreenOffMode;
-	uint8_t ucDeviceSuspendMode;
+	uint8_t aucReserved[3];
 	uint8_t arAddress[MAX_NUM_GROUP_ADDR][PARAM_MAC_ADDR_LEN];
 };
-
-enum ENUM_RXM_MCFILTER_L2_SETTING {
-	RXM_MCFILTER_L2_APLLY_FW_DEFAULT = 0,
-	RXM_MCFILTER_L2_DROP_ALL = 1,
-	RXM_MCFILTER_L2_RX_WHITE_LIST = 2,
-	RXM_MCFILTER_L2_RX_ALL = 3,
-	RXM_MCFILTER_L2_MAX = 7
-};
-
-/** RXM MC Filter L3 settings */
-enum ENUM_RXM_MCFILTER_L3_SETTING {
-	RXM_MCFILTER_L3_APPLY_FW_DEFAULT = 0,
-	RXM_MCFILTER_L3_DROP_ALL = 1,
-	RXM_MCFILTER_L3_RX_IPV4_IN_L2_WHITELIST = 2,
-	RXM_MCFILTER_L3_RX_IPV6_IN_L2_WHITELIST = 3,
-	RXM_MCFILTER_L3_RX_IPV4_IPV6_IN_L2_WHITELIST = 4,
-	RXM_MCFILTER_L3_RX_ALL = 5,
-	RXM_MCFILTER_L3_MAX = 7
-};
-
-/* MC Filter */
-#define MCFILTER_L2_SETTING_OFFSET 0
-#define MCFILTER_L2_SETTING_MASK BITS(0, 3)
-#define MCFILTER_L3_SETTING_OFFSET 4
-#define MCFILTER_L3_SETTING_MASK BITS(4, 7)
-
-/** RXM MC Filter Default Setting in normal mode */
-#define RXM_MCFILTER_L2_NORMAL_DEFAULT_SETTING  RXM_MCFILTER_L2_RX_ALL
-#define RXM_MCFILTER_L3_NORMAL_DEFAULT_SETTING  RXM_MCFILTER_L3_RX_ALL
-
-/** RXM MC Filter Default Setting in screen-off mode */
-#define RXM_MCFILTER_L2_SCRENNOFF_DEFAULT_SETTING \
-	RXM_MCFILTER_L2_RX_WHITE_LIST
-#define RXM_MCFILTER_L3_SCRENNOFF_DEFAULT_SETTING \
-	RXM_MCFILTER_L3_RX_IPV4_IPV6_IN_L2_WHITELIST
-
-/** RXM MC Filter Default Setting in device suspend mode */
-#define RXM_MCFILTER_L2_DEVICESUSPEND_DEFAULT_SETTING \
-	RXM_MCFILTER_L2_RX_WHITE_LIST
-#define RXM_MCFILTER_L3_DEVICESUSPEND_DEFAULT_SETTING \
-	RXM_MCFILTER_L3_RX_IPV4_IPV6_IN_L2_WHITELIST
-
-#define MCFILTER_MERGE(_L2, _L3) ((_L3) << MCFILTER_L3_SETTING_OFFSET | _L2)
-#define MCFILTER_GET_L2(_Byte) \
-	(((_Byte) & MCFILTER_L2_SETTING_MASK) >> MCFILTER_L2_SETTING_OFFSET)
-#define MCFILTER_GET_L3(_Byte) \
-	(((_Byte) & MCFILTER_L3_SETTING_MASK) >> MCFILTER_L3_SETTING_OFFSET)
-#define MCFILTER_SET_L2(_Byte, _ePolicy) \
-	((_Byte) = (((_Byte) & ~(MCFILTER_L2_SETTING_MASK)) | \
-	((_ePolicy) << MCFILTER_L2_SETTING_OFFSET)))
-#define MCFILTER_SET_L3(_Byte, _ePolicy) \
-	((_Byte) = (((_Byte) & ~(MCFILTER_L3_SETTING_MASK)) | \
-	((_ePolicy) << MCFILTER_L3_SETTING_OFFSET)))
-
-#define MCFILTER_COMPARE_L2_POLICY(_Byte, _ePolicy) \
-	((MCFILTER_GET_L2(_Byte)) == _ePolicy)
-#define MCFILTER_COMPARE_L3_POLICY(_Byte, _ePolicy) \
-	((MCFILTER_GET_L3(_Byte)) == _ePolicy)
-
-#define MCFILTER_NORMAL_DEFAULT \
-	(MCFILTER_MERGE(RXM_MCFILTER_L2_NORMAL_DEFAULT_SETTING, \
-	RXM_MCFILTER_L3_NORMAL_DEFAULT_SETTING))
-#define MCFILTER_SCREEN_OFF_DEFAULT \
-	(MCFILTER_MERGE(RXM_MCFILTER_L2_SCRENNOFF_DEFAULT_SETTING, \
-	RXM_MCFILTER_L3_SCRENNOFF_DEFAULT_SETTING))
-#define MCFILTER_DEVICE_SUSPNED_DEFAULT (MCFILTER_SCREEN_OFF_DEFAULT)
 
 /* CMD_ACCESS_EEPROM */
 struct CMD_ACCESS_EEPROM {

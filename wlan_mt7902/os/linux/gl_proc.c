@@ -1,7 +1,54 @@
-/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
-/*
- * Copyright (c) 2016 MediaTek Inc.
- */
+/******************************************************************************
+ *
+ * This file is provided under a dual license.  When you use or
+ * distribute this software, you may choose to be licensed under
+ * version 2 of the GNU General Public License ("GPLv2 License")
+ * or BSD License.
+ *
+ * GPLv2 License
+ *
+ * Copyright(C) 2016 MediaTek Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of version 2 of the GNU General Public License as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See http://www.gnu.org/licenses/gpl-2.0.html for more details.
+ *
+ * BSD LICENSE
+ *
+ * Copyright(C) 2016 MediaTek Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *  * Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ *  * Neither the name of the copyright holder nor the names of its
+ *    contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ *****************************************************************************/
 /*
  ** Id: /os/linux/gl_proc.c
  */
@@ -65,9 +112,6 @@
 #endif
 #if CFG_SUPPORT_PROC_GET_WAKEUP_REASON
 #define PROC_WAKEUP_REASON			"wakeup_reason"
-#endif
-#if CFG_SUPPORT_DYNAMIC_PWR_LIMIT
-#define PROC_SAR_CFG_DEBUG			"sarCfgDebug"
 #endif
 
 #define PROC_MCR_ACCESS_MAX_USER_INPUT_LEN      20
@@ -429,14 +473,14 @@ static ssize_t procCoreDumpRead(struct file *file, char __user *buf,
 	prGlueInfo = *((struct GLUE_INFO **)netdev_priv(gPrDev));
 
 	if (!prGlueInfo) {
-		DBGLOG(INIT, ERROR, "procCfgRead prGlueInfo is  NULL\n");
+		pr_err("procCfgRead prGlueInfo is  NULL\n");
 		return -EFAULT;
 	}
 
 	prAdapter = prGlueInfo->prAdapter;
 
 	if (!prAdapter) {
-		DBGLOG(INIT, ERROR, "procCfgRead prAdapter is  NULL\n");
+		pr_err("procCfgRead prAdapter is  NULL\n");
 		return -EFAULT;
 	}
 
@@ -480,7 +524,7 @@ static unsigned int procCoreDumpPoll(struct file *file, poll_table *wait)
 	prGlueInfo = *((struct GLUE_INFO **)netdev_priv(gPrDev));
 
 	if (!prGlueInfo) {
-		DBGLOG(INIT, ERROR, "procCoreDumpPoll prGlueInfo is  NULL\n");
+		pr_err("procCoreDumpPoll prGlueInfo is  NULL\n");
 		return -EFAULT;
 	}
 
@@ -545,7 +589,7 @@ static ssize_t procDbgLevelRead(struct file *filp, char __user *buf,
 	if (u4CopySize > count)
 		u4CopySize = count;
 	if (copy_to_user(buf, g_aucProcBuf, u4CopySize)) {
-		DBGLOG(INIT, ERROR, "copy to user failed\n");
+		pr_err("copy to user failed\n");
 		return -EFAULT;
 	}
 
@@ -676,14 +720,14 @@ static ssize_t procCfgRead(struct file *filp, char __user *buf, size_t count,
 	prGlueInfo = *((struct GLUE_INFO **)netdev_priv(gPrDev));
 
 	if (!prGlueInfo) {
-		DBGLOG(INIT, ERROR, "procCfgRead prGlueInfo is  NULL\n");
+		pr_err("procCfgRead prGlueInfo is  NULL????\n");
 		return 0;
 	}
 
 	prAdapter = prGlueInfo->prAdapter;
 
 	if (!prAdapter) {
-		DBGLOG(INIT, ERROR, "procCfgRead prAdapter is  NULL\n");
+		pr_err("procCfgRead prAdapter is  NULL????\n");
 		return 0;
 	}
 
@@ -756,6 +800,7 @@ static ssize_t procCfgRead(struct file *filp, char __user *buf, size_t count,
 			kalMemSet(g_aucProcBuf, ' ', u4StrLen);
 			kalStrnCpy(g_aucProcBuf, str2,
 				sizeof(g_aucProcBuf) - 1);
+			g_aucProcBuf[sizeof(g_aucProcBuf) - 1] = '\0';
 			goto procCfgReadLabel;
 		}
 
@@ -765,12 +810,11 @@ static ssize_t procCfgRead(struct file *filp, char __user *buf, size_t count,
 	}
 
 procCfgReadLabel:
-	g_aucProcBuf[sizeof(g_aucProcBuf) - 1] = '\0';
 	u4CopySize = kalStrLen(g_aucProcBuf);
 	if (u4CopySize > count)
 		u4CopySize = count;
 	if (copy_to_user(buf, g_aucProcBuf, u4CopySize)) {
-		DBGLOG(INIT, ERROR,"copy to user failed\n");
+		pr_err("copy to user failed\n");
 		return -EFAULT;
 	}
 
@@ -781,15 +825,15 @@ procCfgReadLabel:
 static ssize_t procCfgWrite(struct file *file, const char __user *buffer,
 	size_t count, loff_t *data)
 {
+
+	/*      uint32_t u4DriverCmd, u4DriverValue;
+	 *uint8_t *temp = &g_aucProcBuf[0];
+	 */
 	uint32_t u4CopySize = sizeof(g_aucProcBuf)-8;
 	struct GLUE_INFO *prGlueInfo;
 	uint8_t *pucTmp;
+	/* PARAM_CUSTOM_P2P_SET_STRUCT_T rSetP2P; */
 	uint32_t i = 0;
-
-	if (count <= 0) {
-		DBGLOG(INIT, ERROR, "wrong copy size\n");
-		return -EFAULT;
-	}
 
 	kalMemSet(g_aucProcBuf, 0, u4CopySize);
 	u4CopySize = (count < u4CopySize) ? count : (u4CopySize - 1);
@@ -798,12 +842,12 @@ static ssize_t procCfgWrite(struct file *file, const char __user *buffer,
 	SNPRINTF(pucTmp, g_aucProcBuf, ("%s ", "set_cfg"));
 
 	if (copy_from_user(pucTmp, buffer, u4CopySize)) {
-		DBGLOG(INIT, ERROR, "error of copy from user\n");
+		pr_err("error of copy from user\n");
 		return -EFAULT;
 	}
 	g_aucProcBuf[u4CopySize + 8] = '\0';
 
-	for (i = 8 ; i < u4CopySize + 8; i++) {
+	for (i = 8 ; i < u4CopySize+8; i++) {
 		if (!isalnum(g_aucProcBuf[i]) && /* alphanumeric */
 			g_aucProcBuf[i] != 0x20 && /* space */
 			g_aucProcBuf[i] != 0x0a && /* control char */
@@ -845,13 +889,13 @@ static ssize_t procDriverCmdRead(struct file *filp, char __user *buf,
 		u4CopySize = g_i4NextDriverReadLen;
 
 	if (u4CopySize > count) {
-		DBGLOG(INIT, ERROR, "count is too small: u4CopySize=%u, count=%u\n",
+		pr_err("count is too small: u4CopySize=%u, count=%u\n",
 		       u4CopySize, (uint32_t)count);
 		return -EFAULT;
 	}
 
 	if (copy_to_user(buf, g_aucProcBuf, u4CopySize)) {
-		DBGLOG(INIT, ERROR, "copy to user failed\n");
+		pr_err("copy to user failed\n");
 		return -EFAULT;
 	}
 	g_i4NextDriverReadLen = 0;
@@ -876,7 +920,7 @@ static ssize_t procDriverCmdWrite(struct file *file, const char __user *buffer,
 	u4CopySize = (count < u4CopySize) ? count : (u4CopySize - 1);
 
 	if (copy_from_user(g_aucProcBuf, buffer, u4CopySize)) {
-		DBGLOG(INIT, ERROR,"error of copy from user\n");
+		pr_err("error of copy from user\n");
 		return -EFAULT;
 	}
 	g_aucProcBuf[u4CopySize] = '\0';
@@ -907,7 +951,7 @@ static ssize_t procDbgLevelWrite(struct file *file, const char __user *buffer,
 	u4CopySize = (count < u4CopySize) ? count : (u4CopySize - 1);
 
 	if (copy_from_user(g_aucProcBuf, buffer, u4CopySize)) {
-		DBGLOG(INIT, ERROR, "error of copy from user\n");
+		pr_err("error of copy from user\n");
 		return -EFAULT;
 	}
 	g_aucProcBuf[u4CopySize] = '\0';
@@ -916,8 +960,7 @@ static ssize_t procDbgLevelWrite(struct file *file, const char __user *buffer,
 #if CFG_CHIP_RESET_SUPPORT
 	if (temp[0] == 'R') {
 		DBGLOG(INIT, INFO, "WIFI trigger reset!!\n");
-		if (g_prGlueInfo_proc == NULL ||
-			g_prGlueInfo_proc->prAdapter == NULL) {
+		if (g_prGlueInfo_proc == NULL) {
 			DBGLOG(INIT, ERROR,
 				"g_prGlueInfo_proc is NULL, skip reset!\n");
 			return -EFAULT;
@@ -1555,7 +1598,7 @@ static ssize_t procMCRRead(struct file *filp, char __user *buf,
 
 	u4Count = kalStrLen(g_aucProcBuf);
 	if (copy_to_user(buf, g_aucProcBuf, u4Count)) {
-		DBGLOG(INIT, ERROR, "copy to user failed\n");
+		pr_err("copy to user failed\n");
 		return -EFAULT;
 	}
 
@@ -1664,7 +1707,7 @@ static ssize_t procSetCamCfgWrite(struct file *file, const char __user *buffer,
 	u4CopySize = (count < u4CopySize) ? count : (u4CopySize - 1);
 
 	if (copy_from_user(g_aucProcBuf, buffer, u4CopySize)) {
-		DBGLOG(INIT, ERROR, "error of copy from user\n");
+		pr_err("error of copy from user\n");
 		return -EFAULT;
 	}
 	g_aucProcBuf[u4CopySize] = '\0';
@@ -1774,7 +1817,7 @@ static ssize_t procPktDelayDbgCfgRead(struct file *filp, char __user *buf,
 	if (u4CopySize > count)
 		u4CopySize = count;
 	if (copy_to_user(buf, g_aucProcBuf, u4CopySize)) {
-		DBGLOG(INIT, ERROR, "copy to user failed\n");
+		pr_err("copy to user failed\n");
 		return -EFAULT;
 	}
 
@@ -1805,7 +1848,7 @@ static ssize_t procPktDelayDbgCfgWrite(struct file *file, const char *buffer,
 	u4CopySize = (count < u4CopySize) ? count : (u4CopySize - 1);
 
 	if (copy_from_user(g_aucProcBuf, buffer, u4CopySize)) {
-		DBGLOG(INIT, ERROR, "error of copy from user\n");
+		pr_err("error of copy from user\n");
 		return -EFAULT;
 	}
 	g_aucProcBuf[u4CopySize] = '\0';
@@ -1877,7 +1920,7 @@ static ssize_t procRoamRead(struct file *filp, char __user *buf,
 
 	u4CopySize = kalStrLen(g_aucProcBuf);
 	if (copy_to_user(buf, g_aucProcBuf, u4CopySize)) {
-		DBGLOG(INIT, ERROR, "copy to user failed\n");
+		pr_err("copy to user failed\n");
 		return -EFAULT;
 	}
 	*f_pos += u4CopySize;
@@ -1896,7 +1939,7 @@ static ssize_t procRoamWrite(struct file *file, const char __user *buffer,
 	u4CopySize = (count < u4CopySize) ? count : (u4CopySize - 1);
 
 	if (copy_from_user(g_aucProcBuf, buffer, u4CopySize)) {
-		DBGLOG(INIT, ERROR, "error of copy from user\n");
+		pr_err("error of copy from user\n");
 		return -EFAULT;
 	}
 	g_aucProcBuf[u4CopySize] = '\0';
@@ -1950,7 +1993,7 @@ static ssize_t procCountryRead(struct file *filp, char __user *buf,
 
 	u4CopySize = kalStrLen(g_aucProcBuf);
 	if (copy_to_user(buf, g_aucProcBuf, u4CopySize)) {
-		DBGLOG(INIT, ERROR, "copy to user failed\n");
+		pr_err("copy to user failed\n");
 		return -EFAULT;
 	}
 	*f_pos += u4CopySize;
@@ -1969,7 +2012,7 @@ static ssize_t procCountryWrite(struct file *file, const char __user *buffer,
 	u4CopySize = (count < u4CopySize) ? count : (u4CopySize - 1);
 
 	if (copy_from_user(g_aucProcBuf, buffer, u4CopySize)) {
-		DBGLOG(INIT, ERROR, "error of copy from user\n");
+		pr_err("error of copy from user\n");
 		return -EFAULT;
 	}
 	g_aucProcBuf[u4CopySize] = '\0';
@@ -2081,63 +2124,6 @@ static DEFINE_PROC_OPS_STRUCT(auto_perf_ops) = {
 };
 #endif
 
-#if CFG_SUPPORT_DYNAMIC_PWR_LIMIT
-static ssize_t procSarCfgDebugRead(struct file *filp,
-	char __user *buf, size_t count, loff_t *f_pos)
-{
-	uint8_t *str = NULL;
-	uint8_t *temp = &g_aucProcBuf[0];
-	uint32_t u4CopySize = sizeof(g_aucProcBuf);
-
-	/* if *f_ops>0, we should return 0 to make cat command exit */
-	if (*f_pos > 0 || buf == NULL)
-		return 0;
-
-	kalMemSet(temp, 0, u4CopySize);
-
-	u4CopySize = debug_read_txPwrCtrlStringToStruct(temp, u4CopySize - 1);
-
-	if (u4CopySize == 0) {
-		str = "    cfg element is empty.\n"
-		      "    write cfg string to build an new element,\n"
-		      "    write 'dumpAll' to dump element list,\n"
-		      "    write 'dumpElement,name,id' to dump an element.\n";
-		u4CopySize = kalStrLen(str);
-		kalStrnCpy(temp, str, u4CopySize);
-	}
-	u4CopySize++;
-
-	if (copy_to_user(buf, temp, u4CopySize))
-		return -EFAULT;
-
-	*f_pos += u4CopySize;
-	return (ssize_t) u4CopySize;
-}
-
-static ssize_t procSarCfgDebugWrite(struct file *file,
-	const char __user *buffer, size_t count, loff_t *data)
-{
-	uint32_t u4CopySize = sizeof(g_aucProcBuf);
-
-	kalMemSet(g_aucProcBuf, 0, u4CopySize);
-	u4CopySize = (count < u4CopySize) ? count : (u4CopySize - 1);
-
-	if (copy_from_user(g_aucProcBuf, buffer, u4CopySize))
-		return -EFAULT;
-	g_aucProcBuf[u4CopySize] = '\0';
-
-	debug_write_txPwrCtrlStringToStruct(g_aucProcBuf);
-
-	return count;
-}
-
-static DEFINE_PROC_OPS_STRUCT(sardebug_ops) = {
-	DEFINE_PROC_OPS_OWNER(THIS_MODULE)
-	DEFINE_PROC_OPS_READ(procSarCfgDebugRead)
-	DEFINE_PROC_OPS_WRITE(procSarCfgDebugWrite)
-};
-#endif
-
 int32_t procInitFs(void)
 {
 	struct proc_dir_entry *prEntry;
@@ -2145,7 +2131,7 @@ int32_t procInitFs(void)
 	g_i4NextDriverReadLen = 0;
 
 	if (init_net.proc_net == (struct proc_dir_entry *)NULL) {
-		DBGLOG(INIT, ERROR, "init proc fs fail: proc_net == NULL\n");
+		pr_err("init proc fs fail: proc_net == NULL\n");
 		return -ENOENT;
 	}
 
@@ -2155,7 +2141,7 @@ int32_t procInitFs(void)
 
 	gprProcRoot = proc_mkdir(PROC_ROOT_NAME, init_net.proc_net);
 	if (!gprProcRoot) {
-		DBGLOG(INIT, ERROR, "gprProcRoot == NULL\n");
+		pr_err("gprProcRoot == NULL\n");
 		return -ENOENT;
 	}
 	proc_set_user(gprProcRoot, KUIDT_INIT(PROC_UID_SHELL),
@@ -2164,7 +2150,7 @@ int32_t procInitFs(void)
 	prEntry =
 	    proc_create(PROC_DBG_LEVEL_NAME, 0664, gprProcRoot, &dbglevel_ops);
 	if (prEntry == NULL) {
-		DBGLOG(INIT, ERROR, "Unable to create /proc entry dbgLevel\n\r");
+		pr_err("Unable to create /proc entry dbgLevel\n\r");
 		return -1;
 	}
 	proc_set_user(prEntry, KUIDT_INIT(PROC_UID_SHELL),
@@ -2182,26 +2168,11 @@ int32_t procInitFs(void)
 		      KGIDT_INIT(PROC_GID_WIFI));
 #endif
 
-#if CFG_SUPPORT_DYNAMIC_PWR_LIMIT
-	prEntry =
-	    proc_create(PROC_SAR_CFG_DEBUG, 0664, gprProcRoot, &sardebug_ops);
-	if (prEntry == NULL) {
-		DBGLOG(INIT, ERROR, "Unable to create /proc entry %s/n",
-		       PROC_SAR_CFG_DEBUG);
-		return -1;
-	}
-	proc_set_user(prEntry, KUIDT_INIT(PROC_UID_SHELL),
-		      KGIDT_INIT(PROC_GID_WIFI));
-#endif
-
 	return 0;
 }				/* end of procInitProcfs() */
 
 int32_t procUninitProcFs(void)
 {
-#if CFG_SUPPORT_DYNAMIC_PWR_LIMIT
-	remove_proc_subtree(PROC_SAR_CFG_DEBUG, gprProcRoot);
-#endif
 #if KERNEL_VERSION(3, 9, 0) <= LINUX_VERSION_CODE
 #if (CFG_SUPPORT_PERMON == 1)
 	remove_proc_subtree(PROC_AUTO_PERF_CFG, gprProcRoot);
@@ -2695,11 +2666,6 @@ static ssize_t cfgWrite(struct file *filp, const char __user *buf,
 	uint32_t u4CopySize = sizeof(aucCfgBuf);
 	uint8_t token_num = 1;
 
-	if (count <= 0) {
-		DBGLOG(INIT, ERROR, "wrong copy size\n");
-		return -EFAULT;
-	}
-
 	kalMemSet(aucCfgBuf, 0, u4CopySize);
 	u4CopySize = (count < u4CopySize) ? count : (u4CopySize - 1);
 
@@ -2708,7 +2674,7 @@ static ssize_t cfgWrite(struct file *filp, const char __user *buf,
 		return -EFAULT;
 	}
 	aucCfgBuf[u4CopySize] = '\0';
-	for (i = 0; i < u4CopySize; i++) {
+	for (; i < u4CopySize; i++) {
 		if (aucCfgBuf[i] == ' ') {
 			token_num++;
 			break;
@@ -2717,15 +2683,13 @@ static ssize_t cfgWrite(struct file *filp, const char __user *buf,
 
 	if (token_num == 1) {
 		kalMemSet(aucCfgQueryKey, 0, sizeof(aucCfgQueryKey));
-		u4CopySize = (u4CopySize < sizeof(aucCfgQueryKey)) ?
-			u4CopySize : sizeof(aucCfgQueryKey);
-
 		/* remove the 0x0a */
 		memcpy(aucCfgQueryKey, aucCfgBuf, u4CopySize);
 		if (aucCfgQueryKey[u4CopySize - 1] == 0x0a)
 			aucCfgQueryKey[u4CopySize - 1] = '\0';
 	} else {
-		wlanFwCfgParse(gprGlueInfo->prAdapter, aucCfgBuf);
+		if (u4CopySize)
+			wlanFwCfgParse(gprGlueInfo->prAdapter, aucCfgBuf);
 	}
 
 	return count;

@@ -1,7 +1,54 @@
-/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
-/*
- * Copyright (c) 2016 MediaTek Inc.
- */
+/*******************************************************************************
+ *
+ * This file is provided under a dual license.  When you use or
+ * distribute this software, you may choose to be licensed under
+ * version 2 of the GNU General Public License ("GPLv2 License")
+ * or BSD License.
+ *
+ * GPLv2 License
+ *
+ * Copyright(C) 2016 MediaTek Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of version 2 of the GNU General Public License as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See http://www.gnu.org/licenses/gpl-2.0.html for more details.
+ *
+ * BSD LICENSE
+ *
+ * Copyright(C) 2016 MediaTek Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *  * Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ *  * Neither the name of the copyright holder nor the names of its
+ *    contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ******************************************************************************/
 /*
  ** Id: //Department/DaVinci/BRANCHES/MT6620_WIFI_DRIVER_V2_3/include/config.h#3
  */
@@ -34,6 +81,7 @@
  *******************************************************************************
  */
 /* 2 Flags for OS capability */
+
 #undef CONFIG_MTK_CONNSYS_DEDICATED_LOG_PATH
 #if defined(_HIF_SDIO)
 /* #ifdef CONFIG_X86 */
@@ -62,9 +110,6 @@
 #endif
 
 
-#ifndef CONFIG_WIFI_RAM_MQM_BA_DELAY_SUPPORT
-#define CONFIG_WIFI_RAM_MQM_BA_DELAY_SUPPORT             0
-#endif
 
 /* Android build-in driver switch, Mike 2016/11/11*/
 #ifndef CFG_BUILT_IN_DRIVER
@@ -416,26 +461,6 @@
 #define CFG_SUPPORT_TX_TSO_SW                     0
 #endif
 
-/* Support Allocate TX packet buffer(streaming DMA) for TX ring buffer
- * With feature enabled, wifi driver will copy packet from protocal
- *  stack alloc mem(prskb)  to buffer that mentioned above.
- * With disabled, wifi driver not alloc TX packet buffer(streaming DMA)
- * for TX ring buffer, direct use protocal stack mem, it will reduce mem
- * copy ops in wifi driver. sometimes it will help for peak TP, but must
- * confirm that IOMMU for PCIE is supported on platform.
- */
-#ifndef CFG_HIF_TX_PREALLOC_DATA_BUFFER
-#define CFG_HIF_TX_PREALLOC_DATA_BUFFER			1
-#endif
-
-/* Support Linux netdevice Scatter/gather IO (NETIF_F_SG)
- * With feature enabled, L3 netdevice will push gathered skbs to wifi driver
- * and the driver should put fragmented memories to DMA properly.
- */
-#ifndef CFG_SUPPORT_TX_SG
-#define CFG_SUPPORT_TX_SG                         0
-#endif
-
 /* 2 Flags for Driver Parameters */
 /*------------------------------------------------------------------------------
  * Flags for EHPI Interface in Colibri Platform
@@ -581,9 +606,7 @@
  */
 
 /*! Maximum number of SW TX packet queue */
-#ifndef CFG_TX_MAX_PKT_NUM
 #define CFG_TX_MAX_PKT_NUM                      1024
-#endif
 
 /*! Maximum number of SW TX CMD packet buffer */
 #define CFG_TX_MAX_CMD_PKT_NUM                  32
@@ -770,6 +793,7 @@
 #define SCAN_CMD_EXT_SSID_NUM                   (6)
 #define SCAN_CMD_EXT_CHNL_NUM                   (32)
 #endif
+#define CFG_SCAN_OOB_MAX_NUM			(4)
 #define CFG_SCAN_SSID_MAX_NUM (SCAN_CMD_SSID_NUM+SCAN_CMD_EXT_SSID_NUM)
 
 #if (CFG_SUPPORT_WIFI_6G == 1)
@@ -1187,12 +1211,7 @@
 
 #define CFG_SUPPORT_PWR_LIMIT_COUNTRY		1
 
-#ifndef CFG_SUPPORT_DYNAMIC_PWR_LIMIT
 #define CFG_SUPPORT_DYNAMIC_PWR_LIMIT		0
-#endif
-#ifndef CFG_SUPPORT_DYNAMIC_PWR_LIMIT_ANT_TAG
-#define CFG_SUPPORT_DYNAMIC_PWR_LIMIT_ANT_TAG	0
-#endif
 
 #define CFG_FIX_2_TX_PORT			0
 
@@ -1456,6 +1475,10 @@
  */
 #ifndef CFG_SUPPORT_SINGLE_SKU
 #define CFG_SUPPORT_SINGLE_SKU	1
+#endif
+
+#ifndef CFG_SUPPORT_SINGLE_SKU_6G
+#define CFG_SUPPORT_SINGLE_SKU_6G 1
 #endif
 
 #ifndef CFG_SUPPORT_SINGLE_SKU_LOCAL_DB

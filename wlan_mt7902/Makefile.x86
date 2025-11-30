@@ -8,13 +8,27 @@
 # 	make -f Makefile.x86 MTK_COMBO_CHIP=MT7663 hif=usb
 # Note: Chip ID must be uppercase. E.g., MT7663
 
-LINUX_SRC=/lib/modules/$(shell uname -r)/build
+MODDESTDIR := /lib/modules/$(KVER)/kernel/drivers/net/wireless/mediatek/mt7902
+LINUX_SRC=/lib/modules/$(KVER)/build
+MT76DIR := /lib/modules/$(KVER)/kernel/drivers/net/wireless/mediatek/mt76
+FWDIR := /lib/firmware/mediatek/mt7902
 
-export CONFIG_MTK_COMBO_PLATFORM=x86_64
+export CONFIG_MTK_COMBO_PLATFORM=x86
 export MTK_COMBO_CHIP=MT7902
 
 PWD=$(shell pwd)
 DRIVER_DIR=$(PWD)
+
+#Handle the compression option for modules in 3.18+
+ifneq ("","$(wildcard $(MT76DIR)/*.ko.gz)")
+COMPRESS_GZIP := y
+endif
+ifneq ("","$(wildcard $(MT76DIR)/*.ko.xz)")
+COMPRESS_XZ := y
+endif
+ifneq ("","$(wildcard $(MT76DIR)/*.ko.zst)")
+COMPRESS_ZSTD := y
+endif
 
 export CONFIG_MTK_WIFI_ONLY=m
 export CONFIG_MTK_COMBO=m
@@ -215,9 +229,43 @@ endif
 
 all: driver
 
+install: driver
+	@install -D -m 644 -t $(MODDESTDIR) *.ko
+ifeq ($(COMPRESS_GZIP), y)
+	@gzip -f $(MODDESTDIR)/*.ko
+endif
+ifeq ($(COMPRESS_XZ), y)
+	@xz -f -C crc32 $(MODDESTDIR)/*.ko
+endif
+ifeq ($(COMPRESS_ZSTD), y)
+	@zstd -f -q --rm $(MODDESTDIR)/*.ko
+endif
+	@depmod $(DEPMOD_ARGS) -a $(KVER)
+
+install_fw:
+ifeq ($(wildcard $(FWDIR)/..), )
+	@install -Dvm 644 -t $(FWDIR) firmware/*.bin
+else
+	@cp -r firmware tmp
+ifneq ($(wildcard $(FWDIR)/../*.zst), )
+	@zstd -fq --rm tmp/*.bin
+endif
+ifneq ($(wildcard $(FWDIR)/../*.xz), )
+	@xz -f -C crc32 tmp/*.bin
+endif
+ifneq ($(wildcard $(FWDIR)/../*.gz), )
+	@gzip -f tmp/*.bin
+endif
+	@install -Dvm 644 -t $(FWDIR) tmp/*
+	@rm -rf tmp
+endif
+
 driver:
 	+cd $(DRIVER_DIR) && make -C $(LINUX_SRC) M=$(DRIVER_DIR) PLATFORM_FLAGS="$(PLATFORM_FLAGS)" modules
-	@cd $(DRIVER_DIR) && cp $(MODULES_NAME)_$(hif).ko $(MODULES_NAME).ko
+
+# driver:
+#	+cd $(DRIVER_DIR) && make -C $(LINUX_SRC) M=$(DRIVER_DIR) PLATFORM_FLAGS="$(PLATFORM_FLAGS)" modules
+#	@cd $(DRIVER_DIR) && cp $(MODULES_NAME)_$(hif).ko $(MODULES_NAME).ko
 
 clean: driver_clean
 

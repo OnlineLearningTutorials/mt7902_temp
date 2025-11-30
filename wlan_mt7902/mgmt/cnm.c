@@ -1,7 +1,54 @@
-/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
-/*
- * Copyright (c) 2016 MediaTek Inc.
- */
+/******************************************************************************
+ *
+ * This file is provided under a dual license.  When you use or
+ * distribute this software, you may choose to be licensed under
+ * version 2 of the GNU General Public License ("GPLv2 License")
+ * or BSD License.
+ *
+ * GPLv2 License
+ *
+ * Copyright(C) 2016 MediaTek Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of version 2 of the GNU General Public License as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See http://www.gnu.org/licenses/gpl-2.0.html for more details.
+ *
+ * BSD LICENSE
+ *
+ * Copyright(C) 2016 MediaTek Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *  * Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ *  * Neither the name of the copyright holder nor the names of its
+ *    contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ *****************************************************************************/
 /*
  * Id: //Department/DaVinci/BRANCHES/MT6620_WIFI_DRIVER_V2_3/mgmt/cnm.c#2
  */
@@ -1108,15 +1155,6 @@ void cnmCsaDoneEvent(IN struct ADAPTER *prAdapter,
 
 	prAdapter->rWifiVar.fgCsaInProgress = FALSE;
 
-	/* Clean up CSA variables */
-	prAdapter->rWifiVar.ucChannelSwitchMode = 0;
-	prAdapter->rWifiVar.ucNewChannelNumber = 0;
-	prAdapter->rWifiVar.ucChannelSwitchCount = 0;
-	prAdapter->rWifiVar.ucSecondaryOffset = 0;
-	prAdapter->rWifiVar.ucNewChannelWidth = 0;
-	prAdapter->rWifiVar.ucNewChannelS1 = 0;
-	prAdapter->rWifiVar.ucNewChannelS2 = 0;
-
 	p2pFunChnlSwitchNotifyDone(prAdapter);
 }
 #endif
@@ -1195,7 +1233,6 @@ uint8_t cnmIdcCsaReq(IN struct ADAPTER *prAdapter,
 	struct BSS_INFO *prBssInfo = NULL;
 	uint8_t ucBssIdx = 0;
 	struct RF_CHANNEL_INFO rRfChnlInfo;
-	uint8_t ucCsaChnlS1 = 0;
 
 	ASSERT(ch_num);
 
@@ -1221,11 +1258,8 @@ uint8_t cnmIdcCsaReq(IN struct ADAPTER *prAdapter,
 		rRfChnlInfo.u2PriChnlFreq =
 			nicChannelNum2Freq(
 				ch_num, prBssInfo->eBand) / 1000;
-		ucCsaChnlS1 = nicGetVhtS1(ch_num,
-			rlmGetVhtOpBwByBssOpBw(rRfChnlInfo.ucChnlBw));
-		rRfChnlInfo.u4CenterFreq1 = (ucCsaChnlS1 != 0)
-			? (nicChannelNum2Freq(
-				ucCsaChnlS1, rRfChnlInfo.eBand) / 1000) : 0;
+		rRfChnlInfo.u4CenterFreq1 =
+			rRfChnlInfo.u2PriChnlFreq;
 		rRfChnlInfo.u4CenterFreq2 = 0;
 
 		DBGLOG(REQ, INFO,
@@ -2509,8 +2543,6 @@ void cnmDbdcOpModeChangeDoneCallback(
 	}
 
 	if (!g_rDbdcInfo.fgDbdcDisableOpmodeChangeDone) {
-		g_rDbdcInfo.fgDbdcDisableOpmodeChangeDone = true;
-
 		if (fgIsAllActionFrameSuccess) {
 			DBDC_FSM_EVENT_HANDLER(prAdapter,
 				DBDC_FSM_EVENT_ACTION_FRAME_ALL_SUCCESS);
@@ -2518,6 +2550,8 @@ void cnmDbdcOpModeChangeDoneCallback(
 			DBDC_FSM_EVENT_HANDLER(prAdapter,
 				DBDC_FSM_EVENT_ACTION_FRAME_SOME_FAIL);
 		}
+
+		g_rDbdcInfo.fgDbdcDisableOpmodeChangeDone = true;
 	}
 }
 
@@ -3715,13 +3749,6 @@ u_int8_t cnmDbdcIsP2pListenDbdcEn(void)
 	return g_rDbdcInfo.fgIsDBDCEnByP2pLis;
 }
 #endif
-
-u_int8_t cnmDbdcIsWaitHwDisable(IN struct ADAPTER *prAdapter)
-{
-	return g_rDbdcInfo.eDbdcFsmCurrState ==
-		ENUM_DBDC_FSM_STATE_WAIT_HW_DISABLE;
-}
-
 #endif /*CFG_SUPPORT_DBDC*/
 
 

@@ -1,7 +1,54 @@
-/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
-/*
- * Copyright (c) 2016 MediaTek Inc.
- */
+/******************************************************************************
+ *
+ * This file is provided under a dual license.  When you use or
+ * distribute this software, you may choose to be licensed under
+ * version 2 of the GNU General Public License ("GPLv2 License")
+ * or BSD License.
+ *
+ * GPLv2 License
+ *
+ * Copyright(C) 2016 MediaTek Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of version 2 of the GNU General Public License as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See http://www.gnu.org/licenses/gpl-2.0.html for more details.
+ *
+ * BSD LICENSE
+ *
+ * Copyright(C) 2016 MediaTek Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *  * Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ *  * Neither the name of the copyright holder nor the names of its
+ *    contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ *****************************************************************************/
 /*
  * Id: //Department/DaVinci/BRANCHES/MT6620_WIFI_DRIVER_V2_3/mgmt/saa_fsm.c#2
  */
@@ -86,7 +133,7 @@ static uint8_t *apucDebugAAState[AA_STATE_NUM] = {
 void saaSendAuthAssoc(IN struct ADAPTER *prAdapter,
 	IN struct STA_RECORD *prStaRec)
 {
-	uint32_t rStatus = WLAN_STATUS_FAILURE;
+	uint32_t rStatus;
 	struct CONNECTION_SETTINGS *prConnSettings = NULL;
 	struct P2P_CONNECTION_SETTINGS *prP2pConnSettings = NULL;
 	uint16_t u2AuthTransSN =
@@ -213,9 +260,9 @@ void saaSendAuthAssoc(IN struct ADAPTER *prAdapter,
 		} else { /* Prepare to send association frame */
 
 			/* Fill Cipher/AKM before sending association request,
-			* copy from AIS search step
-			*/
-			/*Add patch to resolve PMF 5.3.3.5 &
+			 * copy from AIS search step
+			 */
+			/* Add patch to resolve PMF 5.3.3.5 &
 			 * PMF 5.4.3.1 test failure issue.
 			 * choose right prBssDesc to do actions based on BSSID &
 			 * SSID or channel Number
@@ -308,7 +355,7 @@ void saaSendAuthAssoc(IN struct ADAPTER *prAdapter,
 void saaSendAuthSeq3(IN struct ADAPTER *prAdapter,
 		IN struct STA_RECORD *prStaRec)
 {
-	uint32_t rStatus = WLAN_STATUS_FAILURE;
+	uint32_t rStatus;
 
 	ASSERT(prAdapter);
 	ASSERT(prStaRec);
@@ -374,7 +421,7 @@ saaFsmSteps(IN struct ADAPTER *prAdapter,
 	    IN struct STA_RECORD *prStaRec, IN enum ENUM_AA_STATE eNextState,
 	    IN struct SW_RFB *prRetainedSwRfb)
 {
-	uint32_t rStatus = WLAN_STATUS_FAILURE;
+	uint32_t rStatus;
 	enum ENUM_AA_STATE ePreviousState;
 	u_int8_t fgIsTransition;
 	uint32_t u4AuthAssocState;
@@ -1771,6 +1818,7 @@ uint32_t saaFsmRunEventRxDeauth(IN struct ADAPTER *prAdapter,
 	struct BSS_INFO *prBssInfo = NULL;
 	struct net_device *prNetDev = NULL;
 	uint8_t ucRoleIdx = 0;
+	struct CONNECTION_SETTINGS *prConnSettings = NULL;
 #endif
 
 	ASSERT(prSwRfb);
@@ -1911,6 +1959,9 @@ uint32_t saaFsmRunEventRxDeauth(IN struct ADAPTER *prAdapter,
 			DBGLOG(SAA, INFO,
 				"notification of RX deauthentication Done\n");
 
+			prConnSettings = &prGlueInfo->prAdapter->rWifiVar
+					.rConnSettings[prStaRec->ucBssIndex];
+			prConnSettings->fgIsP2pConn = FALSE;
 			prNetDev = prGlueInfo
 					->prP2PInfo[ucRoleIdx]->aprRoleHandler;
 			DBGLOG(SAA, EVENT,
@@ -2092,6 +2143,7 @@ uint32_t saaFsmRunEventRxDisassoc(IN struct ADAPTER *prAdapter,
 	struct BSS_INFO *prBssInfo = NULL;
 	struct net_device *prNetDev = NULL;
 	uint8_t ucRoleIdx = 0;
+	struct CONNECTION_SETTINGS *prConnSettings = NULL;
 #endif
 	uint8_t ucBssIndex = 0;
 
@@ -2195,7 +2247,11 @@ uint32_t saaFsmRunEventRxDisassoc(IN struct ADAPTER *prAdapter,
 				 * avoid kernel WARN_ON
 				 * in cfg80211_process_disassoc().
 				 */
+#if (CFG_ADVANCED_80211_MLO == 1)
+				if (wdev->connected)
+#else
 				if (wdev->current_bss)
+#endif
 					kalIndicateRxDisassocToUpperLayer(
 						prAdapter->
 						prGlueInfo->prDevHandler,
@@ -2228,7 +2284,11 @@ uint32_t saaFsmRunEventRxDisassoc(IN struct ADAPTER *prAdapter,
 			ucRoleIdx = (uint8_t)prBssInfo->u4PrivateData;
 			wdev = prAdapter->prGlueInfo->prP2PInfo[ucRoleIdx]
 						->aprRoleHandler->ieee80211_ptr;
+#if (CFG_ADVANCED_80211_MLO == 1)
+			if (wdev->connected)
+#else
 			if (wdev->current_bss)
+#endif
 				kalIndicateRxDisassocToUpperLayer(
 					prAdapter->
 					prGlueInfo->prP2PInfo[ucRoleIdx]
@@ -2241,6 +2301,9 @@ uint32_t saaFsmRunEventRxDisassoc(IN struct ADAPTER *prAdapter,
 
 			DBGLOG(SAA, INFO,
 				"notification of RX disassociation Done\n");
+			prConnSettings = aisGetConnSettings(prAdapter,
+				ucBssIndex);
+			prConnSettings->fgIsP2pConn = FALSE;
 			prNetDev = prAdapter->prGlueInfo
 				->prP2PInfo[ucRoleIdx]->aprRoleHandler;
 			DBGLOG(SAA, EVENT,

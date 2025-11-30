@@ -1,7 +1,54 @@
-/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
-/*
- * Copyright (c) 2016 MediaTek Inc.
- */
+/*******************************************************************************
+ *
+ * This file is provided under a dual license.  When you use or
+ * distribute this software, you may choose to be licensed under
+ * version 2 of the GNU General Public License ("GPLv2 License")
+ * or BSD License.
+ *
+ * GPLv2 License
+ *
+ * Copyright(C) 2016 MediaTek Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of version 2 of the GNU General Public License as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See http://www.gnu.org/licenses/gpl-2.0.html for more details.
+ *
+ * BSD LICENSE
+ *
+ * Copyright(C) 2016 MediaTek Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *  * Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ *  * Neither the name of the copyright holder nor the names of its
+ *    contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ******************************************************************************/
 /*! \file   wlan_lib.c
  *    \brief  Internal driver stack will export the required procedures here for
  *            GLUE Layer.
@@ -588,48 +635,24 @@ u_int8_t wlanIsDriverReady(IN struct GLUE_INFO *prGlueInfo,
 {
 	bool fgIsReady = TRUE;
 	uint8_t u1State = 0;
-	u_int8_t fgTimeout;
-	uint32_t u4TempTick = 0;
 
-	if ((!prGlueInfo) || (!prGlueInfo->prAdapter))
-		return FALSE;
-
-	if ((u4Check & WLAN_DRV_READY_CHCECK_WLAN_ON) &&
-	    (prGlueInfo->u4ReadyFlag == FALSE))
+	if (!prGlueInfo)
 		fgIsReady = FALSE;
+	else {
+		if ((u4Check & WLAN_DRV_READY_CHCECK_WLAN_ON) &&
+			(prGlueInfo->u4ReadyFlag == FALSE))
+			fgIsReady = FALSE;
 
-	if ((u4Check & WLAN_DRV_READY_CHCECK_HIF_SUSPEND) &&
-	    (!halIsHifStateReady(prGlueInfo->prAdapter, &u1State))) {
-		DBGLOG(REQ, WARN, "driver state[%d]\n", u1State);
-		if (!prGlueInfo->prAdapter->fgIsHifNotReady) {
-			if (!kalIsResetting()) {
-				prGlueInfo->prAdapter->fgIsHifNotReady = TRUE;
-				prGlueInfo->prAdapter->u4HifNotReadyTick =
-							kalGetTimeTick();
-			}
-		} else {
-			u4TempTick = prGlueInfo->prAdapter->u4HifNotReadyTick;
-			if (TIME_BEFORE(kalGetTimeTick(), u4TempTick))
-				fgTimeout = ((kalGetTimeTick() + (~u4TempTick))
-					      > WLAN_HIF_ERR_TIMEOUT_THRESHOLD)
-					      ? TRUE : FALSE;
-			else
-				fgTimeout = ((kalGetTimeTick() - u4TempTick)
-					      > WLAN_HIF_ERR_TIMEOUT_THRESHOLD)
-					      ? TRUE : FALSE;
-			if (fgTimeout) {
-				prGlueInfo->prAdapter->fgIsHifNotReady = FALSE;
-				GL_DEFAULT_RESET_TRIGGER(prGlueInfo->prAdapter,
-							 RST_CMD_TRIGGER);
-			}
+		if ((u4Check & WLAN_DRV_READY_CHCECK_HIF_SUSPEND) &&
+			(!halIsHifStateReady(prGlueInfo->prAdapter, &u1State))) {
+			DBGLOG(REQ, WARN, "driver state[%d]\n", u1State);
+			fgIsReady = FALSE;
 		}
-		fgIsReady = FALSE;
-	}
-	if (halIsHifStateReady(prGlueInfo->prAdapter, &u1State))
-		prGlueInfo->prAdapter->fgIsHifNotReady = FALSE;
 
-	if ((u4Check & WLAN_DRV_READY_CHCECK_RESET) && kalIsResetting())
-		fgIsReady = FALSE;
+		if ((u4Check & WLAN_DRV_READY_CHCECK_RESET) &&
+			kalIsResetting())
+			fgIsReady = FALSE;
+	}
 
 	return fgIsReady;
 }
@@ -735,8 +758,6 @@ void wlanOnPreAllocAdapterMem(IN struct ADAPTER *prAdapter,
 	prAdapter->fgEnHifDbgInfo = true;
 	prAdapter->ucCmdSeqNum = 0;
 	prAdapter->u4PwrCtrlBlockCnt = 0;
-	prAdapter->fgIsHifNotReady  = FALSE;
-	prAdapter->u4HifNotReadyTick = 0;
 
 	if (bAtResetFlow) {
 		for (i = 0; i < (prAdapter->ucHwBssIdNum + 1); i++)
@@ -4510,7 +4531,7 @@ uint32_t wlanQueryNicCapability(IN struct ADAPTER
 	struct mt66xx_chip_info *prChipInfo;
 	uint8_t aucZeroMacAddr[] = NULL_MAC_ADDR;
 	struct CMD_INFO *prCmdInfo;
-	uint32_t u4RxPktLength = 0;
+	uint32_t u4RxPktLength;
 	uint8_t *aucBuffer;
 	uint32_t u4EventSize;
 	struct WIFI_EVENT *prEvent;
@@ -4984,14 +5005,15 @@ uint32_t wlanGetMiniTxPower(IN struct ADAPTER *prAdapter,
 			eBand);
 		return WLAN_STATUS_NOT_ACCEPTED;
 	}
-	if ((uint32_t)ePhyMode >= PHY_MODE_TYPE_NUM) {
+	if (ePhyMode < 0 ||
+	    ePhyMode >= PHY_MODE_TYPE_NUM) {
 		DBGLOG(INIT, WARN, "check phy mode fail(%d)\n",
 			ePhyMode);
 		return WLAN_STATUS_NOT_ACCEPTED;
 	}
 
-	startOfs = arRange[bandIdx][(uint32_t)ePhyMode].startOfs;
-	endOfs = arRange[bandIdx][(uint32_t)ePhyMode].endOfs;
+	startOfs = arRange[bandIdx][ePhyMode].startOfs;
+	endOfs = arRange[bandIdx][ePhyMode].endOfs;
 
 
 	/*NVRAM start addreess :0*/
@@ -6451,7 +6473,7 @@ void wlanQueryNicResourceInformation(IN struct ADAPTER *prAdapter)
 uint32_t wlanQueryNicCapabilityV2(IN struct ADAPTER *prAdapter)
 {
 	struct CMD_INFO *prCmdInfo;
-	uint32_t u4RxPktLength = 0;
+	uint32_t u4RxPktLength;
 	uint8_t *prEventBuff;
 	struct WIFI_EVENT *prEvent;
 	struct mt66xx_chip_info *prChipInfo;
@@ -7237,7 +7259,7 @@ void wlanInitFeatureOption(IN struct ADAPTER *prAdapter)
 				prAdapter, "Sta5gBw", MAX_BW_80MHZ);
 #if (CFG_SUPPORT_WIFI_6G == 1)
 	prWifiVar->ucSta6gBandwidth = (uint8_t) wlanCfgGetUint32(
-				prAdapter, "Sta6gBw", MAX_BW_160MHZ);
+				prAdapter, "Sta6gBw", MAX_BW_80MHZ);
 #endif
 	/* GC,GO */
 	prWifiVar->ucP2p2gBandwidth = (uint8_t) wlanCfgGetUint32(
@@ -11876,10 +11898,6 @@ void wlanSuspendPmHandle(struct GLUE_INFO *prGlueInfo)
 
 				DBGLOG(HAL, EVENT, "enter WOW flow\n");
 				kalWowProcess(prGlueInfo, TRUE);
-			} else if (prWifiVar->rScanInfo.fgSchedScanning) {
-				DBGLOG(HAL, EVENT,
-					"Sched Scanning, enter WOW flow\n");
-				kalWowProcess(prGlueInfo, TRUE);
 			}
 		}
 	}
@@ -12008,10 +12026,6 @@ void wlanResumePmHandle(struct GLUE_INFO *prGlueInfo)
 				prAisBssInfo->ucBssIndex,
 				Param_PowerModeCAM,
 				FALSE, PS_CALLER_WOW);
-		} else if (prWifiVar->rScanInfo.fgSchedScanning) {
-			DBGLOG(HAL, EVENT,
-				"Sched Scanning, leave WOW flow\n");
-			kalWowProcess(prGlueInfo, FALSE);
 		}
 	}
 #endif

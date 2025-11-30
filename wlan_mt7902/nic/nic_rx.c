@@ -1,7 +1,54 @@
-/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
-/*
- * Copyright (c) 2016 MediaTek Inc.
- */
+/******************************************************************************
+ *
+ * This file is provided under a dual license.  When you use or
+ * distribute this software, you may choose to be licensed under
+ * version 2 of the GNU General Public License ("GPLv2 License")
+ * or BSD License.
+ *
+ * GPLv2 License
+ *
+ * Copyright(C) 2016 MediaTek Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of version 2 of the GNU General Public License as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See http://www.gnu.org/licenses/gpl-2.0.html for more details.
+ *
+ * BSD LICENSE
+ *
+ * Copyright(C) 2016 MediaTek Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *  * Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ *  * Neither the name of the copyright holder nor the names of its
+ *    contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ *****************************************************************************/
 /*
  ** Id: //Department/DaVinci/BRANCHES/MT6620_WIFI_DRIVER_V2_3/nic/nic_rx.c#5
  */
@@ -169,9 +216,6 @@ static struct RX_EVENT_HANDLER arEventTable[] = {
 #if CFG_SUPPORT_NAN
 	{ EVENT_ID_NAN_EXT_EVENT, nicNanEventDispatcher }
 #endif
-#if CONFIG_WIFI_RAM_MQM_BA_DELAY_SUPPORT
-	{ EVENT_ID_BAOFFLOAD_INDICATION, qmHandleEventBaOffloadIndication},
-#endif
 };
 
 static const struct ACTION_FRAME_SIZE_MAP arActionFrameReservedLen[] = {
@@ -221,36 +265,6 @@ static const struct ACTION_FRAME_SIZE_MAP arActionFrameReservedLen[] = {
 	{(uint16_t)(CATEGORY_WME_MGT_NOTIFICATION | ACTION_DELTS << 8),
 	 sizeof(struct WMM_ACTION_TSPEC_FRAME)},
 };
-
-#if CONFIG_WIFI_RAM_MQM_BA_DELAY_SUPPORT
-u_int8_t nicRxIsNeedCheckNextRFBIsBaOffloadEvent(IN struct ADAPTER *prAdapter,
-					IN struct SW_RFB *prSwRfb)
-{
-	struct mt66xx_chip_info *prChipInfo;
-	struct WIFI_EVENT *prEvent;
-
-	if ((prAdapter == NULL) || (prSwRfb == NULL)) {
-		DBGLOG(RX, TRACE, "prAdapter or prSwRfb is NULL!\n");
-		return FALSE;
-	}
-
-	prChipInfo = prAdapter->chip_info;
-
-	if (prSwRfb->ucPacketType == RX_PKT_TYPE_SW_DEFINED) {
-		if ((NIC_RX_GET_U2_SW_PKT_TYPE(prSwRfb->prRxStatus) &
-		RXM_RXD_PKT_TYPE_SW_BITMAP) == RXM_RXD_PKT_TYPE_SW_EVENT) {
-			prEvent = (struct WIFI_EVENT *) (prSwRfb->pucRecvBuff
-							+ prChipInfo->rxd_size);
-
-			if (prEvent->ucEID == EVENT_ID_BAOFFLOAD_INDICATION) {
-				DBGLOG(RX, TRACE, "Need to check next RFB!\n");
-				return TRUE;
-			}
-		}
-	}
-	return FALSE;
-}
-#endif
 
 /*******************************************************************************
  *                                 M A C R O S
@@ -1243,16 +1257,6 @@ void nicRxProcessForwardPkt(IN struct ADAPTER *prAdapter,
 
 	prTxCtrl = &prAdapter->rTxCtrl;
 	prRxCtrl = &prAdapter->rRxCtrl;
-
-	if (prRxCtrl->rFreeSwRfbList.u4NumElem
-	    <= (CFG_RX_MAX_PKT_NUM - (CFG_NUM_OF_QM_RX_PKT_NUM -
-				      16 /* Reserved for others */))) {
-		DBGLOG(RX, WARN,
-			"Stop to fwd UC pkt due to less free Sw Rfb %u\n",
-			prRxCtrl->rFreeSwRfbList.u4NumElem);
-		nicRxReturnRFB(prAdapter, prSwRfb);
-		return;
-	}
 
 	prMsduInfo = cnmPktAlloc(prAdapter, 0);
 
@@ -3629,15 +3633,9 @@ void nicRxProcessRFBs(IN struct ADAPTER *prAdapter)
 				if (!prSwRfb)
 					break;
 #if CFG_SUPPORT_WAKEUP_REASON_DEBUG
-#if CONFIG_WIFI_RAM_MQM_BA_DELAY_SUPPORT
-				if (test_bit(SUSPEND_FLAG_FOR_WAKEUP_REASON,
-				&prAdapter->ulSuspendFlag) &&
-				(nicRxIsNeedCheckNextRFBIsBaOffloadEvent(
-					prAdapter, prSwRfb) == FALSE))
-#endif
-					if (kalIsWakeupByWlan(prAdapter))
-						nicRxCheckWakeupReason(
-						prAdapter, prSwRfb);
+				if (kalIsWakeupByWlan(prAdapter))
+					nicRxCheckWakeupReason(prAdapter,
+							       prSwRfb);
 #endif
 
 				/* Too many leading tabs -

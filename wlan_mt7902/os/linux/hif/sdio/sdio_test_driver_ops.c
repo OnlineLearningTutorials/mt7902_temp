@@ -1,11 +1,17 @@
-/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
-/*
- * Copyright (c) 2021 MediaTek Inc.
- */
 
 #include "gl_os.h"
 
 #if (CFG_SDIO_1BIT_DATA_MODE == 1)
+/*
+ *  linux/drivers/mmc/sdio_ops.c
+ *
+ *  Copyright 2006-2007 Pierre Ossman
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ */
 
 #include <linux/scatterlist.h>
 
@@ -39,7 +45,7 @@ int mmc_send_io_op_cond(struct mmc_host *host, u32 ocr, u32 *rocr)
 
 		/* if we're just probing, do a single pass */
 		if (ocr == 0) {
-			pr_info("PROBE ONLY! RESP[0] = 0x%08x\n", cmd.resp[0]);
+			pr_warn("PROBE ONLY! RESP[0] = 0x%08x\n", cmd.resp[0]);
 			break;
 		}
 

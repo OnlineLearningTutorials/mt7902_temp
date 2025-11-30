@@ -1,6 +1,13 @@
-/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
+/* SPDX-License-Identifier: GPL-2.0 */
+/* 
+* Copyright (c) 2020 MediaTek Inc.
+*/
 /*
- * Copyright (c) 2015 MediaTek Inc.
+ * SHA256-based PRF (IEEE 802.11r)
+ * Copyright (c) 2003-2013, Jouni Malinen <j@w1.fi>
+ *
+ * This software may be distributed under the terms of the BSD license.
+ * See README for more details.
  */
 
 #include "wpa_supp/FourWayHandShake.h"

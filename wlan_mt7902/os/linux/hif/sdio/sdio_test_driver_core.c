@@ -1,12 +1,18 @@
-/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
-/*
- * Copyright (c) 2021 MediaTek Inc.
- */
-
 #include "gl_os.h"
 
 #if (CFG_SDIO_1BIT_DATA_MODE == 1)
-
+/*
+ *  linux/drivers/mmc/core/core.c
+ *
+ *  Copyright (C) 2003-2004 Russell King, All Rights Reserved.
+ *  SD support Copyright (C) 2004 Ian Molton, All Rights Reserved.
+ *  Copyright (C) 2005-2008 Pierre Ossman, All Rights Reserved.
+ *  MMCv4 support Copyright (C) 2006 Philip Langdale, All Rights Reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ */
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/interrupt.h>
@@ -111,7 +117,7 @@ u32 mmc_select_voltage(struct mmc_host *host, u32 ocr)
 		host->ios.vdd = bit;
 		mmc_set_ios(host);
 	} else {
-		pr_info("%s: host doesn't support card's voltages\n",
+		pr_warn("%s: host doesn't support card's voltages\n",
 				mmc_hostname(host));
 		ocr = 0;
 	}
@@ -359,7 +365,7 @@ static int sdio_enable_wide(struct mmc_card *card)
 
 
 	if ((ctrl & SDIO_BUS_WIDTH_MASK) == SDIO_BUS_WIDTH_RESERVED)
-		pr_info("%s: SDIO_CCCR_IF is invalid: 0x%02x\n",
+		pr_warn("%s: SDIO_CCCR_IF is invalid: 0x%02x\n",
 			mmc_hostname(card->host), ctrl);
 
 	/* set as 4-bit bus width */

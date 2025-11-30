@@ -1,7 +1,54 @@
-/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
-/*
- * Copyright (c) 2016 MediaTek Inc.
- */
+/*******************************************************************************
+ *
+ * This file is provided under a dual license.  When you use or
+ * distribute this software, you may choose to be licensed under
+ * version 2 of the GNU General Public License ("GPLv2 License")
+ * or BSD License.
+ *
+ * GPLv2 License
+ *
+ * Copyright(C) 2016 MediaTek Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of version 2 of the GNU General Public License as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See http://www.gnu.org/licenses/gpl-2.0.html for more details.
+ *
+ * BSD LICENSE
+ *
+ * Copyright(C) 2016 MediaTek Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *  * Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ *  * Neither the name of the copyright holder nor the names of its
+ *    contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ******************************************************************************/
 /*
  ** Id: @(#) gl_rst.c@@
  */
@@ -110,7 +157,7 @@ static void *glResetCallback(enum ENUM_WMTDRV_TYPE eSrcType,
 static u_int8_t is_bt_exist(void);
 static u_int8_t rst_L0_notify_step1(void);
 static void wait_core_dump_end(void);
-#endif /* CFG_CHIP_RESET_KO_SUPPORT */
+#endif
 #endif
 #endif
 
@@ -185,32 +232,15 @@ void glResetInit(struct GLUE_INFO *prGlueInfo)
 	/* 2. Initialize reset work */
 	INIT_WORK(&(wifi_rst.rst_trigger_work),
 		  mtk_wifi_trigger_reset);
-#endif /* CFG_WMT_RESET_API_SUPPORT */
-
-#ifdef CFG_CHIP_RESET_KO_SUPPORT
-#if defined(_HIF_SDIO)
-	struct WIFI_NOTIFY_DESC wifi_notify_desc;
-
-	wifi_notify_desc.BtNotifyWifiSubResetStep1 = NULL;
-	if (prGlueInfo == NULL || prGlueInfo->prAdapter == NULL
-		|| prGlueInfo->prAdapter->chip_info == NULL) {
-		DBGLOG(INIT, ERROR, "[SER][L0] reset init fail!\n");
-		return;
-	}
-	if (prGlueInfo->prAdapter->chip_info->asicSetNoBTFwOwnEn != NULL) {
-		wifi_notify_desc.BtNotifyWifiSubResetStep1 = halPreventFwOwnEn;
-		register_wifi_notify_callback(&wifi_notify_desc);
-	}
-#endif /* _HIF_SDIO */
-#endif /* CFG_CHIP_RESET_KO_SUPPORT */
-
+#endif
 	INIT_WORK(&(wifi_rst.rst_work), mtk_wifi_reset);
-#endif /* CFG_SUPPORT_CONNINFRA == 0 */
+#endif
 
 	fgIsResetting = FALSE;
 	fgIsRstPreventFwOwn = FALSE;
 	wifi_rst.prGlueInfo = prGlueInfo;
 #if (CFG_SUPPORT_CONNINFRA == 1)
+
 
 	update_driver_reset_status(fgIsResetting);
 	KAL_WAKE_LOCK_INIT(NULL, g_IntrWakeLock, "WLAN Reset");
@@ -241,20 +271,12 @@ void glResetUninit(void)
 	/* 1. Deregister reset callback */
 #if (CFG_SUPPORT_CONNINFRA == 0)
 	mtk_wcn_wmt_msgcb_unreg(WMTDRV_TYPE_WIFI);
-#else /* CFG_SUPPORT_CONNINFRA == 0 */
+#else
 	set_bit(GLUE_FLAG_HALT_BIT, &g_ulFlag);
 	wake_up_interruptible(&g_waitq_rst);
 	KAL_WAKE_LOCK_DESTROY(NULL, g_IntrWakeLock);
-#endif /* CFG_SUPPORT_CONNINFRA == 0 */
-#endif /* CFG_WMT_RESET_API_SUPPORT */
-
-#if (CFG_SUPPORT_CONNINFRA == 0)
-#ifdef CFG_CHIP_RESET_KO_SUPPORT
-#if defined(_HIF_SDIO)
-	unregister_wifi_notify_callback();
-#endif /* _HIF_SDIO */
-#endif /* CFG_CHIP_RESET_KO_SUPPORT */
-#endif /* CFG_SUPPORT_CONNINFRA == 0 */
+#endif
+#endif
 }
 /*----------------------------------------------------------------------------*/
 /*!
@@ -616,15 +638,9 @@ void glResetTriggerCommon(struct ADAPTER *prAdapter, uint32_t u4RstFlag,
 	u_int8_t fgDrvOwn;
 
 	if (!prAdapter) {
-		if ((uint32_t)eResetReason < RST_REASON_MAX)
-			DBGLOG(INIT, ERROR,
-			       "Trigger reset in %s line %u reason %s, but prAdapter is null\n",
-			       pucFile, u4Line,
-			       apcReason[(uint32_t)eResetReason]);
-		else
-			DBGLOG(INIT, ERROR,
-			       "Trigger reset in %s line %u unsupported reason %d and prAdapter is null\n",
-			       pucFile, u4Line, (uint32_t)eResetReason);
+		DBGLOG(INIT, ERROR,
+		       "Trigger reset in %s line %u reason %s, but prAdapter is null\n",
+		       pucFile, u4Line, apcReason[eResetReason]);
 		return;
 	}
 	prChipDbg = prAdapter->chip_info->prDebugOps;
@@ -632,10 +648,10 @@ void glResetTriggerCommon(struct ADAPTER *prAdapter, uint32_t u4RstFlag,
 	u2FwPeerVersion = prAdapter->rVerInfo.u2FwPeerVersion;
 	fgDrvOwn = TRUE;
 
-	if ((uint32_t)eResetReason < RST_REASON_MAX)
+	if (eResetReason >= 0 && eResetReason < RST_REASON_MAX)
 		DBGLOG(INIT, ERROR,
 		       "Trigger reset in %s line %u reason %s\n",
-		       pucFile, u4Line, apcReason[(uint32_t)eResetReason]);
+		       pucFile, u4Line, apcReason[eResetReason]);
 	else
 		DBGLOG(INIT, ERROR,
 		       "Trigger reset in %s line %u but unsupported reason %d\n",
@@ -663,20 +679,9 @@ void glResetTriggerCommon(struct ADAPTER *prAdapter, uint32_t u4RstFlag,
 	halPrintHifDbgInfo(prAdapter);
 
 	if ((u4RstFlag & RST_FLAG_DO_CORE_DUMP)
-		&& (prChipDbg->show_mcu_debug_info != NULL)) {
-#ifdef CFG_CHIP_RESET_KO_SUPPORT
-		if (rstNotifyWholeChipRstStatus(RST_MODULE_WIFI,
-						RST_MODULE_STATE_DUMP_START,
-						NULL) == RST_MODULE_RET_FAIL)
-			return;
-#endif
+		&& (prChipDbg->show_mcu_debug_info != NULL))
 		prChipDbg->show_mcu_debug_info(prAdapter, NULL, 0,
 						       DBG_MCU_DBG_ALL, NULL);
-#ifdef CFG_CHIP_RESET_KO_SUPPORT
-		rstNotifyWholeChipRstStatus(RST_MODULE_WIFI,
-					RST_MODULE_STATE_DUMP_END, NULL);
-#endif
-	}
 }
 
 /*----------------------------------------------------------------------------*/
@@ -1008,20 +1013,9 @@ static void mtk_wifi_reset(struct work_struct *work)
 	 * at this stage, this is a workaround by performing it again here
 	 * where the context is kernel thread from workqueue.
 	 */
-	if (prChipDbg->show_mcu_debug_info) {
-#ifdef CFG_CHIP_RESET_KO_SUPPORT
-		if (rstNotifyWholeChipRstStatus(RST_MODULE_WIFI,
-						RST_MODULE_STATE_DUMP_START,
-						NULL) == RST_MODULE_RET_FAIL)
-			return;
-#endif
+	if (prChipDbg->show_mcu_debug_info)
 		prChipDbg->show_mcu_debug_info(prAdapter, NULL, 0,
 						       DBG_MCU_DBG_ALL, NULL);
-#ifdef CFG_CHIP_RESET_KO_SUPPORT
-		rstNotifyWholeChipRstStatus(RST_MODULE_WIFI,
-					RST_MODULE_STATE_DUMP_END, NULL);
-#endif
-	}
 
 	mtk_wifi_reset_main(rst);
 }

@@ -1,7 +1,54 @@
-/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
-/*
- * Copyright (c) 2016 MediaTek Inc.
- */
+/******************************************************************************
+ *
+ * This file is provided under a dual license.  When you use or
+ * distribute this software, you may choose to be licensed under
+ * version 2 of the GNU General Public License ("GPLv2 License")
+ * or BSD License.
+ *
+ * GPLv2 License
+ *
+ * Copyright(C) 2016 MediaTek Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of version 2 of the GNU General Public License as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See http://www.gnu.org/licenses/gpl-2.0.html for more details.
+ *
+ * BSD LICENSE
+ *
+ * Copyright(C) 2016 MediaTek Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *  * Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ *  * Neither the name of the copyright holder nor the names of its
+ *    contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ *****************************************************************************/
 /******************************************************************************
 *[File]             hif_api.c
 *[Version]          v1.0
@@ -735,7 +782,7 @@ void halSetFWOwn(IN struct ADAPTER *prAdapter, IN u_int8_t fgEnableGlobalInt)
 {
 
 	u_int8_t fgResult;
-	u_int8_t fgStatus;
+	u_int8_t fgStatus = TRUE;
 	struct GL_HIF_INFO *prHifInfo = NULL;
 
 	ASSERT(prAdapter);
@@ -1167,7 +1214,7 @@ uint32_t halTxPollingResource(IN struct ADAPTER *prAdapter, IN uint8_t ucTC)
 {
 	struct TX_CTRL *prTxCtrl;
 	uint32_t u4Status = WLAN_STATUS_RESOURCES;
-	struct TX_RES_INFO_STRUCT ResInfo;
+	uint32_t au4WTSR[SDIO_TX_RESOURCE_REG_NUM];
 	struct GL_HIF_INFO *prHifInfo;
 
 	prHifInfo = &prAdapter->prGlueInfo->rHifInfo;
@@ -1176,18 +1223,17 @@ uint32_t halTxPollingResource(IN struct ADAPTER *prAdapter, IN uint8_t ucTC)
 
 	if (prHifInfo->fgIsPendingInt && (prHifInfo->prSDIOCtrl->u4WHISR & WHISR_TX_DONE_INT)) {
 		/* Get Tx done resource from pending interrupt status */
-		kalMemCopy(&ResInfo.rTxResInfo, &prHifInfo->prSDIOCtrl->rTxInfo,
+		kalMemCopy(au4WTSR, &prHifInfo->prSDIOCtrl->rTxInfo,
 			sizeof(uint32_t) * SDIO_TX_RESOURCE_REG_NUM);
 
 		/* Clear pending Tx done interrupt */
 		prHifInfo->prSDIOCtrl->u4WHISR &= ~WHISR_TX_DONE_INT;
 	} else
-		HAL_READ_TX_RELEASED_COUNT(prAdapter, &ResInfo.rTxResInfo);
+		HAL_READ_TX_RELEASED_COUNT(prAdapter, au4WTSR);
 
 	if (kalIsCardRemoved(prAdapter->prGlueInfo) == TRUE || fgIsBusAccessFailed == TRUE) {
 		u4Status = WLAN_STATUS_FAILURE;
-	} else if (halTxReleaseResource(prAdapter,
-		(uint16_t *) &ResInfo.rTxResInfo)) {
+	} else if (halTxReleaseResource(prAdapter, (uint16_t *) au4WTSR)) {
 		if (prTxCtrl->rTc.au4FreeBufferCount[ucTC] > 0)
 			u4Status = WLAN_STATUS_SUCCESS;
 	}
@@ -1766,11 +1812,6 @@ void halRxSDIOAggReceiveRFBs(IN struct ADAPTER *prAdapter)
 		QUEUE_REMOVE_HEAD(&prHifInfo->rRxFreeBufQueue, prRxBuf, struct SDIO_RX_COALESCING_BUF *);
 		mutex_unlock(&prHifInfo->rRxFreeBufQueMutex);
 
-		if (prRxBuf == NULL) {
-			DBGLOG(RX, ERROR,
-			  "prRxBuf get from rRxFreeBufQueue is NULL!!!\n");
-			continue;
-		}
 		prRxBuf->u4PktCount = u4RxAggCount;
 
 		u4RxAggLength = (HIF_RX_COALESCING_BUFFER_SIZE - u4RxAvailAggLen);
@@ -2880,6 +2921,7 @@ void halDeAggRxPktWorker(struct work_struct *work)
 		return;
 
 	prGlueInfo = ENTRY_OF(work, struct GLUE_INFO, rRxPktDeAggWork);
+	prHifInfo = &prGlueInfo->rHifInfo;
 	prAdapter = prGlueInfo->prAdapter;
 
 	if (prGlueInfo->ulFlag & GLUE_FLAG_HALT)
@@ -3117,7 +3159,7 @@ u_int8_t halIsTxResourceControlEn(IN struct ADAPTER *prAdapter)
 void halTxResourceResetHwTQCounter(IN struct ADAPTER *prAdapter)
 {
 	uint32_t *pu4WHISR = NULL;
-	uint32_t au4WTSR[SDIO_TX_RESOURCE_REG_NUM] = {0};
+	uint16_t au2TxCount[16];
 
 	pu4WHISR = (uint32_t *)kalMemAlloc(sizeof(uint32_t), PHY_MEM_TYPE);
 	if (!pu4WHISR) {
@@ -3128,7 +3170,7 @@ void halTxResourceResetHwTQCounter(IN struct ADAPTER *prAdapter)
 	HAL_READ_INTR_STATUS(prAdapter, sizeof(uint32_t), (uint8_t *)pu4WHISR);
 	/* TXQ count CR access type is read clear. */
 	if (HAL_IS_TX_DONE_INTR(*pu4WHISR))
-		HAL_READ_TX_RELEASED_COUNT(prAdapter, au4WTSR);
+		HAL_READ_TX_RELEASED_COUNT(prAdapter, au2TxCount);
 
 	if (pu4WHISR)
 		kalMemFree(pu4WHISR, PHY_MEM_TYPE, sizeof(uint32_t));

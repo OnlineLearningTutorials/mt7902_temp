@@ -1,13 +1,16 @@
 /* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
-/*
- * Copyright (c) 2021 MediaTek Inc.
+/* 
+ * Copyright (c) 2020 MediaTek Inc.
  */
+
 
 #include "wpa_supp/FourWayHandShake.h"
 
 #include "wpa_supp/src/crypto/aes_i.h"
 #include "wpa_supp/src/crypto/crypto.h"
 #include "wpa_supp/src/utils/common.h"
+
+
 
 /*
 *Te0[x] = S [x].[02, 01, 01, 03];

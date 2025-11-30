@@ -1,7 +1,54 @@
-/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
-/*
- * Copyright (c) 2016 MediaTek Inc.
- */
+/*******************************************************************************
+ *
+ * This file is provided under a dual license.  When you use or
+ * distribute this software, you may choose to be licensed under
+ * version 2 of the GNU General Public License ("GPLv2 License")
+ * or BSD License.
+ *
+ * GPLv2 License
+ *
+ * Copyright(C) 2016 MediaTek Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of version 2 of the GNU General Public License as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See http://www.gnu.org/licenses/gpl-2.0.html for more details.
+ *
+ * BSD LICENSE
+ *
+ * Copyright(C) 2016 MediaTek Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *  * Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ *  * Neither the name of the copyright holder nor the names of its
+ *    contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ******************************************************************************/
 /*
  * Id: //Department/DaVinci/BRANCHES/MT6620_WIFI_DRIVER_V2_3/include/precomp.h#2
  */
@@ -32,8 +79,11 @@
  *******************************************************************************
  */
 #include "hif_cmm.h"
-#include "../os/linux/include/gl_os.h"		/* Include "config.h" */
-#include "../os/linux/include/gl_cfg80211.h"
+#include "gl_os.h"		/* Include "config.h" */
+#include "gl_cfg80211.h"
+
+/* for sched_clock() */
+#include <linux/sched/clock.h>
 
 #if CFG_ENABLE_WIFI_DIRECT
 #include "gl_p2p_os.h"
@@ -48,30 +98,30 @@
  * .\include\mgmt
  *------------------------------------------------------------------------------
  */
-#include "mgmt/wlan_typedef.h"
+#include "wlan_typedef.h"
 
-#include "nic/mac.h"
+#include "mac.h"
 
 /* Dependency:  mac.h (MAC_ADDR_LEN) */
-#include "nic/wlan_def.h"
+#include "wlan_def.h"
 
 #if (CFG_SUPPORT_802_11AX == 1)
 #include "he_ie.h"
 #endif
 
 #if CFG_SUPPORT_SWCR
-#include "mgmt/swcr.h"
+#include "swcr.h"
 #endif
 
-#include "mgmt/rlm_obss.h"
-#include "mgmt/cnm_timer.h"
+#include "rlm_obss.h"
+#include "cnm_timer.h"
 
 /*------------------------------------------------------------------------------
  * .\include\nic
  *------------------------------------------------------------------------------
  */
 /* Dependency:  wlan_def.h (ENUM_NETWORK_TYPE_T) */
-#include "nic/cmd_buf.h"
+#include "cmd_buf.h"
 
 /* Dependency:  mac.h (MAC_ADDR_LEN) */
 #include "nic_cmd_event.h"
@@ -81,41 +131,41 @@
 #endif
 
 /* Dependency:  nic_cmd_event.h (P_EVENT_CONNECTION_STATUS) */
-#include "nic/nic.h"
+#include "nic.h"
 
 #include "nic_init_cmd_event.h"
 
-#include "nic/hif_rx.h"
-#include "nic/hif_tx.h"
+#include "hif_rx.h"
+#include "hif_tx.h"
 
-#include "nic/nic_connac2x_tx.h"
+#include "nic_connac2x_tx.h"
 #if (CFG_SUPPORT_CONNAC3X == 1)
-#include "nic/nic_connac3x_tx.h"
+#include "nic_connac3x_tx.h"
 #endif
-#include "nic/nic_tx.h"
-#include "nic/nic_txd_v1.h"
-#include "nic/nic_txd_v2.h"
+#include "nic_tx.h"
+#include "nic_txd_v1.h"
+#include "nic_txd_v2.h"
 #if (CFG_SUPPORT_CONNAC3X == 1)
-#include "nic/nic_txd_v3.h"
+#include "nic_txd_v3.h"
 #endif
-#include "nic/nic_rxd_v1.h"
-#include "nic/nic_rxd_v2.h"
+#include "nic_rxd_v1.h"
+#include "nic_rxd_v2.h"
 #if (CFG_SUPPORT_CONNAC3X == 1)
-#include "nic/nic_rxd_v3.h"
+#include "nic_rxd_v3.h"
 #endif
 
-#include "nic/nic_connac2x_rx.h"
+#include "nic_connac2x_rx.h"
 #if (CFG_SUPPORT_CONNAC3X == 1)
-#include "nic/nic_connac3x_rx.h"
+#include "nic_connac3x_rx.h"
 #endif
 /* Dependency:  hif_rx.h (P_HIF_RX_HEADER_T) */
-#include "nic/nic_rx.h"
+#include "nic_rx.h"
 
-#include "nic/nic_umac.h"
+#include "nic_umac.h"
 
-#include "mgmt/bss.h"
+#include "bss.h"
 
-#include "nic/nic_rate.h"
+#include "nic_rate.h"
 
 #if CFG_ENABLE_WIFI_DIRECT
 #include "p2p_typedef.h"
@@ -133,41 +183,43 @@
 #include "twt.h"
 #endif /* CFG_SUPPORT_802_11AX */
 
-#include "mgmt/hem_mbox.h"
+#include "hem_mbox.h"
 
-#include "mgmt/scan.h"
+#include "scan.h"
 
 #include "wlan_lib.h"
-//#include "wlan_oid.h"
+#include "wlan_oid.h"
 #include "wlan_bow.h"
 
-#include "chips/fw_dl.h"
+#include "fw_dl.h"
 
 #if CFG_ENABLE_WIFI_DIRECT
 #include "wlan_p2p.h"
 #endif
 
-#include "nic/hal.h"
+#include "hal.h"
 
-#include "nic/mt66xx_reg.h"
+#include "mt66xx_reg.h"
 
-#include "nic/connac_reg.h"
-#include "nic/connac_dmashdl.h"
-#include "chips/cmm_asic_connac.h"
-#include "chips/cmm_asic_connac2x.h"
+#include "connac_reg.h"
+#include "connac_dmashdl.h"
+#include "cmm_asic_connac.h"
+#include "cmm_asic_connac2x.h"
+#if (CFG_SUPPORT_CONNAC3X == 1)
+#include "cmm_asic_connac3x.h"
+#include "cmm_asic_common.h"
+#endif
 
-/*
 #if (CFG_SUPPORT_802_11AX == 1)
 #include "he_rlm.h"
 #include "wlan_he.h"
 #endif /* CFG_SUPPORT_802_11AX == 1 */
-/*
+
 #if (CFG_SUPPORT_TWT == 1)
 #include "twt_req_fsm.h"
 #include "twt_planner.h"
-#endif */
+#endif
 
-/*
 #include "rlm.h"
 #include "rlm_domain.h"
 #include "rlm_protection.h"
@@ -196,14 +248,10 @@
 #include "stats.h"
 #endif /* CFG_SUPPORT_STATISTICS */
 
-#include "mgmt/cnm.h"
+#include "cnm.h"
 /* Dependency:  aa_fsm.h (ENUM_AA_STATE_T), p2p_fsm.h
  *   (WPS_ATTRI_MAX_LEN_DEVICE_NAME)
  */
-
-
-
-/*
 #include "cnm_mem.h"
 #include "cnm_scan.h"
 
@@ -246,7 +294,7 @@
 #if CFG_SUPPORT_ROAMING
 #include "roaming_fsm.h"
 #endif /* CFG_SUPPORT_ROAMING */
-/*
+
 #include "ais_fsm.h"
 
 #include "adapter.h"
@@ -260,14 +308,13 @@
 #include "wapi.h"
 #endif
 
-/* Support AP Selection * /
+/* Support AP Selection */
 #include "ap_selection.h"
 
 /*------------------------------------------------------------------------------
  * NVRAM structure
  *------------------------------------------------------------------------------
  */
-/*
 #include "CFG_Wifi_File.h"
 
 #if CFG_ENABLE_WIFI_DIRECT
@@ -299,7 +346,7 @@
  *------------------------------------------------------------------------------
  */
 #ifdef CFG_PREALLOC_MEMORY
-#include "../prealloc/include/prealloc.h"
+#include "prealloc.h"
 #endif
 
 /*------------------------------------------------------------------------------
@@ -307,7 +354,7 @@
  *------------------------------------------------------------------------------
  */
 #ifdef CFG_CHIP_RESET_KO_SUPPORT
-#include "../reset/include/reset.h"
+#include "reset.h"
 #endif
 
 

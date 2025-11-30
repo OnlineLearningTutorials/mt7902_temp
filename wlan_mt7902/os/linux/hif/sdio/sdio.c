@@ -1,7 +1,54 @@
-/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
-/*
- * Copyright (c) 2016 MediaTek Inc.
- */
+/******************************************************************************
+ *
+ * This file is provided under a dual license.  When you use or
+ * distribute this software, you may choose to be licensed under
+ * version 2 of the GNU General Public License ("GPLv2 License")
+ * or BSD License.
+ *
+ * GPLv2 License
+ *
+ * Copyright(C) 2016 MediaTek Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of version 2 of the GNU General Public License as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See http://www.gnu.org/licenses/gpl-2.0.html for more details.
+ *
+ * BSD LICENSE
+ *
+ * Copyright(C) 2016 MediaTek Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *  * Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ *  * Neither the name of the copyright holder nor the names of its
+ *    contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ *****************************************************************************/
 /******************************************************************************
 *[File]             sdio.c
 *[Version]          v1.0
@@ -201,14 +248,14 @@ void print_content(uint32_t cmd_len, uint8_t *buffer)
 {
 	uint32_t i, j;
 
-	pr_debug(DRV_NAME"Start ===========\n");
+	printk(dev_info DRV_NAME"Start ===========\n");
 	j = (cmd_len>>2) + 1;
 	for (i = 0; i < j; i++) {
-		pr_debug(DRV_NAME"%02x %02x %02x %02x\n",
+		printk(dev_info DRV_NAME"%02x %02x %02x %02x\n",
 			*(buffer + i*4 + 3), *(buffer + i*4 + 2),
 			*(buffer + i*4 + 1), *(buffer + i*4 + 0));
 	}
-	pr_debug(DRV_NAME"End =============\n");
+	printk(dev_info DRV_NAME"End =============\n");
 }
 #endif
 
@@ -798,7 +845,6 @@ int mtk_sdio_async_irq_enable(struct sdio_func *func)
 	sdio_f0_writeb(func, data, SDIO_CCCR_IRQ_EXT, &ret);
 	if (ret) {
 		DBGLOG(HAL, ERROR, "CCCR 0x%X write fail (%d).\n", SDIO_CCCR_IRQ_EXT, ret);
-		func->card->quirks = quirks_bak;
 		return FALSE;
 	}
 	func->card->quirks = quirks_bak;
@@ -989,17 +1035,9 @@ u_int8_t glBusInit(void *pvData)
 	else
 		DBGLOG(INIT, INFO, "Async-IRQ is enabled.\n");
 #endif
-	/* Returns 0 on success, -EINVAL if the host does not support the
-	 *  requested block size, or -EIO (etc.) if one of the resultant
-	 *  FBR block size register writes failed.
-	 */
+
 	ret = sdio_set_block_size(func, 512);
 	sdio_release_host(func);
-	if (ret) {
-		DBGLOG(HAL, ERROR,
-			"sdio_set_block_size fail!! ret: 0x%x\n", ret);
-		return FALSE;
-	}
 #endif
 	return TRUE;
 }				/* end of glBusInit() */
@@ -1235,42 +1273,29 @@ u_int8_t kalDevRegRead_mac(IN struct GLUE_INFO *prGlueInfo, IN uint32_t u4Regist
 
     /* progrqm h2d mailbox0 as interested register address */
 	ucResult = kalDevRegWrite(prGlueInfo, MCR_H2DSM0R, u4Register);
-	if (ucResult == FALSE)
-		goto Exit;
 
     /* set h2d interrupt to notify firmware. bit16 */
 	ucResult = kalDevRegWrite(prGlueInfo, MCR_WSICR,
 			SDIO_MAILBOX_FUNC_READ_REG_IDX);
-	if (ucResult == FALSE)
-		goto Exit;
 
 	/* polling interrupt status asserted. bit16 */
 
 	/* first, disable interrupt enable for SDIO_MAILBOX_FUNC_READ_REG_IDX */
 	ucResult = kalDevRegRead(prGlueInfo, MCR_WHIER, &value);
-	if (ucResult == FALSE)
-		goto Exit;
-
 	ucResult = kalDevRegWrite(prGlueInfo, MCR_WHIER,
 			(value & ~SDIO_MAILBOX_FUNC_READ_REG_IDX));
-	if (ucResult == FALSE)
-		goto Exit;
 
 	u4Time = (uint32_t) kalGetTimeTick();
 
 	do {
 		/* check bit16 of WHISR assert for read register response */
 		ucResult = kalDevRegRead(prGlueInfo, MCR_WHISR, &value);
-		if (ucResult == FALSE)
-			goto Exit;
 
 		if ((value & SDIO_MAILBOX_FUNC_READ_REG_IDX) ||
 			prGlueInfo->prAdapter->fgGetMailBoxRWAck) {
 			/* read d2h mailbox0 for interested register address */
 			ucResult = kalDevRegRead(prGlueInfo,
 						MCR_D2HRM0R, &value);
-			if (ucResult == FALSE)
-				goto Exit;
 
 			if (value != u4Register) {
 				DBGLOG(HAL, ERROR, "ERROR! kalDevRegRead_mac():register address mis-match");
@@ -1284,8 +1309,6 @@ u_int8_t kalDevRegRead_mac(IN struct GLUE_INFO *prGlueInfo, IN uint32_t u4Regist
 			/* read d2h mailbox1 for the value of the register */
 			ucResult = kalDevRegRead(prGlueInfo,
 						MCR_D2HRM1R, &value);
-			if (ucResult == FALSE)
-				goto Exit;
 			*pu4Value = value;
 			// Set MCR_H2DSM0R to 0 for ack to FW.
 			ucResult = kalDevRegWrite(prGlueInfo, MCR_H2DSM0R, 0);
@@ -1403,46 +1426,32 @@ u_int8_t kalDevRegWrite_mac(IN struct GLUE_INFO *prGlueInfo, IN uint32_t u4Regis
 
 	/* progrqm h2d mailbox0 as interested register address */
 	ucResult = kalDevRegWrite(prGlueInfo, MCR_H2DSM0R, u4Register);
-	if (ucResult == FALSE)
-		goto Exit;
 
 	/* progrqm h2d mailbox1 as the value to write */
 	ucResult = kalDevRegWrite(prGlueInfo, MCR_H2DSM1R, u4Value);
-	if (ucResult == FALSE)
-		goto Exit;
 
 	/*  set h2d interrupt to notify firmware bit17 */
 	ucResult = kalDevRegWrite(prGlueInfo, MCR_WSICR,
 			SDIO_MAILBOX_FUNC_WRITE_REG_IDX);
-	if (ucResult == FALSE)
-		goto Exit;
 
 	/* polling interrupt status asserted. bit17 */
 
 	/* first, disable interrupt enable for SDIO_MAILBOX_FUNC_WRITE_REG_IDX */
 	ucResult = kalDevRegRead(prGlueInfo, MCR_WHIER, &value);
-	if (ucResult == FALSE)
-		goto Exit;
 	ucResult = kalDevRegWrite(prGlueInfo, MCR_WHIER,
 			(value & ~SDIO_MAILBOX_FUNC_WRITE_REG_IDX));
-	if (ucResult == FALSE)
-		goto Exit;
 
 	u4Time = (uint32_t) kalGetTimeTick();
 
 	do {
 		/* check bit17 of WHISR assert for response */
 		ucResult = kalDevRegRead(prGlueInfo, MCR_WHISR, &value);
-		if (ucResult == FALSE)
-			goto Exit;
 
 		if ((value & SDIO_MAILBOX_FUNC_WRITE_REG_IDX) ||
 			prGlueInfo->prAdapter->fgGetMailBoxRWAck) {
 			/* read d2h mailbox0 for interested register address */
 			ucResult = kalDevRegRead(prGlueInfo,
 						MCR_D2HRM0R, &value);
-			if (ucResult == FALSE)
-				goto Exit;
 
 			if (value != u4Register) {
 				DBGLOG(HAL, ERROR, "ERROR! kalDevRegWrite_mac():register address mis-match");
@@ -1846,9 +1855,6 @@ u_int8_t kalDevWriteData(IN struct GLUE_INFO *prGlueInfo, IN struct MSDU_INFO *p
 	uint8_t *pucBuf;
 	uint32_t u4Length, u4TotalLen;
 	uint8_t ucTC;
-#if (CFG_SUPPORT_TX_SG == 1)
-	uint8_t i;
-#endif /* CFG_SUPPORT_TX_SG */
 
 	SDIO_TIME_INTERVAL_DEC();
 
@@ -1882,23 +1888,13 @@ u_int8_t kalDevWriteData(IN struct GLUE_INFO *prGlueInfo, IN struct MSDU_INFO *p
 
 	SDIO_REC_TIME_START();
 	HAL_WRITE_HIF_TXD(prChipInfo, pucOutputBuf + prTxCtrl->u4WrIdx,
-				u4Length, TXD_PKT_FORMAT_TXD_PAYLOAD);
+				skb->len, TXD_PKT_FORMAT_TXD_PAYLOAD);
 	prTxCtrl->u4WrIdx += prChipInfo->u2HifTxdSize;
-	memcpy(pucOutputBuf + prTxCtrl->u4WrIdx, pucBuf,
-		u4Length - skb->data_len);
-	prTxCtrl->u4WrIdx += u4Length - skb->data_len;
-#if (CFG_SUPPORT_TX_SG == 1)
-	for (i = 0; i < skb_shinfo(skb)->nr_frags; i++) {
-		const skb_frag_t *frag = &skb_shinfo(skb)->frags[i];
-
-		memcpy(pucOutputBuf + prTxCtrl->u4WrIdx,
-			skb_frag_address(frag),
-			skb_frag_size(frag));
-		prTxCtrl->u4WrIdx += skb_frag_size(frag);
-	}
-#endif /* CFG_SUPPORT_TX_SG */
+	memcpy(pucOutputBuf + prTxCtrl->u4WrIdx, pucBuf, u4Length);
 	SDIO_REC_TIME_END();
 	SDIO_ADD_TIME_INTERVAL(prHifInfo->rStatCounter.u4TxDataCpTime);
+
+	prTxCtrl->u4WrIdx += u4Length;
 
 	u4PaddingLength = (ALIGN_4(u4Length) - u4Length);
 	if (u4PaddingLength) {

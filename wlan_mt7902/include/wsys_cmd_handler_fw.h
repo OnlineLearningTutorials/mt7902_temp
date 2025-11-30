@@ -1,7 +1,48 @@
-/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
-/*
- * Copyright (c) 2017 MediaTek Inc.
- */
+
+/*! \file   wsys_cmd_handler.h
+*/
+
+/*****************************************************************************
+* Copyright (c) 2017 MediaTek Inc.
+*
+* All rights reserved. Copying, compilation, modification, distribution
+* or any other use whatsoever of this material is strictly prohibited
+* except in accordance with a Software License Agreement with
+* MediaTek Inc.
+******************************************************************************
+*/
+
+/*****************************************************************************
+* LEGAL DISCLAIMER
+*
+* BY OPENING THIS FILE, BUYER HEREBY UNEQUIVOCALLY ACKNOWLEDGES AND
+* AGREES THAT THE SOFTWARE/FIRMWARE AND ITS DOCUMENTATIONS ("MEDIATEK
+* SOFTWARE") RECEIVED FROM MEDIATEK AND/OR ITS REPRESENTATIVES ARE
+* PROVIDED TO BUYER ON AN "AS-IS" BASIS ONLY. MEDIATEK EXPRESSLY
+* DISCLAIMS ANY AND ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+* LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+* PARTICULAR PURPOSE OR NONINFRINGEMENT. NEITHER DOES MEDIATEK PROVIDE
+* ANY WARRANTY WHATSOEVER WITH RESPECT TO THE SOFTWARE OF ANY THIRD PARTY
+* WHICH MAY BE USED BY, INCORPORATED IN, OR SUPPLIED WITH THE MEDIATEK
+* SOFTWARE, AND BUYER AGREES TO LOOK ONLY TO SUCH THIRD PARTY FOR ANY
+* WARRANTY CLAIM RELATING THERETO. MEDIATEK SHALL ALSO NOT BE RESPONSIBLE
+* FOR ANY MEDIATEK SOFTWARE RELEASES MADE TO BUYER'S SPECIFICATION OR TO
+* CONFORM TO A PARTICULAR STANDARD OR OPEN FORUM.
+*
+* BUYER'S SOLE AND EXCLUSIVE REMEDY AND MEDIATEK'S ENTIRE AND CUMULATIVE
+* LIABILITY WITH RESPECT TO THE MEDIATEK SOFTWARE RELEASED HEREUNDER WILL
+* BE, AT MEDIATEK'S OPTION, TO REVISE OR REPLACE THE MEDIATEK SOFTWARE AT
+* ISSUE, OR REFUND ANY SOFTWARE LICENSE FEES OR SERVICE CHARGE PAID BY
+* BUYER TO MEDIATEK FOR SUCH MEDIATEK SOFTWARE AT ISSUE.
+*
+* THE TRANSACTION CONTEMPLATED HEREUNDER SHALL BE CONSTRUED IN ACCORDANCE
+* WITH THE LAWS OF THE STATE OF CALIFORNIA, USA, EXCLUDING ITS CONFLICT
+* OF LAWS PRINCIPLES.  ANY DISPUTES, CONTROVERSIES OR CLAIMS ARISING
+* THEREOF AND RELATED THERETO SHALL BE SETTLED BY ARBITRATION IN SAN
+* FRANCISCO, CA, UNDER THE RULES OF THE INTERNATIONAL CHAMBER OF COMMERCE
+* (ICC).
+******************************************************************************
+*/
 
 #ifndef _WSYS_CMD_HANDLER_FW_H
 #define _WSYS_CMD_HANDLER_FW_H
@@ -15,7 +56,7 @@
 *                    E X T E R N A L   R E F E R E N C E S
 ******************************************************************************
 */
-#include "nic/mac.h"
+#include "mac.h"
 
 /*****************************************************************************
 *                              C O N S T A N T S
@@ -465,9 +506,6 @@ enum ENUM_EVENT_ID {
 	EVENT_ID_MDDP_FILTER_RULE = 0x59,
 	/* 0x59 (Query - CMD_ID_SET_MDDP_FILTER_RULE) */
 	EVENT_ID_BA_FW_DROP_SN = 0x5A,          /* 0x5A (Unsolicited) */
-#if (CONFIG_WIFI_RAM_MQM_BA_DELAY_SUPPORT == 1)
-	EVENT_ID_BAOFFLOAD_INDICATION = 0x5C,
-#endif
 	EVENT_ID_RDD_REPORT = 0x60,
 	EVENT_ID_CSA_DONE = 0x61,
 
@@ -1132,10 +1170,10 @@ struct CMD_SCAN_REQ_V2 {
 	struct PARAM_SSID    arSSIDExtend[6];
 	uint8_t          aucBSSID[MAC_ADDR_LEN];
 	uint8_t          aucRandomMac[MAC_ADDR_LEN];
-	uint8_t          aucExtBSSID[CFG_SCAN_SSID_MAX_NUM][MAC_ADDR_LEN];
+	uint8_t          aucExtBSSID[CFG_SCAN_OOB_MAX_NUM][MAC_ADDR_LEN];
 	uint8_t          ucShortSSIDNum;
-	uint8_t 	 ucBssidMatchCh[CFG_SCAN_SSID_MAX_NUM];
-	uint8_t		 ucBssidMatchSsidInd[CFG_SCAN_SSID_MAX_NUM];
+	uint8_t 	 ucBssidMatchCh[CFG_SCAN_OOB_MAX_NUM];
+	uint8_t		 ucBssidMatchSsidInd[CFG_SCAN_OOB_MAX_NUM];
 	uint8_t          aucPadding_3[31];
 
 };
@@ -1997,33 +2035,6 @@ struct CMD_TXPOWER_CHANNEL_LEGACY_POWER_LIMIT_PER_RATE {
 	struct CMD_SKU_LEGACY_TABLE_TYPE aucTxLegacyPwrLimit;
 };
 
-enum ENUM_TXPOWER_LIMIT_ANT_SET_TYPE {
-	ANT_SET_TYPE_ANTSWAP	= 0x00,
-
-	ANT_SET_TYPE_END
-};
-
-enum ENUM_COUNTRY_CHANNEL_TXPOWER_LIMIT_FORMAT {
-	TXPOWER_LIMIT_FORMAT_CHANNEL	= 0x00,
-	TXPOWER_LIMIT_FORMAT_ANT,
-
-	TXPOWER_LIMIT_FORMAT_END
-};
-
-struct CMD_ANT_TABLE_TYPE {
-	/* 2G4 5GB1 5GB2 5GB3 5GB4 6GB1 6GB2 6GB3 6GB4 */
-	uint8_t aucAntPowerLimit[9];
-};
-
-struct CMD_TXPOWER_ANT_POWER_LIMIT {
-	/* enum ENUM_TXPOWER_LIMIT_ANT_SET_TYPE */
-	uint8_t ucAntSetType;
-	uint8_t ucAntNum;
-	uint8_t ucEntryLength;
-	uint8_t ucPadding0;
-
-	struct CMD_ANT_TABLE_TYPE rAntPowerLimit[0];
-};
 
 struct CMD_SET_TXPOWER_COUNTRY_TX_POWER_LIMIT_PER_RATE {
 	/* DWORD_0 - Common info*/
@@ -2032,28 +2043,20 @@ struct CMD_SET_TXPOWER_COUNTRY_TX_POWER_LIMIT_PER_RATE {
 	uint16_t u2CmdLen;
 
 	/* DWORD_1 - CMD hint*/
-	uint8_t ucNum; /* channel number */
+	uint8_t ucNum; /* channel #*/
 	uint8_t eBand; /* 2.4g or 5g*/
 	uint8_t bCmdFinished;
-	/* hint for whether CHANNEL and ANT tx power limit value all be sent*/
-	uint8_t eLimitType;
-	/* enum ENUM_COUNTRY_CHANNEL_TXPOWER_LIMIT_FORMAT */
+	/* hint for whether 2.4g/5g tx power limit value all be sent*/
+	uint8_t aucPadding1[1];
 
 	/* DWORD_2 - Country code*/
 	uint32_t u4CountryCode;
 
 	/* WORD_3 ~ 10 - Padding*/
-	uint8_t aucPadding1[32];
+	uint8_t aucPadding2[32];
 
 	/* DWORD_11 ~ - Tx power limit values*/
-	union {
-		/* Channel power limit entries to be set */
-		struct CMD_TXPOWER_CHANNEL_POWER_LIMIT_PER_RATE
-			rChannelPowerLimit[0];
-		/* Ant power limit entries to be set */
-		struct CMD_TXPOWER_ANT_POWER_LIMIT
-			rAntPowerLimit;
-	} u;
+	struct CMD_TXPOWER_CHANNEL_POWER_LIMIT_PER_RATE rChannelPowerLimit[0];
 };
 
 struct CMD_SET_TXPOWER_COUNTRY_TX_LEGACY_POWER_LIMIT_PER_RATE {

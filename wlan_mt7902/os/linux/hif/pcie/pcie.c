@@ -1,7 +1,54 @@
-/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
-/*
- * Copyright (c) 2016 MediaTek Inc.
- */
+/******************************************************************************
+ *
+ * This file is provided under a dual license.  When you use or
+ * distribute this software, you may choose to be licensed under
+ * version 2 of the GNU General Public License ("GPLv2 License")
+ * or BSD License.
+ *
+ * GPLv2 License
+ *
+ * Copyright(C) 2016 MediaTek Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of version 2 of the GNU General Public License as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See http://www.gnu.org/licenses/gpl-2.0.html for more details.
+ *
+ * BSD LICENSE
+ *
+ * Copyright(C) 2016 MediaTek Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *  * Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ *  * Neither the name of the copyright holder nor the names of its
+ *    contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ *****************************************************************************/
 /******************************************************************************
  *[File]             pcie.c
  *[Version]          v1.0
@@ -36,9 +83,6 @@
 #endif
 
 #include "mt66xx_reg.h"
-#if 0
-#include <linux/irq.h>
-#endif
 
 
 /*******************************************************************************
@@ -178,7 +222,7 @@ static bool pcieCopyEvent(struct GL_HIF_INFO *prHifInfo,
 			  struct RTMP_DMABUF *prDmaBuf,
 			  uint8_t *pucDst, uint32_t u4Len);
 static bool pcieCopyTxData(struct MSDU_TOKEN_ENTRY *prToken,
-			   void *pucSrc, uint32_t u4Len, uint32_t u4offset);
+			   void *pucSrc, uint32_t u4Len);
 static bool pcieCopyRxData(struct GL_HIF_INFO *prHifInfo,
 			   struct RTMP_DMACB *pRxCell,
 			   struct RTMP_DMABUF *prDmaBuf,
@@ -686,7 +730,11 @@ void glClearHifInfo(struct GLUE_INFO *prGlueInfo)
 	struct TX_CMD_REQ *prTxCmdReq;
 	struct TX_DATA_REQ *prTxDataReq;
 
+#if CFG80211_VERSION_CODE >= KERNEL_VERSION(6, 15, 0)
+	timer_delete_sync(&prHifInfo->rSerTimer);
+#else
 	del_timer_sync(&prHifInfo->rSerTimer);
+#endif
 
 	halUninitMsduTokenInfo(prGlueInfo->prAdapter);
 	halWpdmaFreeRing(prGlueInfo);
@@ -739,7 +787,11 @@ u_int8_t glBusInit(void *pvData)
 
 	pdev = (struct pci_dev *)pvData;
 
+#if CFG80211_VERSION_CODE >= KERNEL_VERSION(5, 18, 0)
+	ret = dma_set_mask(&pdev->dev, DMA_BIT_MASK(g_u4DmaMask));
+#else
 	ret = pci_set_dma_mask(pdev, DMA_BIT_MASK(g_u4DmaMask));
+#endif
 	if (ret != 0) {
 		DBGLOG(INIT, INFO, "set DMA mask failed!errno=%d\n", ret);
 		return FALSE;
@@ -839,16 +891,6 @@ int32_t glBusSetIrq(void *pvData, void *pfnIsr, void *pvCookie)
 
 	prHifInfo = &prGlueInfo->rHifInfo;
 	pdev = prHifInfo->pdev;
-
-#if 0
-	DBGLOG(INIT, INFO, "free pci irq vectors\n");
-	pci_free_irq_vectors(pdev);
-	ret = pci_alloc_irq_vectors(pdev, 1, 1, PCI_IRQ_ALL_TYPES);
-	if (ret < 0) {
-		DBGLOG(INIT, ERROR, "alloc_irq_vectors fail(%d)\n", ret);
-		return ret;
-	}
-#endif
 
 	prHifInfo->u4IrqId = pdev->irq;
 	ret = request_irq(prHifInfo->u4IrqId, mtk_pci_interrupt,
@@ -1033,9 +1075,9 @@ static bool pcieCopyEvent(struct GL_HIF_INFO *prHifInfo,
 }
 
 static bool pcieCopyTxData(struct MSDU_TOKEN_ENTRY *prToken,
-			   void *pucSrc, uint32_t u4Len, uint32_t u4offset)
+			   void *pucSrc, uint32_t u4Len)
 {
-	memcpy((uint8_t *)prToken->prPacket + u4offset, pucSrc, u4Len);
+	memcpy(prToken->prPacket, pucSrc, u4Len);
 	return true;
 }
 

@@ -1,7 +1,54 @@
-/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
-/*
- * Copyright (c) 2016 MediaTek Inc.
- */
+/******************************************************************************
+ *
+ * This file is provided under a dual license.  When you use or
+ * distribute this software, you may choose to be licensed under
+ * version 2 of the GNU General Public License ("GPLv2 License")
+ * or BSD License.
+ *
+ * GPLv2 License
+ *
+ * Copyright(C) 2016 MediaTek Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of version 2 of the GNU General Public License as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See http://www.gnu.org/licenses/gpl-2.0.html for more details.
+ *
+ * BSD LICENSE
+ *
+ * Copyright(C) 2016 MediaTek Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *  * Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ *  * Neither the name of the copyright holder nor the names of its
+ *    contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ *****************************************************************************/
 /*
  * Id: //Department/DaVinci/BRANCHES/MT6620_WIFI_DRIVER_V2_3/
  *	 include/mgmt/rlm_domain.h#1
@@ -24,7 +71,7 @@
  *  E X T E R N A L   R E F E R E N C E S
  *******************************************************************************
  */
- #include "../wsys_cmd_handler_fw.h"
+ #include "wsys_cmd_handler_fw.h"
 
 /*******************************************************************************
  *   C O N S T A N T S
@@ -596,20 +643,6 @@
 #define PWR_CTRL_CHNL_TYPE_KEY_5G_BAND2		"5GBAND2"
 #define PWR_CTRL_CHNL_TYPE_KEY_5G_BAND3		"5GBAND3"
 #define PWR_CTRL_CHNL_TYPE_KEY_5G_BAND4		"5GBAND4"
-#if (CFG_SUPPORT_WIFI_6G == 1)
-#define PWR_CTRL_CHNL_TYPE_KEY_6G		"6G"
-#define PWR_CTRL_CHNL_TYPE_KEY_6G_BAND1		"6GBAND1"
-#define PWR_CTRL_CHNL_TYPE_KEY_6G_BAND2		"6GBAND2"
-#define PWR_CTRL_CHNL_TYPE_KEY_6G_BAND3		"6GBAND3"
-#define PWR_CTRL_CHNL_TYPE_KEY_6G_BAND4		"6GBAND4"
-#endif
-
-#define PWR_CFG_PARM_VERSION			2
-
-#define PWR_CFG_PRAM_NUM_ALL_RATE		1
-#define MIN_ANT_BAND_NUM			9
-#define PWR_CFG_LIMIT_MIN			-64
-#define PWR_CFG_LIMIT_MAX			64
 
 enum ENUM_TX_POWER_CTRL_LIST_TYPE {
 	PWR_CTRL_TYPE_DEFAULT_LIST = 0,
@@ -652,104 +685,24 @@ enum ENUM_TX_POWER_CTRL_CHANNEL_TYPE {
 	PWR_CTRL_CHNL_TYPE_5G_BAND2,
 	PWR_CTRL_CHNL_TYPE_5G_BAND3,
 	PWR_CTRL_CHNL_TYPE_5G_BAND4,
-#if (CFG_SUPPORT_WIFI_6G == 1)
-	PWR_CTRL_CHNL_TYPE_6G,
-	PWR_CTRL_CHNL_TYPE_6G_BAND1,
-	PWR_CTRL_CHNL_TYPE_6G_BAND2,
-	PWR_CTRL_CHNL_TYPE_6G_BAND3,
-	PWR_CTRL_CHNL_TYPE_6G_BAND4,
-#endif
 };
-
-enum ENUM_POWER_LIMIT {
-#if (PWR_CFG_PARM_VERSION == 0)
-	PWR_LIMIT_LEGACY = 0,
-	PWR_LIMIT_HT20 = 1,
-	PWR_LIMIT_HT40 = 2,
-	PWR_LIMIT_VHT20 = 3,
-	PWR_LIMIT_OFFSET = 4,
-#elif (PWR_CFG_PARM_VERSION == 1)
-	PWR_LIMIT_CCK = 0,
-	PWR_LIMIT_OFDM = 1,
-	PWR_LIMIT_HT20 = 2,
-	PWR_LIMIT_HT40 = 3,
-	PWR_LIMIT_VHT20 = 4,
-	PWR_LIMIT_VHT40 = 5,
-	PWR_LIMIT_VHT80 = 6,
-	PWR_LIMIT_VHT160 = 7,
-	PWR_LIMIT_TXBF_BACKOFF = 8,
-#elif (PWR_CFG_PARM_VERSION == 2)
-	PWR_LIMIT_CCK = 0,
-	PWR_LIMIT_OFDM = 1,
-	PWR_LIMIT_HT20 = 2,
-	PWR_LIMIT_HT40 = 3,
-	PWR_LIMIT_VHT20 = 4,
-	PWR_LIMIT_VHT40 = 5,
-	PWR_LIMIT_VHT80 = 6,
-	PWR_LIMIT_VHT160 = 7,
-	PWR_LIMIT_RU26 = 8,
-	PWR_LIMIT_RU52 = 9,
-	PWR_LIMIT_RU106 = 10,
-	PWR_LIMIT_RU242 = 11,
-	PWR_LIMIT_RU484 = 12,
-	PWR_LIMIT_RU996 = 13,
-	PWR_LIMIT_RU996X2 = 14,
-#else
-	#error "Unsupported PWR_CFG_PARM_VERSION !!!"
-#endif
-	PWR_LIMIT_NUM
-};
-
-#if CFG_SUPPORT_DYNAMIC_PWR_LIMIT_ANT_TAG
-enum ENUM_POWER_ANT_TAG {
-	POWER_ANT_ALL_T = 0,
-
-	POWER_ANT_TAG_NUM
-};
-
-enum ENUM_POWER_ANT_BAND {
-	POWER_ANT_2G4_BAND = 0,
-	POWER_ANT_5G_BAND1,
-	POWER_ANT_5G_BAND2,
-	POWER_ANT_5G_BAND3,
-	POWER_ANT_5G_BAND4,
-#if (CFG_SUPPORT_WIFI_6G == 1)
-	POWER_ANT_6G_BAND1,
-	POWER_ANT_6G_BAND2,
-	POWER_ANT_6G_BAND3,
-	POWER_ANT_6G_BAND4,
-#endif
-	POWER_ANT_BAND_NUM
-};
-
-enum ENUM_POWER_ANT_PARA {
-	POWER_ANT_WF0 = 0,
-	POWER_ANT_WF1,
-	POWER_ANT_NUM
-};
-
-struct TX_PWR_CTRL_ANT_SETTING {
-	u_int8_t fgApplied;
-	int8_t aiPwrAnt2G4[POWER_ANT_NUM];
-	int8_t aiPwrAnt5GB1[POWER_ANT_NUM];
-	int8_t aiPwrAnt5GB2[POWER_ANT_NUM];
-	int8_t aiPwrAnt5GB3[POWER_ANT_NUM];
-	int8_t aiPwrAnt5GB4[POWER_ANT_NUM];
-#if (CFG_SUPPORT_WIFI_6G == 1)
-	int8_t aiPwrAnt6GB1[POWER_ANT_NUM];
-	int8_t aiPwrAnt6GB2[POWER_ANT_NUM];
-	int8_t aiPwrAnt6GB3[POWER_ANT_NUM];
-	int8_t aiPwrAnt6GB4[POWER_ANT_NUM];
-#endif
-};
-#endif
 
 struct TX_PWR_CTRL_CHANNEL_SETTING {
 	enum ENUM_TX_POWER_CTRL_CHANNEL_TYPE eChnlType;
 	uint8_t channelParam[2];
 
-	enum ENUM_TX_POWER_CTRL_VALUE_SIGN op[PWR_LIMIT_NUM];
-	int8_t i8PwrLimit[PWR_LIMIT_NUM];
+	/* 0: CCK
+	 * 1: 20L, MCS0~4
+	 * 2: 20H, MCS5~8
+	 * 3: 40L, MCS0~4
+	 * 4: 40H, MCS5~9
+	 * 5: 80L, MCS0~4
+	 * 6: 80H, MCS5~9
+	 * 7: 160L, MCS0~4
+	 * 8: 160H, MCS5~9
+	 */
+	enum ENUM_TX_POWER_CTRL_VALUE_SIGN op[9];
+	int8_t i8PwrLimit[9];
 };
 
 struct TX_PWR_CTRL_ELEMENT {
@@ -758,20 +711,22 @@ struct TX_PWR_CTRL_ELEMENT {
 	char name[MAX_TX_PWR_CTRL_ELEMENT_NAME_SIZE]; /* scenario name */
 	uint8_t index; /* scenario index */
 	enum ENUM_TX_POWER_CTRL_TYPE eCtrlType;
-#if CFG_SUPPORT_DYNAMIC_PWR_LIMIT_ANT_TAG
-	struct TX_PWR_CTRL_ANT_SETTING aiPwrAnt[POWER_ANT_TAG_NUM];
-#endif
 	uint8_t settingCount;
 	struct TX_PWR_CTRL_CHANNEL_SETTING rChlSettingList[1];
 };
 
-#if CFG_SUPPORT_DYNAMIC_PWR_LIMIT_ANT_TAG
-struct TX_PWR_TAG_TABLE {
-	const char arTagNames[32];
-	uint8_t ucTagParaNum;
-	enum ENUM_POWER_ANT_TAG eTag;
+enum ENUM_POWER_LIMIT {
+	PWR_LIMIT_CCK = 0,
+	PWR_LIMIT_20M_L = 1,
+	PWR_LIMIT_20M_H = 2,
+	PWR_LIMIT_40M_L = 3,
+	PWR_LIMIT_40M_H = 4,
+	PWR_LIMIT_80M_L = 5,
+	PWR_LIMIT_80M_H = 6,
+	PWR_LIMIT_160M_L = 7,
+	PWR_LIMIT_160M_H = 8,
+	PWR_LIMIT_NUM
 };
-#endif
 
 struct PARAM_TX_PWR_CTRL_IOCTL {
 	u_int8_t fgApplied;
@@ -1218,8 +1173,6 @@ struct TX_PWR_CTRL_ELEMENT *txPwrCtrlFindElement(
 				enum ENUM_TX_POWER_CTRL_LIST_TYPE eListType);
 void txPwrCtrlAddElement(struct ADAPTER *prAdapter,
 				struct TX_PWR_CTRL_ELEMENT *prElement);
-void debug_write_txPwrCtrlStringToStruct(char *pcContent);
-ssize_t debug_read_txPwrCtrlStringToStruct(char *buf, ssize_t maxSize);
 #endif
 /*******************************************************************************
  *   F U N C T I O N S

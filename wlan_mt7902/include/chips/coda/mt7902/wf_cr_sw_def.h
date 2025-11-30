@@ -1,7 +1,8 @@
-/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
-/*
- * Copyright (c) 2018 MediaTek Inc.
- */
+/* SPDX-License-Identifier: GPL-2.0 */
+/* 
+* Copyright (c) 2021 MediaTek Inc.
+*/
+
 
 #ifndef _WF_CR_SW_DEF_H
 #define _WF_CR_SW_DEF_H
