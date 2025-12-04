@@ -1033,15 +1033,15 @@ static void mt7902_bss_info_changed(struct ieee80211_hw *hw,
 		mt7902_mcu_set_beacon_filter(dev, vif, vif->cfg.assoc);
 	}
 
-	// if (changed & BSS_CHANGED_HE_OBSS_PD)
-	// 	mt7902_mcu_add_obss_spr(dev, vif, &info->he_obss_pd);
+	if (changed & BSS_CHANGED_HE_OBSS_PD)
+		mt7902_mcu_add_obss_spr(dev, vif, &info->he_obss_pd);
 
 	if (changed & BSS_CHANGED_HE_BSS_COLOR)
 		mt7902_update_bss_color(hw, vif, &info->he_bss_color);
 
-	// if (changed & (BSS_CHANGED_BEACON |
-	// 	       BSS_CHANGED_BEACON_ENABLED))
-	// 	mt7902_mcu_add_beacon(hw, vif, changed);
+	if (changed & (BSS_CHANGED_BEACON |
+		       BSS_CHANGED_BEACON_ENABLED))
+		mt7902_mcu_add_beacon(hw, vif, changed);
 
 	mt792x_mutex_release(dev);
 }
