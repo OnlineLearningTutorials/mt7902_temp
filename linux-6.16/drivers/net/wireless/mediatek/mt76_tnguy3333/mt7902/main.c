@@ -991,20 +991,20 @@ static void mt7902_bss_info_changed(struct ieee80211_hw *hw,
 	// 	mt7902_mcu_add_bss_info(phy, vif, true);
 	// 	mt7902_mcu_add_obss_spr(dev, vif, info->he_obss_pd.enable);
 	// }
-/*
-	if (changed & BSS_CHANGED_BEACON_ENABLED &&
-	    info->enable_beacon &&
-	    vif->type != NL80211_IFTYPE_AP)
-		set_bss_info = set_sta = 1;
 
-	if (set_bss_info == 1)
-		mt7902_mcu_add_bss_info(phy, vif, true);
-	if (set_sta == 1)
-		mt7902_mcu_add_sta(dev, vif, NULL, CONN_STATE_PORT_SECURE, false);
+	// if (changed & BSS_CHANGED_BEACON_ENABLED &&
+	//     info->enable_beacon &&
+	//     vif->type != NL80211_IFTYPE_AP)
+	// 	set_bss_info = set_sta = 1;
 
-	if (changed & BSS_CHANGED_ERP_CTS_PROT)
-		mt7902_mac_enable_rtscts(dev, vif, info->use_cts_prot);
-*/
+	// if (set_bss_info == 1)
+	// 	mt7902_mcu_add_bss_info(phy, vif, true);
+	// if (set_sta == 1)
+	// 	mt7902_mcu_add_sta(dev, vif, NULL, CONN_STATE_PORT_SECURE, false);
+
+	// if (changed & BSS_CHANGED_ERP_CTS_PROT)
+	// 	mt7902_mac_enable_rtscts(dev, vif, info->use_cts_prot);
+
 	if (changed & BSS_CHANGED_ERP_SLOT) {
 		int slottime = info->use_short_slot ? 9 : 20;
 
@@ -1036,8 +1036,8 @@ static void mt7902_bss_info_changed(struct ieee80211_hw *hw,
 	// if (changed & BSS_CHANGED_HE_OBSS_PD)
 	// 	mt7902_mcu_add_obss_spr(dev, vif, &info->he_obss_pd);
 
-	// if (changed & BSS_CHANGED_HE_BSS_COLOR)
-	// 	mt7902_update_bss_color(hw, vif, &info->he_bss_color);
+	if (changed & BSS_CHANGED_HE_BSS_COLOR)
+		mt7902_update_bss_color(hw, vif, &info->he_bss_color);
 
 	// if (changed & (BSS_CHANGED_BEACON |
 	// 	       BSS_CHANGED_BEACON_ENABLED))

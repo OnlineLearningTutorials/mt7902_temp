@@ -2632,8 +2632,11 @@ int mt7902_mcu_update_bss_color(struct mt792x_dev *dev, struct ieee80211_vif *vi
 	bss_color->disable = !he_bss_color->enabled;
 	bss_color->color = he_bss_color->color;
 
+	// return mt76_mcu_skb_send_msg(&dev->mt76, skb,
+	// 			     MCU_EXT_CMD(BSS_INFO_UPDATE), true);
+
 	return mt76_mcu_skb_send_msg(&dev->mt76, skb,
-				     MCU_EXT_CMD(BSS_INFO_UPDATE), true);
+				     MCU_WMWA_UNI_CMD(BSS_INFO_UPDATE), true);
 }
 
 
