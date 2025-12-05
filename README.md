@@ -15,7 +15,13 @@ If you don't want to clone past history than
   ```
 
 
-## 📱 Bluetooth ✅ 
+## 📱 Bluetooth ✅ (Working)
+> [!WARNING]
+> If bluetooth driver conflict with `gen4-mt7902` than please remove the bluetooth firmware so that it not interfere with this driver
+> ``` sudo rm /lib/firmware/mediatek/mt7902/BT_RAM_CODE_MT7902_1_1_hdr.bin.zst ```
+> This project uses the firmware
+> ``` /lib/firmware/mediatek/BT_RAM_CODE_MT7902_1_1_hdr.bin.zst ```
+
 To enable bluetooth go to the directory of your current kernel version. ``
 Like if you have kernel linux-6.16 than go to the directory `./linux-6.16/drivers/bluetooth` .
 Open terminal in this directory and compile with command `make`.
