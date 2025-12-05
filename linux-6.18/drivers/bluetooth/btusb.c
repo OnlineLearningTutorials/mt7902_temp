@@ -617,7 +617,17 @@ static const struct usb_device_id quirks_table[] = {
 	/* Additional MediaTek MT7668 Bluetooth devices */
 	{ USB_DEVICE(0x043e, 0x3109), .driver_info = BTUSB_MEDIATEK |
 						     BTUSB_WIDEBAND_SPEECH },
-
+						     
+    /* Additional MediaTek MT7902 Bluetooth devices */
+    { USB_DEVICE(0x13d3, 0x3579), .driver_info = BTUSB_MEDIATEK |
+					     BTUSB_WIDEBAND_SPEECH },		     
+    { USB_DEVICE(0x13d3, 0x3580), .driver_info = BTUSB_MEDIATEK |
+					     BTUSB_WIDEBAND_SPEECH },	     
+    { USB_DEVICE(0x13d3, 0x3594), .driver_info = BTUSB_MEDIATEK |
+					     BTUSB_WIDEBAND_SPEECH },	     
+    { USB_DEVICE(0x13d3, 0x3596), .driver_info = BTUSB_MEDIATEK |
+					     BTUSB_WIDEBAND_SPEECH },
+						     
 	/* Additional MediaTek MT7920 Bluetooth devices */
 	{ USB_DEVICE(0x0489, 0xe134), .driver_info = BTUSB_MEDIATEK |
 						     BTUSB_WIDEBAND_SPEECH },
