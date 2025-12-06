@@ -630,7 +630,7 @@ mt7902_vif_connect_iter(void *priv, u8 *mac,
 {
 	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
 	struct mt792x_dev *dev = mvif->phy->dev;
-	struct ieee80211_hw *hw = mt76_hw(dev);
+	//struct ieee80211_hw *hw = mt76_hw(dev);
 
 	if (vif->type == NL80211_IFTYPE_STATION)
 		ieee80211_disconnect(vif, true);
@@ -655,7 +655,7 @@ mt7902_vif_connect_iter(void *priv, u8 *mac,
 		printk(KERN_DEBUG "vif_connect_iter: add bss info ret = %d\n", ret);
 		mt7902_mcu_sta_update(dev, NULL, vif, true,
 				      MT76_STA_INFO_STATE_NONE);
-		mt7902_mcu_uni_add_beacon_offload(dev, hw, vif, true);
+		//mt7902_mcu_uni_add_beacon_offload(dev, hw, vif, true);
 	}
 }
 
@@ -685,8 +685,6 @@ void mt7902_mac_reset_work(struct work_struct *work)
 		if (!ret)
 			break;
 	}
-	if (mt76_is_sdio(&dev->mt76) && atomic_read(&dev->mt76.bus_hung))
-		return;
 
 	if (i == 10)
 		dev_err(dev->mt76.dev, "chip reset failed\n");
@@ -852,6 +850,7 @@ bool mt7902_usb_sdio_tx_status_data(struct mt76_dev *mdev, u8 *update)
 EXPORT_SYMBOL_GPL(mt7902_usb_sdio_tx_status_data);
 
 #if IS_ENABLED(CONFIG_IPV6)
+/*
 void mt7902_set_ipv6_ns_work(struct work_struct *work)
 {
 	struct mt792x_dev *dev = container_of(work, struct mt792x_dev,
@@ -874,5 +873,5 @@ void mt7902_set_ipv6_ns_work(struct work_struct *work)
 
 	if (ret)
 		skb_queue_purge(&dev->ipv6_ns_list);
-}
+}*/
 #endif

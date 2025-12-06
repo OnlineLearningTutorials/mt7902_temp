@@ -7,9 +7,6 @@
 #include "../mt792x.h"
 #include "regs.h"
 
-// #define MT7902_FIRMWARE_WM	"mediatek/WIFI_RAM_CODE_MT7902_1.bin"
-// #define MT7902_ROM_PATCH    "mediatek/WIFI_MT7902_patch_mcu_1_1_hdr.bin"
-
 #define MT7902_TX_RING_SIZE		2048
 #define MT7902_TX_MCU_RING_SIZE		256
 #define MT7902_TX_FWDL_RING_SIZE	128
@@ -110,8 +107,8 @@ struct mt7902_sdio_intr {
 enum mt7902_txq_id {
 	MT7902_TXQ_BAND0,
 	MT7902_TXQ_BAND1,
-	MT7902_TXQ_FWDL = 16,
-	MT7902_TXQ_MCU_WM,
+	MT7902_TXQ_MCU_WM = 15,
+	MT7902_TXQ_FWDL,
 };
 
 enum mt7902_rxq_id {

@@ -1037,6 +1037,7 @@ int mt7902_mcu_uni_bss_ps(struct mt792x_dev *dev, struct ieee80211_vif *vif)
 				 &ps_req, sizeof(ps_req), true);
 }
 
+/*
 static int
 mt7902_mcu_uni_bss_bcnft(struct mt792x_dev *dev, struct ieee80211_vif *vif,
 			 bool enable)
@@ -1071,7 +1072,7 @@ mt7902_mcu_uni_bss_bcnft(struct mt792x_dev *dev, struct ieee80211_vif *vif,
 
 	return mt76_mcu_send_msg(&dev->mt76, MCU_UNI_CMD(BSS_INFO_UPDATE),
 				 &bcnft_req, sizeof(bcnft_req), true);
-}
+}*/
 
 int
 mt7902_mcu_set_bss_pm(struct mt792x_dev *dev, struct ieee80211_vif *vif,
@@ -1144,9 +1145,9 @@ int mt7902_mcu_set_beacon_filter(struct mt792x_dev *dev,
 	int err;
 
 	if (enable) {
-		err = mt7902_mcu_uni_bss_bcnft(dev, vif, true);
-		if (err)
-			return err;
+		//err = mt7902_mcu_uni_bss_bcnft(dev, vif, true);
+		//if (err)
+		//	return err;
 
 		err = mt7902_mcu_set_rxfilter(dev, 0,
 					      MT7902_FIF_BIT_SET,
