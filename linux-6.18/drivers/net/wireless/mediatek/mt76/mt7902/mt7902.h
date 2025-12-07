@@ -107,17 +107,31 @@ struct mt7902_sdio_intr {
 #define to_rssi(field, rxv)		((FIELD_GET(field, rxv) - 220) / 2)
 #define to_rcpi(rssi)			(2 * (rssi) + 220)
 
+// enum mt7902_txq_id {
+// 	MT7902_TXQ_FWDL = 16,
+// 	MT7902_TXQ_MCU_WM,
+// 	MT7902_TXQ_BAND0,
+// 	MT7902_TXQ_BAND1,
+// 	MT7902_TXQ_MCU_WA,
+// 	MT7902_TXQ_BAND2,
+// };
+
 enum mt7902_txq_id {
 	MT7902_TXQ_BAND0,
 	MT7902_TXQ_BAND1,
-	MT7902_TXQ_FWDL = 16,
-	MT7902_TXQ_MCU_WM,
+	MT7902_TXQ_MCU_WM = 15,
+	MT7902_TXQ_FWDL,
 };
 
 enum mt7902_rxq_id {
-	MT7902_RXQ_BAND0 = 0,
-	MT7902_RXQ_BAND1,
 	MT7902_RXQ_MCU_WM = 0,
+	MT7902_RXQ_MCU_WA,
+	MT7902_RXQ_MCU_WA_MAIN,
+	MT7902_RXQ_MCU_WA_EXT = 2,
+	MT7902_RXQ_MCU_WA_TRI = 2,
+	MT7902_RXQ_BAND0 = 4,
+	MT7902_RXQ_BAND1,
+	MT7902_RXQ_BAND2 = 8,
 };
 
 enum {
