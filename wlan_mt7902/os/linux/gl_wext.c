@@ -4702,7 +4702,7 @@ static int std_get_name(struct net_device *prDev,
 		union iwreq_data *prData,
 		char *pcExtra)
 {
-	DBGLOG(INIT, INFO, " mtk std ioctl is called.\n");
+	// DBGLOG(INIT, INFO, " mtk std ioctl is called.\n");
 	return wext_get_name(prDev, NULL, (char *)(&(prData->name)),
 				    sizeof(prData->name), NULL);
 }

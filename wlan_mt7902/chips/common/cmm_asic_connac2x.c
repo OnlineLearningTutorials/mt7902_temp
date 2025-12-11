@@ -287,10 +287,10 @@ static void asicConnac2xFillInitCmdTxdInfo(
 	if (pucSeqNum)
 		*pucSeqNum = prInitHifTxHeader->rInitWifiCmd.ucSeqNum;
 
-	DBGLOG(INIT, INFO, "TX CMD: ID[0x%02X] SEQ[%u] LEN[%u]\n",
-			prInitHifTxHeader->rInitWifiCmd.ucCID,
-			prInitHifTxHeader->rInitWifiCmd.ucSeqNum,
-			prCmdInfo->u2InfoBufLen);
+	// DBGLOG(INIT, INFO, "TX CMD: ID[0x%02X] SEQ[%u] LEN[%u]\n",
+	// 		prInitHifTxHeader->rInitWifiCmd.ucCID,
+	// 		prInitHifTxHeader->rInitWifiCmd.ucSeqNum,
+	// 		prCmdInfo->u2InfoBufLen);
 }
 
 
@@ -326,9 +326,9 @@ static void asicConnac2xFillCmdTxdInfo(
 	if (pucSeqNum)
 		*pucSeqNum = prWifiCmd->ucSeqNum;
 
-	DBGLOG(INIT, INFO, "TX CMD: ID[0x%02X] SEQ[%u] SET[%u] LEN[%u]\n",
-			prWifiCmd->ucCID, prWifiCmd->ucSeqNum,
-			prWifiCmd->ucSetQuery, prCmdInfo->u2InfoBufLen);
+	// DBGLOG(INIT, INFO, "TX CMD: ID[0x%02X] SEQ[%u] SET[%u] LEN[%u]\n",
+	// 		prWifiCmd->ucCID, prWifiCmd->ucSeqNum,
+	// 		prWifiCmd->ucSetQuery, prCmdInfo->u2InfoBufLen);
 }
 
 #ifdef CFG_SUPPORT_UNIFIED_COMMAND
@@ -362,9 +362,9 @@ static void asicConnac2xFillUniCmdTxdInfo(
 	if (pucSeqNum)
 		*pucSeqNum = prWifiCmd->ucSeqNum;
 
-	DBGLOG(TX, TRACE, "TX CMD: ID[0x%04X] SEQ[%u] OPT[0x%02X] LEN[%u]\n",
-			prWifiCmd->u2CID, prWifiCmd->ucSeqNum,
-			prWifiCmd->ucOption, prCmdInfo->u2InfoBufLen);
+	// DBGLOG(TX, TRACE, "TX CMD: ID[0x%04X] SEQ[%u] OPT[0x%02X] LEN[%u]\n",
+	// 		prWifiCmd->u2CID, prWifiCmd->ucSeqNum,
+	// 		prWifiCmd->ucOption, prCmdInfo->u2InfoBufLen);
 }
 #endif
 

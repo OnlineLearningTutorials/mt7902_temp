@@ -369,7 +369,7 @@ static void statsParsePktInfo(uint8_t *pucPkt, struct sk_buff *skb,
 			 * so we print log here
 			 */
 			uint8_t *pucUdp = &pucEthBody[20];
-			uint8_t *pucBootp = &pucUdp[UDP_HDR_LEN];
+			// uint8_t *pucBootp = &pucUdp[UDP_HDR_LEN];
 			struct BOOTP_PROTOCOL *prBootp;
 			uint16_t u2UdpDstPort;
 			uint16_t u2UdpSrcPort;
@@ -398,13 +398,13 @@ static void statsParsePktInfo(uint8_t *pucPkt, struct sk_buff *skb,
 					break;
 				}
 			} else if (u2UdpSrcPort == UDP_PORT_DNS) { /* tx dns */
-				uint16_t u2TransId =
-					(pucBootp[0] << 8) | pucBootp[1];
+				// uint16_t u2TransId =
+				// 	(pucBootp[0] << 8) | pucBootp[1];
 
-				if (eventType == EVENT_RX)
-					DBGLOG_LIMITED(RX, INFO,
-						"<RX> DNS: IPID 0x%02x, TransID 0x%04x\n",
-						u2IpId, u2TransId);
+				// if (eventType == EVENT_RX)
+					// DBGLOG_LIMITED(RX, INFO,
+					// 	"<RX> DNS: IPID 0x%02x, TransID 0x%04x\n",
+					// 	u2IpId, u2TransId);
 			}
 			break;
 		}

@@ -215,7 +215,7 @@ uint32_t wlanSetDriverDbgLevel(IN uint32_t u4DbgIdx, IN uint32_t u4DbgMask)
 	if (u4DbgIdx == DBG_ALL_MODULE_IDX) {
 		for (u4Idx = 0; u4Idx < DBG_MODULE_NUM; u4Idx++)
 			aucDebugModule[u4Idx] = (uint8_t) u4DbgMask;
-		LOG_FUNC("Set ALL DBG module log level to [0x%02x]\n",
+		LOG_FUNC("Set ALL DBG module log level to [0x%02x]\n ==================================================================================================================================================================================================================================================",
 				u4DbgMask);
 	} else if (u4DbgIdx < DBG_MODULE_NUM) {
 		aucDebugModule[u4DbgIdx] = (uint8_t) u4DbgMask;

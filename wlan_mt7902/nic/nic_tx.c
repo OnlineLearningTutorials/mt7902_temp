@@ -1860,7 +1860,7 @@ nicTxFillDesc(IN struct ADAPTER *prAdapter,
 #if defined(_HIF_USB)
 		KAL_RELEASE_SPIN_LOCK(prAdapter, SPIN_LOCK_TX_DESC);
 #endif
-		DBGLOG_LIMITED(NIC, INFO, "Compose TXD by Msdu info\n");
+		// DBGLOG_LIMITED(NIC, INFO, "Compose TXD by Msdu info\n");
 #if (UNIFIED_MAC_TX_FORMAT == 1)
 		if (prMsduInfo->eSrc == TX_PACKET_MGMT)
 			prMsduInfo->ucPacketFormat = TXD_PKT_FORMAT_COMMAND;

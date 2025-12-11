@@ -2796,16 +2796,16 @@ kalIPv4FrameClassifier(IN struct GLUE_INFO *prGlueInfo,
 				prTxPktInfo->u2Flag |= BIT(ENUM_PKT_DHCP);
 			}
 		} else if (u2DstPort == UDP_PORT_DNS) {
-			uint16_t u2IpId = *(uint16_t *)&pucIpHdr[IPV4_ADDR_LEN];
-			uint8_t *pucUdpPayload = &pucUdpHdr[UDP_HDR_LEN];
-			uint16_t u2TransId = (pucUdpPayload[0] << 8) |
-					     pucUdpPayload[1];
+			// uint16_t u2IpId = *(uint16_t *)&pucIpHdr[IPV4_ADDR_LEN];
+			// uint8_t *pucUdpPayload = &pucUdpHdr[UDP_HDR_LEN];
+			// uint16_t u2TransId = (pucUdpPayload[0] << 8) |
+			// 		     pucUdpPayload[1];
 
 			ucSeqNo = nicIncreaseTxSeqNum(prGlueInfo->prAdapter);
 			GLUE_SET_PKT_SEQ_NO(prPacket, ucSeqNo);
-			DBGLOG_LIMITED(TX, INFO,
-				"<TX> DNS: [0x%p] IPID[0x%02x] TransID[0x%04x] SeqNo[%d]\n",
-				prPacket, u2IpId, u2TransId, ucSeqNo);
+			// DBGLOG_LIMITED(TX, INFO,
+			// 	"<TX> DNS: [0x%p] IPID[0x%02x] TransID[0x%04x] SeqNo[%d]\n",
+			// 	prPacket, u2IpId, u2TransId, ucSeqNo);
 			prTxPktInfo->u2Flag |= BIT(ENUM_PKT_DNS);
 		}
 #if (CFG_SUPPORT_MDNS_OFFLOAD && CFG_SUPPORT_MDNS_OFFLOAD_GVA)
@@ -2917,12 +2917,12 @@ kalArpFrameClassifier(IN struct GLUE_INFO *prGlueInfo,
 	WLAN_GET_FIELD_BE16(&pucIpHdr[ARP_OPERATION_OFFSET],
 			    &u2ArpOp);
 
-	DBGLOG_LIMITED(TX, INFO,
-		"ARP %s PKT[0x%p] TAR MAC/IP["
-		MACSTR "]/[" IPV4STR "], SeqNo: %d\n",
-		u2ArpOp == ARP_OPERATION_REQUEST ? "REQ" : "RSP",
-		prPacket, MAC2STR(&pucIpHdr[ARP_TARGET_MAC_OFFSET]),
-		IPV4TOSTR(&pucIpHdr[ARP_TARGET_IP_OFFSET]), ucSeqNo);
+	// DBGLOG_LIMITED(TX, INFO,
+	// 	"ARP %s PKT[0x%p] TAR MAC/IP["
+	// 	MACSTR "]/[" IPV4STR "], SeqNo: %d\n",
+	// 	u2ArpOp == ARP_OPERATION_REQUEST ? "REQ" : "RSP",
+	// 	prPacket, MAC2STR(&pucIpHdr[ARP_TARGET_MAC_OFFSET]),
+	// 	IPV4TOSTR(&pucIpHdr[ARP_TARGET_IP_OFFSET]), ucSeqNo);
 
 	GLUE_SET_PKT_SEQ_NO(prPacket, ucSeqNo);
 
@@ -4955,10 +4955,10 @@ void kalEnqueueCommand(IN struct GLUE_INFO *prGlueInfo,
 	}
 #endif
 
-	DBGLOG(INIT, INFO,
-	       "EN-Q CMD TYPE[%u] ID[0x%02X] SEQ[%u] to CMD Q\n",
-	       prCmdInfo->eCmdType, prCmdInfo->ucCID,
-	       prCmdInfo->ucCmdSeqNum);
+	// DBGLOG(INIT, INFO,
+	//        "EN-Q CMD TYPE[%u] ID[0x%02X] SEQ[%u] to CMD Q\n",
+	//        prCmdInfo->eCmdType, prCmdInfo->ucCID,
+	//        prCmdInfo->ucCmdSeqNum);
 
 	GLUE_ACQUIRE_SPIN_LOCK(prGlueInfo, SPIN_LOCK_CMD_QUE);
 	QUEUE_INSERT_TAIL(prCmdQue, prQueueEntry);
@@ -8822,27 +8822,27 @@ void kalSetPerfReport(IN struct ADAPTER *prAdapter)
 			prCmdPerfReport->ulCurRxBytes[i]);
 	}
 	if (u4CurrentTp != 0) {
-		DBGLOG(SW4, INFO,
-			"Total TP[%d] TX-Byte[%d][%d][%d][%d],RX-Byte[%d][%d][%d][%d]\n",
-			u4CurrentTp,
-			prCmdPerfReport->ulCurTxBytes[0],
-			prCmdPerfReport->ulCurTxBytes[1],
-			prCmdPerfReport->ulCurTxBytes[2],
-			prCmdPerfReport->ulCurTxBytes[3],
-			prCmdPerfReport->ulCurRxBytes[0],
-			prCmdPerfReport->ulCurRxBytes[1],
-			prCmdPerfReport->ulCurRxBytes[2],
-			prCmdPerfReport->ulCurRxBytes[3]);
-		DBGLOG(SW4, INFO,
-			"Rate[%d][%d][%d][%d] RCPI[%d][%d][%d][%d]\n",
-			prCmdPerfReport->u2CurRxRate[0],
-			prCmdPerfReport->u2CurRxRate[1],
-			prCmdPerfReport->u2CurRxRate[2],
-			prCmdPerfReport->u2CurRxRate[3],
-			prCmdPerfReport->ucCurRxRCPI0[0],
-			prCmdPerfReport->ucCurRxRCPI0[1],
-			prCmdPerfReport->ucCurRxRCPI0[2],
-			prCmdPerfReport->ucCurRxRCPI0[3]);
+		// DBGLOG(SW4, INFO,
+		// 	"Total TP[%d] TX-Byte[%d][%d][%d][%d],RX-Byte[%d][%d][%d][%d]\n",
+		// 	u4CurrentTp,
+		// 	prCmdPerfReport->ulCurTxBytes[0],
+		// 	prCmdPerfReport->ulCurTxBytes[1],
+		// 	prCmdPerfReport->ulCurTxBytes[2],
+		// 	prCmdPerfReport->ulCurTxBytes[3],
+		// 	prCmdPerfReport->ulCurRxBytes[0],
+		// 	prCmdPerfReport->ulCurRxBytes[1],
+		// 	prCmdPerfReport->ulCurRxBytes[2],
+		// 	prCmdPerfReport->ulCurRxBytes[3]);
+		// DBGLOG(SW4, INFO,
+		// 	"Rate[%d][%d][%d][%d] RCPI[%d][%d][%d][%d]\n",
+		// 	prCmdPerfReport->u2CurRxRate[0],
+		// 	prCmdPerfReport->u2CurRxRate[1],
+		// 	prCmdPerfReport->u2CurRxRate[2],
+		// 	prCmdPerfReport->u2CurRxRate[3],
+		// 	prCmdPerfReport->ucCurRxRCPI0[0],
+		// 	prCmdPerfReport->ucCurRxRCPI0[1],
+		// 	prCmdPerfReport->ucCurRxRCPI0[2],
+		// 	prCmdPerfReport->ucCurRxRCPI0[3]);
 
 		wlanSendSetQueryCmd(prAdapter,
 			CMD_ID_PERF_IND,
@@ -8964,7 +8964,7 @@ inline int32_t kalPerMonStart(IN struct GLUE_INFO
 	KAL_SET_BIT(PERF_MON_RUNNING_BIT,
 		    prPerMonitor->ulPerfMonFlag);
 	KAL_CLR_BIT(PERF_MON_STOP_BIT, prPerMonitor->ulPerfMonFlag);
-	DBGLOG(SW4, INFO, "perf monitor started\n");
+	// DBGLOG(SW4, INFO, "perf monitor started\n");
 	return 0;
 }
 
@@ -9142,17 +9142,17 @@ void kalPerMonHandler(IN struct ADAPTER *prAdapter,
 	prPerMonitor->ulThroughput <<= 3;
 
 	/* TODO: how to remove hard code [0..3] */
-	DBGLOG(SW4, INFO,
-		"Tput: %lu > [%ld][%ld] [%ld][%ld] [%ld][%ld] [%ld][%ld],Pending[%d], Used[%d] PER[%lu %lu]\n",
-		prPerMonitor->ulThroughput,
-		txDiffBytes[0], rxDiffBytes[0],
-		txDiffBytes[1], rxDiffBytes[1],
-		txDiffBytes[2], rxDiffBytes[2],
-		txDiffBytes[3], rxDiffBytes[3],
-		GLUE_GET_REF_CNT(prGlueInfo->i4TxPendingFrameNum),
-		GLUE_GET_REF_CNT(prPerMonitor->u4UsedCnt),
-		prPerMonitor->ulTotalTxSuccessCount,
-		prPerMonitor->ulTotalTxFailCount);
+	// DBGLOG(SW4, INFO,
+	// 	"Tput: %lu > [%ld][%ld] [%ld][%ld] [%ld][%ld] [%ld][%ld],Pending[%d], Used[%d] PER[%lu %lu]\n",
+	// 	prPerMonitor->ulThroughput,
+	// 	txDiffBytes[0], rxDiffBytes[0],
+	// 	txDiffBytes[1], rxDiffBytes[1],
+	// 	txDiffBytes[2], rxDiffBytes[2],
+	// 	txDiffBytes[3], rxDiffBytes[3],
+	// 	GLUE_GET_REF_CNT(prGlueInfo->i4TxPendingFrameNum),
+	// 	GLUE_GET_REF_CNT(prPerMonitor->u4UsedCnt),
+	// 	prPerMonitor->ulTotalTxSuccessCount,
+	// 	prPerMonitor->ulTotalTxFailCount);
 
 #if CFG_SUPPORT_DATA_STALL
 		/* test mode event */

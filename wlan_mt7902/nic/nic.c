@@ -4406,11 +4406,11 @@ void nicUpdateLinkQuality(IN struct ADAPTER *prAdapter,
 				cRssi =
 					(int8_t) (((int16_t)
 					(cRssi) * u2AdjustRssi) / 10);
-				DBGLOG(RLM, INFO,
-					"Rssi=%d, NewRssi=%d\n",
-					prEventLinkQuality->rLq[ucBssIndex].
-					cRssi,
-					cRssi);
+				// DBGLOG(RLM, INFO,
+				// 	"Rssi=%d, NewRssi=%d\n",
+				// 	prEventLinkQuality->rLq[ucBssIndex].
+				// 	cRssi,
+				// 	cRssi);
 				nicUpdateRSSI(prAdapter, ucBssIndex, cRssi,
 					prEventLinkQuality->rLq[ucBssIndex].
 					cLinkQuality);

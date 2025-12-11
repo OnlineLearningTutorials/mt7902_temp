@@ -6067,12 +6067,12 @@ void wlanDumpBssStatistics(IN struct ADAPTER *prAdapter,
 
 	/* <2>Dump BSS statistics */
 	for (eAci = 0; eAci < WMM_AC_INDEX_NUM; eAci++) {
-		DBGLOG(SW4, INFO,
-		       "LLS BSS[%u] %s: T[%06u] R[%06u] T_D[%06u] T_F[%06u]\n",
-		       prBssInfo->ucBssIndex, apucACI2Str[eAci],
-		       arLLStats[eAci].u4TxMsdu,
-		       arLLStats[eAci].u4RxMsdu, arLLStats[eAci].u4TxDropMsdu,
-		       arLLStats[eAci].u4TxFailMsdu);
+		// DBGLOG(SW4, INFO,
+		//        "LLS BSS[%u] %s: T[%06u] R[%06u] T_D[%06u] T_F[%06u]\n",
+		//        prBssInfo->ucBssIndex, apucACI2Str[eAci],
+		//        arLLStats[eAci].u4TxMsdu,
+		//        arLLStats[eAci].u4RxMsdu, arLLStats[eAci].u4TxDropMsdu,
+		//        arLLStats[eAci].u4TxFailMsdu);
 	}
 }
 
@@ -10026,22 +10026,22 @@ wlanPktTxDone(IN struct ADAPTER *prAdapter,
 	u_int8_t fgIsSuccess = FALSE;
 #endif
 
-	uint8_t *apucPktType[ENUM_PKT_FLAG_NUM] = {
-		(uint8_t *) DISP_STRING("INVALID"),
-		(uint8_t *) DISP_STRING("802_3"),
-		(uint8_t *) DISP_STRING("1X"),
-		(uint8_t *) DISP_STRING("PROTECTED_1X"),
-		(uint8_t *) DISP_STRING("NON_PROTECTED_1X"),
-		(uint8_t *) DISP_STRING("VLAN_EXIST"),
-		(uint8_t *) DISP_STRING("DHCP"),
-		(uint8_t *) DISP_STRING("ARP"),
-		(uint8_t *) DISP_STRING("ICMP"),
-		(uint8_t *) DISP_STRING("TDLS"),
-		(uint8_t *) DISP_STRING("DNS"),
-#if CFG_SUPPORT_TX_MGMT_USE_DATAQ
-		(uint8_t *) DISP_STRING("802_11_MGMT")
-#endif
-	};
+// 	uint8_t *apucPktType[ENUM_PKT_FLAG_NUM] = {
+// 		(uint8_t *) DISP_STRING("INVALID"),
+// 		(uint8_t *) DISP_STRING("802_3"),
+// 		(uint8_t *) DISP_STRING("1X"),
+// 		(uint8_t *) DISP_STRING("PROTECTED_1X"),
+// 		(uint8_t *) DISP_STRING("NON_PROTECTED_1X"),
+// 		(uint8_t *) DISP_STRING("VLAN_EXIST"),
+// 		(uint8_t *) DISP_STRING("DHCP"),
+// 		(uint8_t *) DISP_STRING("ARP"),
+// 		(uint8_t *) DISP_STRING("ICMP"),
+// 		(uint8_t *) DISP_STRING("TDLS"),
+// 		(uint8_t *) DISP_STRING("DNS"),
+// #if CFG_SUPPORT_TX_MGMT_USE_DATAQ
+// 		(uint8_t *) DISP_STRING("802_11_MGMT")
+// #endif
+// 	};
 	if (prMsduInfo->ucPktType >= ENUM_PKT_FLAG_NUM)
 		prMsduInfo->ucPktType = 0;
 
@@ -10073,11 +10073,11 @@ wlanPktTxDone(IN struct ADAPTER *prAdapter,
 		}
 	}
 
-	DBGLOG_LIMITED(TX, INFO,
-		"TX DONE, Type[%s] Tag[0x%08x] WIDX:PID[%u:%u] Status[%u], SeqNo: %d\n",
-		apucPktType[prMsduInfo->ucPktType], prMsduInfo->u4TxDoneTag,
-		prMsduInfo->ucWlanIndex, prMsduInfo->ucPID, rTxDoneStatus,
-		prMsduInfo->ucTxSeqNum);
+	// DBGLOG_LIMITED(TX, INFO,
+	// 	"TX DONE, Type[%s] Tag[0x%08x] WIDX:PID[%u:%u] Status[%u], SeqNo: %d\n",
+	// 	apucPktType[prMsduInfo->ucPktType], prMsduInfo->u4TxDoneTag,
+	// 	prMsduInfo->ucWlanIndex, prMsduInfo->ucPID, rTxDoneStatus,
+	// 	prMsduInfo->ucTxSeqNum);
 
 	if (prMsduInfo->ucPktType == ENUM_PKT_1X)
 		p2pRoleFsmNotifyEapolTxStatus(prAdapter,
@@ -11254,9 +11254,9 @@ wlanGetSpeIdx(IN struct ADAPTER *prAdapter,
 			ucRetValSpeIdx = wlanAntPathFavorSelect(prAdapter,
 				eWfPathFavor);
 	}
-	DBGLOG(INIT, INFO, "SpeIdx:%d,D:%d,G=%d,B=%d,Bss=%d\n",
-	       ucRetValSpeIdx, prAdapter->rWifiVar.fgDbDcModeEn,
-	       prBssInfo->fgIsGranted, eBand, ucBssIndex);
+	// DBGLOG(INIT, INFO, "SpeIdx:%d,D:%d,G=%d,B=%d,Bss=%d\n",
+	//        ucRetValSpeIdx, prAdapter->rWifiVar.fgDbDcModeEn,
+	//        prBssInfo->fgIsGranted, eBand, ucBssIndex);
 
 	return ucRetValSpeIdx;
 }
@@ -13218,23 +13218,23 @@ uint32_t wlanLinkQualityMonitor(struct GLUE_INFO *prGlueInfo, bool bFgIsOid)
 	wlanCustomMonitorFunction(prAdapter, prLinkQualityInfo, ucBssIndex);
 #endif
 
-	DBGLOG(SW4, INFO,
-	       "Link Quality: Tx(rate:%u, total:%lu, retry:%lu, fail:%lu, RTS fail:%lu, ACK fail:%lu), Rx(rate:%u, total:%lu, dup:%u, error:%lu), PER(%u), Congestion(idle slot:%lu, diff:%lu)\n",
-	       prLinkQualityInfo->u4CurTxRate, /* current tx link speed */
-	       prLinkQualityInfo->u8TxTotalCount, /* tx total packages */
-	       prLinkQualityInfo->u8TxRetryCount, /* tx retry count */
-	       prLinkQualityInfo->u8TxFailCount, /* tx fail count */
-	       prLinkQualityInfo->u8TxRtsFailCount, /* tx RTS fail count */
-	       prLinkQualityInfo->u8TxAckFailCount, /* tx ACK fail count */
-	       prLinkQualityInfo->u4CurRxRate, /* current rx link speed */
-	       prLinkQualityInfo->u8RxTotalCount, /* rx total packages */
-	       prLinkQualityInfo->u4RxDupCount, /* rx duplicate package count */
-	       prLinkQualityInfo->u8RxErrCount, /* rx fcs fail count */
-	       prLinkQualityInfo->u4CurTxPer, /* current Tx PER */
-	       /* congestion stats */
-	       prLinkQualityInfo->u8IdleSlotCount, /* idle slot */
-	       prLinkQualityInfo->u8DiffIdleSlotCount /* idle slot diff */
-	);
+	// DBGLOG(SW4, INFO,
+	//        "Link Quality: Tx(rate:%u, total:%lu, retry:%lu, fail:%lu, RTS fail:%lu, ACK fail:%lu), Rx(rate:%u, total:%lu, dup:%u, error:%lu), PER(%u), Congestion(idle slot:%lu, diff:%lu)\n",
+	//        prLinkQualityInfo->u4CurTxRate, /* current tx link speed */
+	//        prLinkQualityInfo->u8TxTotalCount, /* tx total packages */
+	//        prLinkQualityInfo->u8TxRetryCount, /* tx retry count */
+	//        prLinkQualityInfo->u8TxFailCount, /* tx fail count */
+	//        prLinkQualityInfo->u8TxRtsFailCount, /* tx RTS fail count */
+	//        prLinkQualityInfo->u8TxAckFailCount, /* tx ACK fail count */
+	//        prLinkQualityInfo->u4CurRxRate, /* current rx link speed */
+	//        prLinkQualityInfo->u8RxTotalCount, /* rx total packages */
+	//        prLinkQualityInfo->u4RxDupCount, /* rx duplicate package count */
+	//        prLinkQualityInfo->u8RxErrCount, /* rx fcs fail count */
+	//        prLinkQualityInfo->u4CurTxPer, /* current Tx PER */
+	//        /* congestion stats */
+	//        prLinkQualityInfo->u8IdleSlotCount, /* idle slot */
+	//        prLinkQualityInfo->u8DiffIdleSlotCount /* idle slot diff */
+	// );
 
 	return u4Status;
 }
