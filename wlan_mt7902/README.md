@@ -9,14 +9,13 @@ This is a driver for the Mediatek MT7902 PCIe card based on the `gen4-mt79xx` dr
 
 The driver is buildable and loadable. It can be able to connect to 2.4Ghz wifi so far. However, upon testing, I've noticed these issues:
 
-- Lack of power management making sleep broke & on next restart the driver is broken when being loaded. (you have to force shut down using power button to fix this).
 - Can't switch to 5Ghz if you are on a SSID with both 2.4/5.
 - Can't be able to connect to WPA3 networks.
 - Can't create wifi hotspot to act as a repeater.
 - Chunky compiled size with almost ~100mb, might be due to the debug code it has.
 
 > [!WARNING]
-> Because of the first issue, you have to use `sudo rmmod mt7902` whenever you wanna sleep or shut down the device !
+> If the wifi is ever flaky just restart your device and it should kick back on.
 
 There are some features that are untested such as Bluetooth (which is not covered by this driver) and WIFI 6/6E.
 
@@ -52,6 +51,7 @@ Once you got the driver & firmware installed, reboot to see changes.
 
 Currently the driver is being tested on some of these models:
 - WMDM-257AX (tested without antenna connected)
+- AW-XB552NF
 
 ## FAQs
 

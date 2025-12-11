@@ -212,7 +212,7 @@ kalP2PUpdateAssocInfo(IN struct GLUE_INFO *prGlueInfo,
 			[prBssInfo->u4PrivateData]->aprRoleHandler;
 
 	/* Send event to user space */
-	wireless_send_event(prNetdevice, IWEVASSOCREQIE, &wrqu, pucExtraInfo);
+	kalWirelessEventSend(prNetdevice, IWEVASSOCREQIE, &wrqu, pucExtraInfo);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -249,7 +249,7 @@ kalP2PSetState(IN struct GLUE_INFO *prGlueInfo,
 		evt.data.length = strlen(aucBuffer);
 
 		/* indicate in IWECUSTOM event */
-		wireless_send_event(prGlueInfo->prP2PInfo[0]->prDevHandler,
+		kalWirelessEventSend(prGlueInfo->prP2PInfo[0]->prDevHandler,
 			IWEVCUSTOM, &evt, aucBuffer);
 
 	} else if (eState == MEDIA_STATE_DISCONNECTED) {
@@ -258,7 +258,7 @@ kalP2PSetState(IN struct GLUE_INFO *prGlueInfo,
 		evt.data.length = strlen(aucBuffer);
 
 		/* indicate in IWECUSTOM event */
-		wireless_send_event(prGlueInfo->prP2PInfo[0]->prDevHandler,
+		kalWirelessEventSend(prGlueInfo->prP2PInfo[0]->prDevHandler,
 			IWEVCUSTOM, &evt, aucBuffer);
 	} else {
 		ASSERT(0);
@@ -365,7 +365,7 @@ kalP2PSetRole(IN struct GLUE_INFO *prGlueInfo,
 	evt.data.length = strlen(aucBuffer);
 
 	/* indicate in IWECUSTOM event */
-	wireless_send_event(prGlueInfo->prP2PInfo[0]->prDevHandler,
+	kalWirelessEventSend(prGlueInfo->prP2PInfo[0]->prDevHandler,
 		IWEVCUSTOM, &evt, aucBuffer);
 
 }				/* end of kalP2PSetRole() */
@@ -699,7 +699,7 @@ void kalP2PIndicateConnReq(IN struct GLUE_INFO *prGlueInfo,
 	evt.data.length = strlen(aucBuffer);
 
 	/* indicate in IWEVCUSTOM event */
-	wireless_send_event(prGlueInfo->prP2PInfo[0]->prDevHandler,
+	kalWirelessEventSend(prGlueInfo->prP2PInfo[0]->prDevHandler,
 		IWEVCUSTOM, &evt, aucBuffer);
 
 }				/* end of kalP2PIndicateConnReq() */
@@ -753,7 +753,7 @@ kalP2PInvitationIndication(IN struct GLUE_INFO *prGlueInfo,
 	evt.data.length = strlen(aucBuffer);
 
 	/* indicate in IWEVCUSTOM event */
-	wireless_send_event(prGlueInfo->prP2PInfo[0]->prDevHandler,
+	kalWirelessEventSend(prGlueInfo->prP2PInfo[0]->prDevHandler,
 		IWEVCUSTOM, &evt, aucBuffer);
 
 #else
@@ -863,7 +863,7 @@ void kalP2PInvitationStatus(IN struct GLUE_INFO *prGlueInfo,
 	evt.data.length = strlen(aucBuffer);
 
 	/* indicate in IWEVCUSTOM event */
-	wireless_send_event(prGlueInfo->prP2PInfo[0]->prDevHandler,
+	kalWirelessEventSend(prGlueInfo->prP2PInfo[0]->prDevHandler,
 		IWEVCUSTOM, &evt, aucBuffer);
 
 }				/* kalP2PInvitationStatus */
@@ -901,7 +901,7 @@ void kalP2PIndicateSDRequest(IN struct GLUE_INFO *prGlueInfo,
 	evt.data.length = strlen(aucBuffer);
 
 	/* indicate IWEVP2PSDREQ event */
-	wireless_send_event(prGlueInfo->prP2PInfo[0]->prDevHandler,
+	kalWirelessEventSend(prGlueInfo->prP2PInfo[0]->prDevHandler,
 		IWEVCUSTOM, &evt, aucBuffer);
 
 }				/* end of kalP2PIndicateSDRequest() */
@@ -937,7 +937,7 @@ void kalP2PIndicateSDResponse(IN struct GLUE_INFO *prGlueInfo,
 	evt.data.length = strlen(aucBuffer);
 
 	/* indicate IWEVP2PSDREQ event */
-	wireless_send_event(prGlueInfo->prP2PInfo[0]->prDevHandler,
+	kalWirelessEventSend(prGlueInfo->prP2PInfo[0]->prDevHandler,
 		IWEVCUSTOM, &evt, aucBuffer);
 
 }				/* end of kalP2PIndicateSDResponse() */
@@ -975,7 +975,7 @@ void kalP2PIndicateTXDone(IN struct GLUE_INFO *prGlueInfo,
 	evt.data.length = strlen(aucBuffer);
 
 	/* indicate IWEVP2PSDREQ event */
-	wireless_send_event(prGlueInfo->prP2PInfo[0]->prDevHandler,
+	kalWirelessEventSend(prGlueInfo->prP2PInfo[0]->prDevHandler,
 		IWEVCUSTOM, &evt, aucBuffer);
 
 }				/* end of kalP2PIndicateSDResponse() */
@@ -1017,7 +1017,7 @@ void kalP2PIndicateSecCheckRsp(IN struct GLUE_INFO *prGlueInfo,
 		prGlueInfo->prP2PInfo[0]->aucSecCheckRsp, u2RspLen);
 #endif
 	/* indicate in IWECUSTOM event */
-	wireless_send_event(prGlueInfo->prP2PInfo[0]->prDevHandler,
+	kalWirelessEventSend(prGlueInfo->prP2PInfo[0]->prDevHandler,
 		IWEVCUSTOM, &evt, aucBuffer);
 }				/* p2pFsmRunEventRxDisassociation */
 #endif

@@ -78,6 +78,7 @@
 #include "precomp.h"
 
 #include <linux/mm.h>
+#include <linux/pm.h>
 #ifndef CONFIG_X86
 #include <asm/memory.h>
 #endif
@@ -593,6 +594,46 @@ int mtk_pci_resume(struct pci_dev *pdev)
 	return 0;
 }
 
+/* Wrap modern dev_pm_ops checks in gaurds and keep the legacy pci suspend and resume setup for backwards compatiblity */
+#if IS_ENABLED(CONFIG_PM)
+/* These _pm_ tiny wrappers for the suspend and resume methods have the signature
+ * that is expected by the dev_pm_ops
+ */
+static int mtk_pci_pm_suspend(struct device *dev)
+{
+	return mtk_pci_suspend(to_pci_dev(dev), PMSG_SUSPEND);
+}
+
+static int mtk_pci_pm_resume(struct device *dev)
+{
+	return mtk_pci_resume(to_pci_dev(dev));
+}
+
+/* Use the SET_SYSTEM_SLEEP_PM_OPS helper to create the dev_pm_ops struct that will
+ * be set as the pm struct on the driver
+ */
+static const struct dev_pm_ops mtk_pci_pm_ops = {
+	SET_SYSTEM_SLEEP_PM_OPS(mtk_pci_pm_suspend, mtk_pci_pm_resume)
+};
+#endif /* CONFIG_PM */
+
+static void mtk_pci_shutdown(struct pci_dev *pdev)
+{
+	DBGLOG(HAL, STATE, "mtk_pci_shutdown()\n");
+
+#if IS_ENABLED(CONFIG_PM)
+	/* Try to follow the suspend path to leave firmware in a clean state */
+	/* Note the legacy api driver.suspend/driver.resume were called on sleep, but not on reboot/shutdown */
+	mtk_pci_suspend(pdev, PMSG_SUSPEND);
+#endif
+
+	mtk_pci_remove(pdev);
+
+	g_fgDriverProbed = FALSE;
+
+	DBGLOG(HAL, STATE, "mtk_pci_shutdown() done\n");
+}
+
 /*----------------------------------------------------------------------------*/
 /*!
  * \brief This function will register pci bus to the os
@@ -618,6 +659,10 @@ uint32_t glRegisterBus(probe_card pfProbe, remove_card pfRemove)
 
 	mtk_pci_driver.suspend = mtk_pci_suspend;
 	mtk_pci_driver.resume = mtk_pci_resume;
+	mtk_pci_driver.shutdown = mtk_pci_shutdown;
+#if IS_ENABLED(CONFIG_PM)
+	mtk_pci_driver.driver.pm = &mtk_pci_pm_ops;
+#endif
 
 	ret = (pci_register_driver(&mtk_pci_driver) == 0) ?
 		WLAN_STATUS_SUCCESS : WLAN_STATUS_FAILURE;
@@ -1401,4 +1446,3 @@ void halPciePreSuspendTimeout(
 	prAdapter->prGlueInfo->rHifInfo.eSuspendtate =
 		PCIE_STATE_PRE_SUSPEND_FAIL;
 }
-

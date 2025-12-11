@@ -63,6 +63,16 @@
 #define _GL_WEXT_H
 
 #ifdef WIRELESS_EXT
+#include <linux/kconfig.h>
+
+/* Skip wireless extension events when the kernel is built without WEXT */
+#if IS_REACHABLE(CONFIG_WEXT_CORE)
+#define kalWirelessEventSend(dev, cmd, wrqu, extra) \
+	wireless_send_event(dev, cmd, wrqu, extra)
+#else
+#define kalWirelessEventSend(dev, cmd, wrqu, extra) \
+	do { } while (0)
+#endif
 /*******************************************************************************
  *                         C O M P I L E R   F L A G S
  *******************************************************************************

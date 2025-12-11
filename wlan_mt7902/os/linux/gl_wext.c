@@ -4459,7 +4459,7 @@ wext_support_ioctl_SIOCSIWPMKSA_Action(IN struct net_device
  * \return (none)
  *
  * \note Event is indicated to upper layer if cmd is supported and data is
- *	 valid. Using of kernel symbol wireless_send_event(), which is defined
+ *	 valid. Using of kernel symbol kalWirelessEventSend(), which is defined
  *	 in <net/iw_handler.h> after WE-14 (2.4.20).
  */
 /*----------------------------------------------------------------------------*/
@@ -4644,10 +4644,8 @@ wext_indicate_wext_event(IN struct GLUE_INFO *prGlueInfo,
 	}
 
 	/* Send event to user space */
-	if (prGlueInfo->u4ReadyFlag != 0) {
-		wireless_send_event(prDevHandler, u4Cmd, &wrqu,
- 			    pucExtraInfo);
-	}
+	kalWirelessEventSend(prDevHandler, u4Cmd, &wrqu,
+			    pucExtraInfo);
 
 skip_indicate_event:
 	return;
