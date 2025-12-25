@@ -117,12 +117,14 @@ static bool halIsTxHang(struct ADAPTER *prAdapter);
 
 void halPrintHifDbgInfo(IN struct ADAPTER *prAdapter)
 {
+	printk(KERN_DEBUG "dbg_pdma.c - halPrintHifDbgInfo");
 	halCheckHifState(prAdapter);
 	halDumpHifDebugLog(prAdapter);
 }
 
 static void halCheckHifState(struct ADAPTER *prAdapter)
 {
+	printk(KERN_DEBUG "dbg_pdma.c - halCheckHifState");
 	uint32_t u4DebugLevel = 0;
 	if (prAdapter->u4HifChkFlag & HIF_CHK_TX_HANG) {
 		if (halIsTxHang(prAdapter)) {
@@ -144,6 +146,7 @@ static void halCheckHifState(struct ADAPTER *prAdapter)
 
 static void halDumpHifDebugLog(struct ADAPTER *prAdapter)
 {
+	printk(KERN_DEBUG "dbg_pdma.c - halDumpHifDebugLog");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	struct GL_HIF_INFO *prHifInfo = NULL;
 	uint32_t u4Value = 0;
@@ -206,6 +209,7 @@ static void halDumpHifDebugLog(struct ADAPTER *prAdapter)
 static void halDumpTxRing(IN struct GLUE_INFO *prGlueInfo,
 			  IN uint16_t u2Port, IN uint32_t u4Idx)
 {
+	printk(KERN_DEBUG "dbg_pdma.c - halDumpTxRing");
 	struct GL_HIF_INFO *prHifInfo = &prGlueInfo->rHifInfo;
 	struct RTMP_TX_RING *prTxRing;
 	struct TXD_STRUCT *pTxD;
@@ -228,6 +232,7 @@ static void halDumpTxRing(IN struct GLUE_INFO *prGlueInfo,
 uint32_t halDumpHifStatus(IN struct ADAPTER *prAdapter,
 	IN uint8_t *pucBuf, IN uint32_t u4Max)
 {
+	printk(KERN_DEBUG "dbg_pdma.c - halDumpHifStatus");
 	struct GLUE_INFO *prGlueInfo = prAdapter->prGlueInfo;
 	struct GL_HIF_INFO *prHifInfo = &prGlueInfo->rHifInfo;
 	uint32_t u4Idx, u4DmaIdx = 0, u4CpuIdx = 0, u4MaxCnt = 0;
@@ -316,6 +321,7 @@ int halTimeCompare(struct timespec64 *prTs1, struct timespec64 *prTs2)
 int halTimeCompare(struct timeval *prTs1, struct timeval *prTs2)
 #endif
 {
+	printk(KERN_DEBUG "dbg_pdma.c - halTimeCompare");
 	if (prTs1->tv_sec > prTs2->tv_sec)
 		return 1;
 	else if (prTs1->tv_sec < prTs2->tv_sec)
@@ -346,6 +352,7 @@ int halTimeCompare(struct timeval *prTs1, struct timeval *prTs2)
 /*----------------------------------------------------------------------------*/
 static bool halIsTxHang(struct ADAPTER *prAdapter)
 {
+	printk(KERN_DEBUG "dbg_pdma.c - halIsTxHang");
 	struct MSDU_TOKEN_INFO *prTokenInfo;
 	struct MSDU_TOKEN_ENTRY *prToken;
 	struct MSDU_INFO *prMsduInfo;
@@ -437,6 +444,7 @@ void kalDumpTxRing(struct GLUE_INFO *prGlueInfo,
 		   struct RTMP_TX_RING *prTxRing,
 		   uint32_t u4Num, bool fgDumpContent)
 {
+	printk(KERN_DEBUG "dbg_pdma.c - kalDumpTxRing");
 	struct GL_HIF_INFO *prHifInfo = NULL;
 	struct HIF_MEM_OPS *prMemOps;
 	struct RTMP_DMACB *pTxCell;
@@ -472,6 +480,7 @@ void kalDumpRxRing(struct GLUE_INFO *prGlueInfo,
 		   struct RTMP_RX_RING *prRxRing,
 		   uint32_t u4Num, bool fgDumpContent)
 {
+	printk(KERN_DEBUG "dbg_pdma.c - kalDumpRxRing");
 	struct GL_HIF_INFO *prHifInfo = NULL;
 	struct HIF_MEM_OPS *prMemOps;
 	struct RTMP_DMACB *pRxCell;
@@ -508,6 +517,7 @@ void kalDumpRxRing(struct GLUE_INFO *prGlueInfo,
 
 void halShowPdmaInfo(IN struct ADAPTER *prAdapter)
 {
+	printk(KERN_DEBUG "dbg_pdma.c - halShowPdmaInfo");
 	uint32_t i = 0, u4Value = 0;
 	uint32_t Base[6], Base_Ext[6], Cnt[6], Cidx[6], Didx[6];
 	uint32_t offset, offset_ext, SwIdx;
@@ -696,6 +706,7 @@ void halShowPdmaInfo(IN struct ADAPTER *prAdapter)
 
 bool halShowHostCsrInfo(IN struct ADAPTER *prAdapter)
 {
+	printk(KERN_DEBUG "dbg_pdma.c - halShowHostCsrInfo");
 	uint32_t i = 0, u4Value = 0;
 	bool fgIsDriverOwn = false;
 	bool fgEnClock = false;
@@ -771,6 +782,7 @@ bool halShowHostCsrInfo(IN struct ADAPTER *prAdapter)
 
 void haldumpPhyInfo(struct ADAPTER *prAdapter)
 {
+	printk(KERN_DEBUG "dbg_pdma.c - haldumpPhyInfo");
 	uint32_t i = 0, value = 0;
 
 	for (i = 0; i < 20; i++) {

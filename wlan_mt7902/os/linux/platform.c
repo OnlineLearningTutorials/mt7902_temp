@@ -161,6 +161,7 @@ static int wlan_netdev_notifier_call(struct notifier_block *nb,
 static int netdev_event(struct notifier_block *nb,
 			unsigned long notification, void *ptr)
 {
+	printk(KERN_DEBUG "platform.c - netdev_event");
 	struct in_ifaddr *ifa = (struct in_ifaddr *)ptr;
 	struct net_device *prDev = ifa->ifa_dev->dev;
 	struct GLUE_INFO *prGlueInfo = NULL;
@@ -257,6 +258,7 @@ static struct notifier_block inet6addr_notifier = {
 
 void wlanRegisterInetAddrNotifier(void)
 {
+	printk(KERN_DEBUG "platform.c - wlanRegisterInetAddrNotifier");
 #if CFG_ENABLE_NET_DEV_NOTIFY
 
 	register_inetaddr_notifier(&inetaddr_notifier);
@@ -269,6 +271,7 @@ void wlanRegisterInetAddrNotifier(void)
 
 void wlanUnregisterInetAddrNotifier(void)
 {
+	printk(KERN_DEBUG "platform.c - wlanUnregisterInetAddrNotifier");
 #if CFG_ENABLE_NET_DEV_NOTIFY
 
 	unregister_inetaddr_notifier(&inetaddr_notifier);
@@ -295,6 +298,7 @@ int glRegisterEarlySuspend(struct early_suspend *prDesc,
 			   early_suspend_callback wlanSuspend,
 			   late_resume_callback wlanResume)
 {
+	printk(KERN_DEBUG "platform.c - glRegisterEarlySuspend");
 	int ret = 0;
 
 	if (wlanSuspend != NULL)
@@ -327,6 +331,7 @@ int glRegisterEarlySuspend(struct early_suspend *prDesc,
 
 int glUnregisterEarlySuspend(struct early_suspend *prDesc)
 {
+	printk(KERN_DEBUG "platform.c - glUnregisterEarlySuspend");
 	int ret = 0;
 
 	unregister_early_suspend(prDesc);
@@ -522,6 +527,7 @@ u_int8_t kalCfgDataRead(IN struct GLUE_INFO *prGlueInfo,
 			IN uint32_t u4Offset,
 			IN ssize_t len, OUT uint16_t *pu2Data)
 {
+	printk(KERN_DEBUG "platform.c - kalCfgDataRead");
 	if (pu2Data == NULL)
 		return FALSE;
 
@@ -557,6 +563,7 @@ u_int8_t kalCfgDataRead(IN struct GLUE_INFO *prGlueInfo,
 u_int8_t kalCfgDataRead16(IN struct GLUE_INFO *prGlueInfo,
 			  IN uint32_t u4Offset, OUT uint16_t *pu2Data)
 {
+	printk(KERN_DEBUG "platform.c - kalCfgDataRead16");
 	if (pu2Data == NULL)
 		return FALSE;
 
@@ -593,6 +600,7 @@ u_int8_t kalCfgDataRead16(IN struct GLUE_INFO *prGlueInfo,
 u_int8_t kalCfgDataWrite16(IN struct GLUE_INFO *prGlueInfo,
 			   uint32_t u4Offset, uint16_t u2Data)
 {
+	printk(KERN_DEBUG "platform.c - kalCfgDataWrite16");
 	if (u4Offset + sizeof(unsigned short) > MAX_CFG_FILE_WIFI_REC_SIZE)
 		return FALSE;
 
@@ -626,6 +634,7 @@ u_int8_t kalCfgDataWrite16(IN struct GLUE_INFO *prGlueInfo,
 u_int8_t kalCfgDataWrite8(IN struct GLUE_INFO *prGlueInfo,
 			   IN uint32_t u4Offset, IN uint8_t u1Data)
 {
+	printk(KERN_DEBUG "platform.c - kalCfgDataWrite8");
 	if (u4Offset + sizeof(unsigned char) > MAX_CFG_FILE_WIFI_REC_SIZE)
 		return FALSE;
 
@@ -638,6 +647,7 @@ u_int8_t kalCfgDataWrite8(IN struct GLUE_INFO *prGlueInfo,
 static int wlan_netdev_notifier_call(struct notifier_block *nb,
 		unsigned long state, void *ndev)
 {
+	printk(KERN_DEBUG "platform.c - wlan_netdev_notifier_call");
 #if KERNEL_VERSION(3, 11, 0) <= CFG80211_VERSION_CODE
 	struct netdev_notifier_info *dev_notif_info = ndev;
 	struct net_device *dev = dev_notif_info != NULL ?
@@ -667,10 +677,12 @@ static struct notifier_block wlan_netdev_notifier = {
 
 void wlanRegisterNetdevNotifier(void)
 {
+	printk(KERN_DEBUG "platform.c - wlanRegisterNetdevNotifier");
 	register_netdevice_notifier(&wlan_netdev_notifier);
 }
 
 void wlanUnregisterNetdevNotifier(void)
 {
+	printk(KERN_DEBUG "platform.c - wlanUnregisterNetdevNotifier");
 	unregister_netdevice_notifier(&wlan_netdev_notifier);
 }

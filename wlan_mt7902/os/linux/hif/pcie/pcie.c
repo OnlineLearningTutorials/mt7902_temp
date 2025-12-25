@@ -265,6 +265,7 @@ static void *CSRBaseAddress;
 
 static irqreturn_t mtk_pci_interrupt(int irq, void *dev_instance)
 {
+	printk(KERN_DEBUG "pcie.c - mtk_pci_interrupt");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) dev_instance;
@@ -297,6 +298,7 @@ static irqreturn_t mtk_pci_interrupt(int irq, void *dev_instance)
 /*----------------------------------------------------------------------------*/
 static int mtk_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 {
+	printk(KERN_DEBUG "pcie.c - mtk_pci_probe");
 	int ret = 0;
 	struct mt66xx_chip_info *prChipInfo;
 
@@ -345,6 +347,7 @@ out:
 
 static void mtk_pci_remove(struct pci_dev *pdev)
 {
+	printk(KERN_DEBUG "pcie.c - mtk_pci_remove");
 	ASSERT(pdev);
 
 	if (g_fgDriverProbed)
@@ -363,6 +366,7 @@ static void mtk_pci_remove(struct pci_dev *pdev)
 
 static int mtk_pci_suspend(struct pci_dev *pdev, pm_message_t state)
 {
+	printk(KERN_DEBUG "pcie.c - mtk_pci_suspend");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	struct BUS_INFO *prBusInfo;
 	uint32_t count = 0;
@@ -518,6 +522,7 @@ static int mtk_pci_suspend(struct pci_dev *pdev, pm_message_t state)
 
 int mtk_pci_resume(struct pci_dev *pdev)
 {
+	printk(KERN_DEBUG "pcie.c - mtk_pci_resume");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	struct BUS_INFO *prBusInfo;
 	struct CHIP_DBG_OPS *prDebugOps;
@@ -601,11 +606,13 @@ int mtk_pci_resume(struct pci_dev *pdev)
  */
 static int mtk_pci_pm_suspend(struct device *dev)
 {
+	printk(KERN_DEBUG "pcie.c - mtk_pci_pm_suspend");
 	return mtk_pci_suspend(to_pci_dev(dev), PMSG_SUSPEND);
 }
 
 static int mtk_pci_pm_resume(struct device *dev)
 {
+	printk(KERN_DEBUG "pcie.c - mtk_pci_pm_resume");
 	return mtk_pci_resume(to_pci_dev(dev));
 }
 
@@ -619,6 +626,7 @@ static const struct dev_pm_ops mtk_pci_pm_ops = {
 
 static void mtk_pci_shutdown(struct pci_dev *pdev)
 {
+	printk(KERN_DEBUG "pcie.c - mtk_pci_shutdown");
 	DBGLOG(HAL, STATE, "mtk_pci_shutdown()\n");
 
 #if IS_ENABLED(CONFIG_PM)
@@ -646,6 +654,7 @@ static void mtk_pci_shutdown(struct pci_dev *pdev)
 /*----------------------------------------------------------------------------*/
 uint32_t glRegisterBus(probe_card pfProbe, remove_card pfRemove)
 {
+	printk(KERN_DEBUG "pcie.c - glRegisterBus");
 	int ret = 0;
 
 	ASSERT(pfProbe);
@@ -681,6 +690,7 @@ uint32_t glRegisterBus(probe_card pfProbe, remove_card pfRemove)
 /*----------------------------------------------------------------------------*/
 void glUnregisterBus(remove_card pfRemove)
 {
+	printk(KERN_DEBUG "pcie.c - glUnregisterBus");
 	if (g_fgDriverProbed) {
 		pfRemove();
 		g_fgDriverProbed = FALSE;
@@ -700,6 +710,7 @@ void glUnregisterBus(remove_card pfRemove)
 /*----------------------------------------------------------------------------*/
 void glSetHifInfo(struct GLUE_INFO *prGlueInfo, unsigned long ulCookie)
 {
+	printk(KERN_DEBUG "pcie.c - glSetHifInfo");
 	struct GL_HIF_INFO *prHif = NULL;
 	struct HIF_MEM_OPS *prMemOps;
 
@@ -770,6 +781,7 @@ void glSetHifInfo(struct GLUE_INFO *prGlueInfo, unsigned long ulCookie)
 /*----------------------------------------------------------------------------*/
 void glClearHifInfo(struct GLUE_INFO *prGlueInfo)
 {
+	printk(KERN_DEBUG "pcie.c - glClearHifInfo");
 	struct GL_HIF_INFO *prHifInfo = &prGlueInfo->rHifInfo;
 	struct list_head *prCur, *prNext;
 	struct TX_CMD_REQ *prTxCmdReq;
@@ -808,6 +820,7 @@ void glClearHifInfo(struct GLUE_INFO *prGlueInfo)
 /*----------------------------------------------------------------------------*/
 void glResetHifInfo(struct GLUE_INFO *prGlueInfo)
 {
+	printk(KERN_DEBUG "pcie.c - glResetHifInfo");
 	ASSERT(prGlueInfo);
 } /* end of glResetHifInfo() */
 
@@ -825,6 +838,7 @@ void glResetHifInfo(struct GLUE_INFO *prGlueInfo)
 /*----------------------------------------------------------------------------*/
 u_int8_t glBusInit(void *pvData)
 {
+	printk(KERN_DEBUG "pcie.c - glBusInit");
 	int ret = 0;
 	struct pci_dev *pdev = NULL;
 
@@ -915,6 +929,7 @@ void glBusRelease(void *pvData)
 /*----------------------------------------------------------------------------*/
 int32_t glBusSetIrq(void *pvData, void *pfnIsr, void *pvCookie)
 {
+	printk(KERN_DEBUG "pcie.c - glBusSetIrq");
 	struct BUS_INFO *prBusInfo;
 	struct net_device *prNetDevice = NULL;
 	struct GLUE_INFO *prGlueInfo = NULL;
@@ -961,6 +976,7 @@ int32_t glBusSetIrq(void *pvData, void *pfnIsr, void *pvCookie)
 /*----------------------------------------------------------------------------*/
 void glBusFreeIrq(void *pvData, void *pvCookie)
 {
+	printk(KERN_DEBUG "pcie.c - glBusFreeIrq");
 	struct net_device *prNetDevice = NULL;
 	struct GLUE_INFO *prGlueInfo = NULL;
 	struct GL_HIF_INFO *prHifInfo = NULL;
@@ -997,12 +1013,13 @@ void glSetPowerState(IN struct GLUE_INFO *prGlueInfo, IN uint32_t ePowerMode)
 
 void glGetDev(void *ctx, struct device **dev)
 {
-
+	printk(KERN_DEBUG "pcie.c - glGetDev");
 	*dev = &((struct pci_dev *)ctx)->dev;
 }
 
 void glGetHifDev(struct GL_HIF_INFO *prHif, struct device **dev)
 {
+	printk(KERN_DEBUG "pcie.c - glGetHifDev");
 	*dev = &(prHif->pdev->dev);
 }
 
@@ -1010,6 +1027,7 @@ static void pcieAllocDesc(struct GL_HIF_INFO *prHifInfo,
 			  struct RTMP_DMABUF *prDescRing,
 			  uint32_t u4Num)
 {
+	printk(KERN_DEBUG "pcie.c - pcieAllocDesc");
 	dma_addr_t rAddr = 0;
 
 	prDescRing->AllocVa = KAL_DMA_ALLOC_COHERENT(
@@ -1021,6 +1039,7 @@ static void pcieAllocDesc(struct GL_HIF_INFO *prHifInfo,
 
 static void pcieAllocTxDataBuf(struct MSDU_TOKEN_ENTRY *prToken, uint32_t u4Idx)
 {
+	printk(KERN_DEBUG "pcie.c - pcieAllocTxDataBuf");
 	prToken->prPacket = kalMemAlloc(prToken->u4DmaLength, PHY_MEM_TYPE);
 	prToken->rDmaAddr = 0;
 }
@@ -1029,6 +1048,7 @@ static void *pcieAllocRxBuf(struct GL_HIF_INFO *prHifInfo,
 			    struct RTMP_DMABUF *prDmaBuf,
 			    uint32_t u4Num, uint32_t u4Idx)
 {
+	printk(KERN_DEBUG "pcie.c - pcieAllocRxBuf");
 	struct sk_buff *pkt = dev_alloc_skb(prDmaBuf->AllocSize);
 	dma_addr_t rAddr;
 
@@ -1060,6 +1080,7 @@ static void *pcieAllocRxBuf(struct GL_HIF_INFO *prHifInfo,
 
 static void *pcieAllocRuntimeMem(uint32_t u4SrcLen)
 {
+	printk(KERN_DEBUG "pcie.c - pcieAllocRuntimeMem");
 	return kalMemAlloc(u4SrcLen, PHY_MEM_TYPE);
 }
 
@@ -1068,6 +1089,7 @@ static bool pcieCopyCmd(struct GL_HIF_INFO *prHifInfo,
 			void *pucSrc1, uint32_t u4SrcLen1,
 			void *pucSrc2, uint32_t u4SrcLen2)
 {
+	printk(KERN_DEBUG "pcie.c - pcieCopyCmd");
 	dma_addr_t rAddr;
 	uint32_t u4TotalLen = u4SrcLen1 + u4SrcLen2;
 
@@ -1094,6 +1116,7 @@ static bool pcieCopyEvent(struct GL_HIF_INFO *prHifInfo,
 			  struct RTMP_DMABUF *prDmaBuf,
 			  uint8_t *pucDst, uint32_t u4Len)
 {
+	printk(KERN_DEBUG "pcie.c - pcieCopyEvent");
 	struct sk_buff *prSkb = NULL;
 	void *pRxPacket = NULL;
 	dma_addr_t rAddr;
@@ -1122,6 +1145,7 @@ static bool pcieCopyEvent(struct GL_HIF_INFO *prHifInfo,
 static bool pcieCopyTxData(struct MSDU_TOKEN_ENTRY *prToken,
 			   void *pucSrc, uint32_t u4Len)
 {
+	printk(KERN_DEBUG "pcie.c - pcieCopyTxData");
 	memcpy(prToken->prPacket, pucSrc, u4Len);
 	return true;
 }
@@ -1131,6 +1155,7 @@ static bool pcieCopyRxData(struct GL_HIF_INFO *prHifInfo,
 			   struct RTMP_DMABUF *prDmaBuf,
 			   struct SW_RFB *prSwRfb)
 {
+	printk(KERN_DEBUG "pcie.c - pcieCopyRxData");
 	void *pRxPacket = NULL;
 	dma_addr_t rAddr;
 
@@ -1160,6 +1185,7 @@ static bool pcieCopyRxData(struct GL_HIF_INFO *prHifInfo,
 static phys_addr_t pcieMapTxBuf(struct GL_HIF_INFO *prHifInfo,
 			  void *pucBuf, uint32_t u4Offset, uint32_t u4Len)
 {
+	printk(KERN_DEBUG "pcie.c - pcieMapTxBuf");
 	dma_addr_t rDmaAddr;
 
 	rDmaAddr = KAL_DMA_MAP_SINGLE(prHifInfo->prDmaDev, pucBuf + u4Offset,
@@ -1175,6 +1201,7 @@ static phys_addr_t pcieMapTxBuf(struct GL_HIF_INFO *prHifInfo,
 static phys_addr_t pcieMapRxBuf(struct GL_HIF_INFO *prHifInfo,
 			  void *pucBuf, uint32_t u4Offset, uint32_t u4Len)
 {
+	printk(KERN_DEBUG "pcie.c - pcieMapRxBuf");
 	dma_addr_t rDmaAddr;
 
 	rDmaAddr = KAL_DMA_MAP_SINGLE(prHifInfo->prDmaDev, pucBuf + u4Offset,
@@ -1190,6 +1217,7 @@ static phys_addr_t pcieMapRxBuf(struct GL_HIF_INFO *prHifInfo,
 static void pcieUnmapTxBuf(struct GL_HIF_INFO *prHifInfo,
 			   phys_addr_t rDmaAddr, uint32_t u4Len)
 {
+	printk(KERN_DEBUG "pcie.c - pcieUnmapTxBuf");
 	KAL_DMA_UNMAP_SINGLE(prHifInfo->prDmaDev,
 			     (dma_addr_t)rDmaAddr,
 			     u4Len, KAL_DMA_TO_DEVICE);
@@ -1198,6 +1226,7 @@ static void pcieUnmapTxBuf(struct GL_HIF_INFO *prHifInfo,
 static void pcieUnmapRxBuf(struct GL_HIF_INFO *prHifInfo,
 			   phys_addr_t rDmaAddr, uint32_t u4Len)
 {
+	printk(KERN_DEBUG "pcie.c - pcieUnmapRxBuf");
 	KAL_DMA_UNMAP_SINGLE(prHifInfo->prDmaDev,
 			     (dma_addr_t)rDmaAddr,
 			     u4Len, KAL_DMA_FROM_DEVICE);
@@ -1206,6 +1235,7 @@ static void pcieUnmapRxBuf(struct GL_HIF_INFO *prHifInfo,
 static void pcieFreeDesc(struct GL_HIF_INFO *prHifInfo,
 			 struct RTMP_DMABUF *prDescRing)
 {
+	printk(KERN_DEBUG "pcie.c - pcieFreeDesc");
 	if (prDescRing->AllocVa == NULL)
 		return;
 
@@ -1218,11 +1248,13 @@ static void pcieFreeDesc(struct GL_HIF_INFO *prHifInfo,
 
 static void pcieFreeBuf(void *pucSrc, uint32_t u4Len)
 {
+	printk(KERN_DEBUG "pcie.c - pcieFreeBuf");
 	kalMemFree(pucSrc, PHY_MEM_TYPE, u4Len);
 }
 
 static void pcieFreePacket(void *pvPacket)
 {
+	printk(KERN_DEBUG "pcie.c - pcieFreePacket");
 	kalPacketFree(NULL, pvPacket);
 }
 
@@ -1230,6 +1262,7 @@ static void pcieDumpTx(struct GL_HIF_INFO *prHifInfo,
 		       struct RTMP_TX_RING *prTxRing,
 		       uint32_t u4Idx, uint32_t u4DumpLen)
 {
+	printk(KERN_DEBUG "pcie.c - pcieDumpTx");
 	struct RTMP_DMACB *prTxCell;
 	void *prAddr = NULL;
 
@@ -1248,6 +1281,7 @@ static void pcieDumpRx(struct GL_HIF_INFO *prHifInfo,
 		       struct RTMP_RX_RING *prRxRing,
 		       uint32_t u4Idx, uint32_t u4DumpLen)
 {
+	printk(KERN_DEBUG "pcie.c - pcieDumpRx");
 	struct RTMP_DMACB *prRxCell;
 	struct RTMP_DMABUF *prDmaBuf;
 
@@ -1269,6 +1303,7 @@ static void pcieDumpRx(struct GL_HIF_INFO *prHifInfo,
 #if CFG_CHIP_RESET_SUPPORT
 void kalRemoveProbe(IN struct GLUE_INFO *prGlueInfo)
 {
+	printk(KERN_DEBUG "pcie.c - kalRemoveProbe");
 	DBGLOG(INIT, WARN, "[SER][L0] not support...\n");
 }
 #endif
@@ -1277,6 +1312,7 @@ void kalRemoveProbe(IN struct GLUE_INFO *prGlueInfo)
 #if CFG_SUPPORT_PCIE_ASPM
 static void pcieSetASPML1SS(struct pci_dev *dev, int i4Enable)
 {
+	printk(KERN_DEBUG "pcie.c - pcieSetASPML1SS");
 	int pos;
 	uint32_t u4Reg = 0;
 
@@ -1294,6 +1330,7 @@ static void pcieSetASPML1SS(struct pci_dev *dev, int i4Enable)
 }
 static void pcieSetASPML1(struct pci_dev *dev, int i4Enable)
 {
+	printk(KERN_DEBUG "pcie.c - pcieSetASPML1");
 	uint16_t u2Reg = 0;
 	int i4Pos = dev->pcie_cap;
 
@@ -1304,6 +1341,7 @@ static void pcieSetASPML1(struct pci_dev *dev, int i4Enable)
 }
 static bool pcieCheckASPML1SS(struct pci_dev *dev, int i4BitMap)
 {
+	printk(KERN_DEBUG "pcie.c - pcieCheckASPML1SS");
 	int i4Pos;
 	uint32_t u4Reg = 0;
 
@@ -1331,6 +1369,7 @@ static bool pcieCheckASPML1SS(struct pci_dev *dev, int i4BitMap)
 }
 bool glBusConfigASPM(struct pci_dev *dev, int i4Enable)
 {
+	printk(KERN_DEBUG "pcie.c - glBusConfigASPM");
 
 	uint32_t u4Reg = 0;
 	struct pci_dev *parent = dev->bus->self;
@@ -1353,6 +1392,7 @@ bool glBusConfigASPM(struct pci_dev *dev, int i4Enable)
 }
 bool glBusConfigASPML1SS(struct pci_dev *dev, int i4Enable)
 {
+	printk(KERN_DEBUG "pcie.c - glBusConfigASPML1SS");
 	struct pci_dev *parent = dev->bus->self;
 
 	if (pcieCheckASPML1SS(parent, i4Enable)) {
@@ -1370,6 +1410,7 @@ bool glBusConfigASPML1SS(struct pci_dev *dev, int i4Enable)
 
 void halPciePreSuspendCmd(IN struct ADAPTER *prAdapter)
 {
+	printk(KERN_DEBUG "pcie.c - halPciePreSuspendCmd");
 	struct CMD_HIF_CTRL rCmdHifCtrl;
 	uint32_t rStatus;
 
@@ -1399,6 +1440,7 @@ void halPciePreSuspendCmd(IN struct ADAPTER *prAdapter)
 
 void halPcieResumeCmd(IN struct ADAPTER *prAdapter)
 {
+	printk(KERN_DEBUG "pcie.c - halPcieResumeCmd");
 	struct CMD_HIF_CTRL rCmdHifCtrl;
 	uint32_t rStatus;
 
@@ -1431,6 +1473,7 @@ void halPciePreSuspendDone(
 	IN struct CMD_INFO *prCmdInfo,
 	IN uint8_t *pucEventBuf)
 {
+	printk(KERN_DEBUG "pcie.c - halPciePreSuspendDone");
 	ASSERT(prAdapter);
 
 	prAdapter->prGlueInfo->rHifInfo.eSuspendtate =
@@ -1441,6 +1484,7 @@ void halPciePreSuspendTimeout(
 	IN struct ADAPTER *prAdapter,
 	IN struct CMD_INFO *prCmdInfo)
 {
+	printk(KERN_DEBUG "pcie.c - halPciePreSuspendTimeout");
 	ASSERT(prAdapter);
 
 	prAdapter->prGlueInfo->rHifInfo.eSuspendtate =

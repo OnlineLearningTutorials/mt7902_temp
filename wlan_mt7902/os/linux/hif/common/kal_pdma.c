@@ -140,6 +140,7 @@ static bool kalDevKickAmsduData(struct GLUE_INFO *prGlueInfo);
 static inline bool kalIsChipDead(struct GLUE_INFO *prGlueInfo,
 				 uint32_t u4Register, uint32_t *pu4Value)
 {
+	printk(KERN_DEBUG "kal_pdma.c - kalIsChipDead");
 	struct GL_HIF_INFO *prHifInfo = NULL;
 	uint32_t u4Value;
 	uint32_t u4BusAddr;
@@ -175,6 +176,7 @@ static inline bool kalIsChipDead(struct GLUE_INFO *prGlueInfo,
 u_int8_t kalDevRegRead(IN struct GLUE_INFO *prGlueInfo,
 	IN uint32_t u4Register, OUT uint32_t *pu4Value)
 {
+	printk(KERN_DEBUG "kal_pdma.c - kalDevRegRead");
 	struct GL_HIF_INFO *prHifInfo = NULL;
 	struct ADAPTER *prAdapter = NULL;
 	struct BUS_INFO *prBusInfo = NULL;
@@ -236,6 +238,7 @@ u_int8_t kalDevRegRead(IN struct GLUE_INFO *prGlueInfo,
 u_int8_t kalDevRegWrite(IN struct GLUE_INFO *prGlueInfo,
 	IN uint32_t u4Register, IN uint32_t u4Value)
 {
+	printk(KERN_DEBUG "kal_pdma.c - kalDevRegWrite");
 	struct GL_HIF_INFO *prHifInfo = NULL;
 	struct ADAPTER *prAdapter = NULL;
 	struct BUS_INFO *prBusInfo = NULL;
@@ -277,6 +280,7 @@ static bool kalWaitRxDmaDone(struct GLUE_INFO *prGlueInfo,
 			     struct RXD_STRUCT *pRxD,
 			     uint16_t u2Port)
 {
+	printk(KERN_DEBUG "kal_pdma.c - kalWaitRxDmaDone");
 	uint32_t u4Count = 0;
 
 	for (u4Count = 0; pRxD->DMADONE == 0; u4Count++) {
@@ -312,6 +316,7 @@ u_int8_t kalDevPortRead(IN struct GLUE_INFO *prGlueInfo,
 	IN uint16_t u2Port, IN uint32_t u4Len,
 	OUT uint8_t *pucBuf, IN uint32_t u4ValidOutBufSize)
 {
+	printk(KERN_DEBUG "kal_pdma.c - kalDevPortRead");
 	struct ADAPTER *prAdapter = NULL;
 	struct GL_HIF_INFO *prHifInfo = NULL;
 	struct HIF_MEM_OPS *prMemOps;
@@ -417,6 +422,7 @@ kalDevPortWrite(IN struct GLUE_INFO *prGlueInfo,
 	IN uint16_t u2Port, IN uint32_t u4Len, IN uint8_t *pucBuf,
 	IN uint32_t u4ValidInBufSize)
 {
+	printk(KERN_DEBUG "kal_pdma.c - kalDevPortWrite");
 	struct GL_HIF_INFO *prHifInfo = NULL;
 	struct HIF_MEM_OPS *prMemOps;
 	struct RTMP_TX_RING *prTxRing;
@@ -500,6 +506,7 @@ kalDevPortWrite(IN struct GLUE_INFO *prGlueInfo,
 void kalDevReadIntStatus(IN struct ADAPTER *prAdapter,
 	OUT uint32_t *pu4IntStatus)
 {
+	printk(KERN_DEBUG "kal_pdma.c - kalDevReadIntStatus");
 	uint32_t u4RegValue = 0;
 	struct GL_HIF_INFO *prHifInfo = &prAdapter->prGlueInfo->rHifInfo;
 
@@ -526,6 +533,7 @@ void kalDevReadIntStatus(IN struct ADAPTER *prAdapter,
 u_int8_t kalDevWriteCmd(IN struct GLUE_INFO *prGlueInfo,
 	IN struct CMD_INFO *prCmdInfo, IN uint8_t ucTC)
 {
+	printk(KERN_DEBUG "kal_pdma.c - kalDevWriteCmd");
 	struct GL_HIF_INFO *prHifInfo = NULL;
 
 	ASSERT(prGlueInfo);
@@ -540,6 +548,7 @@ u_int8_t kalDevWriteCmd(IN struct GLUE_INFO *prGlueInfo,
 static bool kalDevWriteCmdByQueue(struct GLUE_INFO *prGlueInfo,
 				  struct CMD_INFO *prCmdInfo, uint8_t ucTC)
 {
+	printk(KERN_DEBUG "kal_pdma.c - kalDevWriteCmdByQueue");
 	struct GL_HIF_INFO *prHifInfo = NULL;
 	struct TX_CMD_REQ *prTxReq;
 
@@ -564,6 +573,7 @@ error:
 
 bool kalDevKickCmd(IN struct GLUE_INFO *prGlueInfo)
 {
+	printk(KERN_DEBUG "kal_pdma.c - kalDevKickCmd");
 	struct GL_HIF_INFO *prHifInfo = NULL;
 	struct list_head *prCur, *prNext;
 	struct TX_CMD_REQ *prTxReq;
@@ -586,6 +596,7 @@ bool kalDevKickCmd(IN struct GLUE_INFO *prGlueInfo)
 static uint8_t kalGetSwAmsduNum(struct GLUE_INFO *prGlueInfo,
 				struct MSDU_INFO *prMsduInfo)
 {
+	printk(KERN_DEBUG "kal_pdma.c - kalGetSwAmsduNum");
 	struct ADAPTER *prAdapter;
 	struct sk_buff *prSkb;
 	struct STA_RECORD *prStaRec;
@@ -614,6 +625,7 @@ static uint8_t kalGetSwAmsduNum(struct GLUE_INFO *prGlueInfo,
 u_int8_t kalDevWriteData(IN struct GLUE_INFO *prGlueInfo,
 	IN struct MSDU_INFO *prMsduInfo)
 {
+	printk(KERN_DEBUG "kal_pdma.c - kalDevWriteData");
 	struct GL_HIF_INFO *prHifInfo = NULL;
 	struct mt66xx_chip_info *prChipInfo;
 
@@ -633,6 +645,7 @@ u_int8_t kalDevWriteData(IN struct GLUE_INFO *prGlueInfo,
 static bool kalDevWriteDataByQueue(IN struct GLUE_INFO *prGlueInfo,
 				   IN struct MSDU_INFO *prMsduInfo)
 {
+	printk(KERN_DEBUG "kal_pdma.c - kalDevWriteDataByQueue");
 	struct GL_HIF_INFO *prHifInfo = NULL;
 	struct TX_DATA_REQ *prTxReq;
 
@@ -659,6 +672,7 @@ static bool kalDevWriteDataByQueue(IN struct GLUE_INFO *prGlueInfo,
 /*----------------------------------------------------------------------------*/
 u_int8_t kalDevKickData(IN struct GLUE_INFO *prGlueInfo)
 {
+	printk(KERN_DEBUG "kal_pdma.c - kalDevKickData");
 	struct mt66xx_chip_info *prChipInfo;
 
 	ASSERT(prGlueInfo);
@@ -673,6 +687,7 @@ u_int8_t kalDevKickData(IN struct GLUE_INFO *prGlueInfo)
 
 static uint16_t kalGetPaddingSize(uint16_t u2TxByteCount)
 {
+	printk(KERN_DEBUG "kal_pdma.c - kalGetPaddingSize");
 	uint16_t u2Size = 0;
 
 	if (u2TxByteCount & 3)
@@ -682,6 +697,7 @@ static uint16_t kalGetPaddingSize(uint16_t u2TxByteCount)
 
 static uint16_t kalGetMoreSizeForAmsdu(uint32_t u4TxdDW1)
 {
+	printk(KERN_DEBUG "kal_pdma.c - kalGetMoreSizeForAmsdu");
 	/*
 	 * ETYPE=0/VLAN=0/RMVL=X PLlength = PL length
 	 * ETYPE=0/VLAN=1/RMVL=1 PLlength = PL length - 4
@@ -706,6 +722,7 @@ static uint16_t kalGetMoreSizeForAmsdu(uint32_t u4TxdDW1)
 
 static bool kalDevKickMsduData(struct GLUE_INFO *prGlueInfo)
 {
+	printk(KERN_DEBUG "kal_pdma.c - kalDevKickMsduData");
 	struct GL_HIF_INFO *prHifInfo = NULL;
 	struct BUS_INFO *prBusInfo = NULL;
 	struct list_head *prCur, *prNext;
@@ -740,6 +757,7 @@ static int kalAmsduTxDCmp(void *prPriv,
 		struct list_head *prList2)
 #endif
 {
+	printk(KERN_DEBUG "kal_pdma.c - kalAmsduTxDCmp");
 	struct TX_DATA_REQ *prTxReq1, *prTxReq2;
 	struct sk_buff *prSkb1, *prSkb2;
 	struct AMSDU_MAC_TX_DESC *prTxD1, *prTxD2;
@@ -760,6 +778,7 @@ static int kalAmsduTxDCmp(void *prPriv,
 static bool kalIsAggregatedMsdu(struct GLUE_INFO *prGlueInfo,
 				struct MSDU_INFO *prMsduInfo)
 {
+	printk(KERN_DEBUG "kal_pdma.c - kalIsAggregatedMsdu");
 	struct sk_buff *prSkb;
 	struct AMSDU_MAC_TX_DESC *prTxD;
 
@@ -776,6 +795,7 @@ static uint32_t kalGetNumOfAmsdu(struct GLUE_INFO *prGlueInfo,
 				 struct list_head *prHead,
 				 uint16_t *pu2Size)
 {
+	printk(KERN_DEBUG "kal_pdma.c - kalGetNumOfAmsdu");
 	struct TX_DATA_REQ *prTxReq;
 	struct MSDU_INFO *prMsduInfo;
 	struct sk_buff *prSkb;
@@ -829,6 +849,7 @@ static uint32_t kalGetNumOfAmsdu(struct GLUE_INFO *prGlueInfo,
 
 static bool kalDevKickAmsduData(struct GLUE_INFO *prGlueInfo)
 {
+	printk(KERN_DEBUG "kal_pdma.c - kalDevKickAmsduData");
 	struct GL_HIF_INFO *prHifInfo = NULL;
 	struct BUS_INFO *prBusInfo = NULL;
 	struct list_head *prHead, *prCur, *prNext;
@@ -879,6 +900,7 @@ static bool kalDevKickAmsduData(struct GLUE_INFO *prGlueInfo)
 bool kalDevReadData(struct GLUE_INFO *prGlueInfo, uint16_t u2Port,
 		    struct SW_RFB *prSwRfb)
 {
+	printk(KERN_DEBUG "kal_pdma.c - kalDevReadData");
 	struct ADAPTER *prAdapter = NULL;
 	struct GL_HIF_INFO *prHifInfo = NULL;
 	struct HIF_MEM_OPS *prMemOps;
@@ -1030,6 +1052,7 @@ skip:
 #if (CFG_SUPPORT_CONNAC3X == 1)
 int wf_ioremap_read(phys_addr_t addr, unsigned int *val)
 {
+	printk(KERN_DEBUG "kal_pdma.c - wf_ioremap_read");
 	void *vir_addr = NULL;
 
 	vir_addr = ioremap(addr, 0x10);
@@ -1045,6 +1068,7 @@ int wf_ioremap_read(phys_addr_t addr, unsigned int *val)
 }
 int wf_ioremap_write(phys_addr_t addr, unsigned int val)
 {
+	printk(KERN_DEBUG "kal_pdma.c - wf_ioremap_write");
 	void *vir_addr = NULL;
 
 	vir_addr = ioremap(addr, 0x10);

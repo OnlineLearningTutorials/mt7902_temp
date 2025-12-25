@@ -141,6 +141,7 @@ static struct PRE_MEM_BLOCK arMemBlocks[MEM_ID_NUM];
 /*----------------------------------------------------------------------------*/
 void *preallocGetMem(enum ENUM_MEM_ID memId)
 {
+	printk(KERN_DEBUG "prealloc.c - preallocGetMem");
 	struct PRE_MEM_BLOCK *block = NULL;
 	uint32_t curr = 0, count = 0;
 	uint8_t *name = NULL;
@@ -165,6 +166,7 @@ EXPORT_SYMBOL(preallocGetMem);
 
 static void preallocFree(void)
 {
+	printk(KERN_DEBUG "prealloc.c - preallocFree");
 	int32_t i = 0, j = 0;
 	struct PRE_MEM_BLOCK *block = NULL;
 	struct PRE_MEM_ITEM *items = NULL;
@@ -193,6 +195,7 @@ static void preallocFree(void)
 
 static int preallocAlloc(void)
 {
+	printk(KERN_DEBUG "prealloc.c - preallocAlloc");
 	int32_t i = 0, j = 0;
 	struct PRE_MEM_BLOCK *block = NULL;
 	struct PRE_MEM_ITEM *items = NULL;
@@ -235,6 +238,7 @@ static void preallocAddBlock(enum ENUM_MEM_ID memId,
 		uint8_t *name, uint32_t count, uint32_t size,
 		uint32_t kmallocFlags)
 {
+	printk(KERN_DEBUG "prealloc.c - preallocAddBlock");
 	if (memId != blockCount) {
 		MP_Err("memId %d != index %d\n", memId, blockCount);
 		return;
@@ -250,6 +254,7 @@ static void preallocAddBlock(enum ENUM_MEM_ID memId,
 
 static int __init preallocInit(void)
 {
+	printk(KERN_DEBUG "prealloc.c - __init");
 	uint32_t u4Size;
 
 	blockCount = 0;
@@ -312,6 +317,7 @@ static int __init preallocInit(void)
 
 static void __exit preallocExit(void)
 {
+	printk(KERN_DEBUG "prealloc.c - __exit");
 	preallocFree();
 }
 

@@ -112,6 +112,7 @@ static struct WHOLE_CHIP_RESET_STRUCT g_prResetInfo;
 /*----------------------------------------------------------------------------*/
 void resetSetState(enum ENUM_RST_STATE_TYPE_T eNextstate)
 {
+	printk(KERN_DEBUG "reset.c - resetSetState");
 	static const char *const apcState[RST_STATE_MAX] = {
 		"RST_STATE_UNKNOWN",
 		"RST_STATE_IDLE",
@@ -137,6 +138,7 @@ void resetSetState(enum ENUM_RST_STATE_TYPE_T eNextstate)
 
 int resetGetState(void)
 {
+	printk(KERN_DEBUG "reset.c - resetGetState");
 	enum ENUM_RST_STATE_TYPE_T eCurrstate;
 
 	mutex_lock(&g_prResetInfo.rResetMutex);
@@ -150,6 +152,7 @@ int resetGetState(void)
 #if defined(_HIF_USB)
 void resetUsbTogglePin(void)
 {
+	printk(KERN_DEBUG "reset.c - resetUsbTogglePin");
 	struct device_node *node;
 	uint32_t gpio_num = 0;
 	int32_t i4Status = 0;
@@ -174,6 +177,7 @@ void resetUsbTogglePin(void)
 #if defined(_HIF_SDIO)
 void resetSdioTogglePin(void)
 {
+	printk(KERN_DEBUG "reset.c - resetSdioTogglePin");
 	struct mmc_host *host;
 
 	host = g_prResetInfo.prHost;
@@ -188,6 +192,7 @@ void resetSdioTogglePin(void)
 
 static void resetTogglePin(void)
 {
+	printk(KERN_DEBUG "reset.c - resetTogglePin");
 	MR_Dbg("%s: toggle reset pin\n", __func__);
 
 	resetSetState(RST_STATE_GOING);
@@ -214,6 +219,7 @@ void rstNotifyWholeChipRstStatus(enum ENUM_RST_MODULE_TYPE_T module,
 				enum ENUM_RST_MODULE_STATE_TYPE_T status,
 				void *data)
 {
+	printk(KERN_DEBUG "reset.c - rstNotifyWholeChipRstStatus");
 	struct sdio_func *func = (struct sdio_func *)data;
 
 	static const char *const apcModule[RST_MODULE_MAX] = {
@@ -322,6 +328,7 @@ EXPORT_SYMBOL(rstNotifyWholeChipRstStatus);
 
 static int __init resetInit(void)
 {
+	printk(KERN_DEBUG "reset.c - __init");
 	MR_Err("%s\n", __func__);
 
 	mutex_init(&g_prResetInfo.rResetMutex);
@@ -332,6 +339,7 @@ static int __init resetInit(void)
 
 static void __exit resetExit(void)
 {
+	printk(KERN_DEBUG "reset.c - __exit");
 	MR_Dbg("%s\n", __func__);
 }
 
