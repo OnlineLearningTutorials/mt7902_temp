@@ -18,6 +18,7 @@ MODULE_PARM_DESC(disable_clc, "disable CLC support");
 int mt7902_mcu_parse_response(struct mt76_dev *mdev, int cmd,
 			      struct sk_buff *skb, int seq)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_parse_response(mdev, cmd: %x, skb, seq: %d)", cmd, seq);
 	int mcu_cmd = FIELD_GET(__MCU_CMD_FIELD_ID, cmd);
 	struct mt76_connac2_mcu_rxd *rxd;
 	int ret = 0;
@@ -77,6 +78,7 @@ EXPORT_SYMBOL_GPL(mt7902_mcu_parse_response);
 
 static int mt7902_mcu_read_eeprom(struct mt792x_dev *dev, u32 offset, u8 *val)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_read_eeprom(dev, offset: 0x%08x, val: 0x%02x)", offset, val);
 	struct mt7902_mcu_eeprom_info *res, req = {
 		.addr = cpu_to_le32(round_down(offset,
 				    MT7902_EEPROM_BLOCK_SIZE)),
@@ -102,6 +104,7 @@ static int
 mt7902_mcu_set_ipv6_ns_filter(struct mt76_dev *dev,
 			      struct ieee80211_vif *vif, bool suspend)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_set_ipv6_ns_filter");
 	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
 	struct {
 		struct {
@@ -126,6 +129,7 @@ mt7902_mcu_set_ipv6_ns_filter(struct mt76_dev *dev,
 
 void mt7902_mcu_set_suspend_iter(void *priv, u8 *mac, struct ieee80211_vif *vif)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_set_suspend_iter");
 	if (IS_ENABLED(CONFIG_IPV6)) {
 		struct mt76_phy *phy = priv;
 
@@ -142,6 +146,7 @@ void mt7902_mcu_set_suspend_iter(void *priv, u8 *mac, struct ieee80211_vif *vif)
 static void
 mt7902_mcu_uni_roc_event(struct mt792x_dev *dev, struct sk_buff *skb)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_uni_roc_event");
 	struct mt7902_roc_grant_tlv *grant;
 	struct mt76_connac2_mcu_rxd *rxd;
 	int duration;
@@ -165,6 +170,7 @@ mt7902_mcu_uni_roc_event(struct mt792x_dev *dev, struct sk_buff *skb)
 static void
 mt7902_mcu_scan_event(struct mt792x_dev *dev, struct sk_buff *skb)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_scan_event");
 	struct mt76_phy *mphy = &dev->mt76.phy;
 	struct mt792x_phy *phy = mphy->priv;
 
@@ -180,6 +186,7 @@ static void
 mt7902_mcu_connection_loss_iter(void *priv, u8 *mac,
 				struct ieee80211_vif *vif)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_connection_loss_iter");
 	struct mt76_vif_link *mvif = (struct mt76_vif_link *)vif->drv_priv;
 	struct mt76_connac_beacon_loss_event *event = priv;
 
@@ -196,6 +203,7 @@ mt7902_mcu_connection_loss_iter(void *priv, u8 *mac,
 static void
 mt7902_mcu_connection_loss_event(struct mt792x_dev *dev, struct sk_buff *skb)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_connection_loss_event");
 	struct mt76_connac_beacon_loss_event *event;
 	struct mt76_phy *mphy = &dev->mt76.phy;
 
@@ -210,6 +218,7 @@ mt7902_mcu_connection_loss_event(struct mt792x_dev *dev, struct sk_buff *skb)
 static void
 mt7902_mcu_debug_msg_event(struct mt792x_dev *dev, struct sk_buff *skb)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_debug_msg_event");
 	struct mt7902_debug_msg {
 		__le16 id;
 		u8 type;
@@ -237,6 +246,7 @@ mt7902_mcu_debug_msg_event(struct mt792x_dev *dev, struct sk_buff *skb)
 static void
 mt7902_mcu_low_power_event(struct mt792x_dev *dev, struct sk_buff *skb)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_low_power_event(dev, skb)");
 	struct mt7902_mcu_lp_event {
 		u8 state;
 		u8 reserved[3];
@@ -251,6 +261,7 @@ mt7902_mcu_low_power_event(struct mt792x_dev *dev, struct sk_buff *skb)
 static void
 mt7902_mcu_tx_done_event(struct mt792x_dev *dev, struct sk_buff *skb)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_tx_done_event");
 	struct mt7902_mcu_tx_done_event *event;
 
 	skb_pull(skb, sizeof(struct mt76_connac2_mcu_rxd));
@@ -263,6 +274,7 @@ static void
 mt7902_mcu_rssi_monitor_iter(void *priv, u8 *mac,
 			     struct ieee80211_vif *vif)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_rssi_monitor_iter");
 	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
 	struct mt76_connac_rssi_notify_event *event = priv;
 	enum nl80211_cqm_rssi_threshold_event nl_event;
@@ -285,6 +297,7 @@ mt7902_mcu_rssi_monitor_iter(void *priv, u8 *mac,
 static void
 mt7902_mcu_rssi_monitor_event(struct mt792x_dev *dev, struct sk_buff *skb)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_rssi_monitor_event");
 	struct mt76_connac_rssi_notify_event *event;
 
 	skb_pull(skb, sizeof(struct mt76_connac2_mcu_rxd));
@@ -298,6 +311,7 @@ mt7902_mcu_rssi_monitor_event(struct mt792x_dev *dev, struct sk_buff *skb)
 static void
 mt7902_mcu_rx_unsolicited_event(struct mt792x_dev *dev, struct sk_buff *skb)
 {
+	//printk(KERN_DEBUG "mcu.c - mt7902_mcu_rx_unsolicited_event(dev, skb)");
 	struct mt76_connac2_mcu_rxd *rxd;
 
 	rxd = (struct mt76_connac2_mcu_rxd *)skb->data;
@@ -336,6 +350,7 @@ static void
 mt7902_mcu_uni_rx_unsolicited_event(struct mt792x_dev *dev,
 				    struct sk_buff *skb)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_uni_rx_unsolicited_event(dev, skb)");
 	struct mt76_connac2_mcu_rxd *rxd;
 
 	rxd = (struct mt76_connac2_mcu_rxd *)skb->data;
@@ -352,6 +367,7 @@ mt7902_mcu_uni_rx_unsolicited_event(struct mt792x_dev *dev,
 
 void mt7902_mcu_rx_event(struct mt792x_dev *dev, struct sk_buff *skb)
 {
+	//printk(KERN_DEBUG "mcu.c - mt7902_mcu_rx_event(dev, skb)");
 	struct mt76_connac2_mcu_rxd *rxd;
 
 	if (skb_linearize(skb))
@@ -389,6 +405,7 @@ int mt7902_mcu_uni_tx_ba(struct mt792x_dev *dev,
 			 struct ieee80211_ampdu_params *params,
 			 bool enable)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_uni_tx_ba");
 	struct mt792x_sta *msta = (struct mt792x_sta *)params->sta->drv_priv;
 
 	if (enable && !params->amsdu)
@@ -405,6 +422,7 @@ int mt7902_mcu_uni_rx_ba(struct mt792x_dev *dev,
 			 struct ieee80211_ampdu_params *params,
 			 bool enable)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_uni_rx_ba");
 	struct mt792x_sta *msta = (struct mt792x_sta *)params->sta->drv_priv;
 
 	printk(KERN_INFO "uni_rx_ba sta rec update\n");
@@ -416,6 +434,7 @@ int mt7902_mcu_uni_rx_ba(struct mt792x_dev *dev,
 
 static int mt7902_load_clc(struct mt792x_dev *dev, const char *fw_name)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_load_clc(dev, fw_name: %s)",fw_name);
 	const struct mt76_connac2_fw_trailer *hdr;
 	const struct mt76_connac2_fw_region *region;
 	const struct mt7902_clc *clc;
@@ -502,6 +521,7 @@ out:
 static void mt7902_mcu_parse_tx_resource(struct mt76_dev *dev,
 					 struct sk_buff *skb)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_parse_tx_resource");
 	struct mt76_sdio *sdio = &dev->sdio;
 	struct mt7902_tx_resource {
 		__le32 version;
@@ -529,6 +549,7 @@ static void mt7902_mcu_parse_tx_resource(struct mt76_dev *dev,
 static void mt7902_mcu_parse_phy_cap(struct mt76_dev *dev,
 				     struct sk_buff *skb)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_parse_phy_cap(dev, skb)");
 	struct mt7902_phy_cap {
 		u8 ht;
 		u8 vht;
@@ -559,6 +580,7 @@ static void mt7902_mcu_parse_phy_cap(struct mt76_dev *dev,
 
 static int mt7902_mcu_get_nic_capability(struct mt792x_phy *mphy)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_get_nic_capability(mphy)");
 	struct mt76_connac_cap_hdr {
 		__le16 n_element;
 		u8 rsv[2];
@@ -627,6 +649,7 @@ out:
 
 int mt7902_mcu_fw_log_2_host(struct mt792x_dev *dev, u8 ctrl)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_fw_log_2_host(dev, ctrl: 0x%02x)", ctrl);
 	struct {
 		u8 ctrl_val;
 		u8 pad[3];
@@ -640,6 +663,7 @@ int mt7902_mcu_fw_log_2_host(struct mt792x_dev *dev, u8 ctrl)
 
 int mt7902_firmware_state(struct mt792x_dev *dev, bool wa)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_firmware_state(dev, wa: %d)", wa);
 	u32 state = FIELD_PREP(MT_TOP_MISC_FW_STATE,
 			       wa ? FW_STATE_RDY : FW_STATE_FW_DOWNLOAD);
 
@@ -653,6 +677,7 @@ int mt7902_firmware_state(struct mt792x_dev *dev, bool wa)
 
 int mt7902_load_firmware(struct mt792x_dev *dev)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_load_firmware(dev)");
 	int ret;
     
     /* make sure fw is download state */
@@ -700,6 +725,7 @@ int mt7902_load_firmware(struct mt792x_dev *dev)
 
 int mt7902_run_firmware(struct mt792x_dev *dev)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_run_firmware(dev)");
 	int err;
 
 	err = mt7902_load_firmware(dev);
@@ -721,6 +747,7 @@ EXPORT_SYMBOL_GPL(mt7902_run_firmware);
 
 int mt7902_mcu_radio_led_ctrl(struct mt792x_dev *dev, u8 value)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_radio_led_ctrl(dev, value: 0x%02x)", value);
 	struct {
 		u8 ctrlid;
 		u8 rsv[3];
@@ -735,6 +762,7 @@ EXPORT_SYMBOL_GPL(mt7902_mcu_radio_led_ctrl);
 
 int mt7902_mcu_set_tx(struct mt792x_dev *dev, struct ieee80211_vif *vif)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_set_tx(dev, vif)");
 	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
 	struct edca {
 		__le16 cw_min;
@@ -831,6 +859,7 @@ int mt7902_mcu_set_roc(struct mt792x_phy *phy, struct mt792x_vif *vif,
 		       struct ieee80211_channel *chan, int duration,
 		       enum mt7902_roc_req type, u8 token_id)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_set_roc");
 	int center_ch = ieee80211_frequency_to_channel(chan->center_freq);
 	struct mt792x_dev *dev = phy->dev;
 	struct {
@@ -897,6 +926,7 @@ int mt7902_mcu_set_roc(struct mt792x_phy *phy, struct mt792x_vif *vif,
 int mt7902_mcu_abort_roc(struct mt792x_phy *phy, struct mt792x_vif *vif,
 			 u8 token_id)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_abort_roc");
 	struct mt792x_dev *dev = phy->dev;
 	struct {
 		struct {
@@ -926,6 +956,7 @@ int mt7902_mcu_abort_roc(struct mt792x_phy *phy, struct mt792x_vif *vif,
 
 int mt7902_mcu_set_chan_info(struct mt792x_phy *phy, int cmd)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_set_chan_info(phy, cmd: %d)", cmd);
 	struct mt792x_dev *dev = phy->dev;
 	struct cfg80211_chan_def *chandef = &phy->mt76->chandef;
 	int freq1 = chandef->center_freq1;
@@ -985,6 +1016,7 @@ int mt7902_mcu_set_chan_info(struct mt792x_phy *phy, int cmd)
 
 int mt7902_mcu_set_eeprom(struct mt792x_dev *dev)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_set_eeprom(dev)");
 	struct req_hdr {
 		u8 buffer_mode;
 		u8 format;
@@ -1001,6 +1033,7 @@ EXPORT_SYMBOL_GPL(mt7902_mcu_set_eeprom);
 
 int mt7902_mcu_uni_bss_ps(struct mt792x_dev *dev, struct ieee80211_vif *vif)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_uni_bss_ps");
 	printk(KERN_INFO "uni bss ps\n");
 	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
 	struct {
@@ -1077,6 +1110,7 @@ int
 mt7902_mcu_set_bss_pm(struct mt792x_dev *dev, struct ieee80211_vif *vif,
 		      bool enable)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_set_bss_pm");
 	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
 	struct {
 		u8 bss_idx;
@@ -1115,6 +1149,7 @@ int mt7902_mcu_sta_update(struct mt792x_dev *dev, struct ieee80211_sta *sta,
 			  struct ieee80211_vif *vif, bool enable,
 			  enum mt76_sta_info_state state)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_sta_update");
 	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
 	int rssi = -ewma_rssi_read(&mvif->bss_conf.rssi);
 	struct mt76_sta_cmd_info info = {
@@ -1139,6 +1174,7 @@ int mt7902_mcu_set_beacon_filter(struct mt792x_dev *dev,
 				 struct ieee80211_vif *vif,
 				 bool enable)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_set_beacon_filter(dev, vif, enable: %d)", enable);
 #define MT7902_FIF_BIT_CLR		BIT(1)
 #define MT7902_FIF_BIT_SET		BIT(0)
 	int err;
@@ -1172,6 +1208,7 @@ int mt7902_mcu_set_beacon_filter(struct mt792x_dev *dev,
 
 int mt7902_get_txpwr_info(struct mt792x_dev *dev, struct mt7902_txpwr *txpwr)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_get_txpwr_info");
 	struct mt7902_txpwr_event *event;
 	struct mt7902_txpwr_req req = {
 		.dbdc_idx = 0,
@@ -1196,6 +1233,7 @@ int mt7902_get_txpwr_info(struct mt792x_dev *dev, struct mt7902_txpwr *txpwr)
 int mt7902_mcu_set_sniffer(struct mt792x_dev *dev, struct ieee80211_vif *vif,
 			   bool enable)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_set_sniffer");
 	struct mt76_vif_link *mvif = (struct mt76_vif_link *)vif->drv_priv;
 	struct {
 		struct {
@@ -1226,6 +1264,7 @@ int mt7902_mcu_set_sniffer(struct mt792x_dev *dev, struct ieee80211_vif *vif,
 int mt7902_mcu_config_sniffer(struct mt792x_vif *vif,
 			      struct ieee80211_chanctx_conf *ctx)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_config_sniffer");
 	struct cfg80211_chan_def *chandef = &ctx->def;
 	int freq1 = chandef->center_freq1, freq2 = chandef->center_freq2;
 	static const u8 ch_band[] = {
@@ -1297,6 +1336,7 @@ mt7902_mcu_uni_add_beacon_offload(struct mt792x_dev *dev,
 				  struct ieee80211_vif *vif,
 				  bool enable)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_uni_add_beacon_offload");
 	printk(KERN_INFO "uni beacon offload\n");
 	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
 	struct mt76_wcid *wcid = &dev->mt76.global_wcid;
@@ -1376,6 +1416,7 @@ int __mt7902_mcu_set_clc(struct mt792x_dev *dev, u8 *alpha2,
 			 struct mt7902_clc *clc,
 			 u8 idx)
 {
+	printk(KERN_DEBUG "mcu.c - __mt7902_mcu_set_clc(dev, alpha2: 0x%02x, env_cap, clc, idx: 0x%02x)", alpha2, idx);
 #define CLC_CAP_EVT_EN BIT(0)
 #define CLC_CAP_DTS_EN BIT(1)
 	struct sk_buff *skb, *ret_skb = NULL;
@@ -1463,6 +1504,7 @@ int __mt7902_mcu_set_clc(struct mt792x_dev *dev, u8 *alpha2,
 int mt7902_mcu_set_clc(struct mt792x_dev *dev, u8 *alpha2,
 		       enum environment_cap env_cap)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_set_clc(dev, alpha2: 0x%02x, env_cap)", alpha2);
 	struct mt792x_phy *phy = (struct mt792x_phy *)&dev->phy;
 	int i, ret;
 
@@ -1484,6 +1526,7 @@ int mt7902_mcu_set_clc(struct mt792x_dev *dev, u8 *alpha2,
 
 int mt7902_mcu_get_temperature(struct mt792x_phy *phy)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_get_temperature(phy)");
 	struct mt792x_dev *dev = phy->dev;
 	struct {
 		u8 ctrl_id;
@@ -1501,6 +1544,7 @@ int mt7902_mcu_get_temperature(struct mt792x_phy *phy)
 
 int mt7902_mcu_wf_rf_pin_ctrl(struct mt792x_phy *phy, u8 action)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_wf_rf_pin_ctrl");
 	struct mt792x_dev *dev = phy->dev;
 	struct {
 		u8 action;
@@ -1517,6 +1561,7 @@ int mt7902_mcu_wf_rf_pin_ctrl(struct mt792x_phy *phy, u8 action)
 int mt7902_mcu_set_rxfilter(struct mt792x_dev *dev, u32 fif,
 			    u8 bit_op, u32 bit_map)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_set_rxfilter(dev, fif: 0x%08x, bit_op: 0x%02x, bit_map: 0x%08x)", fif, bit_op, bit_map);
 	struct {
 		u8 rsv[4];
 		u8 mode;
@@ -1538,6 +1583,7 @@ int mt7902_mcu_set_rxfilter(struct mt792x_dev *dev, u32 fif,
 
 int mt7902_mcu_set_rssimonitor(struct mt792x_dev *dev, struct ieee80211_vif *vif)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_set_rssimonitor");
 	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
 	struct {
 		u8 enable;
@@ -1561,6 +1607,7 @@ int mt7902_mcu_add_dev_info(struct mt76_phy *phy,
 			    struct ieee80211_bss_conf *bss_conf,
                 struct mt76_vif_link *mvif, bool enable)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_add_dev_info(phy, bss_conf, mvif, enable: %d)", enable);
 	struct mt76_dev *dev = phy->dev;
 	struct {
 		struct req_hdr { 
@@ -1607,6 +1654,7 @@ static void mt7902_check_he_obss_narrow_bw_ru_iter(struct wiphy *wiphy,
 						   struct cfg80211_bss *bss,
 						   void *_data)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_check_he_obss_narrow_bw_ru_iter");
 	struct mt7902_he_obss_narrow_bw_ru_data *data = _data;
 	const struct element *elem;
 
@@ -1624,6 +1672,7 @@ static void mt7902_check_he_obss_narrow_bw_ru_iter(struct wiphy *wiphy,
 static bool mt7902_check_he_obss_narrow_bw_ru(struct ieee80211_hw *hw,
 					      struct ieee80211_vif *vif)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_check_he_obss_narrow_bw_ru");
 	struct mt7902_he_obss_narrow_bw_ru_data iter_data = {
 		.tolerated = true,
 	};
@@ -1768,6 +1817,7 @@ mt7902_mcu_bss_bmc_tlv(struct sk_buff *skb, struct mt792x_phy *phy)
 int mt7902_mcu_add_bss_info(struct mt792x_phy *phy,
 			    struct ieee80211_vif *vif, int enable)
 {
+	printk(KERN_DEBUG "mcu.c - mt7902_mcu_add_bss_info(phy, vif, enable: %d)", enable);
 	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
 	struct mt792x_dev *dev = phy->dev;
 	struct sk_buff *skb;
@@ -1795,6 +1845,9 @@ int mt7902_mcu_add_bss_info(struct mt792x_phy *phy,
 
 		if (vif->bss_conf.he_support)
 			mt7902_mcu_bss_he_tlv(skb, vif, phy);
+
+		/* all mt7902 ic need this tlv, no matter it supports EHT or not */
+		// mt7902_mcu_bss_mld_tlv(skb);
 	}
 out:
 	return mt76_mcu_skb_send_msg(&dev->mt76, skb,

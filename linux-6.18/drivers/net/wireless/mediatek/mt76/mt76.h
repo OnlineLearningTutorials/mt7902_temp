@@ -1320,6 +1320,7 @@ static inline int mt76_init_tx_queue(struct mt76_phy *phy, int qid, int idx,
 static inline int mt76_init_mcu_queue(struct mt76_dev *dev, int qid, int idx,
 				      int n_desc, int ring_base)
 {
+	printk(KERN_DEBUG "mt76.h - mt76_init_mcu_queue(dev, qid: %d, idx: %d, n_desc: %d, ring_base: %d", qid, idx, n_desc, ring_base);
 	struct mt76_queue *q;
 
 	q = mt76_init_queue(dev, qid, idx, n_desc, ring_base, NULL, 0);

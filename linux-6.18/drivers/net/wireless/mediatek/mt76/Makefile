@@ -23,6 +23,9 @@ mt7902e-y += mt7902/pci.o mt7902/pci_mac.o mt7902/pci_mcu.o mt7902/init.o mt7902
 
 # mt7902e-y += mt7902_orig/pci.o mt7902_orig/pci_mac.o mt7902_orig/pci_mcu.o mt7902_orig/init.o mt7902_orig/main.o mt7902_orig/mcu.o mt7902_orig/mac.o \
 #  mt7902_orig/debugfs.o 
+
+# mt7902e-y += mt7902_7915/pci.o mt7902_7915/init.o mt7902_7915/dma.o mt7902_7915/eeprom.o mt7902_7915/main.o mt7902_7915/mcu.o mt7902_7915/mac.o \
+# 	     mt7902_7915/debugfs.o mt7902_7915/mmio.o mt7902_7915/coredump.o
  
 
 #  mt7902-common-y := mac.o mcu.o main.o init.o debugfs.o
