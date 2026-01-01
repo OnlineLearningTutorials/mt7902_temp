@@ -201,6 +201,7 @@ struct ATE_PRIV_CMD rAtePrivCmdTable[] = {
 int Set_ResetStatCounter_Proc(struct net_device *prNetDev,
 			      uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - Set_ResetStatCounter_Proc");
 	int32_t i4Status;
 
 	DBGLOG(REQ, INFO,
@@ -226,6 +227,7 @@ int Set_ResetStatCounter_Proc(struct net_device *prNetDev,
 /*----------------------------------------------------------------------------*/
 int SetATE(struct net_device *prNetDev, uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - SetATE");
 	int32_t i4Status;
 
 	DBGLOG(REQ, INFO, "ATE_AGENT iwpriv SetATE\n");
@@ -279,6 +281,7 @@ int SetATE(struct net_device *prNetDev, uint8_t *prInBuf)
 /*----------------------------------------------------------------------------*/
 int SetATEDa(struct net_device *prNetDev, uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - SetATEDa");
 	int32_t i4Status = 0;
 	uint32_t addr[MAC_ADDR_LEN];
 	uint8_t addr2[MAC_ADDR_LEN];
@@ -322,6 +325,7 @@ int SetATEDa(struct net_device *prNetDev, uint8_t *prInBuf)
 /*----------------------------------------------------------------------------*/
 int SetATESa(struct net_device *prNetDev, uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - SetATESa");
 	int32_t i4Status = 0;
 	uint32_t addr[MAC_ADDR_LEN];
 	uint8_t addr2[MAC_ADDR_LEN];
@@ -366,6 +370,7 @@ int SetATESa(struct net_device *prNetDev, uint8_t *prInBuf)
 int SetATEChannel(struct net_device *prNetDev,
 		  uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - SetATEChannel");
 	uint32_t i4SetFreq = 0;
 	int32_t i4Status, i4SetChan = 0;
 	int32_t rv;
@@ -397,6 +402,7 @@ int SetATEChannel(struct net_device *prNetDev,
 int SetATETxPower0(struct net_device *prNetDev,
 		   uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - SetATETxPower0");
 	uint32_t i4SetTxPower0 = 0;
 	int32_t i4Status;
 	int32_t rv;
@@ -427,6 +433,7 @@ int SetATETxPower0(struct net_device *prNetDev,
 int SetATETxGi(struct net_device *prNetDev,
 	       uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - SetATETxGi");
 	uint32_t i4SetTxGi = 0;
 	int32_t i4Status;
 	int32_t rv;
@@ -457,6 +464,7 @@ int SetATETxGi(struct net_device *prNetDev,
 int SetATETxBw(struct net_device *prNetDev,
 	       uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - SetATETxBw");
 	uint32_t i4SetSystemBW = 0;
 	int32_t i4Status;
 	int32_t rv;
@@ -487,6 +495,7 @@ int SetATETxBw(struct net_device *prNetDev,
 int SetATETxMode(struct net_device *prNetDev,
 		 uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - SetATETxMode");
 	uint32_t i4SetTxMode = 0;
 	int32_t i4Status;
 	int32_t rv;
@@ -517,6 +526,7 @@ int SetATETxMode(struct net_device *prNetDev,
 int SetATETxLength(struct net_device *prNetDev,
 		   uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - SetATETxLength");
 	uint32_t i4SetTxLength = 0;
 	int32_t i4Status;
 	int32_t rv;
@@ -547,6 +557,7 @@ int SetATETxLength(struct net_device *prNetDev,
 int SetATETxCount(struct net_device *prNetDev,
 		  uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - SetATETxCount");
 	uint32_t i4SetTxCount = 0;
 	int32_t i4Status;
 	int32_t rv;
@@ -581,6 +592,7 @@ int SetATETxCount(struct net_device *prNetDev,
 int SetATETxMcs(struct net_device *prNetDev,
 		uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - SetATETxMcs");
 	uint32_t i4SetTxMcs = 0;
 	int32_t i4Status;
 	int32_t rv;
@@ -610,6 +622,7 @@ int SetATETxMcs(struct net_device *prNetDev,
 /*----------------------------------------------------------------------------*/
 int SetATEIpg(struct net_device *prNetDev, uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - SetATEIpg");
 	uint32_t i4SetTxIPG = 0;
 	int32_t i4Status;
 	int32_t rv;
@@ -640,6 +653,7 @@ int SetATEIpg(struct net_device *prNetDev, uint8_t *prInBuf)
 /*----------------------------------------------------------------------------*/
 int SetATEAntSwp(struct net_device *prNetDev, uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - SetATEAntSwp");
 	uint32_t i4SetAntSwp = 0;
 	int32_t i4Status;
 	int32_t rv;
@@ -661,6 +675,7 @@ int SetATEAntSwp(struct net_device *prNetDev, uint8_t *prInBuf)
 int Set_TxBfProfileTag_Help(struct net_device *prNetDev,
 			    uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - Set_TxBfProfileTag_Help");
 	DBGLOG(RFTEST, ERROR,
 	       "========================================================================================================================\n"
 	       "TxBfProfile Tag1 setting example :\n"
@@ -710,6 +725,7 @@ int Set_TxBfProfileTag_Help(struct net_device *prNetDev,
 int Set_TxBfProfileTag_InValid(struct net_device *prNetDev,
 			       uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - Set_TxBfProfileTag_InValid");
 	uint32_t ucInValid;
 	int32_t i4Status = 0;
 	int32_t rv;
@@ -733,6 +749,7 @@ int Set_TxBfProfileTag_InValid(struct net_device *prNetDev,
 int Set_TxBfProfileTag_PfmuIdx(struct net_device *prNetDev,
 			       uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - Set_TxBfProfileTag_PfmuIdx");
 	uint32_t ucProfileIdx;
 	int32_t i4Status = 0;
 	int32_t rv;
@@ -756,6 +773,7 @@ int Set_TxBfProfileTag_PfmuIdx(struct net_device *prNetDev,
 int Set_TxBfProfileTag_BfType(struct net_device *prNetDev,
 			      uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - ");
 	uint32_t ucBFType;
 	int32_t i4Status = 0;
 	int32_t rv;
@@ -778,6 +796,7 @@ int Set_TxBfProfileTag_BfType(struct net_device *prNetDev,
 int Set_TxBfProfileTag_DBW(struct net_device *prNetDev,
 			   uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - Set_TxBfProfileTag_DBW");
 	uint32_t ucBW;
 	int32_t i4Status = 0;
 	int32_t rv;
@@ -799,6 +818,7 @@ int Set_TxBfProfileTag_DBW(struct net_device *prNetDev,
 int Set_TxBfProfileTag_SuMu(struct net_device *prNetDev,
 			    uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - Set_TxBfProfileTag_SuMu");
 	uint32_t ucSuMu;
 	int32_t i4Status = 0;
 	int32_t rv;
@@ -821,6 +841,7 @@ int Set_TxBfProfileTag_SuMu(struct net_device *prNetDev,
 int Set_TxBfProfileTag_Mem(struct net_device *prNetDev,
 			   uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - Set_TxBfProfileTag_Mem");
 	uint32_t aucInput[8];
 	int32_t i4Status = 0;
 	uint8_t aucMemAddrColIdx[4], aucMemAddrRowIdx[4];
@@ -860,6 +881,7 @@ int Set_TxBfProfileTag_Mem(struct net_device *prNetDev,
 int Set_TxBfProfileTag_Matrix(struct net_device *prNetDev,
 			      uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - Set_TxBfProfileTag_Matrix");
 	uint32_t aucInput[6];
 	uint8_t ucNrow, ucNcol, ucNgroup, ucLM, ucCodeBook,
 		ucHtcExist;
@@ -895,6 +917,7 @@ int Set_TxBfProfileTag_Matrix(struct net_device *prNetDev,
 int Set_TxBfProfileTag_SNR(struct net_device *prNetDev,
 			   uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - Set_TxBfProfileTag_SNR");
 	uint32_t aucInput[4];
 	uint8_t ucSNR_STS0, ucSNR_STS1, ucSNR_STS2, ucSNR_STS3;
 	int32_t i4Status = 0;
@@ -925,6 +948,7 @@ int Set_TxBfProfileTag_SNR(struct net_device *prNetDev,
 int Set_TxBfProfileTag_SmartAnt(struct net_device *prNetDev,
 				uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - Set_TxBfProfileTag_SmartAnt");
 	int32_t i4Status = 0;
 	uint32_t ucSmartAnt;
 	int32_t rv;
@@ -948,6 +972,7 @@ int Set_TxBfProfileTag_SmartAnt(struct net_device *prNetDev,
 int Set_TxBfProfileTag_SeIdx(struct net_device *prNetDev,
 			     uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - Set_TxBfProfileTag_SeIdx");
 	int32_t i4Status = 0;
 	uint32_t ucSeIdx;
 	int32_t rv;
@@ -970,6 +995,7 @@ int Set_TxBfProfileTag_SeIdx(struct net_device *prNetDev,
 int Set_TxBfProfileTag_RmsdThrd(struct net_device *prNetDev,
 				uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - Set_TxBfProfileTag_RmsdThrd");
 	int32_t i4Status = 0;
 	uint32_t ucRmsdThrd;
 	int32_t rv;
@@ -993,6 +1019,7 @@ int Set_TxBfProfileTag_RmsdThrd(struct net_device *prNetDev,
 int Set_TxBfProfileTag_McsThrd(struct net_device *prNetDev,
 			       uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - Set_TxBfProfileTag_McsThrd");
 	uint32_t aucInput[6];
 	uint8_t ucMcsLss[3], ucMcsSss[3];
 	int32_t i4Status = 0;
@@ -1027,6 +1054,7 @@ int Set_TxBfProfileTag_McsThrd(struct net_device *prNetDev,
 int Set_TxBfProfileTag_TimeOut(struct net_device *prNetDev,
 			       uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - Set_TxBfProfileTag_TimeOut");
 	uint32_t ucTimeOut;
 	int32_t i4Status = 0;
 	int32_t rv;
@@ -1050,6 +1078,7 @@ int Set_TxBfProfileTag_TimeOut(struct net_device *prNetDev,
 int Set_TxBfProfileTag_DesiredBW(struct net_device
 				 *prNetDev, uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - Set_TxBfProfileTag_DesiredBW");
 	uint32_t ucDesiredBW;
 	int32_t i4Status = 0;
 	int32_t rv;
@@ -1073,6 +1102,7 @@ int Set_TxBfProfileTag_DesiredBW(struct net_device
 int Set_TxBfProfileTag_DesiredNc(struct net_device
 				 *prNetDev, uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - Set_TxBfProfileTag_DesiredNc");
 	uint32_t ucDesiredNc;
 	int32_t i4Status = 0;
 	int32_t rv;
@@ -1096,6 +1126,7 @@ int Set_TxBfProfileTag_DesiredNc(struct net_device
 int Set_TxBfProfileTag_DesiredNr(struct net_device
 				 *prNetDev, uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - Set_TxBfProfileTag_DesiredNr");
 	uint32_t ucDesiredNr;
 	int32_t i4Status = 0;
 	int32_t rv;
@@ -1119,6 +1150,7 @@ int Set_TxBfProfileTag_DesiredNr(struct net_device
 int Set_TxBfProfileTagWrite(struct net_device *prNetDev,
 			    uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - Set_TxBfProfileTagWrite");
 	uint32_t profileIdx;
 	int32_t i4Status = 0;
 	int32_t rv;
@@ -1142,6 +1174,7 @@ int Set_TxBfProfileTagWrite(struct net_device *prNetDev,
 int Set_TxBfProfileTagRead(struct net_device *prNetDev,
 			   uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - Set_TxBfProfileTagRead");
 	uint32_t profileIdx, fgBFer;
 	int32_t i4Status = 0;
 	int32_t rv;
@@ -1163,6 +1196,7 @@ int Set_TxBfProfileTagRead(struct net_device *prNetDev,
 int Set_TxBfProfileDataRead(struct net_device *prNetDev,
 			    uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - Set_TxBfProfileDataRead");
 	uint32_t profileIdx, fgBFer, subcarrierIdxMsb,
 		 subcarrierIdxLsb;
 	int32_t i4Status = 0;
@@ -1188,6 +1222,7 @@ int Set_TxBfProfileDataRead(struct net_device *prNetDev,
 int Set_TxBfProfileDataWrite(struct net_device *prNetDev,
 			     uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - Set_TxBfProfileDataWrite");
 
 	uint32_t u4ProfileIdx;
 	uint32_t u4SubcarrierIdx;
@@ -1240,6 +1275,7 @@ int Set_TxBfProfileDataWrite(struct net_device *prNetDev,
 int Set_TxBfProfilePnRead(struct net_device *prNetDev,
 			  uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - Set_TxBfProfilePnRead");
 	uint32_t profileIdx;
 	int32_t i4Status = 0;
 	int32_t rv;
@@ -1261,6 +1297,7 @@ int Set_TxBfProfilePnRead(struct net_device *prNetDev,
 int Set_TxBfProfilePnWrite(struct net_device *prNetDev,
 			   uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - Set_TxBfProfilePnWrite");
 	uint32_t u4ProfileIdx;
 	uint16_t u2bw;
 	uint16_t au2XSTS[12];
@@ -1297,6 +1334,7 @@ int Set_TxBfProfilePnWrite(struct net_device *prNetDev,
 int Set_Trigger_Sounding_Proc(struct net_device *prNetDev,
 			      uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - Set_Trigger_Sounding_Proc");
 	uint32_t ucSuMu, ucNumSta, ucSndInterval, ucWLan0, ucWLan1,
 		 ucWLan2, ucWLan3;
 	int32_t i4Status = 0;
@@ -1324,6 +1362,7 @@ int Set_Trigger_Sounding_Proc(struct net_device *prNetDev,
 int Set_Stop_Sounding_Proc(struct net_device *prNetDev,
 			   uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - Set_Stop_Sounding_Proc");
 	int32_t i4Status = 0;
 
 	DBGLOG(RFTEST, ERROR, "Set_Stop_Sounding_Proc\n");
@@ -1336,6 +1375,7 @@ int Set_Stop_Sounding_Proc(struct net_device *prNetDev,
 int Set_TxBfTxApply(struct net_device *prNetDev,
 		    uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - Set_TxBfTxApply");
 	uint32_t u4WlanId, u4ETxBf, u4ITxBf, u4MuTxBf;
 	int32_t i4Status = 0;
 	int32_t rv;
@@ -1359,6 +1399,7 @@ int Set_TxBfTxApply(struct net_device *prNetDev,
 int Set_TxBfManualAssoc(struct net_device *prNetDev,
 			uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - Set_TxBfManualAssoc");
 	int32_t au4Mac[MAC_ADDR_LEN];
 	int32_t u4Type, u4Wtbl, u4Ownmac, u4Bw, u4Nss,
 		u4PfmuId, u4Mode, u4Marate, u4SpeIdx, ucaid;
@@ -1399,6 +1440,7 @@ int Set_TxBfManualAssoc(struct net_device *prNetDev,
 int Set_TxBfPfmuMemAlloc(struct net_device *prNetDev,
 			 uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - Set_TxBfPfmuMemAlloc");
 	uint32_t ucSuMuMode, ucWlanIdx;
 	int32_t i4Status = 0;
 	int32_t rv;
@@ -1421,6 +1463,7 @@ int Set_TxBfPfmuMemAlloc(struct net_device *prNetDev,
 int Set_TxBfPfmuMemRelease(struct net_device *prNetDev,
 			   uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - Set_TxBfPfmuMemRelease");
 	uint32_t ucWlanId;
 	int32_t i4Status = 0;
 	int32_t rv;
@@ -1441,6 +1484,7 @@ int Set_TxBfPfmuMemRelease(struct net_device *prNetDev,
 int Set_DevInfoUpdate(struct net_device *prNetDev,
 		      uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - Set_DevInfoUpdate");
 	uint32_t u4OwnMacIdx, fgBand;
 	uint32_t OwnMacAddr[MAC_ADDR_LEN];
 	uint8_t aucMacAddr[MAC_ADDR_LEN];
@@ -1477,6 +1521,7 @@ int Set_DevInfoUpdate(struct net_device *prNetDev,
 int Set_BssInfoUpdate(struct net_device *prNetDev,
 		      uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - Set_BssInfoUpdate");
 	uint32_t u4OwnMacIdx, u4BssIdx;
 	uint32_t au4BssId[MAC_ADDR_LEN];
 	uint8_t aucBssId[MAC_ADDR_LEN];
@@ -1513,6 +1558,7 @@ int Set_BssInfoUpdate(struct net_device *prNetDev,
 int Set_StaRecCmmUpdate(struct net_device *prNetDev,
 			uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - Set_StaRecCmmUpdate");
 	uint32_t u4WlanId, u4BssId, u4Aid;
 	uint32_t au4MacAddr[MAC_ADDR_LEN];
 	uint8_t aucMacAddr[MAC_ADDR_LEN];
@@ -1547,6 +1593,7 @@ int Set_StaRecCmmUpdate(struct net_device *prNetDev,
 int Set_StaRecBfUpdate(struct net_device *prNetDev,
 		       uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - Set_StaRecBfUpdate");
 	struct STA_REC_BF_UPD_ARGUMENT rStaRecBfUpdArg;
 	uint8_t aucMemRow[4], aucMemCol[4];
 	int32_t i4Status = 0;
@@ -1653,6 +1700,7 @@ int Set_StaRecBfUpdate(struct net_device *prNetDev,
 int Set_StaRecBfHeUpdate(struct net_device *prNetDev,
 		       uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - Set_StaRecBfHeUpdate");
 	uint32_t au4Input[13];
 	uint32_t u4Config;
 	uint8_t ucSuMu, ucRuStartIdx, ucRuEndIdx, ucTriggerSu, ucTriggerMu,
@@ -1701,6 +1749,7 @@ int Set_StaRecBfHeUpdate(struct net_device *prNetDev,
 int Set_MUGetInitMCS(struct net_device *prNetDev,
 		     uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - Set_MUGetInitMCS");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	struct PARAM_CUSTOM_MUMIMO_ACTION_STRUCT rMuMimoActionInfo;
 	int32_t i4Status = 0;
@@ -1741,6 +1790,7 @@ int Set_MUGetInitMCS(struct net_device *prNetDev,
 int Set_MUCalInitMCS(struct net_device *prNetDev,
 		     uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - Set_MUCalInitMCS");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	struct PARAM_CUSTOM_MUMIMO_ACTION_STRUCT rMuMimoActionInfo;
 	int32_t i4Status = 0;
@@ -1804,6 +1854,7 @@ int Set_MUCalInitMCS(struct net_device *prNetDev,
 int Set_MUCalLQ(struct net_device *prNetDev,
 		uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - Set_MUCalLQ");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	struct PARAM_CUSTOM_MUMIMO_ACTION_STRUCT rMuMimoActionInfo;
 	int32_t i4Status = 0;
@@ -1870,6 +1921,7 @@ int Set_MUCalLQ(struct net_device *prNetDev,
 int Set_MUGetLQ(struct net_device *prNetDev,
 		uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - Set_MUGetLQ");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	struct PARAM_CUSTOM_MUMIMO_ACTION_STRUCT rMuMimoActionInfo;
 	int32_t i4Status = 0;
@@ -1910,6 +1962,7 @@ int Set_MUGetLQ(struct net_device *prNetDev,
 int Set_MUSetSNROffset(struct net_device *prNetDev,
 		       uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - Set_MUSetSNROffset");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	struct PARAM_CUSTOM_MUMIMO_ACTION_STRUCT rMuMimoActionInfo;
 	int32_t i4Status = 0;
@@ -1949,6 +2002,7 @@ int Set_MUSetSNROffset(struct net_device *prNetDev,
 int Set_MUSetZeroNss(struct net_device *prNetDev,
 		     uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - Set_MUSetZeroNss");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	struct PARAM_CUSTOM_MUMIMO_ACTION_STRUCT rMuMimoActionInfo;
 	int32_t i4Status = 0;
@@ -1987,6 +2041,7 @@ int Set_MUSetZeroNss(struct net_device *prNetDev,
 int Set_MUSetSpeedUpLQ(struct net_device *prNetDev,
 		       uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - Set_MUSetSpeedUpLQ");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	struct PARAM_CUSTOM_MUMIMO_ACTION_STRUCT rMuMimoActionInfo;
 	int32_t i4Status = 0;
@@ -2025,6 +2080,7 @@ int Set_MUSetSpeedUpLQ(struct net_device *prNetDev,
 int Set_MUSetMUTable(struct net_device *prNetDev,
 		     uint8_t *prTable)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - Set_MUSetMUTable");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	struct PARAM_CUSTOM_MUMIMO_ACTION_STRUCT rMuMimoActionInfo;
 	int32_t i4Status = 0;
@@ -2075,6 +2131,7 @@ int Set_MUSetMUTable(struct net_device *prNetDev,
 int Set_MUSetGroup(struct net_device *prNetDev,
 		   uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - Set_MUSetGroup");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	struct PARAM_CUSTOM_MUMIMO_ACTION_STRUCT rMuMimoActionInfo;
 	int32_t i4Status = 0;
@@ -2161,6 +2218,7 @@ int Set_MUSetGroup(struct net_device *prNetDev,
 int Set_MUGetQD(struct net_device *prNetDev,
 		uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - Set_MUGetQD");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	struct PARAM_CUSTOM_MUMIMO_ACTION_STRUCT rMuMimoActionInfo;
 	int32_t i4Status = 0;
@@ -2207,6 +2265,7 @@ int Set_MUGetQD(struct net_device *prNetDev,
 int Set_MUSetEnable(struct net_device *prNetDev,
 		    uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - Set_MUSetEnable");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	struct PARAM_CUSTOM_MUMIMO_ACTION_STRUCT rMuMimoActionInfo;
 	int32_t i4Status = 0;
@@ -2245,6 +2304,7 @@ int Set_MUSetEnable(struct net_device *prNetDev,
 int Set_MUSetGID_UP(struct net_device *prNetDev,
 		    uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - Set_MUSetGID_UP");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	struct PARAM_CUSTOM_MUMIMO_ACTION_STRUCT rMuMimoActionInfo;
 	int32_t i4Status = 0;
@@ -2292,6 +2352,7 @@ int Set_MUSetGID_UP(struct net_device *prNetDev,
 int Set_MUTriggerTx(struct net_device *prNetDev,
 		    uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - Set_MUTriggerTx");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	struct PARAM_CUSTOM_MUMIMO_ACTION_STRUCT rMuMimoActionInfo;
 	int32_t i4Status = 0;
@@ -2367,6 +2428,7 @@ int Set_MUTriggerTx(struct net_device *prNetDev,
 int Set_TxBfProfileSwTagWrite(struct net_device *prNetDev,
 			      uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - Set_TxBfProfileSwTagWrite");
 	int32_t i4Status = 0;
 	int32_t rv;
 	uint32_t u4Lm, u4Nc, u4Nr, u4Bw, u4Codebook, u4Group;
@@ -2412,6 +2474,7 @@ int Set_TxBfProfileSwTagWrite(struct net_device *prNetDev,
 int WriteEfuse(struct net_device *prNetDev,
 	       uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - WriteEfuse");
 	int32_t i4Status;
 	int32_t rv;
 	uint32_t addr[2];
@@ -2455,6 +2518,7 @@ int WriteEfuse(struct net_device *prNetDev,
 int SetTxTargetPower(struct net_device *prNetDev,
 		     uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - SetTxTargetPower");
 	int32_t i4Status;
 	int32_t rv;
 	int addr;
@@ -2498,6 +2562,7 @@ int SetTxTargetPower(struct net_device *prNetDev,
 int SetRddReport(struct net_device *prNetDev,
 		 uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - SetRddReport");
 	int32_t i4Status;
 	int32_t rv;
 	int dbdcIdx;
@@ -2553,6 +2618,7 @@ int SetRddReport(struct net_device *prNetDev,
 int SetByPassCac(struct net_device *prNetDev,
 		 uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - SetByPassCac");
 	int32_t i4Status;
 	int32_t rv;
 	int32_t i4ByPassCacTime;
@@ -2601,6 +2667,7 @@ int SetByPassCac(struct net_device *prNetDev,
 int SetRadarDetectMode(struct net_device *prNetDev,
 		       uint8_t *prInBuf)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - SetRadarDetectMode");
 	int32_t i4Status;
 	int32_t rv;
 	int radarDetectMode;
@@ -2664,6 +2731,7 @@ int SetRadarDetectMode(struct net_device *prNetDev,
 int AteCmdSetHandle(struct net_device *prNetDev,
 		    uint8_t *prInBuf, uint32_t u4InBufLen)
 {
+	printk(KERN_DEBUG "gl_ate_agent.c - AteCmdSetHandle");
 	uint8_t *this_char, *value;
 	struct ATE_PRIV_CMD *prAtePrivCmd;
 	int32_t i4Status = 0;

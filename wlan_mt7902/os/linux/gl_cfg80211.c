@@ -133,6 +133,7 @@ mtk_cfg80211_change_iface(struct wiphy *wiphy,
 			  struct net_device *ndev, enum nl80211_iftype type,
 			  u32 *flags, struct vif_params *params)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_change_iface");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	uint32_t rStatus = WLAN_STATUS_SUCCESS;
 	struct PARAM_OP_MODE rOpMode;
@@ -202,6 +203,7 @@ mtk_cfg80211_add_key(struct wiphy *wiphy,
 		     u8 key_index, bool pairwise, const u8 *mac_addr,
 		     struct key_params *params)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_add_key");
 	struct PARAM_KEY rKey;
 	struct GLUE_INFO *prGlueInfo = NULL;
 	uint32_t rStatus = WLAN_STATUS_SUCCESS;
@@ -339,6 +341,7 @@ mtk_cfg80211_get_key(struct wiphy *wiphy,
 		     void (*callback)(void *cookie, struct key_params *)
 		    )
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_get_key");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) wiphy_priv(wiphy);
@@ -367,6 +370,7 @@ int mtk_cfg80211_del_key(struct wiphy *wiphy,
 			 struct net_device *ndev, u8 key_index, bool pairwise,
 			 const u8 *mac_addr)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_del_key");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	uint32_t rStatus = WLAN_STATUS_SUCCESS;
 	struct PARAM_REMOVE_KEY rRemoveKey;
@@ -437,6 +441,7 @@ mtk_cfg80211_set_default_key(struct wiphy *wiphy,
 		     struct net_device *ndev, u8 key_index, bool unicast,
 		     bool multicast)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_set_default_key");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	struct PARAM_DEFAULT_KEY rDefaultKey;
 	uint32_t rStatus = WLAN_STATUS_SUCCESS;
@@ -499,6 +504,7 @@ int mtk_cfg80211_get_station(struct wiphy *wiphy,
 			     struct net_device *ndev, const u8 *mac,
 			     struct station_info *sinfo)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_get_station");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	uint32_t rStatus;
 	uint8_t arBssid[PARAM_MAC_ADDR_LEN];
@@ -671,6 +677,7 @@ int mtk_cfg80211_get_station(struct wiphy *wiphy,
 			     struct net_device *ndev, u8 *mac,
 			     struct station_info *sinfo)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_get_station");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	uint32_t rStatus;
 	uint8_t arBssid[PARAM_MAC_ADDR_LEN];
@@ -831,6 +838,7 @@ int mtk_cfg80211_get_link_statistics(struct wiphy *wiphy,
 				     struct net_device *ndev, u8 *mac,
 				     struct station_info *sinfo)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_get_link_statistics");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	uint32_t rStatus;
 	uint8_t arBssid[PARAM_MAC_ADDR_LEN];
@@ -949,6 +957,7 @@ int mtk_cfg80211_get_link_statistics(struct wiphy *wiphy,
 int mtk_cfg80211_scan(struct wiphy *wiphy,
 		      struct cfg80211_scan_request *request)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_scan");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	uint32_t rStatus;
 	uint32_t i, j = 0, u4BufLen;
@@ -1185,6 +1194,7 @@ int mtk_cfg80211_scan(struct wiphy *wiphy,
 void mtk_cfg80211_abort_scan(struct wiphy *wiphy,
 			     struct wireless_dev *wdev)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_abort_scan");
 	uint32_t u4SetInfoLen = 0;
 	uint32_t rStatus;
 	struct GLUE_INFO *prGlueInfo = NULL;
@@ -1224,6 +1234,7 @@ void mtk_cfg80211_abort_scan(struct wiphy *wiphy,
 int mtk_cfg80211_auth(struct wiphy *wiphy,
 	struct net_device *ndev, struct cfg80211_auth_request *req)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_auth");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	uint32_t rStatus;
 	uint32_t u4BufLen;
@@ -1506,6 +1517,7 @@ int mtk_cfg80211_auth(struct wiphy *wiphy,
 int mtk_cfg80211_disassoc(struct wiphy *wiphy, struct net_device *ndev,
 			struct cfg80211_disassoc_request *req)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_disassoc");
 	struct GLUE_INFO *prGlueInfo = (struct GLUE_INFO *) NULL;
 
 	ASSERT(wiphy);
@@ -1536,6 +1548,7 @@ int mtk_cfg80211_connect(struct wiphy *wiphy,
 			 struct net_device *ndev,
 			 struct cfg80211_connect_params *sme)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_connect");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	uint32_t rStatus;
 	uint32_t u4BufLen;
@@ -2178,6 +2191,7 @@ int mtk_cfg80211_connect(struct wiphy *wiphy,
 int mtk_cfg80211_disconnect(struct wiphy *wiphy,
 			    struct net_device *ndev, u16 reason_code)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_disconnect");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	uint32_t rStatus;
 	uint32_t u4BufLen;
@@ -2216,6 +2230,7 @@ int mtk_cfg80211_disconnect(struct wiphy *wiphy,
 int mtk_cfg80211_deauth(struct wiphy *wiphy,
 	struct net_device *ndev, struct cfg80211_deauth_request *req)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_deauth");
 	struct GLUE_INFO *prGlueInfo = NULL;
 #if (CFG_SUPPORT_SUPPLICANT_SME == 1)
 	struct CONNECTION_SETTINGS *prConnSettings = NULL;
@@ -2302,6 +2317,7 @@ int mtk_cfg80211_join_ibss(struct wiphy *wiphy,
 			   struct net_device *ndev,
 			   struct cfg80211_ibss_params *params)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_join_ibss");
 	struct PARAM_SSID rNewSsid;
 	struct GLUE_INFO *prGlueInfo = NULL;
 	uint32_t u4ChnlFreq;	/* Store channel or frequency information */
@@ -2367,6 +2383,7 @@ int mtk_cfg80211_join_ibss(struct wiphy *wiphy,
 int mtk_cfg80211_leave_ibss(struct wiphy *wiphy,
 			    struct net_device *ndev)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_leave_ibss");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	uint32_t rStatus;
 	uint32_t u4BufLen;
@@ -2406,6 +2423,7 @@ int mtk_cfg80211_leave_ibss(struct wiphy *wiphy,
 int mtk_cfg80211_set_power_mgmt(struct wiphy *wiphy,
 			struct net_device *ndev, bool enabled, int timeout)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_set_power_mgmt");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	uint32_t rStatus;
 	uint32_t u4BufLen;
@@ -2480,6 +2498,7 @@ int mtk_cfg80211_set_power_mgmt(struct wiphy *wiphy,
 int mtk_cfg80211_set_pmksa(struct wiphy *wiphy,
 		   struct net_device *ndev, struct cfg80211_pmksa *pmksa)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_set_pmksa");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	uint32_t rStatus;
 	uint32_t u4BufLen;
@@ -2522,6 +2541,7 @@ int mtk_cfg80211_set_pmksa(struct wiphy *wiphy,
 int mtk_cfg80211_del_pmksa(struct wiphy *wiphy,
 			struct net_device *ndev, struct cfg80211_pmksa *pmksa)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_del_pmksa");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	uint32_t rStatus;
 	uint32_t u4BufLen;
@@ -2564,6 +2584,7 @@ int mtk_cfg80211_del_pmksa(struct wiphy *wiphy,
 int mtk_cfg80211_flush_pmksa(struct wiphy *wiphy,
 			     struct net_device *ndev)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_flush_pmksa");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	uint32_t rStatus;
 	uint32_t u4BufLen;
@@ -2601,6 +2622,7 @@ int mtk_cfg80211_set_rekey_data(struct wiphy *wiphy,
 				struct net_device *dev,
 				struct cfg80211_gtk_rekey_data *data)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_set_rekey_data");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	uint32_t u4BufLen;
 	struct PARAM_GTK_REKEY_DATA *prGtkData;
@@ -2722,6 +2744,7 @@ void mtk_cfg80211_mgmt_frame_register(IN struct wiphy *wiphy,
 				      IN u16 frame_type,
 				      IN bool reg)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_mgmt_frame_register");
 #if 0
 	struct MSG_P2P_MGMT_FRAME_REGISTER *prMgmtFrameRegister =
 		(struct MSG_P2P_MGMT_FRAME_REGISTER *) NULL;
@@ -2824,6 +2847,7 @@ int mtk_cfg80211_remain_on_channel(struct wiphy *wiphy,
 		   struct ieee80211_channel *chan, unsigned int duration,
 		   u64 *cookie)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_remain_on_channel");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	int32_t i4Rslt = -EINVAL;
 	struct MSG_REMAIN_ON_CHANNEL *prMsgChnlReq =
@@ -2913,6 +2937,7 @@ int mtk_cfg80211_remain_on_channel(struct wiphy *wiphy,
 int mtk_cfg80211_cancel_remain_on_channel(
 	struct wiphy *wiphy, struct wireless_dev *wdev, u64 cookie)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_cancel_remain_on_channel");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	int32_t i4Rslt = -EINVAL;
 	struct MSG_CANCEL_REMAIN_ON_CHANNEL *prMsgChnlAbort =
@@ -2967,6 +2992,7 @@ int _mtk_cfg80211_mgmt_tx_via_data_path(
 		IN const u8 *buf,
 		IN size_t len, IN u64 u8GlCookie)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - _mtk_cfg80211_mgmt_tx_via_data_path");
 	int32_t i4Rslt = 0;
 	uint32_t rStatus = WLAN_STATUS_SUCCESS;
 	struct sk_buff *prSkb = NULL;
@@ -3002,6 +3028,7 @@ int _mtk_cfg80211_mgmt_tx(struct wiphy *wiphy,
 		bool offchan, unsigned int wait, const u8 *buf, size_t len,
 		bool no_cck, bool dont_wait_for_ack, u64 *cookie)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - _mtk_cfg80211_mgmt_tx");
 	struct GLUE_INFO *prGlueInfo = (struct GLUE_INFO *) NULL;
 	int32_t i4Rslt = -EINVAL;
 	struct MSG_MGMT_TX_REQUEST *prMsgTxReq =
@@ -3155,6 +3182,7 @@ int mtk_cfg80211_mgmt_tx(struct wiphy *wiphy,
 			struct cfg80211_mgmt_tx_params *params,
 			u64 *cookie)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_mgmt_tx");
 	if (params == NULL)
 		return -EINVAL;
 
@@ -3168,6 +3196,7 @@ int mtk_cfg80211_mgmt_tx(struct wiphy *wiphy,
 		bool offchan, unsigned int wait, const u8 *buf, size_t len,
 		bool no_cck, bool dont_wait_for_ack, u64 *cookie)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_mgmt_tx");
 	return _mtk_cfg80211_mgmt_tx(wiphy, wdev, channel, offchan, wait, buf,
 			len, no_cck, dont_wait_for_ack, cookie);
 }
@@ -3187,6 +3216,7 @@ int mtk_cfg80211_mgmt_tx(struct wiphy *wiphy,
 int mtk_cfg80211_mgmt_tx_cancel_wait(struct wiphy *wiphy,
 		struct wireless_dev *wdev, u64 cookie)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_mgmt_tx_cancel_wait");
 	int32_t i4Rslt;
 	struct GLUE_INFO *prGlueInfo = (struct GLUE_INFO *) NULL;
 	struct MSG_CANCEL_TX_WAIT_REQUEST *prMsgCancelTxWait =
@@ -3240,6 +3270,7 @@ int mtk_cfg80211_testmode_hs20_cmd(IN struct wiphy *wiphy,
 		IN struct wireless_dev *wdev,
 		IN void *data, IN int len)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_testmode_hs20_cmd");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	struct wpa_driver_hs20_data_s *prParams = NULL;
 	uint32_t rstatus = WLAN_STATUS_SUCCESS;
@@ -3310,6 +3341,7 @@ int mtk_cfg80211_testmode_set_key_ext(IN struct wiphy
 		IN struct wireless_dev *wdev,
 		IN void *data, IN int len)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_testmode_set_key_ext");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	struct NL80211_DRIVER_SET_KEY_EXTS *prParams =
 		(struct NL80211_DRIVER_SET_KEY_EXTS *) NULL;
@@ -3400,6 +3432,7 @@ mtk_cfg80211_testmode_get_sta_statistics(IN struct wiphy
 		*wiphy, IN void *data, IN int len,
 		IN struct GLUE_INFO *prGlueInfo)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_testmode_get_sta_statistics");
 	uint32_t rStatus = WLAN_STATUS_SUCCESS;
 	uint32_t u4BufLen;
 	uint32_t u4LinkScore;
@@ -3794,6 +3827,7 @@ mtk_cfg80211_testmode_get_link_detection(IN struct wiphy
 		IN void *data, IN int len,
 		IN struct GLUE_INFO *prGlueInfo)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_testmode_get_link_detection");
 
 	uint32_t rStatus = WLAN_STATUS_SUCCESS;
 	int32_t i4Status = -EINVAL;
@@ -3965,6 +3999,7 @@ int mtk_cfg80211_testmode_sw_cmd(IN struct wiphy *wiphy,
 		IN struct wireless_dev *wdev,
 		IN void *data, IN int len)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_testmode_sw_cmd");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	struct NL80211_DRIVER_SW_CMD_PARAMS *prParams =
 		(struct NL80211_DRIVER_SW_CMD_PARAMS *) NULL;
@@ -4002,6 +4037,7 @@ static int mtk_wlan_cfg_testmode_cmd(struct wiphy *wiphy,
 					 struct wireless_dev *wdev,
 				     void *data, int len)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_wlan_cfg_testmode_cmd");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	struct NL80211_DRIVER_TEST_MODE_PARAMS *prParams = NULL;
 	int32_t i4Status = 0;
@@ -4075,6 +4111,7 @@ int mtk_cfg80211_testmode_cmd(struct wiphy *wiphy,
 			      struct wireless_dev *wdev,
 			      void *data, int len)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_testmode_cmd");
 	ASSERT(wdev);
 	return mtk_wlan_cfg_testmode_cmd(wiphy, wdev, data, len);
 }
@@ -4082,6 +4119,7 @@ int mtk_cfg80211_testmode_cmd(struct wiphy *wiphy,
 int mtk_cfg80211_testmode_cmd(struct wiphy *wiphy,
 			      void *data, int len)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_testmode_cmd");
 	return mtk_wlan_cfg_testmode_cmd(wiphy, NULL, data, len);
 }
 #endif
@@ -4092,6 +4130,7 @@ int mtk_cfg80211_sched_scan_start(IN struct wiphy *wiphy,
 			  IN struct net_device *ndev,
 			  IN struct cfg80211_sched_scan_request *request)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_sched_scan_start");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	uint32_t rStatus;
 	uint32_t i, u4BufLen;
@@ -4304,6 +4343,7 @@ int mtk_cfg80211_sched_scan_stop(IN struct wiphy *wiphy,
 				 IN struct net_device *ndev)
 #endif
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_sched_scan_stop");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	uint32_t rStatus;
 	uint32_t u4BufLen;
@@ -4350,6 +4390,7 @@ int mtk_cfg80211_sched_scan_stop(IN struct wiphy *wiphy,
 int mtk_cfg80211_assoc(struct wiphy *wiphy,
 	       struct net_device *ndev, struct cfg80211_assoc_request *req)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_assoc");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	uint8_t arBssid[PARAM_MAC_ADDR_LEN];
 	uint32_t rStatus;
@@ -5093,6 +5134,7 @@ int mtk_cfg80211_testmode_get_scan_done(IN struct wiphy
 					*wiphy, IN void *data, IN int len,
 					IN struct GLUE_INFO *prGlueInfo)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_testmode_get_scan_done");
 	int32_t i4Status = -EINVAL;
 
 #ifdef CONFIG_NL80211_TESTMODE
@@ -5176,6 +5218,7 @@ mtk_cfg80211_change_station(struct wiphy *wiphy,
 			    struct net_device *ndev, const u8 *mac,
 			    struct station_parameters *params_main)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_change_station");
 
 	/* return 0; */
 
@@ -5314,6 +5357,7 @@ mtk_cfg80211_change_station(struct wiphy *wiphy,
 			    struct net_device *ndev, u8 *mac,
 			    struct station_parameters *params)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_change_station");
 
 	/* return 0; */
 
@@ -5451,6 +5495,7 @@ int mtk_cfg80211_add_station(struct wiphy *wiphy,
 			     struct net_device *ndev,
 			     const u8 *mac, struct station_parameters *params)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_add_station");
 	/* return 0; */
 
 	/* from supplicant -- wpa_supplicant_tdls_peer_addset() */
@@ -5500,6 +5545,7 @@ int mtk_cfg80211_add_station(struct wiphy *wiphy,
 			     struct net_device *ndev, u8 *mac,
 			     struct station_parameters *params)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_add_station");
 	/* return 0; */
 
 	/* from supplicant -- wpa_supplicant_tdls_peer_addset() */
@@ -5565,6 +5611,7 @@ int mtk_cfg80211_del_station(struct wiphy *wiphy,
 			     struct net_device *ndev,
 			     struct station_del_parameters *params)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_del_station");
 	/* fgIsTDLSlinkEnable = 0; */
 
 	/* return 0; */
@@ -5606,6 +5653,7 @@ int mtk_cfg80211_del_station(struct wiphy *wiphy,
 int mtk_cfg80211_del_station(struct wiphy *wiphy,
 			     struct net_device *ndev, const u8 *mac)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_del_station");
 	/* fgIsTDLSlinkEnable = 0; */
 
 	/* return 0; */
@@ -5647,6 +5695,7 @@ int mtk_cfg80211_del_station(struct wiphy *wiphy,
 int mtk_cfg80211_del_station(struct wiphy *wiphy,
 			     struct net_device *ndev, u8 *mac)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_del_station");
 	/* fgIsTDLSlinkEnable = 0; */
 
 	/* return 0; */
@@ -5699,6 +5748,7 @@ mtk_cfg80211_tdls_mgmt(struct wiphy *wiphy,
 		       u16 status_code, u32 peer_capability,
 		       bool initiator, const u8 *buf, size_t len)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_tdls_mgmt");
 	struct GLUE_INFO *prGlueInfo;
 	struct TDLS_CMD_LINK_MGT rCmdMgt;
 	uint32_t u4BufLen;
@@ -5753,6 +5803,7 @@ mtk_cfg80211_tdls_mgmt(struct wiphy *wiphy,
 		       u16 status_code, u32 peer_capability,
 		       const u8 *buf, size_t len)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_tdls_mgmt");
 	struct GLUE_INFO *prGlueInfo;
 	struct TDLS_CMD_LINK_MGT rCmdMgt;
 	uint32_t u4BufLen;
@@ -5795,6 +5846,7 @@ mtk_cfg80211_tdls_mgmt(struct wiphy *wiphy,
 		       u8 *peer, u8 action_code, u8 dialog_token,
 		       u16 status_code, const u8 *buf, size_t len)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_tdls_mgmt");
 	struct GLUE_INFO *prGlueInfo;
 	struct TDLS_CMD_LINK_MGT rCmdMgt;
 	uint32_t u4BufLen;
@@ -5852,6 +5904,7 @@ int mtk_cfg80211_tdls_oper(struct wiphy *wiphy,
 			   struct net_device *dev,
 			   const u8 *peer, enum nl80211_tdls_operation oper)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_tdls_oper");
 
 	struct GLUE_INFO *prGlueInfo = NULL;
 	uint32_t u4BufLen;
@@ -5893,6 +5946,7 @@ int mtk_cfg80211_tdls_oper(struct wiphy *wiphy,
 			   struct net_device *dev, u8 *peer,
 			   enum nl80211_tdls_operation oper)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_tdls_oper");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	uint32_t u4BufLen;
 	struct ADAPTER *prAdapter;
@@ -5930,6 +5984,7 @@ int32_t mtk_cfg80211_process_str_cmd(struct GLUE_INFO
 		struct wireless_dev *wdev,
 		uint8_t *cmd, int32_t len)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_process_str_cmd");
 	uint32_t rStatus = WLAN_STATUS_SUCCESS;
 	uint32_t u4SetInfoLen = 0;
 	uint8_t ucBssIndex = 0;
@@ -6032,6 +6087,7 @@ int32_t mtk_cfg80211_process_str_cmd(struct GLUE_INFO
 #else
 bool is_world_regdom(const char *alpha2)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - is_world_regdom");
 	if (!alpha2)
 		return false;
 
@@ -6043,6 +6099,7 @@ void
 mtk_reg_notify(IN struct wiphy *pWiphy,
 	       IN struct regulatory_request *pRequest)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_reg_notify");
 	struct GLUE_INFO *prGlueInfo = rlmDomainGetGlueInfo();
 	struct ADAPTER *prAdapter;
 	struct wiphy *pBaseWiphy = wlanGetWiphy();
@@ -6085,6 +6142,7 @@ mtk_reg_notify(IN struct wiphy *pWiphy,
 void
 cfg80211_regd_set_wiphy(IN struct wiphy *prWiphy)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - cfg80211_regd_set_wiphy");
 	/*
 	 * register callback
 	 */
@@ -6142,6 +6200,7 @@ cfg80211_regd_set_wiphy(IN struct wiphy *prWiphy)
 int mtk_cfg80211_suspend(struct wiphy *wiphy,
 			 struct cfg80211_wowlan *wow)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_suspend");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	struct WIFI_VAR *prWifiVar = NULL;
 #if !CFG_ENABLE_WAKE_LOCK
@@ -6214,6 +6273,7 @@ end:
 /*----------------------------------------------------------------------------*/
 int mtk_cfg80211_resume(struct wiphy *wiphy)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_resume");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	struct BSS_DESC **pprBssDesc = NULL;
 	struct ADAPTER *prAdapter = NULL;
@@ -6276,6 +6336,7 @@ end:
 int mtk_IsP2PNetDevice(struct GLUE_INFO *prGlueInfo,
 		       struct net_device *ndev)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_IsP2PNetDevice");
 	struct NETDEV_PRIVATE_GLUE_INFO *prNetDevPrivate = NULL;
 	int iftype = 0;
 	int ret = 1;
@@ -6319,6 +6380,7 @@ int mtk_IsP2PNetDevice(struct GLUE_INFO *prGlueInfo,
 int mtk_init_sta_role(struct ADAPTER *prAdapter,
 		      struct net_device *ndev)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_init_sta_role");
 	struct NETDEV_PRIVATE_GLUE_INFO *prNdevPriv = NULL;
 	uint8_t ucBssIndex = 0;
 
@@ -6361,6 +6423,7 @@ int mtk_init_sta_role(struct ADAPTER *prAdapter,
 int mtk_uninit_sta_role(struct ADAPTER *prAdapter,
 			struct net_device *ndev)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_uninit_sta_role");
 	struct NETDEV_PRIVATE_GLUE_INFO *prNdevPriv = NULL;
 	uint8_t ucBssIndex = 0;
 
@@ -6402,6 +6465,7 @@ int mtk_uninit_sta_role(struct ADAPTER *prAdapter,
 int mtk_init_ap_role(struct GLUE_INFO *prGlueInfo,
 		     struct net_device *ndev)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_init_ap_role");
 	int u4Idx = 0;
 	struct ADAPTER *prAdapter = prGlueInfo->prAdapter;
 
@@ -6458,6 +6522,7 @@ uint32_t
 mtk_oid_uninit_ap_role(struct ADAPTER *prAdapter, void *pvSetBuffer,
 	uint32_t u4SetBufferLen, uint32_t *pu4SetInfoLen)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_oid_uninit_ap_role");
 	unsigned char u4Idx = 0;
 
 	if ((prAdapter == NULL) || (pvSetBuffer == NULL)
@@ -6486,6 +6551,7 @@ mtk_oid_uninit_ap_role(struct ADAPTER *prAdapter, void *pvSetBuffer,
 int mtk_uninit_ap_role(struct GLUE_INFO *prGlueInfo,
 		       struct net_device *ndev)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_uninit_ap_role");
 	unsigned char u4Idx;
 	uint32_t rStatus;
 	uint32_t u4BufLen;
@@ -6522,6 +6588,7 @@ int mtk_cfg_start_radar_detection(struct wiphy *wiphy,
 #endif
 )
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_start_radar_detection");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) wiphy_priv(wiphy);
@@ -6549,6 +6616,7 @@ int mtk_cfg_start_radar_detection(struct wiphy *wiphy,
 				  struct net_device *dev,
 				  struct cfg80211_chan_def *chandef)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_start_radar_detection");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) wiphy_priv(wiphy);
@@ -6577,6 +6645,7 @@ int mtk_cfg_channel_switch(struct wiphy *wiphy,
 			   struct net_device *dev,
 			   struct cfg80211_csa_settings *params)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_channel_switch");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) wiphy_priv(wiphy);
@@ -6620,6 +6689,7 @@ struct wireless_dev *mtk_cfg_add_iface(struct wiphy *wiphy,
 				       struct vif_params *params)
 #endif
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - ");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 #if KERNEL_VERSION(4, 12, 0) <= CFG80211_VERSION_CODE
@@ -6655,6 +6725,7 @@ struct wireless_dev *mtk_cfg_add_iface(struct wiphy *wiphy,
 int mtk_cfg_del_iface(struct wiphy *wiphy,
 		      struct wireless_dev *wdev)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_del_iface");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) wiphy_priv(wiphy);
@@ -6687,6 +6758,7 @@ int mtk_cfg_change_iface(struct wiphy *wiphy,
 			 struct vif_params *params)
 #endif
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_change_iface");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	struct ADAPTER *prAdapter = NULL;
 	struct NETDEV_PRIVATE_GLUE_INFO *prNetdevPriv = NULL;
@@ -6834,6 +6906,7 @@ int mtk_cfg_add_key(struct wiphy *wiphy,
 		    bool pairwise, const u8 *mac_addr,
 		    struct key_params *params)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_add_key");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) wiphy_priv(wiphy);
@@ -6864,6 +6937,7 @@ int mtk_cfg_get_key(struct wiphy *wiphy,
 		    bool pairwise, const u8 *mac_addr, void *cookie,
 		    void (*callback)(void *cookie, struct key_params *))
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_get_key");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) wiphy_priv(wiphy);
@@ -6892,6 +6966,7 @@ int mtk_cfg_del_key(struct wiphy *wiphy,
 					 u8 key_index,
 		    bool pairwise, const u8 *mac_addr)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_del_key");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) wiphy_priv(wiphy);
@@ -6919,6 +6994,7 @@ int mtk_cfg_set_default_key(struct wiphy *wiphy,
 #endif
 			    u8 key_index, bool unicast, bool multicast)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_set_default_key");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) wiphy_priv(wiphy);
@@ -6946,6 +7022,7 @@ int mtk_cfg_set_default_mgmt_key(struct wiphy *wiphy,
 #endif
 					 u8 key_index)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_set_default_mgmt_key");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) wiphy_priv(wiphy);
@@ -6974,6 +7051,7 @@ int mtk_cfg_get_station(struct wiphy *wiphy,
 			u8 *mac, struct station_info *sinfo)
 #endif
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_get_station");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) wiphy_priv(wiphy);
@@ -7003,6 +7081,7 @@ int mtk_cfg_change_station(struct wiphy *wiphy,
 			   u8 *mac, struct station_parameters *params)
 #endif
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_change_station");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) wiphy_priv(wiphy);
@@ -7033,6 +7112,7 @@ int mtk_cfg_add_station(struct wiphy *wiphy,
 			u8 *mac, struct station_parameters *params)
 #endif
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_add_station");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) wiphy_priv(wiphy);
@@ -7062,6 +7142,7 @@ int mtk_cfg_tdls_oper(struct wiphy *wiphy,
 		      u8 *peer, enum nl80211_tdls_operation oper)
 #endif
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_tdls_oper");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) wiphy_priv(wiphy);
@@ -7105,6 +7186,7 @@ int mtk_cfg_tdls_mgmt(struct wiphy *wiphy,
 		      const u8 *buf, size_t len)
 #endif
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_tdls_mgmt");
 	struct GLUE_INFO *prGlueInfo;
 
 	prGlueInfo = (struct GLUE_INFO *) wiphy_priv(wiphy);
@@ -7150,6 +7232,7 @@ int mtk_cfg_del_station(struct wiphy *wiphy,
 			struct net_device *ndev, u8 *mac)
 #endif
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_del_station");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) wiphy_priv(wiphy);
@@ -7184,6 +7267,7 @@ int mtk_cfg_del_station(struct wiphy *wiphy,
 int mtk_cfg_scan(struct wiphy *wiphy,
 		 struct cfg80211_scan_request *request)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_scan");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) wiphy_priv(wiphy);
@@ -7206,6 +7290,7 @@ int mtk_cfg_scan(struct wiphy *wiphy,
 void mtk_cfg_abort_scan(struct wiphy *wiphy,
 			struct wireless_dev *wdev)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_abort_scan");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) wiphy_priv(wiphy);
@@ -7229,6 +7314,7 @@ int mtk_cfg_sched_scan_start(IN struct wiphy *wiphy,
 			     IN struct net_device *ndev,
 			     IN struct cfg80211_sched_scan_request *request)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_sched_scan_start");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) wiphy_priv(wiphy);
@@ -7258,6 +7344,7 @@ int mtk_cfg_sched_scan_stop(IN struct wiphy *wiphy,
 			    IN struct net_device *ndev)
 #endif
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_sched_scan_stop");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) wiphy_priv(wiphy);
@@ -7280,6 +7367,7 @@ int mtk_cfg_sched_scan_stop(IN struct wiphy *wiphy,
 int mtk_cfg_auth(struct wiphy *wiphy, struct net_device *ndev,
 		    struct cfg80211_auth_request *req)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_auth");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) wiphy_priv(wiphy);
@@ -7304,6 +7392,7 @@ int mtk_cfg_connect(struct wiphy *wiphy,
 		    struct net_device *ndev,
 		    struct cfg80211_connect_params *sme)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_connect");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) wiphy_priv(wiphy);
@@ -7325,6 +7414,7 @@ int mtk_cfg_disconnect(struct wiphy *wiphy,
 		       struct net_device *ndev,
 		       u16 reason_code)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_disconnect");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) wiphy_priv(wiphy);
@@ -7346,6 +7436,7 @@ int mtk_cfg_disconnect(struct wiphy *wiphy,
 int mtk_cfg_deauth(struct wiphy *wiphy, struct net_device *ndev,
 	struct cfg80211_deauth_request *req)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_deauth");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) wiphy_priv(wiphy);
@@ -7366,6 +7457,7 @@ int mtk_cfg_join_ibss(struct wiphy *wiphy,
 		      struct net_device *ndev,
 		      struct cfg80211_ibss_params *params)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_join_ibss");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) wiphy_priv(wiphy);
@@ -7386,6 +7478,7 @@ int mtk_cfg_join_ibss(struct wiphy *wiphy,
 int mtk_cfg_leave_ibss(struct wiphy *wiphy,
 		       struct net_device *ndev)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_leave_ibss");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) wiphy_priv(wiphy);
@@ -7407,6 +7500,7 @@ int mtk_cfg_set_power_mgmt(struct wiphy *wiphy,
 			   struct net_device *ndev,
 			   bool enabled, int timeout)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_set_power_mgmt");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) wiphy_priv(wiphy);
@@ -7431,6 +7525,7 @@ int mtk_cfg_set_pmksa(struct wiphy *wiphy,
 		      struct net_device *ndev,
 		      struct cfg80211_pmksa *pmksa)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_set_pmksa");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) wiphy_priv(wiphy);
@@ -7454,6 +7549,7 @@ int mtk_cfg_del_pmksa(struct wiphy *wiphy,
 		      struct net_device *ndev,
 		      struct cfg80211_pmksa *pmksa)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_del_pmksa");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) wiphy_priv(wiphy);
@@ -7476,6 +7572,7 @@ int mtk_cfg_del_pmksa(struct wiphy *wiphy,
 int mtk_cfg_flush_pmksa(struct wiphy *wiphy,
 			struct net_device *ndev)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_flush_pmksa");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) wiphy_priv(wiphy);
@@ -7500,6 +7597,7 @@ int mtk_cfg_set_rekey_data(struct wiphy *wiphy,
 			   struct net_device *dev,
 			   struct cfg80211_gtk_rekey_data *data)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_set_rekey_data");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) wiphy_priv(wiphy);
@@ -7523,6 +7621,7 @@ int mtk_cfg_set_rekey_data(struct wiphy *wiphy,
 int mtk_cfg_suspend(struct wiphy *wiphy,
 		    struct cfg80211_wowlan *wow)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_suspend");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) wiphy_priv(wiphy);
@@ -7554,6 +7653,7 @@ int mtk_cfg_suspend(struct wiphy *wiphy,
 
 int mtk_cfg_resume(struct wiphy *wiphy)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_resume");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) wiphy_priv(wiphy);
@@ -7591,6 +7691,7 @@ int mtk_cfg_assoc(struct wiphy *wiphy,
 		  struct net_device *ndev,
 		  struct cfg80211_assoc_request *req)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_assoc");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) wiphy_priv(wiphy);
@@ -7622,6 +7723,7 @@ int mtk_cfg_remain_on_channel(struct wiphy *wiphy,
 			      struct ieee80211_channel *chan,
 			      unsigned int duration, u64 *cookie)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_remain_on_channel");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) wiphy_priv(wiphy);
@@ -7645,6 +7747,7 @@ int mtk_cfg_remain_on_channel(struct wiphy *wiphy,
 int mtk_cfg_cancel_remain_on_channel(struct wiphy *wiphy,
 				     struct wireless_dev *wdev, u64 cookie)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_cancel_remain_on_channel");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) wiphy_priv(wiphy);
@@ -7677,6 +7780,7 @@ int mtk_cfg_mgmt_tx(struct wiphy *wiphy, struct wireless_dev *wdev,
 		bool dont_wait_for_ack, u64 *cookie)
 #endif
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_mgmt_tx");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) wiphy_priv(wiphy);
@@ -7709,6 +7813,7 @@ void mtk_cfg_mgmt_frame_register(struct wiphy *wiphy,
 				 struct wireless_dev *wdev,
 				 u16 frame_type, bool reg)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_mgmt_frame_register");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) wiphy_priv(wiphy);
@@ -7735,6 +7840,7 @@ void mtk_cfg_mgmt_frame_update(struct wiphy *wiphy,
 			struct wireless_dev *wdev,
 			struct mgmt_frame_regs *upd)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_mgmt_frame_update");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	u_int8_t fgIsP2pNetDevice = FALSE;
 	uint32_t *pu4PacketFilter = NULL;
@@ -7824,6 +7930,7 @@ int mtk_cfg_testmode_cmd(struct wiphy *wiphy, void *data,
 			 int len)
 #endif
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_testmode_cmd");
 #if KERNEL_VERSION(3, 12, 0) <= CFG80211_VERSION_CODE
 	struct GLUE_INFO *prGlueInfo = NULL;
 
@@ -7855,6 +7962,7 @@ int mtk_cfg_change_bss(struct wiphy *wiphy,
 		       struct net_device *dev,
 		       struct bss_parameters *params)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_change_bss");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) wiphy_priv(wiphy);
@@ -7878,6 +7986,7 @@ int mtk_cfg_mgmt_tx_cancel_wait(struct wiphy *wiphy,
 				struct wireless_dev *wdev,
 				u64 cookie)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_mgmt_tx_cancel_wait");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) wiphy_priv(wiphy);
@@ -7901,6 +8010,7 @@ int mtk_cfg_disassoc(struct wiphy *wiphy,
 		     struct net_device *dev,
 		     struct cfg80211_disassoc_request *req)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_disassoc");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) wiphy_priv(wiphy);
@@ -7924,6 +8034,7 @@ int mtk_cfg_start_ap(struct wiphy *wiphy,
 		     struct net_device *dev,
 		     struct cfg80211_ap_settings *settings)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_start_ap");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) wiphy_priv(wiphy);
@@ -7951,6 +8062,7 @@ int mtk_cfg_change_beacon(struct wiphy *wiphy,
 			  struct cfg80211_beacon_data *info)
 #endif
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_change_beacon");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) wiphy_priv(wiphy);
@@ -7977,6 +8089,7 @@ int mtk_cfg_stop_ap(struct wiphy *wiphy, struct net_device *dev,
 int mtk_cfg_stop_ap(struct wiphy *wiphy, struct net_device *dev)
 #endif
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_stop_ap");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) wiphy_priv(wiphy);
@@ -8002,6 +8115,7 @@ int mtk_cfg_set_wiphy_params(struct wiphy *wiphy,
 #endif
 			     u32 changed)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_set_wiphy_params");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) wiphy_priv(wiphy);
@@ -8030,6 +8144,7 @@ int mtk_cfg_set_bitrate_mask(struct wiphy *wiphy,
 			     const struct cfg80211_bitrate_mask *mask)
 #endif
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_set_bitrate_mask");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) wiphy_priv(wiphy);
@@ -8057,6 +8172,7 @@ int mtk_cfg_set_txpower(struct wiphy *wiphy,
 #endif
 			enum nl80211_tx_power_setting type, int mbm)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_set_txpower");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) wiphy_priv(wiphy);
@@ -8086,6 +8202,7 @@ int mtk_cfg_get_txpower(struct wiphy *wiphy,
 #endif
 			int *dbm)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg_get_txpower");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) wiphy_priv(wiphy);
@@ -8128,6 +8245,7 @@ int mtk_cfg_get_txpower(struct wiphy *wiphy,
 uint16_t cfg80211_get_non_wfa_vendor_ie(struct GLUE_INFO *prGlueInfo,
 	uint8_t *ies, int32_t len, uint8_t ucBssIndex)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - cfg80211_get_non_wfa_vendor_ie");
 	const uint8_t *pos = ies, *end = ies+len;
 	struct ieee80211_vendor_ie *ie;
 	int32_t ie_oui = 0;
@@ -8197,6 +8315,7 @@ cont:
 int mtk_cfg80211_update_ft_ies(struct wiphy *wiphy, struct net_device *dev,
 				 struct cfg80211_update_ft_ies_params *ftie)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_update_ft_ies");
 #if CFG_SUPPORT_802_11R
 	struct GLUE_INFO *prGlueInfo = NULL;
 	uint32_t u4InfoBufLen = 0;
@@ -8229,6 +8348,7 @@ const uint8_t *mtk_cfg80211_find_ie_match_mask(uint8_t eid,
 	const uint8_t *ies, int len, const uint8_t *match, int match_len,
 	int match_offset, const uint8_t *match_mask)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_find_ie_match_mask");
 	/* match_offset can't be smaller than 2, unless match_len is
 	 * zero, in which case match_offset must be zero as well.
 	 */
@@ -8252,6 +8372,7 @@ int mtk_cfg80211_set_cqm_rssi_config(
 				struct wiphy *wiphy, struct net_device *dev,
 				int32_t rssi_thold, uint32_t rssi_hyst)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_set_cqm_rssi_config");
 	uint32_t u4InfoBufLen = 0;
 	uint16_t rcpi_thold = 254;
 	uint16_t rcpi_hyst = 0;
@@ -8315,6 +8436,7 @@ int mtk_cfg80211_set_cqm_txe_config(
 int mtk_cfg80211_set_monitor_channel(struct wiphy *wiphy,
 			struct cfg80211_chan_def *chandef)
 {
+	printk(KERN_DEBUG "gl_cfg80211.c - mtk_cfg80211_set_monitor_channel");
 	struct GLUE_INFO *prGlueInfo;
 	uint8_t ucBand = BAND_NULL;
 	uint8_t ucSco = 0;

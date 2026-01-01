@@ -157,6 +157,7 @@ static const struct file_operations bow_ampc_fops = {
 /*----------------------------------------------------------------------------*/
 u_int8_t glRegisterAmpc(IN struct GLUE_INFO *prGlueInfo)
 {
+	printk(KERN_DEBUG "gl_bow.c - glRegisterAmpc");
 	ASSERT(prGlueInfo);
 
 	DBGLOG(BOW, INFO, "Register for character device to communicate with 802.11 PAL.\n");
@@ -239,6 +240,7 @@ fail_kfifo_alloc:
 /*----------------------------------------------------------------------------*/
 u_int8_t glUnregisterAmpc(IN struct GLUE_INFO *prGlueInfo)
 {
+	printk(KERN_DEBUG "gl_bow.c - glUnregisterAmpc");
 	ASSERT(prGlueInfo);
 
 	DBGLOG(BOW, INFO, "Unregister character device for communicating with 802.11 PAL.\n");
@@ -281,6 +283,7 @@ u_int8_t glUnregisterAmpc(IN struct GLUE_INFO *prGlueInfo)
 /*----------------------------------------------------------------------------*/
 static ssize_t bow_ampc_read(IN struct file *filp, IN char __user *buf, IN size_t size, IN OUT loff_t *ppos)
 {
+	printk(KERN_DEBUG "gl_bow.c - bow_ampc_read");
 	uint8_t aucBuffer[MAX_BUFFER_SIZE];
 	ssize_t retval;
 
@@ -325,6 +328,7 @@ static ssize_t bow_ampc_read(IN struct file *filp, IN char __user *buf, IN size_
 /*----------------------------------------------------------------------------*/
 static ssize_t bow_ampc_write(IN struct file *filp, OUT const char __user *buf, IN size_t size, IN OUT loff_t *ppos)
 {
+	printk(KERN_DEBUG "gl_bow.c - bow_ampc_write");
 	uint8_t i;
 
 	uint8_t aucBuffer[MAX_BUFFER_SIZE];
@@ -380,6 +384,7 @@ static ssize_t bow_ampc_write(IN struct file *filp, OUT const char __user *buf, 
 /*----------------------------------------------------------------------------*/
 static long bow_ampc_ioctl(IN struct file *filp, IN unsigned int cmd, IN OUT unsigned long arg)
 {
+	printk(KERN_DEBUG "gl_bow.c - bow_ampc_ioctl");
 	int err = 0;
 	struct GLUE_INFO *prGlueInfo;
 
@@ -413,6 +418,7 @@ static long bow_ampc_ioctl(IN struct file *filp, IN unsigned int cmd, IN OUT uns
 /*----------------------------------------------------------------------------*/
 static unsigned int bow_ampc_poll(IN struct file *filp, IN poll_table * wait)
 {
+	printk(KERN_DEBUG "gl_bow.c - bow_ampc_poll");
 	unsigned int retval;
 	struct GLUE_INFO *prGlueInfo;
 
@@ -452,6 +458,7 @@ static unsigned int bow_ampc_poll(IN struct file *filp, IN poll_table * wait)
 /*----------------------------------------------------------------------------*/
 static int bow_ampc_open(IN struct inode *inodep, IN struct file *filp)
 {
+	printk(KERN_DEBUG "gl_bow.c - bow_ampc_open");
 	struct GLUE_INFO *prGlueInfo;
 	struct GL_BOW_INFO *prBowInfo;
 
@@ -481,6 +488,7 @@ static int bow_ampc_open(IN struct inode *inodep, IN struct file *filp)
 /*----------------------------------------------------------------------------*/
 static int bow_ampc_release(IN struct inode *inodep, IN struct file *filp)
 {
+	printk(KERN_DEBUG "gl_bow.c - bow_ampc_release");
 	struct GLUE_INFO *prGlueInfo;
 
 	prGlueInfo = (struct GLUE_INFO *) (filp->private_data);
@@ -505,6 +513,7 @@ static int bow_ampc_release(IN struct inode *inodep, IN struct file *filp)
 /*----------------------------------------------------------------------------*/
 void kalIndicateBOWEvent(IN struct GLUE_INFO *prGlueInfo, IN struct BT_OVER_WIFI_EVENT *prEvent)
 {
+	printk(KERN_DEBUG "gl_bow.c - kalIndicateBOWEvent");
 	size_t u4AvailSize, u4EventSize;
 
 	ASSERT(prGlueInfo);
@@ -546,6 +555,7 @@ void kalIndicateBOWEvent(IN struct GLUE_INFO *prGlueInfo, IN struct BT_OVER_WIFI
 /*----------------------------------------------------------------------------*/
 enum ENUM_BOW_DEVICE_STATE kalGetBowState(IN struct GLUE_INFO *prGlueInfo, IN uint8_t aucPeerAddress[6])
 {
+	printk(KERN_DEBUG "gl_bow.c - kalGetBowState");
 	uint8_t i;
 
 	ASSERT(prGlueInfo);
@@ -584,6 +594,7 @@ enum ENUM_BOW_DEVICE_STATE kalGetBowState(IN struct GLUE_INFO *prGlueInfo, IN ui
 /*----------------------------------------------------------------------------*/
 u_int8_t kalSetBowState(IN struct GLUE_INFO *prGlueInfo, IN enum ENUM_BOW_DEVICE_STATE eBowState, IN uint8_t aucPeerAddress[6])
 {
+	printk(KERN_DEBUG "gl_bow.c - kalSetBowState");
 	uint8_t i;
 
 	ASSERT(prGlueInfo);
@@ -633,6 +644,7 @@ u_int8_t kalSetBowState(IN struct GLUE_INFO *prGlueInfo, IN enum ENUM_BOW_DEVICE
 /*----------------------------------------------------------------------------*/
 enum ENUM_BOW_DEVICE_STATE kalGetBowGlobalState(IN struct GLUE_INFO *prGlueInfo)
 {
+	printk(KERN_DEBUG "gl_bow.c - kalGetBowGlobalState");
 	uint32_t i;
 
 	ASSERT(prGlueInfo);
@@ -665,6 +677,7 @@ enum ENUM_BOW_DEVICE_STATE kalGetBowGlobalState(IN struct GLUE_INFO *prGlueInfo)
 /*----------------------------------------------------------------------------*/
 uint32_t kalGetBowFreqInKHz(IN struct GLUE_INFO *prGlueInfo)
 {
+	printk(KERN_DEBUG "gl_bow.c - kalGetBowFreqInKHz");
 	ASSERT(prGlueInfo);
 
 	return prGlueInfo->rBowInfo.u4FreqInKHz;
@@ -684,6 +697,7 @@ uint32_t kalGetBowFreqInKHz(IN struct GLUE_INFO *prGlueInfo)
 /*----------------------------------------------------------------------------*/
 uint8_t kalGetBowRole(IN struct GLUE_INFO *prGlueInfo, IN uint8_t rPeerAddr[PARAM_MAC_ADDR_LEN])
 {
+	printk(KERN_DEBUG "gl_bow.c - kalGetBowRole");
 	uint32_t i;
 
 	ASSERT(prGlueInfo);
@@ -711,6 +725,7 @@ uint8_t kalGetBowRole(IN struct GLUE_INFO *prGlueInfo, IN uint8_t rPeerAddr[PARA
 /*----------------------------------------------------------------------------*/
 void kalSetBowRole(IN struct GLUE_INFO *prGlueInfo, IN uint8_t ucRole, IN uint8_t rPeerAddr[PARAM_MAC_ADDR_LEN])
 {
+	printk(KERN_DEBUG "gl_bow.c - kalSetBowRole");
 	uint32_t i;
 
 	ASSERT(prGlueInfo);
@@ -737,6 +752,7 @@ void kalSetBowRole(IN struct GLUE_INFO *prGlueInfo, IN uint8_t ucRole, IN uint8_
 /*----------------------------------------------------------------------------*/
 uint8_t kalGetBowAvailablePhysicalLinkCount(IN struct GLUE_INFO *prGlueInfo)
 {
+	printk(KERN_DEBUG "gl_bow.c - kalGetBowAvailablePhysicalLinkCount");
 	uint8_t i;
 	uint8_t ucLinkCount = 0;
 
@@ -768,6 +784,7 @@ uint8_t kalGetBowAvailablePhysicalLinkCount(IN struct GLUE_INFO *prGlueInfo)
 /*----------------------------------------------------------------------------*/
 u_int8_t kalBowFrameClassifier(IN struct GLUE_INFO *prGlueInfo, IN void *prPacket, OUT u_int8_t *pfgIs1X)
 {
+	printk(KERN_DEBUG "gl_bow.c - kalBowFrameClassifier");
 	uint32_t u4PacketLen;
 	uint16_t u2EtherTypeLen;
 	struct sk_buff *prSkb = (struct sk_buff *)prPacket;
@@ -840,6 +857,7 @@ u_int8_t kalBowFrameClassifier(IN struct GLUE_INFO *prGlueInfo, IN void *prPacke
 /*----------------------------------------------------------------------------*/
 static int bowOpen(IN struct net_device *prDev)
 {
+	printk(KERN_DEBUG "gl_bow.c - bowOpen");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	struct ADAPTER *prAdapter = NULL;
 
@@ -870,6 +888,7 @@ static int bowOpen(IN struct net_device *prDev)
 /*----------------------------------------------------------------------------*/
 static int bowStop(IN struct net_device *prDev)
 {
+	printk(KERN_DEBUG "gl_bow.c - bowStop");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	struct ADAPTER *prAdapter = NULL;
 
@@ -989,6 +1008,7 @@ static int bowHardStartXmit(IN struct sk_buff *prSkb, IN struct net_device *prDe
 /*----------------------------------------------------------------------------*/
 static netdev_tx_t bowHardStartXmit(IN struct sk_buff *prSkb, IN struct net_device *prDev)
 {
+	printk(KERN_DEBUG "gl_bow.c - bowHardStartXmit");
 	struct NETDEV_PRIVATE_GLUE_INFO *prNetDevPrivate = (struct NETDEV_PRIVATE_GLUE_INFO *) NULL;
 	struct GLUE_INFO *prGlueInfo = NULL;
 	uint8_t ucBssIndex;
@@ -1053,6 +1073,7 @@ static const struct net_device_ops bow_netdev_ops = {
 /*----------------------------------------------------------------------------*/
 u_int8_t kalInitBowDevice(IN struct GLUE_INFO *prGlueInfo, IN const char *prDevName)
 {
+	printk(KERN_DEBUG "gl_bow.c - kalInitBowDevice");
 	struct ADAPTER *prAdapter;
 	struct GL_HIF_INFO *prHif;
 	uint8_t rMacAddr[PARAM_MAC_ADDR_LEN];
@@ -1138,6 +1159,7 @@ u_int8_t kalInitBowDevice(IN struct GLUE_INFO *prGlueInfo, IN const char *prDevN
 /*----------------------------------------------------------------------------*/
 u_int8_t kalUninitBowDevice(IN struct GLUE_INFO *prGlueInfo)
 {
+	printk(KERN_DEBUG "gl_bow.c - kalUninitBowDevice");
 	struct ADAPTER *prAdapter;
 
 	ASSERT(prGlueInfo);
