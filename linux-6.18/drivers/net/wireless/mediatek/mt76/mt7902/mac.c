@@ -18,11 +18,32 @@
 bool mt7902_mac_wtbl_update(struct mt792x_dev *dev, int idx, u32 mask)
 {
 	printk(KERN_DEBUG "mac.c - mt7902_mac_wtbl_update(dev, idx: %d, mask: 0x%08x)", idx, mask);
+	u32 val;
+	bool success;
+
+	// 1. Log the update request (Idx = Station ID, Mask = Operation type)
+	dev_dbg(dev->mt76.dev, "WTBL Update: idx=%d mask=0x%08x\n", idx, mask);
+
 	mt76_rmw(dev, MT_WTBL_UPDATE, MT_WTBL_UPDATE_WLAN_IDX,
 		 FIELD_PREP(MT_WTBL_UPDATE_WLAN_IDX, idx) | mask);
 
-	return mt76_poll(dev, MT_WTBL_UPDATE, MT_WTBL_UPDATE_BUSY,
-			 0, 5000);
+	success = mt76_poll(dev, MT_WTBL_UPDATE, MT_WTBL_UPDATE_BUSY, 0, 5000);
+	
+	if (!success) {
+		val = mt76_rr(dev, MT_WTBL_UPDATE);
+		dev_err(dev->mt76.dev, 
+			"WTBL Update Timeout! idx=%d, Reg(0x%x)=0x%08x (Busy bit stuck)\n", 
+			idx, MT_WTBL_UPDATE, val);
+		
+		/* 0xFFFFFFFF check to see if PCIe link is dead */
+		if (val == 0xffffffff)
+			dev_err(dev->mt76.dev, "PCIe bus disconnected during WTBL update\n");
+	}
+
+	return success;
+
+	//return mt76_poll(dev, MT_WTBL_UPDATE, MT_WTBL_UPDATE_BUSY,
+	//		 0, 5000);
 }
 
 static u32 mt7902_mac_wtbl_lmac_addr(int idx, u8 offset)

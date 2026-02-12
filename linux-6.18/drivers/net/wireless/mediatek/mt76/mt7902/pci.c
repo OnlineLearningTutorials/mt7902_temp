@@ -164,22 +164,30 @@ static u32 mt7902_rmw(struct mt76_dev *mdev, u32 offset, u32 mask, u32 val)
 static int mt7902_dma_init(struct mt792x_dev *dev)
 {
 	printk(KERN_DEBUG "pci.c - mt7902_dma_init(dev)");
+	// 1. Trace entry and start attachment
+	dev_dbg(dev->mt76.dev, "Initializing DMA for MT7902\n");
 	int ret;
 
 	mt76_dma_attach(&dev->mt76);
 
+	// 2. Log if disabling existing DMA fails (Hardware state check)
 	ret = mt792x_dma_disable(dev, true);
-	if (ret)
+	if (ret) {
+		dev_err(dev->mt76.dev, "Failed to disable DMA: %d\n", ret);
 		return ret;
+	}
 
 	/* init tx queue */
 	ret = mt76_connac_init_tx_queues(dev->phy.mt76, MT7902_TXQ_BAND0,
 					 MT7902_TX_RING_SIZE,
 					 MT_TX_RING_BASE, NULL, 0);
-	if (ret)
+	if (ret) {
+		dev_err(dev->mt76.dev, "Failed to init TX queues: %d\n", ret);
 		return ret;
+	}
 
 	mt76_wr(dev, MT_WFDMA0_TX_RING0_EXT_CTRL, 0x4);
+	dev_dbg(dev->mt76.dev, "WFDMA0 TX Ring Ext Ctrl set to 0x4\n");
 
 	/* command to WM */
 	ret = mt76_init_mcu_queue(&dev->mt76, MT_MCUQ_WM, MT7902_TXQ_MCU_WM,
@@ -223,6 +231,7 @@ static int mt7902_dma_init(struct mt792x_dev *dev)
 	netif_napi_add_tx(dev->mt76.tx_napi_dev, &dev->mt76.tx_napi,
 			  mt792x_poll_tx);
 	napi_enable(&dev->mt76.tx_napi);
+	dev_dbg(dev->mt76.dev, "TX NAPI enabled\n");
 
 	return mt792x_dma_enable(dev);
 }

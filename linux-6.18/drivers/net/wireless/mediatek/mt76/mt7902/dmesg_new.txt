@@ -1,4 +1,4 @@
-
+disconnecting
 pci.c - mt7902_pci_probe  =============================================================================================================================================================================================================================
 mt7902e 0000:03:00.0: enabling device (0000 -> 0002)
 mt7902e 0000:03:00.0: ASIC revision: 79020000
@@ -37,7 +37,7 @@ mt7902e 0000:03:00.0: Bands Detected: 2.4GHz: Yes, 5GHz: Yes
 mt7902e 0000:03:00.0: Hardware 6GHz support: Yes
 mt7902e 0000:03:00.0: Loading CLC: mediatek/WIFI_RAM_CODE_MT7902_1.bin
 mcu.c - mt7902_load_clc(dev, fw_name: mediatek/WIFI_RAM_CODE_MT7902_1.bin)
-mcu.c - mt7902_mcu_read_eeprom(dev, offset: 0x0000055b, val: 0x4055bd7f)
+mcu.c - mt7902_mcu_read_eeprom(dev, offset: 0x0000055b, val: 0x82667d7f)
 mcu.c - mt7902_mcu_parse_response(mdev, cmd: 101ed, skb, seq: 3)
 mt7902e 0000:03:00.0: No CLC region found in firmware binary
 mcu.c - mt7902_mcu_fw_log_2_host(dev, ctrl: 0x01)
@@ -74,16 +74,15 @@ main.c - mt7902_init_he_caps(phy, band: 1, data)
 mt7902e 0000:03:00.0: 6GHz capability detected, setting HE caps
 main.c - mt7902_init_he_caps(phy, band: 3, data)
 init.c - mt7902_regd_notifier(wiphy, request)
-mt7902e 0000:03:00.0: Regulatory update: Country 00 (Initiator: 0, Region: 0)
+mt7902e 0000:03:00.0: Regulatory update: Country IN (Initiator: 3, Region: 0)
 init.c - mt7902_regd_update(dev)
-mt7902e 0000:03:00.0: Regulatory hardware update for country: 00 (ENV: 0)
-mcu.c - mt7902_mcu_set_clc(dev, alpha2: 0x22b981c0, env_cap)
+mt7902e 0000:03:00.0: Regulatory hardware update for country: IN (ENV: 0)
+mcu.c - mt7902_mcu_set_clc(dev, alpha2: 0xd5a581c0, env_cap)
 init.c - mt7902_regd_channel_update(wiphy, dev)
 main.c - mt7902_set_tx_sar_pwr(hw, sar)
 mt7902e 0000:03:00.0: Regulatory hardware update complete
 init.c - mt7902_thermal_init(phy)
-init.c - mt7902_thermal_init(phy) - mt7902_phy0
-mt7902e 0000:03:00.0: Thermal sensor registered successfully at /sys/class/hwmon/
+init.c - mt7902_thermal_init(phy) - mt7902_phy1
 mt7902e 0000:03:00.0: MT7902 device registration complete
 main.c - mt792x_start(hw)
 main.c - __mt792x_start(phy)
@@ -93,14 +92,13 @@ mcu.c - mt7902_mcu_parse_response(mdev, cmd: 4eed, skb, seq: 7)
 main.c - mt7902_set_tx_sar_pwr(hw, sar)
 mcu.c - mt7902_mcu_radio_led_ctrl(dev, value: 0x01)
 mcu.c - mt7902_mcu_radio_led_ctrl(dev, value: 0x02)
-mt7902e 0000:03:00.0: MCU: Hardware startup sequence complete
-mt7902e 0000:03:00.0: Hardware started successfully
 main.c - mt7902_add_interface(hw, vif)
 mcu.c - mt7902_mcu_add_dev_info(phy, bss_conf, mvif, enable: 1)
 mcu.c - mt7902_mcu_low_power_event(dev, skb)
 mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2aed, skb, seq: 6)
 mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2aed, skb, seq: 6)
 mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2aed, skb, seq: 6)
+add_interface: add dev info, ret=0
 mac.c - mt7902_mac_wtbl_update(dev, idx: 19, mask: 0x00001000)
 main.c - mt7902_bss_info_changed(hw, vif, info, changed: 0xe)
 main.c - mt7902_bss_info_changed(hw, vif, info, changed: 0x2000)
@@ -112,125 +110,37 @@ mcu.c - mt7902_mcu_parse_response(mdev, cmd: 8ed, skb, seq: 8)
 main.c - mt7902_set_tx_sar_pwr(hw, sar)
 main.c - mt7902_configure_filter(hw, changed_flags, total_flags, multicast: 0x0)
 mcu.c - mt7902_mcu_set_rxfilter(dev, fif: 0x80000000, bit_op: 0x00, bit_map: 0x00000000)
+mcu.c - mt7902_mcu_low_power_event(dev, skb)
 main.c - mt7902_configure_filter(hw, changed_flags, total_flags, multicast: 0x0)
 mcu.c - mt7902_mcu_set_rxfilter(dev, fif: 0x80000000, bit_op: 0x00, bit_map: 0x00000000)
 main.c - mt7902_config(hw, changed: 0x10)
-mcu.c - mt7902_mcu_low_power_event(dev, skb)
-warning: `pool-23948' uses wireless extensions which will stop working for Wi-Fi 7 hardware; use nl80211
-mcu.c - mt7902_mcu_low_power_event(dev, skb)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 20002, skb, seq: 7)
-mt7902e 0000:03:00.0: Message 00020002 (seq 7) timeout
-main.c - mt7902_stop
-mcu.c - mt7902_mcu_radio_led_ctrl(dev, value: 0x03)
-mac.c - mt7902_mac_reset_work
-pci_mac.c - mt7902e_mac_reset
-pci_mcu.c - mt7902e_driver_own(dev)
-mcu.c - mt7902_run_firmware(dev)
-mt7902e 0000:03:00.0: Loading firmware binaries into RAM...
-mcu.c - mt7902_load_firmware(dev)
-mcu.c - mt7902_firmware_state(dev, wa: 0)
-mt7902e 0000:03:00.0: Loading patch: mediatek/WIFI_MT7902_patch_mcu_1_1_hdr.bin
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10, skb, seq: 9)
-mt7902e 0000:03:00.0: HW/SW Version: 0x8a108a10, Build Time: 20220729160652a
-
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 5, skb, seq: 10)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 7, skb, seq: 10)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10, skb, seq: 11)
-mt7902e 0000:03:00.0: Loading RAM: mediatek/WIFI_RAM_CODE_MT7902_1.bin
-mt7902e 0000:03:00.0: WM Firmware Version: ____000000, Build Time: 20220729160729
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 12)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 8)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 5)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2, skb, seq: 9)
-mcu.c - mt7902_mcu_get_nic_capability(mphy)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 4008a, skb, seq: 10)
-mt7902e 0000:03:00.0: Firmware MAC address: 1c:ce:51:d9:ca:00
-mcu.c - mt7902_mcu_parse_phy_cap(dev, skb)
-mt7902e 0000:03:00.0: Bands Detected: 2.4GHz: Yes, 5GHz: Yes
-mt7902e 0000:03:00.0: Hardware 6GHz support: Yes
-mt7902e 0000:03:00.0: Loading CLC: mediatek/WIFI_RAM_CODE_MT7902_1.bin
-mcu.c - mt7902_load_clc(dev, fw_name: mediatek/WIFI_RAM_CODE_MT7902_1.bin)
-mcu.c - mt7902_mcu_read_eeprom(dev, offset: 0x0000055b, val: 0x4ce9fd37)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 101ed, skb, seq: 11)
-mt7902e 0000:03:00.0: No CLC region found in firmware binary
-mcu.c - mt7902_mcu_fw_log_2_host(dev, ctrl: 0x01)
-mt7902e 0000:03:00.0: MT7902 firmware running and initialized
-mcu.c - mt7902_mcu_set_eeprom(dev)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 21ed, skb, seq: 13)
-init.c - mt7902_mac_init(dev)
-mac.c - mt7902_mac_wtbl_update(dev, idx: 0, mask: 0x00001000)
-mac.c - mt7902_mac_wtbl_update(dev, idx: 1, mask: 0x00001000)
-mac.c - mt7902_mac_wtbl_update(dev, idx: 2, mask: 0x00001000)
-mac.c - mt7902_mac_wtbl_update(dev, idx: 3, mask: 0x00001000)
-mac.c - mt7902_mac_wtbl_update(dev, idx: 4, mask: 0x00001000)
-mac.c - mt7902_mac_wtbl_update(dev, idx: 5, mask: 0x00001000)
-mac.c - mt7902_mac_wtbl_update(dev, idx: 6, mask: 0x00001000)
-mac.c - mt7902_mac_wtbl_update(dev, idx: 7, mask: 0x00001000)
-mac.c - mt7902_mac_wtbl_update(dev, idx: 8, mask: 0x00001000)
-mac.c - mt7902_mac_wtbl_update(dev, idx: 9, mask: 0x00001000)
-mac.c - mt7902_mac_wtbl_update(dev, idx: 10, mask: 0x00001000)
-mac.c - mt7902_mac_wtbl_update(dev, idx: 11, mask: 0x00001000)
-mac.c - mt7902_mac_wtbl_update(dev, idx: 12, mask: 0x00001000)
-mac.c - mt7902_mac_wtbl_update(dev, idx: 13, mask: 0x00001000)
-mac.c - mt7902_mac_wtbl_update(dev, idx: 14, mask: 0x00001000)
-mac.c - mt7902_mac_wtbl_update(dev, idx: 15, mask: 0x00001000)
-mac.c - mt7902_mac_wtbl_update(dev, idx: 16, mask: 0x00001000)
-mac.c - mt7902_mac_wtbl_update(dev, idx: 17, mask: 0x00001000)
-mac.c - mt7902_mac_wtbl_update(dev, idx: 18, mask: 0x00001000)
-mac.c - mt7902_mac_wtbl_update(dev, idx: 19, mask: 0x00001000)
-usb 3-1: USB disconnect, device number 2
-rndis_host 3-1:1.0 enx9afeaf2a0552: unregister 'rndis_host' usb-0000:05:00.4-1, RNDIS device
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 3eed, skb, seq: 14)
-mt7902e 0000:03:00.0: MAC initialization sequence completed
-main.c - __mt792x_start(phy)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 46ed, skb, seq: 15)
-mcu.c - mt7902_mcu_set_chan_info(phy, cmd: 20205)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 4eed, skb, seq: 2)
-main.c - mt7902_set_tx_sar_pwr(hw, sar)
-mcu.c - mt7902_mcu_radio_led_ctrl(dev, value: 0x01)
-mcu.c - mt7902_mcu_radio_led_ctrl(dev, value: 0x02)
-mt7902e 0000:03:00.0: MCU: Hardware startup sequence complete
-main.c - mt792x_start(hw)
-main.c - __mt792x_start(phy)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 46ed, skb, seq: 1)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 46ed, skb, seq: 1)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 46ed, skb, seq: 1)
-mcu.c - mt7902_mcu_set_chan_info(phy, cmd: 20205)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 4eed, skb, seq: 3)
-main.c - mt7902_set_tx_sar_pwr(hw, sar)
-mcu.c - mt7902_mcu_radio_led_ctrl(dev, value: 0x01)
-mcu.c - mt7902_mcu_radio_led_ctrl(dev, value: 0x02)
-mt7902e 0000:03:00.0: MCU: Hardware startup sequence complete
-mt7902e 0000:03:00.0: Hardware started successfully
-main.c - mt7902_add_interface(hw, vif)
-mcu.c - mt7902_mcu_add_dev_info(phy, bss_conf, mvif, enable: 1)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2aed, skb, seq: 2)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2aed, skb, seq: 2)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2aed, skb, seq: 2)
-mac.c - mt7902_mac_wtbl_update(dev, idx: 19, mask: 0x00001000)
-main.c - mt7902_bss_info_changed(hw, vif, info, changed: 0xe)
-main.c - mt7902_bss_info_changed(hw, vif, info, changed: 0x2000)
-mcu.c - mt7902_mcu_set_tx(dev, vif)
-main.c - mt7902_config(hw, changed: 0xffffff9d)
-main.c - mt7902_configure_filter(hw, changed_flags, total_flags, multicast: 0x0)
-mcu.c - mt7902_mcu_set_rxfilter(dev, fif: 0x80000000, bit_op: 0x00, bit_map: 0x00000000)
-main.c - mt7902_config(hw, changed: 0x10)
-main.c - mt7902_configure_filter(hw, changed_flags, total_flags, multicast: 0x0)
-mcu.c - mt7902_mcu_set_rxfilter(dev, fif: 0x80000000, bit_op: 0x00, bit_map: 0x00000000)
 main.c - mt7902_hw_scan(hw, vif, req)
 main.c - mt7902_configure_filter(hw, changed_flags, total_flags, multicast: 0x0)
 mcu.c - mt7902_mcu_set_rxfilter(dev, fif: 0x80000000, bit_op: 0x00, bit_map: 0x00000000)
 mcu.c - mt7902_mcu_scan_event
+mcu.c - mt7902_mcu_low_power_event(dev, skb)
+main.c - mt7902_scan_work(work)
+main.c - mt7902_hw_scan(hw, vif, req)
+mcu.c - mt7902_mcu_scan_event
+mcu.c - mt7902_mcu_low_power_event(dev, skb)
+main.c - mt7902_scan_work(work)
+main.c - mt7902_hw_scan(hw, vif, req)
+mac.c - mt7902_mac_fill_rx(dev, skb)
+mac.c - mt7902_mac_fill_rx(dev, skb)
+mac.c - mt7902_mac_fill_rx(dev, skb)
+mcu.c - mt7902_mcu_scan_event
+mcu.c - mt7902_mcu_low_power_event(dev, skb)
 main.c - mt7902_scan_work(work)
 main.c - mt7902_hw_scan(hw, vif, req)
 mac.c - mt7902_mac_fill_rx(dev, skb)
 mcu.c - mt7902_mcu_scan_event
+mcu.c - mt7902_mcu_low_power_event(dev, skb)
 main.c - mt7902_scan_work(work)
 main.c - mt7902_config(hw, changed: 0x100)
 main.c - mt7902_config(hw, changed: 0x40)
 main.c - mt7902_set_channel(mphy)
 mcu.c - mt7902_mcu_set_chan_info(phy, cmd: 2285)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 8ed, skb, seq: 9)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 8ed, skb, seq: 12)
 main.c - mt7902_bss_info_changed(hw, vif, info, changed: 0x40000)
 main.c - mt7902_bss_info_changed(hw, vif, info, changed: 0x4000)
 main.c - mt7902_bss_info_changed(hw, vif, info, changed: 0xe0)
@@ -238,45 +148,88 @@ main.c - mt792x_sta_state(hw, vif, sta, old_state: 0, new_state: 1)
 main.c - mt7902_mac_sta_add
 mac.c - mt7902_mac_wtbl_update(dev, idx: 1, mask: 0x00001000)
 mcu.c - mt7902_mcu_sta_update
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 25ed, skb, seq: 11)
+mcu.c - mt7902_mcu_low_power_event(dev, skb)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 25ed, skb, seq: 14)
 main.c - mt7902_regd_set_6ghz_power_type(vif, is_add: 1)
 main.c - mt7902_calc_vif_num(priv, mac, vif) - vif->type: 2
-mcu.c - mt7902_mcu_set_clc(dev, alpha2: 0x22b981c0, env_cap)
-wlan0: authenticate with 6e:91:61:19:e7:0c (local address=1c:ce:51:d9:ca:00)
-wlan0: send auth to 6e:91:61:19:e7:0c (try 1/3)
+mcu.c - mt7902_mcu_set_clc(dev, alpha2: 0xd5a581c0, env_cap)
+wlan1: authenticate with 6e:91:61:19:e7:0c (local address=1c:ce:51:d9:ca:00)
+wlan1: send auth to 6e:91:61:19:e7:0c (try 1/3)
 pci_mac.c - mt7902e_tx_prepare_skb(mdev, txwi_ptr, qid, wcid, sta, tx_info)
 main.c - mt7902_configure_filter(hw, changed_flags, total_flags, multicast: 0x0)
 mcu.c - mt7902_mcu_set_rxfilter(dev, fif: 0x80000000, bit_op: 0x00, bit_map: 0x00000000)
-wlan0: send auth to 6e:91:61:19:e7:0c (try 2/3)
+wlan1: send auth to 6e:91:61:19:e7:0c (try 2/3)
 pci_mac.c - mt7902e_tx_prepare_skb(mdev, txwi_ptr, qid, wcid, sta, tx_info)
-wlan0: send auth to 6e:91:61:19:e7:0c (try 3/3)
+wlan1: send auth to 6e:91:61:19:e7:0c (try 3/3)
 pci_mac.c - mt7902e_tx_prepare_skb(mdev, txwi_ptr, qid, wcid, sta, tx_info)
-wlan0: authentication with 6e:91:61:19:e7:0c timed out
+wlan1: authentication with 6e:91:61:19:e7:0c timed out
 main.c - mt792x_sta_state(hw, vif, sta, old_state: 1, new_state: 0)
 main.c - mt7902_mac_sta_remove
 main.c - mt7902_roc_abort_sync
 mcu.c - mt7902_mcu_sta_update
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 25ed, skb, seq: 14)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 25ed, skb, seq: 2)
 mac.c - mt7902_mac_wtbl_update(dev, idx: 1, mask: 0x00001000)
 mcu.c - mt7902_mcu_add_bss_info(phy, vif, enable: 1)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 26ed, skb, seq: 15)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 26ed, skb, seq: 3)
 mac_sta_remove: add bss info ret = 0
 main.c - mt7902_regd_set_6ghz_power_type(vif, is_add: 0)
 main.c - mt7902_calc_vif_num(priv, mac, vif) - vif->type: 2
-mcu.c - mt7902_mcu_set_clc(dev, alpha2: 0x22b981c0, env_cap)
+mcu.c - mt7902_mcu_set_clc(dev, alpha2: 0xd5a581c0, env_cap)
 main.c - mt7902_bss_info_changed(hw, vif, info, changed: 0x80)
 main.c - mt7902_bss_info_changed(hw, vif, info, changed: 0x4000)
 main.c - mt7902_config(hw, changed: 0x40)
 main.c - mt7902_set_channel(mphy)
 mcu.c - mt7902_mcu_set_chan_info(phy, cmd: 2285)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 8ed, skb, seq: 1)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 8ed, skb, seq: 4)
+main.c - mt7902_config(hw, changed: 0x100)
+main.c - mt7902_config(hw, changed: 0x100)
+main.c - mt7902_config(hw, changed: 0x40)
+main.c - mt7902_set_channel(mphy)
+mcu.c - mt7902_mcu_set_chan_info(phy, cmd: 2285)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 8ed, skb, seq: 5)
+main.c - mt7902_bss_info_changed(hw, vif, info, changed: 0x4000)
+main.c - mt7902_bss_info_changed(hw, vif, info, changed: 0xe0)
+main.c - mt792x_sta_state(hw, vif, sta, old_state: 0, new_state: 1)
+main.c - mt7902_mac_sta_add
+mac.c - mt7902_mac_wtbl_update(dev, idx: 1, mask: 0x00001000)
+mcu.c - mt7902_mcu_sta_update
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 25ed, skb, seq: 7)
+main.c - mt7902_regd_set_6ghz_power_type(vif, is_add: 1)
+main.c - mt7902_calc_vif_num(priv, mac, vif) - vif->type: 2
+mcu.c - mt7902_mcu_set_clc(dev, alpha2: 0xd5a581c0, env_cap)
+wlan1: authenticate with 6e:91:61:19:e7:0b (local address=1c:ce:51:d9:ca:00)
+wlan1: send auth to 6e:91:61:19:e7:0b (try 1/3)
+pci_mac.c - mt7902e_tx_prepare_skb(mdev, txwi_ptr, qid, wcid, sta, tx_info)
+wlan1: send auth to 6e:91:61:19:e7:0b (try 2/3)
+pci_mac.c - mt7902e_tx_prepare_skb(mdev, txwi_ptr, qid, wcid, sta, tx_info)
+wlan1: send auth to 6e:91:61:19:e7:0b (try 3/3)
+pci_mac.c - mt7902e_tx_prepare_skb(mdev, txwi_ptr, qid, wcid, sta, tx_info)
+wlan1: authentication with 6e:91:61:19:e7:0b timed out
+main.c - mt792x_sta_state(hw, vif, sta, old_state: 1, new_state: 0)
+main.c - mt7902_mac_sta_remove
+main.c - mt7902_roc_abort_sync
+mcu.c - mt7902_mcu_sta_update
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 25ed, skb, seq: 9)
+mac.c - mt7902_mac_wtbl_update(dev, idx: 1, mask: 0x00001000)
+mcu.c - mt7902_mcu_add_bss_info(phy, vif, enable: 1)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 26ed, skb, seq: 10)
+mac_sta_remove: add bss info ret = 0
+main.c - mt7902_regd_set_6ghz_power_type(vif, is_add: 0)
+main.c - mt7902_calc_vif_num(priv, mac, vif) - vif->type: 2
+mcu.c - mt7902_mcu_set_clc(dev, alpha2: 0xd5a581c0, env_cap)
+main.c - mt7902_bss_info_changed(hw, vif, info, changed: 0x80)
+main.c - mt7902_bss_info_changed(hw, vif, info, changed: 0x4000)
+main.c - mt7902_config(hw, changed: 0x40)
+main.c - mt7902_set_channel(mphy)
+mcu.c - mt7902_mcu_set_chan_info(phy, cmd: 2285)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 8ed, skb, seq: 11)
 main.c - mt7902_config(hw, changed: 0x100)
 main.c - mt7902_hw_scan(hw, vif, req)
 pci.c - mt7902_pci_remove
 pci.c - mt7902e_unregister_device
 main.c - mt7902_cancel_hw_scan
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 20002, skb, seq: 4)
-mt7902e 0000:03:00.0: Message 00020002 (seq 4) timeout
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 20002, skb, seq: 14)
+mt7902e 0000:03:00.0: Message 00020002 (seq 14) timeout
 mac.c - mt7902_mac_reset_work
 pci_mac.c - mt7902e_mac_reset
 main.c - mt7902_stop
@@ -286,33 +239,33 @@ mt7902e 0000:03:00.0: Loading firmware binaries into RAM...
 mcu.c - mt7902_load_firmware(dev)
 mcu.c - mt7902_firmware_state(dev, wa: 0)
 mt7902e 0000:03:00.0: Loading patch: mediatek/WIFI_MT7902_patch_mcu_1_1_hdr.bin
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10, skb, seq: 5)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10, skb, seq: 15)
 mt7902e 0000:03:00.0: HW/SW Version: 0x8a108a10, Build Time: 20220729160652a
 
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 5, skb, seq: 6)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 7, skb, seq: 6)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10, skb, seq: 7)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 5, skb, seq: 1)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 7, skb, seq: 1)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 10, skb, seq: 2)
 mt7902e 0000:03:00.0: Loading RAM: mediatek/WIFI_RAM_CODE_MT7902_1.bin
 mt7902e 0000:03:00.0: WM Firmware Version: ____000000, Build Time: 20220729160729
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 8)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 4)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 1)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2, skb, seq: 5)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 3)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 14)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 1, skb, seq: 11)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 2, skb, seq: 15)
 mcu.c - mt7902_mcu_get_nic_capability(mphy)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 4008a, skb, seq: 6)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 4008a, skb, seq: 1)
 mt7902e 0000:03:00.0: Firmware MAC address: 1c:ce:51:d9:ca:00
 mcu.c - mt7902_mcu_parse_phy_cap(dev, skb)
 mt7902e 0000:03:00.0: Bands Detected: 2.4GHz: Yes, 5GHz: Yes
 mt7902e 0000:03:00.0: Hardware 6GHz support: Yes
 mt7902e 0000:03:00.0: Loading CLC: mediatek/WIFI_RAM_CODE_MT7902_1.bin
 mcu.c - mt7902_load_clc(dev, fw_name: mediatek/WIFI_RAM_CODE_MT7902_1.bin)
-mcu.c - mt7902_mcu_read_eeprom(dev, offset: 0x0000055b, val: 0x427b3d37)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 101ed, skb, seq: 7)
+mcu.c - mt7902_mcu_read_eeprom(dev, offset: 0x0000055b, val: 0x8be37d37)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 101ed, skb, seq: 2)
 mt7902e 0000:03:00.0: No CLC region found in firmware binary
 mcu.c - mt7902_mcu_fw_log_2_host(dev, ctrl: 0x01)
 mt7902e 0000:03:00.0: MT7902 firmware running and initialized
 mcu.c - mt7902_mcu_set_eeprom(dev)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 21ed, skb, seq: 9)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 21ed, skb, seq: 4)
 init.c - mt7902_mac_init(dev)
 mac.c - mt7902_mac_wtbl_update(dev, idx: 0, mask: 0x00001000)
 mac.c - mt7902_mac_wtbl_update(dev, idx: 1, mask: 0x00001000)
@@ -334,15 +287,14 @@ mac.c - mt7902_mac_wtbl_update(dev, idx: 16, mask: 0x00001000)
 mac.c - mt7902_mac_wtbl_update(dev, idx: 17, mask: 0x00001000)
 mac.c - mt7902_mac_wtbl_update(dev, idx: 18, mask: 0x00001000)
 mac.c - mt7902_mac_wtbl_update(dev, idx: 19, mask: 0x00001000)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 3eed, skb, seq: 10)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 3eed, skb, seq: 5)
 mt7902e 0000:03:00.0: MAC initialization sequence completed
 main.c - __mt792x_start(phy)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 46ed, skb, seq: 11)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 46ed, skb, seq: 6)
 mcu.c - mt7902_mcu_set_chan_info(phy, cmd: 20205)
-mcu.c - mt7902_mcu_parse_response(mdev, cmd: 4eed, skb, seq: 13)
+mcu.c - mt7902_mcu_parse_response(mdev, cmd: 4eed, skb, seq: 8)
 main.c - mt7902_set_tx_sar_pwr(hw, sar)
 mcu.c - mt7902_mcu_radio_led_ctrl(dev, value: 0x01)
 mcu.c - mt7902_mcu_radio_led_ctrl(dev, value: 0x02)
-mt7902e 0000:03:00.0: MCU: Hardware startup sequence complete
 
 
