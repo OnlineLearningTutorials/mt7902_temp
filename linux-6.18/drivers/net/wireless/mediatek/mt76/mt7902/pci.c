@@ -13,6 +13,9 @@
 #include "../dma.h"
 #include "mcu.h"
 
+#define DEBUG
+
+
 static const struct pci_device_id mt7902_pci_device_table[] = {
 	{ PCI_DEVICE(PCI_VENDOR_ID_MEDIATEK, 0x7902),
 		.driver_data = (kernel_ulong_t)MT7902_FIRMWARE_WM },
@@ -165,7 +168,7 @@ static int mt7902_dma_init(struct mt792x_dev *dev)
 {
 	printk(KERN_DEBUG "pci.c - mt7902_dma_init(dev)");
 	// 1. Trace entry and start attachment
-	dev_dbg(dev->mt76.dev, "Initializing DMA for MT7902\n");
+	dev_info(dev->mt76.dev, "Initializing DMA for MT7902\n");
 	int ret;
 
 	mt76_dma_attach(&dev->mt76);
@@ -187,7 +190,7 @@ static int mt7902_dma_init(struct mt792x_dev *dev)
 	}
 
 	mt76_wr(dev, MT_WFDMA0_TX_RING0_EXT_CTRL, 0x4);
-	dev_dbg(dev->mt76.dev, "WFDMA0 TX Ring Ext Ctrl set to 0x4\n");
+	dev_info(dev->mt76.dev, "WFDMA0 TX Ring Ext Ctrl set to 0x4\n");
 
 	/* command to WM */
 	ret = mt76_init_mcu_queue(&dev->mt76, MT_MCUQ_WM, MT7902_TXQ_MCU_WM,
@@ -231,7 +234,7 @@ static int mt7902_dma_init(struct mt792x_dev *dev)
 	netif_napi_add_tx(dev->mt76.tx_napi_dev, &dev->mt76.tx_napi,
 			  mt792x_poll_tx);
 	napi_enable(&dev->mt76.tx_napi);
-	dev_dbg(dev->mt76.dev, "TX NAPI enabled\n");
+	dev_info(dev->mt76.dev, "TX NAPI enabled\n");
 
 	return mt792x_dma_enable(dev);
 }

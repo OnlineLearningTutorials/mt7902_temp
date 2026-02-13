@@ -9,6 +9,9 @@
 #include "mt7902.h"
 #include "mcu.h"
 
+#define DEBUG
+
+
 static int
 mt7902_init_he_caps(struct mt792x_phy *phy, enum nl80211_band band,
 		    struct ieee80211_sband_iftype_data *data)
@@ -18,7 +21,7 @@ mt7902_init_he_caps(struct mt792x_phy *phy, enum nl80211_band band,
 	int nss = hweight8(phy->mt76->chainmask);
 	u16 mcs_map = 0;
 
-	dev_dbg(phy->mt76->dev->dev, "Init HE caps for band %d: NSS=%d, Chainmask=0x%x\n", 
+	dev_info(phy->mt76->dev->dev, "Init HE caps for band %d: NSS=%d, Chainmask=0x%x\n", 
 		band, nss, phy->mt76->chainmask);
 	for (i = 0; i < 8; i++) {
 		if (i < nss)
@@ -26,7 +29,7 @@ mt7902_init_he_caps(struct mt792x_phy *phy, enum nl80211_band band,
 		else
 			mcs_map |= (IEEE80211_HE_MCS_NOT_SUPPORTED << (i * 2));
 	}
-	dev_dbg(phy->mt76->dev->dev, "Calculated HE MCS Map: 0x%04x\n", mcs_map);
+	dev_info(phy->mt76->dev->dev, "Calculated HE MCS Map: 0x%04x\n", mcs_map);
 
 	for (i = 0; i < NUM_NL80211_IFTYPES; i++) {
 		struct ieee80211_sta_he_cap *he_cap = &data[idx].he_cap;
@@ -38,7 +41,7 @@ mt7902_init_he_caps(struct mt792x_phy *phy, enum nl80211_band band,
 		switch (i) {
 		case NL80211_IFTYPE_STATION:
 		case NL80211_IFTYPE_AP:
-			dev_dbg(phy->mt76->dev->dev, "Configuring HE caps for IFTYPE: %d\n", i);
+			dev_info(phy->mt76->dev->dev, "Configuring HE caps for IFTYPE: %d\n", i);
 			break;
 		default:
 			continue;
@@ -62,7 +65,7 @@ mt7902_init_he_caps(struct mt792x_phy *phy, enum nl80211_band band,
 			he_cap_elem->phy_cap_info[0] =
 				IEEE80211_HE_PHY_CAP0_CHANNEL_WIDTH_SET_40MHZ_80MHZ_IN_5G;
 				if (is_mt7922(phy->mt76->dev)) {
-				dev_dbg(phy->mt76->dev->dev, "Enabling 160MHz HE support (MT7922 mode)\n");
+				dev_info(phy->mt76->dev->dev, "Enabling 160MHz HE support (MT7922 mode)\n");
 			}
 		}
 
@@ -99,7 +102,7 @@ mt7902_init_he_caps(struct mt792x_phy *phy, enum nl80211_band band,
 			}
 			break;
 		case NL80211_IFTYPE_STATION:
-			dev_dbg(phy->mt76->dev->dev, "Enabling HE Beamformee support\n");
+			dev_info(phy->mt76->dev->dev, "Enabling HE Beamformee support\n");
 			he_cap_elem->mac_cap_info[1] |=
 				IEEE80211_HE_MAC_CAP1_TF_MAC_PAD_DUR_16US;
 
@@ -199,7 +202,7 @@ mt7902_init_he_caps(struct mt792x_phy *phy, enum nl80211_band band,
 
 			data[idx].he_6ghz_capa.capa = cpu_to_le16(cap);
 			cap_val = le16_to_cpu(data[idx].he_6ghz_capa.capa);
-			dev_dbg(phy->mt76->dev->dev, "Calculated 6GHz HE Capa: 0x%04x\n", cap_val);
+			dev_info(phy->mt76->dev->dev, "Calculated 6GHz HE Capa: 0x%04x\n", cap_val);
 		}
 		idx++;
 	}
@@ -215,7 +218,7 @@ void mt7902_set_stream_he_caps(struct mt792x_phy *phy)
 	int n;
 
 	if (phy->mt76->cap.has_2ghz) {
-		dev_dbg(phy->mt76->dev->dev, "Setting HE caps for 2.4GHz band\n");
+		dev_info(phy->mt76->dev->dev, "Setting HE caps for 2.4GHz band\n");
 		data = phy->iftype[NL80211_BAND_2GHZ];
 		n = mt7902_init_he_caps(phy, NL80211_BAND_2GHZ, data);
 
@@ -224,7 +227,7 @@ void mt7902_set_stream_he_caps(struct mt792x_phy *phy)
 	}
 
 	if (phy->mt76->cap.has_5ghz) {
-		dev_dbg(phy->mt76->dev->dev, "Setting HE caps for 5GHz band\n");
+		dev_info(phy->mt76->dev->dev, "Setting HE caps for 5GHz band\n");
 		data = phy->iftype[NL80211_BAND_5GHZ];
 		n = mt7902_init_he_caps(phy, NL80211_BAND_5GHZ, data);
 
@@ -239,7 +242,7 @@ void mt7902_set_stream_he_caps(struct mt792x_phy *phy)
 			band = &phy->mt76->sband_6g.sband;
 			_ieee80211_set_sband_iftype_data(band, data, n);
 		} else {
-			dev_dbg(phy->mt76->dev->dev, "6GHz band not supported by hardware/firmware\n");
+			dev_info(phy->mt76->dev->dev, "6GHz band not supported by hardware/firmware\n");
 		}
 	} else {
 		dev_warn(phy->mt76->dev->dev, "5GHz band missing? HE caps skipped for 5G/6G\n");
@@ -253,28 +256,28 @@ int __mt7902_start(struct mt792x_phy *phy)
 	struct mt76_dev *mdev = mphy->dev;
 	int err;
 
-	dev_dbg(mdev->dev, "MCU: Enabling MAC...\n");
+	dev_info(mdev->dev, "MCU: Enabling MAC...\n");
 	err = mt76_connac_mcu_set_mac_enable(mphy->dev, 0, true, false);
 	if (err) {
 		dev_err(mdev->dev, "MCU: Failed to enable MAC (%d)\n", err);
 		return err;
 	}
 
-	dev_dbg(mdev->dev, "MCU: Setting channel domain...\n");
+	dev_info(mdev->dev, "MCU: Setting channel domain...\n");
 	err = mt76_connac_mcu_set_channel_domain(mphy);
 	if (err) {
 		dev_err(mdev->dev, "MCU: Failed to set channel domain (%d)\n", err);
 		return err;
 	}
 
-	dev_dbg(mdev->dev, "MCU: Setting RX path info...\n");
+	dev_info(mdev->dev, "MCU: Setting RX path info...\n");
 	err = mt7902_mcu_set_chan_info(phy, MCU_EXT_CMD(SET_RX_PATH));
 	if (err) {
 		dev_err(mdev->dev, "MCU: Failed to set RX path (%d)\n", err);
 		return err;
 	}
 
-	dev_dbg(mdev->dev, "SAR: Applying default ACPI power limits...\n");
+	dev_info(mdev->dev, "SAR: Applying default ACPI power limits...\n");
 	err = mt7902_set_tx_sar_pwr(mphy->hw, NULL);
 	if (err) {
 		dev_err(mdev->dev, "SAR: Failed to apply power limits (%d)\n", err);
@@ -287,7 +290,7 @@ int __mt7902_start(struct mt792x_phy *phy)
 	ieee80211_queue_delayed_work(mphy->hw, &mphy->mac_work,
 				     MT792x_WATCHDOG_TIME);
 	if (mt76_is_mmio(mphy->dev)) {
-		dev_dbg(mdev->dev, "LED: Initializing Radio LEDs...\n");
+		dev_info(mdev->dev, "LED: Initializing Radio LEDs...\n");
 		err = mt7902_mcu_radio_led_ctrl(phy->dev, EXT_CMD_RADIO_LED_CTRL_ENABLE);
 		if (err)
 			dev_warn(mdev->dev, "LED: Failed to enable LED controller (%d)\n", err);
@@ -298,7 +301,7 @@ int __mt7902_start(struct mt792x_phy *phy)
 	}
 
 	if (phy->chip_cap & MT792x_CHIP_CAP_WF_RF_PIN_CTRL_EVT_EN) {
-		dev_dbg(mdev->dev, "RFKILL: Initializing hardware RF pin control\n");
+		dev_info(mdev->dev, "RFKILL: Initializing hardware RF pin control\n");
 		mt7902_mcu_wf_rf_pin_ctrl(phy, WF_RF_PIN_INIT);
 		wiphy_rfkill_start_polling(mphy->hw->wiphy);
 	}
@@ -314,9 +317,9 @@ static int mt7902_start(struct ieee80211_hw *hw)
 	struct mt76_dev *mdev = &phy->dev->mt76;
 	int err;
 
-	dev_dbg(mdev->dev, "Requesting interface start (mt7902_start)\n");
+	dev_info(mdev->dev, "Requesting interface start (mt7902_start)\n");
 	mt792x_mutex_acquire(phy->dev);
-	dev_dbg(mdev->dev, "Mutex acquired, calling __mt7902_start\n");
+	dev_info(mdev->dev, "Mutex acquired, calling __mt7902_start\n");
 	err = __mt7902_start(phy);
 	if (err) {
 		dev_err(mdev->dev, "Failed to start hardware: %d\n", err);
@@ -324,7 +327,7 @@ static int mt7902_start(struct ieee80211_hw *hw)
 		dev_info(mdev->dev, "Hardware started successfully\n");
 	}
 	mt792x_mutex_release(phy->dev);
-	dev_dbg(mdev->dev, "Mutex released\n");
+	dev_info(mdev->dev, "Mutex released\n");
 	return err;
 }
 
@@ -356,7 +359,7 @@ mt7902_add_interface(struct ieee80211_hw *hw, struct ieee80211_vif *vif)
 	struct mt76_txq *mtxq;
 	int idx, ret = 0;
 
-	dev_dbg(dev->mt76.dev, "VIF: Adding interface type %d on PHY %p\n", 
+	dev_info(dev->mt76.dev, "VIF: Adding interface type %d on PHY %p\n", 
 		vif->type, phy);
 	mt792x_mutex_acquire(dev);
 
@@ -374,7 +377,7 @@ mt7902_add_interface(struct ieee80211_hw *hw, struct ieee80211_vif *vif)
 	mvif->bss_conf.mt76.band_idx = 0;
 	mvif->bss_conf.mt76.wmm_idx = mvif->bss_conf.mt76.idx % MT76_CONNAC_MAX_WMM_SETS;
 
-	dev_dbg(dev->mt76.dev, "VIF: Notifying MCU: idx=%d, omac=%d, wmm=%d\n",
+	dev_info(dev->mt76.dev, "VIF: Notifying MCU: idx=%d, omac=%d, wmm=%d\n",
 		mvif->bss_conf.mt76.idx, mvif->bss_conf.mt76.omac_idx, mvif->bss_conf.mt76.wmm_idx);
 
 
@@ -395,7 +398,7 @@ mt7902_add_interface(struct ieee80211_hw *hw, struct ieee80211_vif *vif)
 	phy->omac_mask |= BIT_ULL(mvif->bss_conf.mt76.omac_idx);
 
 	idx = MT792x_WTBL_RESERVED - mvif->bss_conf.mt76.idx;
-	dev_dbg(dev->mt76.dev, "VIF: Assigned WCID idx=%d\n", idx);
+	dev_info(dev->mt76.dev, "VIF: Assigned WCID idx=%d\n", idx);
 
 	INIT_LIST_HEAD(&mvif->sta.deflink.wcid.poll_list);
 	mvif->sta.deflink.wcid.idx = idx;
@@ -411,12 +414,12 @@ mt7902_add_interface(struct ieee80211_hw *hw, struct ieee80211_vif *vif)
 	if (vif->txq) {
 		mtxq = (struct mt76_txq *)vif->txq->drv_priv;
 		mtxq->wcid = idx;
-		dev_dbg(dev->mt76.dev, "VIF: Linked TXQ to WCID %d\n", idx);
+		dev_info(dev->mt76.dev, "VIF: Linked TXQ to WCID %d\n", idx);
 	}
 
 	vif->driver_flags |= IEEE80211_VIF_BEACON_FILTER;
 	if (phy->chip_cap & MT792x_CHIP_CAP_RSSI_NOTIFY_EVT_EN) {
-		dev_dbg(dev->mt76.dev, "VIF: Hardware RSSI notification enabled\n");
+		dev_info(dev->mt76.dev, "VIF: Hardware RSSI notification enabled\n");
 		vif->driver_flags |= IEEE80211_VIF_SUPPORTS_CQM_RSSI;
 	}
 
@@ -557,17 +560,17 @@ int mt7902_set_channel(struct mt76_phy *mphy)
 	struct cfg80211_chan_def *chandef = &mphy->chandef;
 	int ret;
 
-	dev_dbg(dev->mt76.dev, "CHAN: Switching to %d MHz (BW: %d, Band: %d)\n",
+	dev_info(dev->mt76.dev, "CHAN: Switching to %d MHz (BW: %d, Band: %d)\n",
 		chandef->center_freq1, chandef->width, chandef->chan->band);
 
 	mt76_connac_pm_wake(mphy, &dev->pm);
-	dev_dbg(dev->mt76.dev, "CHAN: Device awoken from power save\n");
+	dev_info(dev->mt76.dev, "CHAN: Device awoken from power save\n");
 	ret = mt7902_mcu_set_chan_info(phy, MCU_EXT_CMD(CHANNEL_SWITCH));
 	if (ret) {
 		dev_err(dev->mt76.dev, "CHAN: MCU failed to switch channel (err: %d)\n", ret);
 		goto out;
 	}
-	dev_dbg(dev->mt76.dev, "CHAN: Channel switch successful, resetting MAC timing/counters\n");
+	dev_info(dev->mt76.dev, "CHAN: Channel switch successful, resetting MAC timing/counters\n");
 	mt792x_mac_set_timeing(phy);
 	mt792x_mac_reset_counters(phy);
 	phy->noise = 0;
@@ -726,9 +729,9 @@ static int mt7902_config(struct ieee80211_hw *hw, int radio_idx, u32 changed)
 	struct mt792x_phy *phy = mt792x_hw_phy(hw);
 	int ret = 0;
 
-	dev_dbg(dev->mt76.dev, "HW Config: Radio %d change mask: 0x%08x\n", radio_idx, changed);
+	dev_info(dev->mt76.dev, "HW Config: Radio %d change mask: 0x%08x\n", radio_idx, changed);
 	if (changed & IEEE80211_CONF_CHANGE_CHANNEL) {
-		dev_dbg(dev->mt76.dev, "HW Config: Changing channel to %d MHz (BW: %d)\n", 
+		dev_info(dev->mt76.dev, "HW Config: Changing channel to %d MHz (BW: %d)\n", 
 			phy->mt76->chandef.center_freq1, phy->mt76->chandef.width);
 
 		ret = mt76_update_channel(phy->mt76);
@@ -741,7 +744,7 @@ static int mt7902_config(struct ieee80211_hw *hw, int radio_idx, u32 changed)
 	mt792x_mutex_acquire(dev);
 
 	if (changed & IEEE80211_CONF_CHANGE_POWER) {
-		dev_dbg(dev->mt76.dev, "HW Config: Power limit change detected, updating SAR\n");
+		dev_info(dev->mt76.dev, "HW Config: Power limit change detected, updating SAR\n");
 		ret = mt7902_set_tx_sar_pwr(hw, NULL);
 		if (ret) {
 			dev_err(dev->mt76.dev, "HW Config: SAR power update failed (err: %d)\n", ret);
@@ -751,7 +754,7 @@ static int mt7902_config(struct ieee80211_hw *hw, int radio_idx, u32 changed)
 
 	if (changed & IEEE80211_CONF_CHANGE_MONITOR) {
 		bool monitor = !!(hw->conf.flags & IEEE80211_CONF_MONITOR);
-		dev_dbg(dev->mt76.dev, "HW Config: Monitor mode %s\n", monitor ? "Enabled" : "Disabled");
+		dev_info(dev->mt76.dev, "HW Config: Monitor mode %s\n", monitor ? "Enabled" : "Disabled");
 		
 		ieee80211_iterate_active_interfaces(hw,
 						    IEEE80211_IFACE_ITER_RESUME_ALL,
@@ -762,7 +765,7 @@ out:
 	mt792x_mutex_release(dev);
 
 	if (!ret)
-		dev_dbg(dev->mt76.dev, "HW Config: Configuration applied successfully\n");
+		dev_info(dev->mt76.dev, "HW Config: Configuration applied successfully\n");
 
 	return ret;
 }
@@ -781,7 +784,7 @@ static void mt7902_configure_filter(struct ieee80211_hw *hw,
 	struct mt792x_dev *dev = mt792x_hw_dev(hw);
 	u32 flags = MT7902_FILTER_ENABLE;
 
-	dev_dbg(dev->mt76.dev, "FILTER: Config change. Changed: 0x%x, Total: 0x%x, MC_mask: 0x%llx\n",
+	dev_info(dev->mt76.dev, "FILTER: Config change. Changed: 0x%x, Total: 0x%x, MC_mask: 0x%llx\n",
 		changed_flags, *total_flags, multicast);
 
 #define MT7902_FILTER(_fif, _type) do {			\
@@ -793,7 +796,7 @@ static void mt7902_configure_filter(struct ieee80211_hw *hw,
 	MT7902_FILTER(FIF_CONTROL, CONTROL);
 	MT7902_FILTER(FIF_OTHER_BSS, OTHER_BSS);
 
-	dev_dbg(dev->mt76.dev, "FILTER: Applying HW flags: 0x%08x (FCS:%d CTRL:%d OBSS:%d)\n",
+	dev_info(dev->mt76.dev, "FILTER: Applying HW flags: 0x%08x (FCS:%d CTRL:%d OBSS:%d)\n",
 		flags, 
 		!!(flags & MT7902_FILTER_FCSFAIL),
 		!!(flags & MT7902_FILTER_CONTROL),
@@ -818,13 +821,13 @@ static void mt7902_bss_info_changed(struct ieee80211_hw *hw,
 	struct mt792x_phy *phy = mt792x_hw_phy(hw);
 	struct mt792x_dev *dev = mt792x_hw_dev(hw);
 
-	// dev_dbg(dev->mt76.dev, "BSS Change: Mask 0x%llx triggered for %s\n", 
+	// dev_info(dev->mt76.dev, "BSS Change: Mask 0x%llx triggered for %s\n", 
 	// 	changed, vif->wdev.netdev->name);
 	mt792x_mutex_acquire(dev);
 
 	if (changed & BSS_CHANGED_ERP_SLOT) {
 		int slottime = info->use_short_slot ? 9 : 20;
-		dev_dbg(dev->mt76.dev, "BSS Change: ERP Slot Time update (%d us)\n", slottime);
+		dev_info(dev->mt76.dev, "BSS Change: ERP Slot Time update (%d us)\n", slottime);
 
 		if (slottime != phy->slottime) {
 			phy->slottime = slottime;
@@ -834,7 +837,7 @@ static void mt7902_bss_info_changed(struct ieee80211_hw *hw,
 
 	if (changed & (BSS_CHANGED_BEACON |
 		       BSS_CHANGED_BEACON_ENABLED)) {
-		dev_dbg(dev->mt76.dev, "BSS Change: Beacon %s (Enabled: %d)\n",
+		dev_info(dev->mt76.dev, "BSS Change: Beacon %s (Enabled: %d)\n",
 			(changed & BSS_CHANGED_BEACON_ENABLED) ? "State Toggle" : "Update",
 			info->enable_beacon);
 		mt7902_mcu_uni_add_beacon_offload(dev, hw, vif,
@@ -844,18 +847,18 @@ static void mt7902_bss_info_changed(struct ieee80211_hw *hw,
 
 	/* ensure that enable txcmd_mode after bss_info */
 	if (changed & (BSS_CHANGED_QOS | BSS_CHANGED_BEACON_ENABLED)) {
-		dev_dbg(dev->mt76.dev, "BSS Change: Updating TX configuration (QoS/Beacon toggle)\n");
+		dev_info(dev->mt76.dev, "BSS Change: Updating TX configuration (QoS/Beacon toggle)\n");
 		mt7902_mcu_set_tx(dev, vif);
 	}
 
 	if (changed & BSS_CHANGED_PS) {
-		// dev_dbg(dev->mt76.dev, "BSS Change: Power Save state changed (STA_PS: %d)\n", 
+		// dev_info(dev->mt76.dev, "BSS Change: Power Save state changed (STA_PS: %d)\n", 
 		// 	vif->bss_conf.assoc);
 		mt7902_mcu_uni_bss_ps(dev, vif);
 	}
 
 	if (changed & BSS_CHANGED_CQM) {
-		dev_dbg(dev->mt76.dev, "BSS Change: RSSI Monitor (CQM) update\n");
+		dev_info(dev->mt76.dev, "BSS Change: RSSI Monitor (CQM) update\n");
 		mt7902_mcu_set_rssimonitor(dev, vif);
 	}
 
@@ -869,7 +872,7 @@ static void mt7902_bss_info_changed(struct ieee80211_hw *hw,
 
 	if (changed & BSS_CHANGED_ARP_FILTER) {
 		struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
-		dev_dbg(dev->mt76.dev, "BSS Change: Updating ARP Offload filter\n");
+		dev_info(dev->mt76.dev, "BSS Change: Updating ARP Offload filter\n");
 		mt76_connac_mcu_update_arp_filter(&dev->mt76, &mvif->bss_conf.mt76,
 						  info);
 	}
@@ -1192,17 +1195,17 @@ mt7902_hw_scan(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
 	struct mt76_phy *mphy = hw->priv;
 	int err;
 
-	// dev_dbg(dev->mt76.dev, "SCAN: Request started. Channels: %d, SSIDs: %d\n",
+	// dev_info(dev->mt76.dev, "SCAN: Request started. Channels: %d, SSIDs: %d\n",
 	// 	req->n_channels, req->n_ssids);
 
 	mt792x_mutex_acquire(dev);
 
-	dev_dbg(dev->mt76.dev, "SCAN: Sending HW_SCAN command to MCU...\n");
+	dev_info(dev->mt76.dev, "SCAN: Sending HW_SCAN command to MCU...\n");
 	err = mt76_connac_mcu_hw_scan(mphy, vif, req);
 	if (err) {
 		dev_err(dev->mt76.dev, "SCAN: MCU failed to start HW scan (err: %d)\n", err);
 	} else {
-		dev_dbg(dev->mt76.dev, "SCAN: MCU successfully initiated HW scan\n");
+		dev_info(dev->mt76.dev, "SCAN: MCU successfully initiated HW scan\n");
 	}
 
 	mt792x_mutex_release(dev);
@@ -1440,11 +1443,11 @@ int mt7902_set_tx_sar_pwr(struct ieee80211_hw *hw,
 	struct mt792x_dev *dev =  mt792x_hw_dev(hw);
 	int err;
 
-	dev_dbg(dev->mt76.dev, "SAR: Setting TX SAR power (Manual specs: %s)\n", 
+	dev_info(dev->mt76.dev, "SAR: Setting TX SAR power (Manual specs: %s)\n", 
 		sar ? "Yes" : "No (using ACPI)");
 
 	if (sar) {
-		// dev_dbg(dev->mt76.dev, "SAR: Manual specs - type: %d, num_specs: %d\n", 
+		// dev_info(dev->mt76.dev, "SAR: Manual specs - type: %d, num_specs: %d\n", 
 		// 	sar->type, sar->num_specs);
 		int err = mt76_init_sar_power(hw, sar);
 
@@ -1453,7 +1456,7 @@ int mt7902_set_tx_sar_pwr(struct ieee80211_hw *hw,
 			return err;
 		}
 	}
-	dev_dbg(dev->mt76.dev, "SAR: Initializing ACPI SAR (force_acpi: %s)\n", 
+	dev_info(dev->mt76.dev, "SAR: Initializing ACPI SAR (force_acpi: %s)\n", 
 		!sar ? "true" : "false");
 	mt792x_init_acpi_sar_power(mt792x_hw_phy(hw), !sar);
 
@@ -1461,7 +1464,7 @@ int mt7902_set_tx_sar_pwr(struct ieee80211_hw *hw,
 	if (err) {
 		dev_err(dev->mt76.dev, "SAR: Failed to send TX power update to MCU: %d\n", err);
 	} else {
-		dev_dbg(dev->mt76.dev, "SAR: TX power update successfully sent to MCU\n");
+		dev_info(dev->mt76.dev, "SAR: TX power update successfully sent to MCU\n");
 	}
 
 	return err;

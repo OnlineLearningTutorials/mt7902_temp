@@ -3,6 +3,9 @@
 
 #include "mt7902.h"
 
+#define DEBUG
+
+
 static int
 mt7902_reg_set(void *data, u64 val)
 {

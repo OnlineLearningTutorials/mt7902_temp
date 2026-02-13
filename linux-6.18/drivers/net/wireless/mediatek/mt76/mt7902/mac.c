@@ -9,6 +9,9 @@
 #include "../mt76_connac2_mac.h"
 #include "mcu.h"
 
+#define DEBUG
+
+
 #define MT_WTBL_TXRX_CAP_RATE_OFFSET	7
 #define MT_WTBL_TXRX_RATE_G2_HE		24
 #define MT_WTBL_TXRX_RATE_G2		12
@@ -22,7 +25,7 @@ bool mt7902_mac_wtbl_update(struct mt792x_dev *dev, int idx, u32 mask)
 	bool success;
 
 	// 1. Log the update request (Idx = Station ID, Mask = Operation type)
-	dev_dbg(dev->mt76.dev, "WTBL Update: idx=%d mask=0x%08x\n", idx, mask);
+	dev_info(dev->mt76.dev, "WTBL Update: idx=%d mask=0x%08x\n", idx, mask);
 
 	mt76_rmw(dev, MT_WTBL_UPDATE, MT_WTBL_UPDATE_WLAN_IDX,
 		 FIELD_PREP(MT_WTBL_UPDATE_WLAN_IDX, idx) | mask);
@@ -699,7 +702,7 @@ void mt7902_mac_reset_work(struct work_struct *work)
 	struct mt76_connac_pm *pm = &dev->pm;
 	int i, ret;
 
-	dev_dbg(dev->mt76.dev, "chip reset\n");
+	dev_info(dev->mt76.dev, "chip reset\n");
 	set_bit(MT76_RESET, &dev->mphy.state);
 	dev->hw_full_reset = true;
 	ieee80211_stop_queues(hw);

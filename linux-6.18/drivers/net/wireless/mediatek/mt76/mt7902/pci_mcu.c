@@ -4,6 +4,9 @@
 #include "mt7902.h"
 #include "mcu.h"
 
+#define DEBUG
+
+
 int mt7902e_driver_own(struct mt792x_dev *dev)
 {
 	printk(KERN_DEBUG "pci_mcu.c - mt7902e_driver_own(dev)");
@@ -11,11 +14,11 @@ int mt7902e_driver_own(struct mt792x_dev *dev)
 	u32 val;
 
 	// 1. Log the target register address (helps verify the L1 mapping)
-	dev_dbg(dev->mt76.dev, "Requesting driver own at register 0x%x\n", reg);
+	dev_info(dev->mt76.dev, "Requesting driver own at register 0x%x\n", reg);
 
 	// 2. Log current state before writing
 	val = mt76_rr(dev, reg);
-	dev_dbg(dev->mt76.dev, "LPCR state before write: 0x%08x\n", val);
+	dev_info(dev->mt76.dev, "LPCR state before write: 0x%08x\n", val);
 
 
 	mt76_wr(dev, reg, MT_TOP_LPCR_HOST_DRV_OWN);
@@ -33,7 +36,7 @@ int mt7902e_driver_own(struct mt792x_dev *dev)
 		return -EIO;
 	}
 
-	dev_dbg(dev->mt76.dev, "Driver ownership acquired successfully\n");
+	dev_info(dev->mt76.dev, "Driver ownership acquired successfully\n");
 	return 0;
 }
 
@@ -47,7 +50,7 @@ mt7902_mcu_send_message(struct mt76_dev *mdev, struct sk_buff *skb,
 	int ret;
 
 	// 1. Log the Command and Sequence (Use dev_dbg to avoid flooding)
-	dev_dbg(mdev->dev, "MCU send msg: cmd=0x%x seq=%d len=%d\n", 
+	dev_info(mdev->dev, "MCU send msg: cmd=0x%x seq=%d len=%d\n", 
 		cmd, (seq ? *seq : -1), skb->len);
 
 
@@ -61,7 +64,7 @@ mt7902_mcu_send_message(struct mt76_dev *mdev, struct sk_buff *skb,
 
 	if (cmd == MCU_CMD(FW_SCATTER)) {
 		txq = MT_MCUQ_FWDL;
-		dev_dbg(mdev->dev, "Using FWDL queue for scatter command\n");
+		dev_info(mdev->dev, "Using FWDL queue for scatter command\n");
 	}
 
 	// 2. Track the actual transmission status
@@ -91,14 +94,14 @@ int mt7902e_mcu_init(struct mt792x_dev *dev)
 
 	dev->mt76.mcu_ops = &mt7902_mcu_ops;
 
-	dev_dbg(dev->mt76.dev, "Requesting Driver Ownership (LP Control)\n");
+	dev_info(dev->mt76.dev, "Requesting Driver Ownership (LP Control)\n");
 	err = mt7902e_driver_own(dev);
 	if (err) {
 		dev_err(dev->mt76.dev, "Failed to get driver ownership: %d\n", err);
 		return err;
 	}
 
-	dev_dbg(dev->mt76.dev, "Disabling PCIe L0s power state\n");
+	dev_info(dev->mt76.dev, "Disabling PCIe L0s power state\n");
 	mt76_rmw_field(dev, MT_PCIE_MAC_PM, MT_PCIE_MAC_PM_L0S_DIS, 1);
 
 	dev_info(dev->mt76.dev, "Loading and starting MT7902 firmware...\n");
@@ -109,7 +112,7 @@ int mt7902e_mcu_init(struct mt792x_dev *dev)
 	}
 	dev_info(dev->mt76.dev, "Firmware is running successfully\n");
 
-	dev_dbg(dev->mt76.dev, "Cleaning up FWDL (Firmware Download) queue\n");
+	dev_info(dev->mt76.dev, "Cleaning up FWDL (Firmware Download) queue\n");
 	mt76_queue_tx_cleanup(dev, dev->mt76.q_mcu[MT_MCUQ_FWDL], false);
 
 	return err;

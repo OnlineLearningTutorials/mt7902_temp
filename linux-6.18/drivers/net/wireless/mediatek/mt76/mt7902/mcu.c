@@ -8,6 +8,9 @@
 #include "../mt76_connac2_mac.h"
 #include "../mt792x_trace.h"
 
+#define DEBUG
+
+
 #define MT_STA_BFER			BIT(0)
 #define MT_STA_BFEE			BIT(1)
 
@@ -33,7 +36,7 @@ int mt7902_mcu_parse_response(struct mt76_dev *mdev, int cmd,
 
 	rxd = (struct mt76_connac2_mcu_rxd *)skb->data;
 	if (seq != rxd->seq) {
-		dev_dbg(mdev->dev, "MCU seq mismatch: expected %d, got %d (cmd %08x)\n",
+		dev_info(mdev->dev, "MCU seq mismatch: expected %d, got %d (cmd %08x)\n",
 			seq, rxd->seq, cmd);
 		return -EAGAIN;
 	}
@@ -42,11 +45,11 @@ int mt7902_mcu_parse_response(struct mt76_dev *mdev, int cmd,
 	    cmd == MCU_CMD(PATCH_FINISH_REQ)) {
 		skb_pull(skb, sizeof(*rxd) - 4);
 		ret = *skb->data;
-		dev_dbg(mdev->dev, "MCU Patch status: %d (cmd %08x)\n", ret, cmd);
+		dev_info(mdev->dev, "MCU Patch status: %d (cmd %08x)\n", ret, cmd);
 	} else if (cmd == MCU_EXT_CMD(THERMAL_CTRL)) {
 		skb_pull(skb, sizeof(*rxd) + 4);
 		ret = le32_to_cpu(*(__le32 *)skb->data);
-		dev_dbg(mdev->dev, "MCU Thermal info: %d\n", ret);
+		dev_info(mdev->dev, "MCU Thermal info: %d\n", ret);
 	} else if (cmd == MCU_UNI_CMD(DEV_INFO_UPDATE) ||
 		   cmd == MCU_UNI_CMD(BSS_INFO_UPDATE) ||
 		   cmd == MCU_UNI_CMD(STA_REC_UPDATE) ||
@@ -63,7 +66,7 @@ int mt7902_mcu_parse_response(struct mt76_dev *mdev, int cmd,
 
 		/* skip invalid event */
 		if (mcu_cmd != event->cid) {
-			dev_dbg(mdev->dev, "MCU CID mismatch: cmd %x, event cid %x\n", mcu_cmd, event->cid);
+			dev_info(mdev->dev, "MCU CID mismatch: cmd %x, event cid %x\n", mcu_cmd, event->cid);
 			ret = -EAGAIN;
 		}
 	} else if (cmd == MCU_CE_QUERY(REG_READ)) {
@@ -72,14 +75,14 @@ int mt7902_mcu_parse_response(struct mt76_dev *mdev, int cmd,
 		skb_pull(skb, sizeof(*rxd));
 		event = (struct mt76_connac_mcu_reg_event *)skb->data;
 		ret = (int)le32_to_cpu(event->val);
-		dev_dbg(mdev->dev, "MCU Reg Read result: 0x%08x\n", ret);
+		dev_info(mdev->dev, "MCU Reg Read result: 0x%08x\n", ret);
 	} else if (cmd == MCU_EXT_CMD(WF_RF_PIN_CTRL)) {
 		struct mt7902_wf_rf_pin_ctrl_event *event;
 
 		skb_pull(skb, sizeof(*rxd));
 		event = (struct mt7902_wf_rf_pin_ctrl_event *)skb->data;
 		ret = (int)event->result;
-		dev_dbg(mdev->dev, "MCU RF Pin Ctrl result: %d\n", ret);
+		dev_info(mdev->dev, "MCU RF Pin Ctrl result: %d\n", ret);
 	} else {
 		skb_pull(skb, sizeof(struct mt76_connac2_mcu_rxd));
 	}
@@ -98,7 +101,7 @@ static int mt7902_mcu_read_eeprom(struct mt792x_dev *dev, u32 offset, u8 *val)
 	struct sk_buff *skb;
 	int ret;
 
-	dev_dbg(dev->mt76.dev, "Requesting eFuse read at offset 0x%04x (Block base: 0x%04x)\n", 
+	dev_info(dev->mt76.dev, "Requesting eFuse read at offset 0x%04x (Block base: 0x%04x)\n", 
 		offset, le32_to_cpu(req.addr));
 	ret = mt76_mcu_send_and_get_msg(&dev->mt76, MCU_EXT_QUERY(EFUSE_ACCESS),
 					&req, sizeof(req), true, &skb);
@@ -117,7 +120,7 @@ static int mt7902_mcu_read_eeprom(struct mt792x_dev *dev, u32 offset, u8 *val)
 	res = (struct mt7902_mcu_eeprom_info *)skb->data;
 	*val = res->data[offset % MT7902_EEPROM_BLOCK_SIZE];
 
-	dev_dbg(dev->mt76.dev, "eFuse[0x%x] = 0x%02x\n", offset, *val);
+	dev_info(dev->mt76.dev, "eFuse[0x%x] = 0x%02x\n", offset, *val);
 	dev_kfree_skb(skb);
 
 	return 0;
@@ -288,13 +291,13 @@ mt7902_mcu_low_power_event(struct mt792x_dev *dev, struct sk_buff *skb)
 
 	/* 1. Log the state change */
 	/* We use dev_dbg here to avoid spamming dmesg during frequent sleep/wake cycles */
-	dev_dbg(dev->mt76.dev, "MCU LP Event: Chip reported state 0x%02x\n", event->state);
+	dev_info(dev->mt76.dev, "MCU LP Event: Chip reported state 0x%02x\n", event->state);
 
 	/* 2. Log specific transitions for easier grepping */
 	if (event->state == 0) {
-		dev_dbg(dev->mt76.dev, "MCU LP: Chip is AWAKE / ACTIVE\n");
+		dev_info(dev->mt76.dev, "MCU LP: Chip is AWAKE / ACTIVE\n");
 	} else {
-		dev_dbg(dev->mt76.dev, "MCU LP: Chip is entering SLEEP / LOW POWER (state %d)\n", event->state);
+		dev_info(dev->mt76.dev, "MCU LP: Chip is entering SLEEP / LOW POWER (state %d)\n", event->state);
 	}
 
 	trace_lp_event(dev, event->state);
@@ -488,7 +491,7 @@ static int mt7902_load_clc(struct mt792x_dev *dev, const char *fw_name)
 
 	dev->phy.clc_chan_conf = 0xff;
 	if (mt7902_disable_clc || mt76_is_usb(&dev->mt76)) {
-		dev_dbg(mdev->dev, "CLC loading skipped (disabled or USB device)\n");
+		dev_info(mdev->dev, "CLC loading skipped (disabled or USB device)\n");
 		return 0;
 	}
 
@@ -499,10 +502,10 @@ static int mt7902_load_clc(struct mt792x_dev *dev, const char *fw_name)
 			return ret;
 		}
 		hw_encap = u8_get_bits(hw_encap, MT_EE_HW_TYPE_ENCAP);
-		dev_dbg(mdev->dev, "Hardware Encap type: %d\n", hw_encap);
+		dev_info(mdev->dev, "Hardware Encap type: %d\n", hw_encap);
 	}
 
-	dev_dbg(mdev->dev, "Requesting firmware for CLC parsing: %s\n", fw_name);
+	dev_info(mdev->dev, "Requesting firmware for CLC parsing: %s\n", fw_name);
 	ret = request_firmware(&fw, fw_name, mdev->dev);
 	if (ret) {
 		dev_err(mdev->dev, "Failed to request firmware %s: %d\n", fw_name, ret);
@@ -517,7 +520,7 @@ static int mt7902_load_clc(struct mt792x_dev *dev, const char *fw_name)
 	}
 
 	hdr = (const void *)(fw->data + fw->size - sizeof(*hdr));
-	dev_dbg(mdev->dev, "FW Trailer found: %d regions, version - hdr->ver\n", hdr->n_region);
+	dev_info(mdev->dev, "FW Trailer found: %d regions, version - hdr->ver\n", hdr->n_region);
 	for (i = 0; i < hdr->n_region; i++) {
 		region = (const void *)((const u8 *)hdr -
 					(hdr->n_region - i) * sizeof(*region));
@@ -534,7 +537,7 @@ static int mt7902_load_clc(struct mt792x_dev *dev, const char *fw_name)
 		if ((region->feature_set & FW_FEATURE_NON_DL) &&
 		    region->type == FW_TYPE_CLC) {
 			clc_base = (u8 *)(fw->data + offset);
-			dev_dbg(mdev->dev, "CLC region found at offset 0x%x (len %d)\n", offset, len);
+			dev_info(mdev->dev, "CLC region found at offset 0x%x (len %d)\n", offset, len);
 			break;
 		}
 		offset += len;
@@ -550,20 +553,20 @@ static int mt7902_load_clc(struct mt792x_dev *dev, const char *fw_name)
 
 		/* do not init buf again if chip reset triggered */
 		if (phy->clc[clc->idx]) {
-			dev_dbg(mdev->dev, "CLC idx %d already initialized, skipping\n", clc->idx);
+			dev_info(mdev->dev, "CLC idx %d already initialized, skipping\n", clc->idx);
 			continue;
 		}
 
 		/* header content sanity */
 		if (clc->idx == MT7902_CLC_POWER &&
 		    u8_get_bits(clc->type, MT_EE_HW_TYPE_ENCAP) != hw_encap) {
-		    dev_dbg(mdev->dev, "CLC Power Encap mismatch (clc:%d vs hw:%d), skipping idx %d\n", 
+		    dev_info(mdev->dev, "CLC Power Encap mismatch (clc:%d vs hw:%d), skipping idx %d\n", 
 				u8_get_bits(clc->type, MT_EE_HW_TYPE_ENCAP), hw_encap, clc->idx);
 			
 			continue;
 		}
 
-		dev_dbg(mdev->dev, "Duplicating CLC element: idx %d, len %d\n", clc->idx, le32_to_cpu(clc->len));
+		dev_info(mdev->dev, "Duplicating CLC element: idx %d, len %d\n", clc->idx, le32_to_cpu(clc->len));
 		phy->clc[clc->idx] = devm_kmemdup(mdev->dev, clc,
 						  le32_to_cpu(clc->len),
 						  GFP_KERNEL);
@@ -574,7 +577,7 @@ static int mt7902_load_clc(struct mt792x_dev *dev, const char *fw_name)
 			goto out;
 		}
 	}
-	dev_dbg(mdev->dev, "Sending CLC configuration to MCU (Indoor mode)\n");
+	dev_info(mdev->dev, "Sending CLC configuration to MCU (Indoor mode)\n");
 	ret = mt7902_mcu_set_clc(dev, "00", ENVIRON_INDOOR);
 	if (ret)
 		dev_err(mdev->dev, "mt7902_mcu_set_clc failed: %d\n", ret);
@@ -640,18 +643,18 @@ static void mt7902_mcu_parse_phy_cap(struct mt76_dev *dev,
 	cap = (struct mt7902_phy_cap *)skb->data;
 
 	// 1. Log the raw values for fundamental capabilities
-	dev_dbg(dev->dev, "PHY Cap: NSS=%d, MaxBW=%d, HW_Path=0x%x\n", 
+	dev_info(dev->dev, "PHY Cap: NSS=%d, MaxBW=%d, HW_Path=0x%x\n", 
 		cap->nss, cap->max_bw, cap->hw_path);
 
 	// 2. Log Protocol support (HT/VHT/HE)
-	dev_dbg(dev->dev, "Protocols: HT:%d VHT:%d HE:%d\n", 
+	dev_info(dev->dev, "Protocols: HT:%d VHT:%d HE:%d\n", 
 		cap->ht, cap->vht, cap->he);
 
 	dev->phy.antenna_mask = BIT(cap->nss) - 1;
 	dev->phy.chainmask = dev->phy.antenna_mask;
 
 	// 3. Log calculated masks
-	dev_dbg(dev->dev, "Antenna Mask: 0x%x, Chainmask: 0x%x\n", 
+	dev_info(dev->dev, "Antenna Mask: 0x%x, Chainmask: 0x%x\n", 
 		dev->phy.antenna_mask, dev->phy.chainmask);
 
 	dev->phy.cap.has_2ghz = cap->hw_path & BIT(WF0_24G);
@@ -664,7 +667,7 @@ static void mt7902_mcu_parse_phy_cap(struct mt76_dev *dev,
 
 	// 5. Check for 160MHz support (MaxBW usually: 2=80MHz, 3=160MHz)
 	if (cap->max_bw >= 3)
-		dev_dbg(dev->dev, "160MHz bandwidth support enabled\n");
+		dev_info(dev->dev, "160MHz bandwidth support enabled\n");
 
 }
 
@@ -679,7 +682,7 @@ static int mt7902_mcu_get_nic_capability(struct mt792x_phy *mphy)
 	struct mt76_phy *phy = mphy->mt76;
 	int ret, i;
 
-	dev_dbg(phy->dev->dev, "Querying NIC capabilities from MCU\n");
+	dev_info(phy->dev->dev, "Querying NIC capabilities from MCU\n");
 	ret = mt76_mcu_send_and_get_msg(phy->dev, MCU_CE_CMD(GET_NIC_CAPAB),
 					NULL, 0, true, &skb);
 	if (ret) {
@@ -694,7 +697,7 @@ static int mt7902_mcu_get_nic_capability(struct mt792x_phy *mphy)
 		goto out;
 	}
 
-	dev_dbg(phy->dev->dev, "MCU reported %d capability elements\n", le16_to_cpu(hdr->n_element));
+	dev_info(phy->dev->dev, "MCU reported %d capability elements\n", le16_to_cpu(hdr->n_element));
 	skb_pull(skb, sizeof(*hdr));
 
 	for (i = 0; i < le16_to_cpu(hdr->n_element); i++) {
@@ -728,21 +731,21 @@ static int mt7902_mcu_get_nic_capability(struct mt792x_phy *mphy)
 			dev_info(phy->dev->dev, "Firmware MAC address: %pM\n", phy->macaddr);
 			break;
 		case MT_NIC_CAP_PHY:
-			dev_dbg(phy->dev->dev, "Parsing PHY capabilities\n");
+			dev_info(phy->dev->dev, "Parsing PHY capabilities\n");
 			mt7902_mcu_parse_phy_cap(phy->dev, skb);
 			break;
 		case MT_NIC_CAP_TX_RESOURCE:
-			dev_dbg(phy->dev->dev, "Parsing TX resources\n");
+			dev_info(phy->dev->dev, "Parsing TX resources\n");
 			if (mt76_is_sdio(phy->dev))
 				mt7902_mcu_parse_tx_resource(phy->dev,
 							     skb);
 			break;
 		case MT_NIC_CAP_CHIP_CAP:
 			memcpy(&mphy->chip_cap, (void *)skb->data, sizeof(u64));
-			dev_dbg(phy->dev->dev, "Chip Capability Mask: 0x%llx\n", mphy->chip_cap);
+			dev_info(phy->dev->dev, "Chip Capability Mask: 0x%llx\n", mphy->chip_cap);
 			break;
 		default:
-			dev_dbg(phy->dev->dev, "Unknown TLV type: 0x%x\n", type);
+			dev_info(phy->dev->dev, "Unknown TLV type: 0x%x\n", type);
 			break;
 		}
 		skb_pull(skb, len);
@@ -764,7 +767,7 @@ int mt7902_mcu_fw_log_2_host(struct mt792x_dev *dev, u8 ctrl)
 	};
 	int ret;
 
-	dev_dbg(dev->mt76.dev, "%s MCU-to-Host logging (ctrl: 0x%02x)\n", 
+	dev_info(dev->mt76.dev, "%s MCU-to-Host logging (ctrl: 0x%02x)\n", 
 		ctrl ? "Enabling" : "Disabling", ctrl);
 	ret = mt76_mcu_send_msg(&dev->mt76, MCU_CE_CMD(FWLOG_2_HOST),
 				 &data, sizeof(data), false);
@@ -773,7 +776,7 @@ int mt7902_mcu_fw_log_2_host(struct mt792x_dev *dev, u8 ctrl)
 	if (ret) {
 		dev_err(dev->mt76.dev, "Failed to send FWLOG_2_HOST command: %d\n", ret);
 	} else {
-		dev_dbg(dev->mt76.dev, "FWLOG_2_HOST command sent to queue\n");
+		dev_info(dev->mt76.dev, "FWLOG_2_HOST command sent to queue\n");
 	}
 
 	return ret;
@@ -788,7 +791,7 @@ int mt7902_firmware_state(struct mt792x_dev *dev, bool wa)
 			       wa ? FW_STATE_RDY : FW_STATE_FW_DOWNLOAD);
 	u32 val;
 
-	dev_dbg(dev->mt76.dev, "Waiting for firmware state: 0x%08x (wa: %d)\n", state, wa);
+	dev_info(dev->mt76.dev, "Waiting for firmware state: 0x%08x (wa: %d)\n", state, wa);
 	if (!mt76_poll_msec(dev, MT_TOP_MISC, MT_TOP_MISC_FW_STATE,
 			    state, 1000)) {
 		//dev_err(dev->mt76.dev, "Timeout for initializing firmware\n");
@@ -811,7 +814,7 @@ int mt7902_load_firmware(struct mt792x_dev *dev)
 	int ret;
     
 	// 1. Check current state - helps identify if the chip was already running
-	dev_dbg(dev->mt76.dev, "Checking firmware state before download\n");
+	dev_info(dev->mt76.dev, "Checking firmware state before download\n");
 	
     /* make sure fw is download state */
 	if (mt7902_firmware_state(dev, false)) {
@@ -836,7 +839,7 @@ int mt7902_load_firmware(struct mt792x_dev *dev)
 	}
 
 	if (mt76_is_sdio(&dev->mt76)) {
-		dev_dbg(dev->mt76.dev, "Performing SDIO PM control handshake\n");
+		dev_info(dev->mt76.dev, "Performing SDIO PM control handshake\n");
 		/* activate again */
 		ret = __mt792x_mcu_fw_pmctrl(dev);
 		if (!ret)
@@ -850,7 +853,7 @@ int mt7902_load_firmware(struct mt792x_dev *dev)
 		return ret;
 	}
 
-	dev_dbg(dev->mt76.dev, "Waiting for N9 Firmware Ready signal...\n");
+	dev_info(dev->mt76.dev, "Waiting for N9 Firmware Ready signal...\n");
 	if (!mt76_poll_msec(dev, MT_CONN_ON_MISC, MT_TOP_MISC2_FW_N9_RDY,
 			    MT_TOP_MISC2_FW_N9_RDY, 1500)) {
 		//dev_err(dev->mt76.dev, "Timeout for initializing firmware\n");
@@ -865,7 +868,7 @@ int mt7902_load_firmware(struct mt792x_dev *dev)
 	dev->mt76.hw->wiphy->wowlan = &mt76_connac_wowlan_support;
 #endif /* CONFIG_PM */
 
-	dev_dbg(dev->mt76.dev, "Firmware init done\n");
+	dev_info(dev->mt76.dev, "Firmware init done\n");
 
 	return 0;
 }
@@ -884,7 +887,7 @@ int mt7902_run_firmware(struct mt792x_dev *dev)
 	}
 
 	// 2. Capabilities check: Ensures the loaded FW supports this hardware revision
-	dev_dbg(dev->mt76.dev, "Requesting NIC capability from MCU\n");
+	dev_info(dev->mt76.dev, "Requesting NIC capability from MCU\n");
 	err = mt7902_mcu_get_nic_capability(&dev->phy);
 	if (err) {
 		dev_err(dev->mt76.dev, "MCU failed to report capabilities: %d\n", err);
@@ -892,7 +895,7 @@ int mt7902_run_firmware(struct mt792x_dev *dev)
 	}
 
 	set_bit(MT76_STATE_MCU_RUNNING, &dev->mphy.state);
-	dev_dbg(dev->mt76.dev, "MT76_STATE_MCU_RUNNING bit set\n");
+	dev_info(dev->mt76.dev, "MT76_STATE_MCU_RUNNING bit set\n");
 
 	// 3. CLC (Calibration Log/Control) loading
 	dev_info(dev->mt76.dev, "Loading CLC: %s\n", mt792x_ram_name(dev));
@@ -903,7 +906,7 @@ int mt7902_run_firmware(struct mt792x_dev *dev)
 	}
 
 	// 4. Final step: Enabling the MCU to send its own debug logs to the host dmesg
-	dev_dbg(dev->mt76.dev, "Enabling MCU firmware-to-host logging\n");
+	dev_info(dev->mt76.dev, "Enabling MCU firmware-to-host logging\n");
 	err = mt7902_mcu_fw_log_2_host(dev, 1);
 	if (err)
 		dev_warn(dev->mt76.dev, "Failed to enable MCU host logging: %d\n", err);
@@ -928,7 +931,7 @@ int mt7902_mcu_radio_led_ctrl(struct mt792x_dev *dev, u8 value)
 	int err;
 
 	/* 1. Log the LED action being requested */
-	dev_dbg(dev->mt76.dev, "LED: Sending MCU Radio Ctrl (ID: 0x%02x)\n", value);
+	dev_info(dev->mt76.dev, "LED: Sending MCU Radio Ctrl (ID: 0x%02x)\n", value);
 
 	/* 
 	 * Note: 'false' means asynchronous. We only know if the message 
@@ -999,7 +1002,7 @@ int mt7902_mcu_set_tx(struct mt792x_dev *dev, struct ieee80211_vif *vif)
 	static const int to_aci[] = { 1, 0, 2, 3 };
 	int ac, ret;
 
-	dev_dbg(dev->mt76.dev, "TX_CONF: Updating EDCA. VIF_idx=%d WMM_idx=%d QoS=%d HE=%d\n",
+	dev_info(dev->mt76.dev, "TX_CONF: Updating EDCA. VIF_idx=%d WMM_idx=%d QoS=%d HE=%d\n",
 		mvif->bss_conf.mt76.idx, mvif->bss_conf.mt76.wmm_idx, 
 		vif->bss_conf.qos, vif->bss_conf.he_support);
 
@@ -1020,7 +1023,7 @@ int mt7902_mcu_set_tx(struct mt792x_dev *dev, struct ieee80211_vif *vif)
 		else
 			e->cw_max = cpu_to_le16(10);
 
-		dev_dbg(dev->mt76.dev, "TX_CONF: AC%d -> AIFS=%d TXOP=%d CWmin/max=%d/%d\n",
+		dev_info(dev->mt76.dev, "TX_CONF: AC%d -> AIFS=%d TXOP=%d CWmin/max=%d/%d\n",
 			ac, q->aifs, q->txop, le16_to_cpu(e->cw_min), le16_to_cpu(e->cw_max));
 	}
 
@@ -1056,7 +1059,7 @@ int mt7902_mcu_set_tx(struct mt792x_dev *dev, struct ieee80211_vif *vif)
 		e->cw_max = (q->ecw_min_max & 0xf0) >> 4;
 		e->aifsn = q->aifsn;
 		e->timer = q->mu_edca_timer;
-		dev_dbg(dev->mt76.dev, "TX_CONF: HE-MU AC%d -> AIFSN=%d CWmin/max=%d/%d Timer=%d\n",
+		dev_info(dev->mt76.dev, "TX_CONF: HE-MU AC%d -> AIFSN=%d CWmin/max=%d/%d Timer=%d\n",
 			ac, e->aifsn, e->cw_min, e->cw_max, e->timer);
 	}
 
@@ -1229,33 +1232,33 @@ int mt7902_mcu_set_chan_info(struct mt792x_phy *phy, int cmd)
 	}
 
 	/* --- DEBUG LOGS START --- */
-	dev_dbg(dev->mt76.dev, 
+	dev_info(dev->mt76.dev, 
 		"MCU ChanInfo: Cmd=%d Freq=%dMHz(Ch:%d) BW=%d Band=%d Reason=%d\n",
 		cmd, freq1, req.center_ch, req.bw, req.channel_band, req.switch_reason);
 
-	dev_dbg(dev->mt76.dev, 
+	dev_info(dev->mt76.dev, 
 		"MCU ChanInfo: Streams(TX:%d RX_mask:0x%x) BandIdx=%d\n",
 		req.tx_streams_num, req.rx_streams, req.band_idx);
 	/* --- DEBUG LOGS END --- */
 
 	/* 1. Log the High-Level intent */
-	dev_dbg(dev->mt76.dev, "CHAN_INFO: [Cmd: %s (%d)] Freq: %d MHz, BW: %d, Band: %d\n",
+	dev_info(dev->mt76.dev, "CHAN_INFO: [Cmd: %s (%d)] Freq: %d MHz, BW: %d, Band: %d\n",
 		(cmd == MCU_EXT_CMD(CHANNEL_SWITCH)) ? "SWITCH" : "SET_RX", 
 		cmd, freq1, req.bw, req.channel_band);
 
 	/* 2. Log the specific Hardware/Firmware mapping */
 	// This helps catch issues where the 'control channel' doesn't match the 'center channel' (common in 80/160MHz)
-	dev_dbg(dev->mt76.dev, "CHAN_INFO: HW_Control_Ch: %d, HW_Center_Ch: %d, Reason: %d\n",
+	dev_info(dev->mt76.dev, "CHAN_INFO: HW_Control_Ch: %d, HW_Center_Ch: %d, Reason: %d\n",
 		req.control_ch, req.center_ch, req.switch_reason);
 
 	/* 3. Log Antenna/Stream state */
 	// If RX mask is 0 here, the radio will be deaf.
-	dev_dbg(dev->mt76.dev, "CHAN_INFO: Antenna Mask -> TX_Streams: %d, RX_Streams/Mask: 0x%x\n",
+	dev_info(dev->mt76.dev, "CHAN_INFO: Antenna Mask -> TX_Streams: %d, RX_Streams/Mask: 0x%x\n",
 		req.tx_streams_num, req.rx_streams);
 
 	/* 4. Log 80+80 or 160MHz specific info */
 	if (chandef->width == NL80211_CHAN_WIDTH_80P80) {
-		dev_dbg(dev->mt76.dev, "CHAN_INFO: 80+80 Mode Active! Center_Ch2: %d\n", 
+		dev_info(dev->mt76.dev, "CHAN_INFO: 80+80 Mode Active! Center_Ch2: %d\n", 
 			req.center_ch2);
 	}
 
@@ -1284,7 +1287,7 @@ int mt7902_mcu_set_eeprom(struct mt792x_dev *dev)
 	int ret;
 
 	// 1. Log the intent and mode
-	dev_dbg(dev->mt76.dev, "Setting MCU eFuse mode: %d, format: %d\n", 
+	dev_info(dev->mt76.dev, "Setting MCU eFuse mode: %d, format: %d\n", 
 		req.buffer_mode, req.format);
 
 	ret = mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD(EFUSE_BUFFER_MODE),
@@ -1294,7 +1297,7 @@ int mt7902_mcu_set_eeprom(struct mt792x_dev *dev)
 	if (ret) {
 		dev_err(dev->mt76.dev, "Failed to set MCU eFuse mode: %d\n", ret);
 	} else {
-		dev_dbg(dev->mt76.dev, "MCU eFuse mode set successfully\n");
+		dev_info(dev->mt76.dev, "MCU eFuse mode set successfully\n");
 	}
 
 	return ret;
@@ -1721,7 +1724,7 @@ int __mt7902_mcu_set_clc(struct mt792x_dev *dev, u8 *alpha2,
 	if (!clc)
 		return 0;
 
-	dev_dbg(dev->mt76.dev, "Searching CLC rules for %c%c in idx %d (Type: %d)\n", 
+	dev_info(dev->mt76.dev, "Searching CLC rules for %c%c in idx %d (Type: %d)\n", 
 		alpha2[0], alpha2[1], idx, dev->phy.power_type);
 
 	if (dev->phy.chip_cap & MT792x_CHIP_CAP_CLC_EVT_EN)
@@ -1742,7 +1745,7 @@ int __mt7902_mcu_set_clc(struct mt792x_dev *dev, u8 *alpha2,
 		    rule->alpha2[1] != alpha2[1])
 			continue;
 
-		dev_dbg(dev->mt76.dev, "Found matching CLC rule: %c%c Type: %c%c Len: %d\n",
+		dev_info(dev->mt76.dev, "Found matching CLC rule: %c%c Type: %c%c Len: %d\n",
 			rule->alpha2[0], rule->alpha2[1], rule->type[0], rule->type[1], len);
 
 
@@ -1772,7 +1775,7 @@ int __mt7902_mcu_set_clc(struct mt792x_dev *dev, u8 *alpha2,
 
 			info = (struct mt7902_clc_info_tlv *)(ret_skb->data + 4);
 			dev->phy.clc_chan_conf = info->chan_conf;
-			dev_dbg(dev->mt76.dev, "MCU CLC feedback: chan_conf=0x%x\n", info->chan_conf);
+			dev_info(dev->mt76.dev, "MCU CLC feedback: chan_conf=0x%x\n", info->chan_conf);
 			dev_kfree_skb(ret_skb);
 		}
 
@@ -1780,7 +1783,7 @@ int __mt7902_mcu_set_clc(struct mt792x_dev *dev, u8 *alpha2,
 	}
 
 	if (!valid_cnt) {
-		dev_dbg(dev->mt76.dev, "No valid rules found for country %c%c\n", 
+		dev_info(dev->mt76.dev, "No valid rules found for country %c%c\n", 
 			alpha2[0], alpha2[1]);
 		return -ENOENT;
 	}
@@ -1795,7 +1798,7 @@ int mt7902_mcu_set_clc(struct mt792x_dev *dev, u8 *alpha2,
 	struct mt792x_phy *phy = (struct mt792x_phy *)&dev->phy;
 	int i, ret;
 
-	dev_dbg(dev->mt76.dev, "Pushing CLC tables for country %c%c (Env: %d)\n", 
+	dev_info(dev->mt76.dev, "Pushing CLC tables for country %c%c (Env: %d)\n", 
 		alpha2[0], alpha2[1], env_cap);
 
 	/* submit all clc config */
@@ -1820,7 +1823,7 @@ int mt7902_mcu_set_clc(struct mt792x_dev *dev, u8 *alpha2,
 			dev_err(dev->mt76.dev, "Failed to set CLC idx %d: %d\n", i, ret);
 			return ret;
 		}
-		dev_dbg(dev->mt76.dev, "CLC table idx %d updated successfully\n", i);
+		dev_info(dev->mt76.dev, "CLC table idx %d updated successfully\n", i);
 	}
 	return 0;
 }
@@ -1881,14 +1884,14 @@ int mt7902_mcu_set_rxfilter(struct mt792x_dev *dev, u32 fif,
 	int ret;
 
 	/* 1. Log the parsed intent */
-	dev_dbg(dev->mt76.dev, 
+	dev_info(dev->mt76.dev, 
 		"RX_FILTER: Mode=%s(0x%x) FIF_Mask=0x%08x Bit_Op=0x%x Bit_Map=0x%08x\n",
 		(data.mode == 1) ? "SET" : "CLEAR", data.mode, 
 		fif, bit_op, bit_map);
 	/* 2. Detailed bit breakdown for common filters */
-	if (fif & BIT(5)) dev_dbg(dev->mt76.dev, "RX_FILTER: [Control Frames Enabled]\n");
-	if (fif & BIT(6)) dev_dbg(dev->mt76.dev, "RX_FILTER: [Other BSS (Promiscuous) Enabled]\n");
-	if (fif & BIT(2)) dev_dbg(dev->mt76.dev, "RX_FILTER: [FCS Failures Enabled]\n");
+	if (fif & BIT(5)) dev_info(dev->mt76.dev, "RX_FILTER: [Control Frames Enabled]\n");
+	if (fif & BIT(6)) dev_info(dev->mt76.dev, "RX_FILTER: [Other BSS (Promiscuous) Enabled]\n");
+	if (fif & BIT(2)) dev_info(dev->mt76.dev, "RX_FILTER: [FCS Failures Enabled]\n");
 
 	/* 
 	 * Note: This command is asynchronous (wait = false). 
@@ -1969,7 +1972,7 @@ int mt7902_mcu_add_dev_info(struct mt76_phy *phy,
     memcpy(data.tlv.omac_addr, bss_conf->addr, ETH_ALEN);
 
     /* 1. Log the Registration Details */
-	dev_dbg(dev->dev, "MCU DevInfo: %s OMAC_idx=%d Band_idx=%d Addr=%pM\n",
+	dev_info(dev->dev, "MCU DevInfo: %s OMAC_idx=%d Band_idx=%d Addr=%pM\n",
 		enable ? "Enabling" : "Disabling",
 		data.hdr.omac_idx, data.hdr.band_idx, data.tlv.omac_addr);
 
@@ -1981,7 +1984,7 @@ int mt7902_mcu_add_dev_info(struct mt76_phy *phy,
 		dev_err(dev->dev, "MCU DevInfo: Update failed for %pM (err=%d)\n", 
 			bss_conf->addr, err);
 	} else {
-		dev_dbg(dev->dev, "MCU DevInfo: Successfully %s %pM\n",
+		dev_info(dev->dev, "MCU DevInfo: Successfully %s %pM\n",
 			enable ? "activated" : "deactivated", bss_conf->addr);
 	}
 

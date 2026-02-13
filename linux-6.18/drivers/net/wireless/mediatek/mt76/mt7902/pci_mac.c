@@ -5,6 +5,9 @@
 #include "../dma.h"
 #include "../mt76_connac2_mac.h"
 
+#define DEBUG
+
+
 int mt7902e_tx_prepare_skb(struct mt76_dev *mdev, void *txwi_ptr,
 			   enum mt76_txq_id qid, struct mt76_wcid *wcid,
 			   struct ieee80211_sta *sta,
