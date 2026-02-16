@@ -375,9 +375,16 @@ static void mt7902_init_work(struct work_struct *work)
 
 	/* we support chip reset now */
 	dev->hw_init_done = true;
+	// 1. Force the internal flag to false
+	dev->pm.ds_enable = false; 
+
+	// 2. Change the log to reflect you are forcing it off
+	dev_info(dev->mt76.dev, "Forcing deep sleep: OFF to prevent seq mismatch\n");
 
 	dev_info(dev->mt76.dev, "Setting deep sleep: %s\n", dev->pm.ds_enable ? "on" : "off");
-	mt76_connac_mcu_set_deep_sleep(&dev->mt76, dev->pm.ds_enable);
+	//mt76_connac_mcu_set_deep_sleep(&dev->mt76, dev->pm.ds_enable);
+	mt76_connac_mcu_set_deep_sleep(&dev->mt76, false);
+	
 	dev_info(dev->mt76.dev, "MT7902 device registration complete\n");
 }
 

@@ -1427,6 +1427,20 @@ int mt7902_mcu_sta_update(struct mt792x_dev *dev, struct ieee80211_sta *sta,
 {
 	printk(KERN_DEBUG "mcu.c - mt7902_mcu_sta_update");
 	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
+	struct mt792x_sta *msta = sta ? (struct mt792x_sta *)sta->drv_priv : NULL;
+	struct mt76_wcid *wcid_ptr = msta ? &msta->deflink.wcid : &mvif->sta.deflink.wcid;
+	bool newly;
+
+	/* Determine if this is a new station record association */
+	newly = msta ? state != MT76_STA_INFO_STATE_ASSOC : true;
+	dev_info(dev->mt76.dev, 
+		 "MCU_STA_UPDATE: %s | State: %d | WCID: %d | Newly: %d | Peer: %pM\n",
+		 enable ? "ENABLE" : "DISABLE", 
+		 state, 
+		 wcid_ptr ? wcid_ptr->idx : -1, 
+		 newly, 
+		 sta ? sta->addr : (vif->addr ? vif->addr : NULL));
+
 	int rssi = -ewma_rssi_read(&mvif->bss_conf.rssi);
 	struct mt76_sta_cmd_info info = {
 		.sta = sta,
@@ -1437,9 +1451,10 @@ int mt7902_mcu_sta_update(struct mt792x_dev *dev, struct ieee80211_sta *sta,
 		.offload_fw = true,
 		.rcpi = to_rcpi(rssi),
 	};
-	struct mt792x_sta *msta;
+	// struct mt792x_sta *msta;
 
-	msta = sta ? (struct mt792x_sta *)sta->drv_priv : NULL;
+	// msta = sta ? (struct mt792x_sta *)sta->drv_priv : NULL;
+
 	info.wcid = msta ? &msta->deflink.wcid : &mvif->sta.deflink.wcid;
 	info.newly = msta ? state != MT76_STA_INFO_STATE_ASSOC : true;
 

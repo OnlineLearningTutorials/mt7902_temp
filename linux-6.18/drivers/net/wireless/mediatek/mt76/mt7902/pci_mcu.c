@@ -50,8 +50,8 @@ mt7902_mcu_send_message(struct mt76_dev *mdev, struct sk_buff *skb,
 	int ret;
 
 	// 1. Log the Command and Sequence (Use dev_dbg to avoid flooding)
-	dev_info(mdev->dev, "MCU send msg: cmd=0x%x seq=%d len=%d\n", 
-		cmd, (seq ? *seq : -1), skb->len);
+	//dev_info(mdev->dev, "MCU send msg: cmd=0x%x seq=%d len=%d\n", 
+	//	cmd, (seq ? *seq : -1), skb->len);
 
 
 	ret = mt76_connac2_mcu_fill_message(mdev, skb, cmd, seq);
@@ -64,7 +64,7 @@ mt7902_mcu_send_message(struct mt76_dev *mdev, struct sk_buff *skb,
 
 	if (cmd == MCU_CMD(FW_SCATTER)) {
 		txq = MT_MCUQ_FWDL;
-		dev_info(mdev->dev, "Using FWDL queue for scatter command\n");
+		//dev_info(mdev->dev, "Using FWDL queue for scatter command\n");
 	}
 
 	// 2. Track the actual transmission status

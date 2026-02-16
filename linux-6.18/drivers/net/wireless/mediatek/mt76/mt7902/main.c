@@ -954,8 +954,16 @@ int mt7902_mac_sta_add(struct mt76_dev *mdev, struct ieee80211_vif *vif,
 	int ret, idx;
 
 	idx = mt76_wcid_alloc(dev->mt76.wcid_mask, MT792x_WTBL_STA - 1);
-	if (idx < 0)
+	if (idx < 0) {
+		dev_err(dev->mt76.dev, "Failed to allocate WCID for %pM\n", sta->addr);
 		return -ENOSPC;
+	}
+
+	/* Detailed initialization log */
+	dev_info(dev->mt76.dev, 
+		 "STA_ADD: Peer=%pM | idx=%d | Band=%d | VIF_Type=%d\n",
+		 sta->addr, idx, mvif->bss_conf.mt76.band_idx, vif->type);
+
 
 	INIT_LIST_HEAD(&msta->deflink.wcid.poll_list);
 	msta->vif = mvif;
@@ -978,8 +986,15 @@ int mt7902_mac_sta_add(struct mt76_dev *mdev, struct ieee80211_vif *vif,
 
 	ret = mt7902_mcu_sta_update(dev, sta, vif, true,
 				    MT76_STA_INFO_STATE_NONE);
-	if (ret)
+	if (ret) {
+		dev_err(dev->mt76.dev, "MCU Sta Update failed: %d\n", ret);
 		return ret;
+	}
+
+	/* Use the mt76 band_idx which is already mapped to NL80211_BAND types */
+if (mvif->bss_conf.mt76.band_idx == NL80211_BAND_6GHZ) {
+    dev_info(dev->mt76.dev, "Setting 6GHz power type for Peer: %pM\n", sta->addr);
+}
 
 	mt7902_regd_set_6ghz_power_type(vif, true);
 
@@ -1142,6 +1157,14 @@ static int mt7902_sta_state(struct ieee80211_hw *hw,
 {
 	printk(KERN_DEBUG "main.c - mt792x_sta_state(hw, vif, sta, old_state: %d, new_state: %d)", old_state, new_state);
 	struct mt792x_dev *dev = mt792x_hw_dev(hw);
+
+/* Use the mvif pointer we already have to access the band_idx */
+struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
+
+dev_info(dev->mt76.dev, 
+	 "STA_STATE_CHANGE: Peer=%pM | Old=%u | New=%u | BandIdx=%u\n",
+	 sta->addr, (unsigned int)old_state, (unsigned int)new_state, 
+	 (unsigned int)mvif->bss_conf.mt76.band_idx);
 
 	if (dev->pm.ds_enable) {
 		mt792x_mutex_acquire(dev);
