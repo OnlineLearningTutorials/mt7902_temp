@@ -121,7 +121,7 @@ uint8_t halRingDataSelectByWmmIndex(
 	IN struct ADAPTER *prAdapter,
 	IN uint8_t ucWmmIndex)
 {
-	printk(KERN_DEBUG "hal_pdma.c - halRingDataSelectByWmmIndex");
+	//printk(KERN_DEBUG "hal_pdma.c - halRingDataSelectByWmmIndex");
 	struct BUS_INFO *bus_info;
 	uint16_t u2Port = TX_RING_DATA0_IDX_0;
 
@@ -147,7 +147,7 @@ uint8_t halRingDataSelectByWmmIndex(
 uint8_t halTxRingDataSelect(IN struct ADAPTER *prAdapter,
 	IN struct MSDU_INFO *prMsduInfo)
 {
-	printk(KERN_DEBUG "hal_pdma.c - halTxRingDataSelect");
+	//printk(KERN_DEBUG "hal_pdma.c - halTxRingDataSelect");
 	ASSERT(prAdapter);
 	return halRingDataSelectByWmmIndex(prAdapter, prMsduInfo->ucWmmQueSet);
 }
@@ -166,7 +166,7 @@ uint8_t halTxRingDataSelect(IN struct ADAPTER *prAdapter,
 /*----------------------------------------------------------------------------*/
 static inline bool halIsTimeout(uint32_t u4StartTime, uint32_t u4Timeout)
 {
-	printk(KERN_DEBUG "hal_pdma.c - halIsTimeout");
+	//printk(KERN_DEBUG "hal_pdma.c - halIsTimeout");
 	uint32_t u4CurTime = kalGetTimeTick();
 	uint32_t u4Time = 0;
 
@@ -315,7 +315,7 @@ uint32_t halRxWaitResponse(IN struct ADAPTER *prAdapter, IN uint8_t ucPortIdx,
 /*----------------------------------------------------------------------------*/
 void halEnableInterrupt(IN struct ADAPTER *prAdapter)
 {
-	printk(KERN_DEBUG "hal_pdma.c - halEnableInterrupt");
+	//printk(KERN_DEBUG "hal_pdma.c - halEnableInterrupt");
 	struct BUS_INFO *prBusInfo = NULL;
 
 	ASSERT(prAdapter);
@@ -339,7 +339,7 @@ void halEnableInterrupt(IN struct ADAPTER *prAdapter)
 /*----------------------------------------------------------------------------*/
 void halDisableInterrupt(IN struct ADAPTER *prAdapter)
 {
-	printk(KERN_DEBUG "hal_pdma.c - halDisableInterrupt");
+	//printk(KERN_DEBUG "hal_pdma.c - halDisableInterrupt");
 	struct BUS_INFO *prBusInfo;
 
 	ASSERT(prAdapter);
@@ -514,7 +514,7 @@ void halSerPollDoneInSuspend(IN struct ADAPTER *prAdapter)
 /*----------------------------------------------------------------------------*/
 u_int8_t halSetDriverOwn(IN struct ADAPTER *prAdapter)
 {
-	printk(KERN_DEBUG "hal_pdma.c - halSetDriverOwn");
+	//printk(KERN_DEBUG "hal_pdma.c - halSetDriverOwn");
 	struct mt66xx_chip_info *prChipInfo;
 	struct BUS_INFO *prBusInfo;
 	u_int8_t fgStatus = TRUE;
@@ -693,7 +693,7 @@ end:
 /*----------------------------------------------------------------------------*/
 void halSetFWOwn(IN struct ADAPTER *prAdapter, IN u_int8_t fgEnableGlobalInt)
 {
-	printk(KERN_DEBUG "hal_pdma.c - halSetFWOwn");
+	//printk(KERN_DEBUG "hal_pdma.c - halSetFWOwn");
 	struct BUS_INFO *prBusInfo;
 	u_int8_t fgResult;
 #if CFG_SUPPORT_PCIE_ASPM
@@ -795,7 +795,7 @@ void halTxCancelSendingCmd(IN struct ADAPTER *prAdapter,
 
 u_int32_t halTxGetFreeCmdCnt(IN struct ADAPTER *prAdapter)
 {
-	printk(KERN_DEBUG "hal_pdma.c - halTxGetFreeCmdCnt");
+	//printk(KERN_DEBUG "hal_pdma.c - halTxGetFreeCmdCnt");
 
 	struct mt66xx_chip_info *prChipInfo;
 	struct GL_HIF_INFO *prHifInfo;
@@ -833,7 +833,7 @@ END:
 u_int8_t halTxIsDataBufEnough(IN struct ADAPTER *prAdapter,
 	IN struct MSDU_INFO *prMsduInfo)
 {
-	printk(KERN_DEBUG "hal_pdma.c - halTxIsDataBufEnough");
+	//printk(KERN_DEBUG "hal_pdma.c - halTxIsDataBufEnough");
 	struct GL_HIF_INFO *prHifInfo = NULL;
 	struct RTMP_TX_RING *prTxRing;
 	uint16_t u2Port;
@@ -907,7 +907,7 @@ static void halDefaultProcessTxInterrupt(IN struct ADAPTER *prAdapter)
 
 void halProcessTxInterrupt(IN struct ADAPTER *prAdapter)
 {
-	printk(KERN_DEBUG "hal_pdma.c - halProcessTxInterrupt");
+	//printk(KERN_DEBUG "hal_pdma.c - halProcessTxInterrupt");
 	struct BUS_INFO *prBusInfo = prAdapter->chip_info->bus_info;
 
 	if (prBusInfo->processTxInterrupt)
@@ -1031,7 +1031,7 @@ void halUninitMsduTokenInfo(IN struct ADAPTER *prAdapter)
 
 uint32_t halGetMsduTokenFreeCnt(IN struct ADAPTER *prAdapter)
 {
-	printk(KERN_DEBUG "hal_pdma.c - halGetMsduTokenFreeCnt");
+	//printk(KERN_DEBUG "hal_pdma.c - halGetMsduTokenFreeCnt");
 	struct PERF_MONITOR_T *prPerMonitor;
 	struct MSDU_TOKEN_INFO *prTokenInfo =
 		&prAdapter->prGlueInfo->rHifInfo.rTokenInfo;
@@ -1044,7 +1044,7 @@ uint32_t halGetMsduTokenFreeCnt(IN struct ADAPTER *prAdapter)
 struct MSDU_TOKEN_ENTRY *halGetMsduTokenEntry(IN struct ADAPTER *prAdapter,
 	uint32_t u4TokenNum)
 {
-	printk(KERN_DEBUG "hal_pdma.c - halGetMsduTokenEntry");
+	//printk(KERN_DEBUG "hal_pdma.c - halGetMsduTokenEntry");
 	struct MSDU_TOKEN_INFO *prTokenInfo =
 		&prAdapter->prGlueInfo->rHifInfo.rTokenInfo;
 
@@ -1053,7 +1053,7 @@ struct MSDU_TOKEN_ENTRY *halGetMsduTokenEntry(IN struct ADAPTER *prAdapter,
 
 struct MSDU_TOKEN_ENTRY *halAcquireMsduToken(IN struct ADAPTER *prAdapter)
 {
-	printk(KERN_DEBUG "hal_pdma.c - halAcquireMsduToken");
+	//printk(KERN_DEBUG "hal_pdma.c - halAcquireMsduToken");
 	struct MSDU_TOKEN_INFO *prTokenInfo =
 		&prAdapter->prGlueInfo->rHifInfo.rTokenInfo;
 	struct MSDU_TOKEN_ENTRY *prToken;
@@ -1149,7 +1149,7 @@ static void halResetMsduToken(IN struct ADAPTER *prAdapter)
 
 void halReturnMsduToken(IN struct ADAPTER *prAdapter, uint32_t u4TokenNum)
 {
-	printk(KERN_DEBUG "hal_pdma.c - halReturnMsduToken");
+	//printk(KERN_DEBUG "hal_pdma.c - halReturnMsduToken");
 	struct MSDU_TOKEN_INFO *prTokenInfo =
 		&prAdapter->prGlueInfo->rHifInfo.rTokenInfo;
 	struct MSDU_TOKEN_ENTRY *prToken;
@@ -1312,7 +1312,7 @@ u_int8_t halProcessToken(IN struct ADAPTER *prAdapter,
 	IN uint32_t u4Token,
 	IN struct QUE *prFreeQueue)
 {
-	printk(KERN_DEBUG "hal_pdma.c - halProcessToken");
+	//printk(KERN_DEBUG "hal_pdma.c - halProcessToken");
 	struct GL_HIF_INFO *prHifInfo;
 	struct MSDU_TOKEN_ENTRY *prTokenEntry;
 #if !HIF_TX_PREALLOC_DATA_BUFFER
@@ -1375,7 +1375,7 @@ static void halDefaultProcessMsduReport(IN struct ADAPTER *prAdapter,
 			    IN OUT struct SW_RFB *prSwRfb,
 			    IN OUT struct QUE *prFreeQueue)
 {
-	printk(KERN_DEBUG "hal_pdma.c - halDefaultProcessMsduReport");
+	//printk(KERN_DEBUG "hal_pdma.c - halDefaultProcessMsduReport");
 	struct GL_HIF_INFO *prHifInfo;
 	struct HIF_MEM_OPS *prMemOps;
 	struct HW_MAC_MSDU_REPORT *prMsduReport;
@@ -1445,7 +1445,7 @@ static void halDefaultProcessMsduReport(IN struct ADAPTER *prAdapter,
 void halRxProcessMsduReport(IN struct ADAPTER *prAdapter,
 			    IN OUT struct SW_RFB *prSwRfb)
 {
-	printk(KERN_DEBUG "hal_pdma.c - halRxProcessMsduReport");
+	//printk(KERN_DEBUG "hal_pdma.c - halRxProcessMsduReport");
 	struct RX_DESC_OPS_T *prRxDescOps;
 	struct QUE rFreeQueue;
 
@@ -1482,7 +1482,7 @@ void halTxUpdateCutThroughDesc(struct GLUE_INFO *prGlueInfo,
 			       struct MSDU_TOKEN_ENTRY *prDataToken,
 			       uint32_t u4Idx, bool fgIsLast)
 {
-	printk(KERN_DEBUG "hal_pdma.c - halTxUpdateCutThroughDesc");
+	//printk(KERN_DEBUG "hal_pdma.c - halTxUpdateCutThroughDesc");
 	struct GL_HIF_INFO *prHifInfo;
 	struct HIF_MEM_OPS *prMemOps;
 	struct mt66xx_chip_info *prChipInfo;
@@ -1553,7 +1553,7 @@ void halSerHifReset(IN struct ADAPTER *prAdapter)
 void halRxReceiveRFBs(IN struct ADAPTER *prAdapter, uint32_t u4Port,
 	uint8_t fgRxData)
 {
-	printk(KERN_DEBUG "hal_pdma.c - halRxReceiveRFBs");
+	//printk(KERN_DEBUG "hal_pdma.c - halRxReceiveRFBs");
 	struct RX_CTRL *prRxCtrl;
 	struct SW_RFB *prSwRfb = (struct SW_RFB *) NULL;
 	uint8_t *pucBuf = NULL;
@@ -1779,7 +1779,7 @@ static void halDefaultProcessRxInterrupt(IN struct ADAPTER *prAdapter)
 /*----------------------------------------------------------------------------*/
 void halProcessRxInterrupt(IN struct ADAPTER *prAdapter)
 {
-	printk(KERN_DEBUG "hal_pdma.c - halProcessRxInterrupt");
+	//printk(KERN_DEBUG "hal_pdma.c - halProcessRxInterrupt");
 	struct BUS_INFO *prBusInfo = prAdapter->chip_info->bus_info;
 
 	if (prBusInfo->processRxInterrupt)
@@ -1791,7 +1791,7 @@ void halProcessRxInterrupt(IN struct ADAPTER *prAdapter)
 static int32_t halWpdmaFreeRingDesc(struct GLUE_INFO *prGlueInfo,
 				    struct RTMP_DMABUF *prDescRing)
 {
-	printk(KERN_DEBUG "hal_pdma.c - halWpdmaFreeRingDesc");
+	//printk(KERN_DEBUG "hal_pdma.c - halWpdmaFreeRingDesc");
 	struct GL_HIF_INFO *prHifInfo;
 	struct HIF_MEM_OPS *prMemOps;
 
@@ -1883,7 +1883,7 @@ bool halWpdmaAllocRxRing(struct GLUE_INFO *prGlueInfo, uint32_t u4Num,
 			 uint32_t u4Size, uint32_t u4DescSize,
 			 uint32_t u4BufSize, bool fgAllocMem)
 {
-	printk(KERN_DEBUG "hal_pdma.c - halWpdmaAllocRxRing");
+	//printk(KERN_DEBUG "hal_pdma.c - halWpdmaAllocRxRing");
 	struct GL_HIF_INFO *prHifInfo;
 	struct HIF_MEM_OPS *prMemOps;
 	struct RTMP_RX_RING *pRxRing;
@@ -2070,7 +2070,7 @@ bool halWpdmaAllocRing(struct GLUE_INFO *prGlueInfo, bool fgAllocMem)
 
 void halWpdmaFreeRing(struct GLUE_INFO *prGlueInfo)
 {
-	printk(KERN_DEBUG "hal_pdma.c - halWpdmaFreeRing");
+	//printk(KERN_DEBUG "hal_pdma.c - halWpdmaFreeRing");
 	struct GL_HIF_INFO *prHifInfo;
 	struct HIF_MEM_OPS *prMemOps;
 	struct RTMP_TX_RING *pTxRing;
@@ -2397,7 +2397,7 @@ void halWpdmaInitRxRing(IN struct GLUE_INFO *prGlueInfo)
 void halWpdmaProcessCmdDmaDone(IN struct GLUE_INFO *prGlueInfo,
 	IN uint16_t u2Port)
 {
-	printk(KERN_DEBUG "hal_pdma.c - halWpdmaProcessCmdDmaDone");
+	//printk(KERN_DEBUG "hal_pdma.c - halWpdmaProcessCmdDmaDone");
 	struct GL_HIF_INFO *prHifInfo = NULL;
 	struct HIF_MEM_OPS *prMemOps;
 	struct RTMP_TX_RING *prTxRing;
@@ -2464,7 +2464,7 @@ void halWpdmaProcessCmdDmaDone(IN struct GLUE_INFO *prGlueInfo,
 void halWpdmaProcessDataDmaDone(IN struct GLUE_INFO *prGlueInfo,
 	IN uint16_t u2Port)
 {
-	printk(KERN_DEBUG "hal_pdma.c - halWpdmaProcessDataDmaDone");
+	//printk(KERN_DEBUG "hal_pdma.c - halWpdmaProcessDataDmaDone");
 	struct GL_HIF_INFO *prHifInfo = NULL;
 	uint32_t u4SwIdx, u4DmaIdx = 0;
 	struct RTMP_TX_RING *prTxRing;
@@ -2502,7 +2502,7 @@ void halWpdmaProcessDataDmaDone(IN struct GLUE_INFO *prGlueInfo,
 uint32_t halWpdmaGetRxDmaDoneCnt(IN struct GLUE_INFO *prGlueInfo,
 	IN uint8_t ucRingNum)
 {
-	printk(KERN_DEBUG "hal_pdma.c - halWpdmaGetRxDmaDoneCnt");
+	//printk(KERN_DEBUG "hal_pdma.c - halWpdmaGetRxDmaDoneCnt");
 	struct RTMP_RX_RING *prRxRing;
 	struct GL_HIF_INFO *prHifInfo;
 	uint32_t u4MaxCnt = 0, u4CpuIdx = 0, u4DmaIdx = 0, u4RxPktCnt;
@@ -2535,7 +2535,7 @@ uint32_t halWpdmaGetRxDmaDoneCnt(IN struct GLUE_INFO *prGlueInfo,
 bool halWpdmaWriteCmd(IN struct GLUE_INFO *prGlueInfo,
 		      IN struct CMD_INFO *prCmdInfo, IN uint8_t ucTC)
 {
-	printk(KERN_DEBUG "hal_pdma.c - halWpdmaWriteCmd");
+	//printk(KERN_DEBUG "hal_pdma.c - halWpdmaWriteCmd");
 	struct GL_HIF_INFO *prHifInfo = NULL;
 	struct HIF_MEM_OPS *prMemOps;
 	struct RTMP_TX_RING *prTxRing;
@@ -2635,7 +2635,7 @@ bool halWpdmaWriteCmd(IN struct GLUE_INFO *prGlueInfo,
 static bool halWpdmaFillTxRing(struct GLUE_INFO *prGlueInfo,
 			       struct MSDU_TOKEN_ENTRY *prToken)
 {
-	printk(KERN_DEBUG "hal_pdma.c - halWpdmaFillTxRing");
+	//printk(KERN_DEBUG "hal_pdma.c - halWpdmaFillTxRing");
 	struct GL_HIF_INFO *prHifInfo = NULL;
 	struct mt66xx_chip_info *prChipInfo;
 	struct RTMP_TX_RING *prTxRing;
@@ -2706,7 +2706,7 @@ static bool halWpdmaFillTxRing(struct GLUE_INFO *prGlueInfo,
 static bool halFlushToken(struct GLUE_INFO *prGlueInfo,
 			  struct MSDU_TOKEN_ENTRY *prToken)
 {
-	printk(KERN_DEBUG "hal_pdma.c - halFlushToken");
+	//printk(KERN_DEBUG "hal_pdma.c - halFlushToken");
 	struct GL_HIF_INFO *prHifInfo = NULL;
 	struct HIF_MEM_OPS *prMemOps;
 
@@ -2734,7 +2734,7 @@ static bool halWpdmaWriteData(struct GLUE_INFO *prGlueInfo,
 			      struct MSDU_TOKEN_ENTRY *prToken,
 			      uint32_t u4Idx, uint32_t u4Num)
 {
-	printk(KERN_DEBUG "hal_pdma.c - halWpdmaWriteData");
+	//printk(KERN_DEBUG "hal_pdma.c - halWpdmaWriteData");
 	struct GL_HIF_INFO *prHifInfo = NULL;
 	struct mt66xx_chip_info *prChipInfo;
 	bool fgIsLast = (u4Idx + 1) == u4Num;
@@ -2765,7 +2765,7 @@ static bool halWpdmaWriteData(struct GLUE_INFO *prGlueInfo,
 
 void halWpdmaFreeMsduTasklet(unsigned long data)
 {
-	printk(KERN_DEBUG "hal_pdma.c - halWpdmaFreeMsduTasklet");
+	//printk(KERN_DEBUG "hal_pdma.c - halWpdmaFreeMsduTasklet");
 	struct GLUE_INFO *prGlueInfo = (struct GLUE_INFO *)data;
 	struct MSDU_INFO *prMsduInfo;
 
@@ -2783,7 +2783,7 @@ void halWpdmaFreeMsdu(struct GLUE_INFO *prGlueInfo,
 		      struct MSDU_INFO *prMsduInfo,
 		      bool fgSetEvent)
 {
-	printk(KERN_DEBUG "hal_pdma.c - halWpdmaFreeMsdu");
+	//printk(KERN_DEBUG "hal_pdma.c - halWpdmaFreeMsdu");
 
 	DBGLOG(HAL, LOUD, "Tx Data: Msdu[0x%p], TokFree[%u] TxDone[%u]\n",
 		prMsduInfo, halGetMsduTokenFreeCnt(prGlueInfo->prAdapter),
@@ -2809,7 +2809,7 @@ bool halWpdmaWriteMsdu(struct GLUE_INFO *prGlueInfo,
 		       struct MSDU_INFO *prMsduInfo,
 		       struct list_head *prCurList)
 {
-	printk(KERN_DEBUG "hal_pdma.c - halWpdmaWriteMsdu");
+	//printk(KERN_DEBUG "hal_pdma.c - halWpdmaWriteMsdu");
 	struct GL_HIF_INFO *prHifInfo = NULL;
 	struct HIF_MEM_OPS *prMemOps;
 	struct MSDU_TOKEN_ENTRY *prToken = NULL;
@@ -3063,7 +3063,7 @@ end:
 u_int8_t halIsStaticMapBusAddr(IN struct ADAPTER *prAdapter,
 	IN uint32_t u4Addr)
 {
-	printk(KERN_DEBUG "hal_pdma.c - halIsStaticMapBusAddr");
+	//printk(KERN_DEBUG "hal_pdma.c - halIsStaticMapBusAddr");
 	if (u4Addr < prAdapter->chip_info->bus_info->max_static_map_addr)
 		return TRUE;
 	else
@@ -3074,7 +3074,7 @@ u_int8_t halChipToStaticMapBusAddr(IN struct GLUE_INFO *prGlueInfo,
 				   IN uint32_t u4ChipAddr,
 				   OUT uint32_t *pu4BusAddr)
 {
-	printk(KERN_DEBUG "hal_pdma.c - halChipToStaticMapBusAddr");
+	//printk(KERN_DEBUG "hal_pdma.c - halChipToStaticMapBusAddr");
 	struct BUS_INFO *prBusInfo = prGlueInfo->prAdapter->chip_info->bus_info;
 	uint32_t u4StartAddr, u4EndAddr;
 	uint32_t u4Idx = 0, u4MemMapTblSize;
@@ -3143,7 +3143,7 @@ u_int8_t halSetDynamicMapReg(IN struct GLUE_INFO *prGlueInfo,
 
 u_int8_t halIsPendingRx(IN struct ADAPTER *prAdapter)
 {
-	printk(KERN_DEBUG "hal_pdma.c - halIsPendingRx");
+	//printk(KERN_DEBUG "hal_pdma.c - halIsPendingRx");
 	/* TODO: check pending Rx
 	 * if previous Rx handling is break due to lack of SwRfb
 	 */
@@ -3461,7 +3461,7 @@ void halDeAggRxPktWorker(struct work_struct *work)
 
 void halRxTasklet(unsigned long data)
 {
-	printk(KERN_DEBUG "hal_pdma.c - halRxTasklet");
+	//printk(KERN_DEBUG "hal_pdma.c - halRxTasklet");
 	struct GLUE_INFO *prGlueInfo = (struct GLUE_INFO *)data;
 
 	if (!HAL_IS_RX_DIRECT(prGlueInfo->prAdapter)) {
@@ -3558,7 +3558,7 @@ uint32_t halGetHifTxCmdPageSize(IN struct ADAPTER *prAdapter)
 /*----------------------------------------------------------------------------*/
 bool halIsHifStateReady(IN struct ADAPTER *prAdapter, uint8_t *pucState)
 {
-	printk(KERN_DEBUG "hal_pdma.c - halIsHifStateReady");
+	//printk(KERN_DEBUG "hal_pdma.c - halIsHifStateReady");
 	/* PCIE owner should implement this function */
 	if (!prAdapter)
 		return FALSE;
@@ -3589,7 +3589,7 @@ bool halIsHifStateReady(IN struct ADAPTER *prAdapter, uint8_t *pucState)
 /*----------------------------------------------------------------------------*/
 bool halIsHifStateSuspend(IN struct ADAPTER *prAdapter)
 {
-	printk(KERN_DEBUG "hal_pdma.c - halIsHifStateSuspend");
+	//printk(KERN_DEBUG "hal_pdma.c - halIsHifStateSuspend");
 	/* PCIE owner should implement this function */
 
 	return FALSE;

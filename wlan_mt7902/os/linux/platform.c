@@ -647,7 +647,7 @@ u_int8_t kalCfgDataWrite8(IN struct GLUE_INFO *prGlueInfo,
 static int wlan_netdev_notifier_call(struct notifier_block *nb,
 		unsigned long state, void *ndev)
 {
-	printk(KERN_DEBUG "platform.c - wlan_netdev_notifier_call");
+	//printk(KERN_DEBUG "platform.c - wlan_netdev_notifier_call");
 #if KERNEL_VERSION(3, 11, 0) <= CFG80211_VERSION_CODE
 	struct netdev_notifier_info *dev_notif_info = ndev;
 	struct net_device *dev = dev_notif_info != NULL ?

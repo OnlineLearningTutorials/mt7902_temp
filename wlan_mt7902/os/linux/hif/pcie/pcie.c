@@ -265,7 +265,7 @@ static void *CSRBaseAddress;
 
 static irqreturn_t mtk_pci_interrupt(int irq, void *dev_instance)
 {
-	printk(KERN_DEBUG "pcie.c - mtk_pci_interrupt");
+	//printk(KERN_DEBUG "pcie.c - mtk_pci_interrupt");
 	struct GLUE_INFO *prGlueInfo = NULL;
 
 	prGlueInfo = (struct GLUE_INFO *) dev_instance;
@@ -1027,7 +1027,7 @@ static void pcieAllocDesc(struct GL_HIF_INFO *prHifInfo,
 			  struct RTMP_DMABUF *prDescRing,
 			  uint32_t u4Num)
 {
-	printk(KERN_DEBUG "pcie.c - pcieAllocDesc");
+	//printk(KERN_DEBUG "pcie.c - pcieAllocDesc");
 	dma_addr_t rAddr = 0;
 
 	prDescRing->AllocVa = KAL_DMA_ALLOC_COHERENT(
@@ -1039,7 +1039,7 @@ static void pcieAllocDesc(struct GL_HIF_INFO *prHifInfo,
 
 static void pcieAllocTxDataBuf(struct MSDU_TOKEN_ENTRY *prToken, uint32_t u4Idx)
 {
-	printk(KERN_DEBUG "pcie.c - pcieAllocTxDataBuf");
+	//printk(KERN_DEBUG "pcie.c - pcieAllocTxDataBuf");
 	prToken->prPacket = kalMemAlloc(prToken->u4DmaLength, PHY_MEM_TYPE);
 	prToken->rDmaAddr = 0;
 }
@@ -1048,7 +1048,7 @@ static void *pcieAllocRxBuf(struct GL_HIF_INFO *prHifInfo,
 			    struct RTMP_DMABUF *prDmaBuf,
 			    uint32_t u4Num, uint32_t u4Idx)
 {
-	printk(KERN_DEBUG "pcie.c - pcieAllocRxBuf");
+	//printk(KERN_DEBUG "pcie.c - pcieAllocRxBuf");
 	struct sk_buff *pkt = dev_alloc_skb(prDmaBuf->AllocSize);
 	dma_addr_t rAddr;
 
@@ -1080,7 +1080,7 @@ static void *pcieAllocRxBuf(struct GL_HIF_INFO *prHifInfo,
 
 static void *pcieAllocRuntimeMem(uint32_t u4SrcLen)
 {
-	printk(KERN_DEBUG "pcie.c - pcieAllocRuntimeMem");
+	//printk(KERN_DEBUG "pcie.c - pcieAllocRuntimeMem");
 	return kalMemAlloc(u4SrcLen, PHY_MEM_TYPE);
 }
 
@@ -1089,7 +1089,7 @@ static bool pcieCopyCmd(struct GL_HIF_INFO *prHifInfo,
 			void *pucSrc1, uint32_t u4SrcLen1,
 			void *pucSrc2, uint32_t u4SrcLen2)
 {
-	printk(KERN_DEBUG "pcie.c - pcieCopyCmd");
+	//printk(KERN_DEBUG "pcie.c - pcieCopyCmd");
 	dma_addr_t rAddr;
 	uint32_t u4TotalLen = u4SrcLen1 + u4SrcLen2;
 
@@ -1116,7 +1116,7 @@ static bool pcieCopyEvent(struct GL_HIF_INFO *prHifInfo,
 			  struct RTMP_DMABUF *prDmaBuf,
 			  uint8_t *pucDst, uint32_t u4Len)
 {
-	printk(KERN_DEBUG "pcie.c - pcieCopyEvent");
+	//printk(KERN_DEBUG "pcie.c - pcieCopyEvent");
 	struct sk_buff *prSkb = NULL;
 	void *pRxPacket = NULL;
 	dma_addr_t rAddr;
@@ -1145,7 +1145,7 @@ static bool pcieCopyEvent(struct GL_HIF_INFO *prHifInfo,
 static bool pcieCopyTxData(struct MSDU_TOKEN_ENTRY *prToken,
 			   void *pucSrc, uint32_t u4Len)
 {
-	printk(KERN_DEBUG "pcie.c - pcieCopyTxData");
+	//printk(KERN_DEBUG "pcie.c - pcieCopyTxData");
 	memcpy(prToken->prPacket, pucSrc, u4Len);
 	return true;
 }
@@ -1155,7 +1155,7 @@ static bool pcieCopyRxData(struct GL_HIF_INFO *prHifInfo,
 			   struct RTMP_DMABUF *prDmaBuf,
 			   struct SW_RFB *prSwRfb)
 {
-	printk(KERN_DEBUG "pcie.c - pcieCopyRxData");
+	//printk(KERN_DEBUG "pcie.c - pcieCopyRxData");
 	void *pRxPacket = NULL;
 	dma_addr_t rAddr;
 
@@ -1185,7 +1185,7 @@ static bool pcieCopyRxData(struct GL_HIF_INFO *prHifInfo,
 static phys_addr_t pcieMapTxBuf(struct GL_HIF_INFO *prHifInfo,
 			  void *pucBuf, uint32_t u4Offset, uint32_t u4Len)
 {
-	printk(KERN_DEBUG "pcie.c - pcieMapTxBuf");
+	//printk(KERN_DEBUG "pcie.c - pcieMapTxBuf");
 	dma_addr_t rDmaAddr;
 
 	rDmaAddr = KAL_DMA_MAP_SINGLE(prHifInfo->prDmaDev, pucBuf + u4Offset,
@@ -1217,7 +1217,7 @@ static phys_addr_t pcieMapRxBuf(struct GL_HIF_INFO *prHifInfo,
 static void pcieUnmapTxBuf(struct GL_HIF_INFO *prHifInfo,
 			   phys_addr_t rDmaAddr, uint32_t u4Len)
 {
-	printk(KERN_DEBUG "pcie.c - pcieUnmapTxBuf");
+	//printk(KERN_DEBUG "pcie.c - pcieUnmapTxBuf");
 	KAL_DMA_UNMAP_SINGLE(prHifInfo->prDmaDev,
 			     (dma_addr_t)rDmaAddr,
 			     u4Len, KAL_DMA_TO_DEVICE);
@@ -1226,7 +1226,7 @@ static void pcieUnmapTxBuf(struct GL_HIF_INFO *prHifInfo,
 static void pcieUnmapRxBuf(struct GL_HIF_INFO *prHifInfo,
 			   phys_addr_t rDmaAddr, uint32_t u4Len)
 {
-	printk(KERN_DEBUG "pcie.c - pcieUnmapRxBuf");
+	//printk(KERN_DEBUG "pcie.c - pcieUnmapRxBuf");
 	KAL_DMA_UNMAP_SINGLE(prHifInfo->prDmaDev,
 			     (dma_addr_t)rDmaAddr,
 			     u4Len, KAL_DMA_FROM_DEVICE);
@@ -1235,7 +1235,7 @@ static void pcieUnmapRxBuf(struct GL_HIF_INFO *prHifInfo,
 static void pcieFreeDesc(struct GL_HIF_INFO *prHifInfo,
 			 struct RTMP_DMABUF *prDescRing)
 {
-	printk(KERN_DEBUG "pcie.c - pcieFreeDesc");
+	//printk(KERN_DEBUG "pcie.c - pcieFreeDesc");
 	if (prDescRing->AllocVa == NULL)
 		return;
 
@@ -1248,13 +1248,13 @@ static void pcieFreeDesc(struct GL_HIF_INFO *prHifInfo,
 
 static void pcieFreeBuf(void *pucSrc, uint32_t u4Len)
 {
-	printk(KERN_DEBUG "pcie.c - pcieFreeBuf");
+	//printk(KERN_DEBUG "pcie.c - pcieFreeBuf");
 	kalMemFree(pucSrc, PHY_MEM_TYPE, u4Len);
 }
 
 static void pcieFreePacket(void *pvPacket)
 {
-	printk(KERN_DEBUG "pcie.c - pcieFreePacket");
+	//printk(KERN_DEBUG "pcie.c - pcieFreePacket");
 	kalPacketFree(NULL, pvPacket);
 }
 

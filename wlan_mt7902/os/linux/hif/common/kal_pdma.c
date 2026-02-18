@@ -140,7 +140,7 @@ static bool kalDevKickAmsduData(struct GLUE_INFO *prGlueInfo);
 static inline bool kalIsChipDead(struct GLUE_INFO *prGlueInfo,
 				 uint32_t u4Register, uint32_t *pu4Value)
 {
-	printk(KERN_DEBUG "kal_pdma.c - kalIsChipDead");
+	//printk(KERN_DEBUG "kal_pdma.c - kalIsChipDead");
 	struct GL_HIF_INFO *prHifInfo = NULL;
 	uint32_t u4Value;
 	uint32_t u4BusAddr;
@@ -176,7 +176,7 @@ static inline bool kalIsChipDead(struct GLUE_INFO *prGlueInfo,
 u_int8_t kalDevRegRead(IN struct GLUE_INFO *prGlueInfo,
 	IN uint32_t u4Register, OUT uint32_t *pu4Value)
 {
-	printk(KERN_DEBUG "kal_pdma.c - kalDevRegRead");
+	//printk(KERN_DEBUG "kal_pdma.c - kalDevRegRead");
 	struct GL_HIF_INFO *prHifInfo = NULL;
 	struct ADAPTER *prAdapter = NULL;
 	struct BUS_INFO *prBusInfo = NULL;
@@ -238,7 +238,7 @@ u_int8_t kalDevRegRead(IN struct GLUE_INFO *prGlueInfo,
 u_int8_t kalDevRegWrite(IN struct GLUE_INFO *prGlueInfo,
 	IN uint32_t u4Register, IN uint32_t u4Value)
 {
-	printk(KERN_DEBUG "kal_pdma.c - kalDevRegWrite");
+	//printk(KERN_DEBUG "kal_pdma.c - kalDevRegWrite");
 	struct GL_HIF_INFO *prHifInfo = NULL;
 	struct ADAPTER *prAdapter = NULL;
 	struct BUS_INFO *prBusInfo = NULL;
@@ -280,7 +280,7 @@ static bool kalWaitRxDmaDone(struct GLUE_INFO *prGlueInfo,
 			     struct RXD_STRUCT *pRxD,
 			     uint16_t u2Port)
 {
-	printk(KERN_DEBUG "kal_pdma.c - kalWaitRxDmaDone");
+	//printk(KERN_DEBUG "kal_pdma.c - kalWaitRxDmaDone");
 	uint32_t u4Count = 0;
 
 	for (u4Count = 0; pRxD->DMADONE == 0; u4Count++) {
@@ -316,7 +316,7 @@ u_int8_t kalDevPortRead(IN struct GLUE_INFO *prGlueInfo,
 	IN uint16_t u2Port, IN uint32_t u4Len,
 	OUT uint8_t *pucBuf, IN uint32_t u4ValidOutBufSize)
 {
-	printk(KERN_DEBUG "kal_pdma.c - kalDevPortRead");
+	//printk(KERN_DEBUG "kal_pdma.c - kalDevPortRead");
 	struct ADAPTER *prAdapter = NULL;
 	struct GL_HIF_INFO *prHifInfo = NULL;
 	struct HIF_MEM_OPS *prMemOps;
@@ -422,7 +422,7 @@ kalDevPortWrite(IN struct GLUE_INFO *prGlueInfo,
 	IN uint16_t u2Port, IN uint32_t u4Len, IN uint8_t *pucBuf,
 	IN uint32_t u4ValidInBufSize)
 {
-	printk(KERN_DEBUG "kal_pdma.c - kalDevPortWrite");
+	//printk(KERN_DEBUG "kal_pdma.c - kalDevPortWrite");
 	struct GL_HIF_INFO *prHifInfo = NULL;
 	struct HIF_MEM_OPS *prMemOps;
 	struct RTMP_TX_RING *prTxRing;
@@ -533,7 +533,7 @@ void kalDevReadIntStatus(IN struct ADAPTER *prAdapter,
 u_int8_t kalDevWriteCmd(IN struct GLUE_INFO *prGlueInfo,
 	IN struct CMD_INFO *prCmdInfo, IN uint8_t ucTC)
 {
-	printk(KERN_DEBUG "kal_pdma.c - kalDevWriteCmd");
+	//printk(KERN_DEBUG "kal_pdma.c - kalDevWriteCmd");
 	struct GL_HIF_INFO *prHifInfo = NULL;
 
 	ASSERT(prGlueInfo);
@@ -625,7 +625,7 @@ static uint8_t kalGetSwAmsduNum(struct GLUE_INFO *prGlueInfo,
 u_int8_t kalDevWriteData(IN struct GLUE_INFO *prGlueInfo,
 	IN struct MSDU_INFO *prMsduInfo)
 {
-	printk(KERN_DEBUG "kal_pdma.c - kalDevWriteData");
+	//printk(KERN_DEBUG "kal_pdma.c - kalDevWriteData");
 	struct GL_HIF_INFO *prHifInfo = NULL;
 	struct mt66xx_chip_info *prChipInfo;
 
@@ -900,7 +900,7 @@ static bool kalDevKickAmsduData(struct GLUE_INFO *prGlueInfo)
 bool kalDevReadData(struct GLUE_INFO *prGlueInfo, uint16_t u2Port,
 		    struct SW_RFB *prSwRfb)
 {
-	printk(KERN_DEBUG "kal_pdma.c - kalDevReadData");
+	//printk(KERN_DEBUG "kal_pdma.c - kalDevReadData");
 	struct ADAPTER *prAdapter = NULL;
 	struct GL_HIF_INFO *prHifInfo = NULL;
 	struct HIF_MEM_OPS *prMemOps;

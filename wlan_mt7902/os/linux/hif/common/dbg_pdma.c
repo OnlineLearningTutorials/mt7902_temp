@@ -117,14 +117,14 @@ static bool halIsTxHang(struct ADAPTER *prAdapter);
 
 void halPrintHifDbgInfo(IN struct ADAPTER *prAdapter)
 {
-	printk(KERN_DEBUG "dbg_pdma.c - halPrintHifDbgInfo");
+	//printk(KERN_DEBUG "dbg_pdma.c - halPrintHifDbgInfo");
 	halCheckHifState(prAdapter);
 	halDumpHifDebugLog(prAdapter);
 }
 
 static void halCheckHifState(struct ADAPTER *prAdapter)
 {
-	printk(KERN_DEBUG "dbg_pdma.c - halCheckHifState");
+	//printk(KERN_DEBUG "dbg_pdma.c - halCheckHifState");
 	uint32_t u4DebugLevel = 0;
 	if (prAdapter->u4HifChkFlag & HIF_CHK_TX_HANG) {
 		if (halIsTxHang(prAdapter)) {
@@ -146,7 +146,7 @@ static void halCheckHifState(struct ADAPTER *prAdapter)
 
 static void halDumpHifDebugLog(struct ADAPTER *prAdapter)
 {
-	printk(KERN_DEBUG "dbg_pdma.c - halDumpHifDebugLog");
+	//printk(KERN_DEBUG "dbg_pdma.c - halDumpHifDebugLog");
 	struct GLUE_INFO *prGlueInfo = NULL;
 	struct GL_HIF_INFO *prHifInfo = NULL;
 	uint32_t u4Value = 0;
@@ -321,7 +321,7 @@ int halTimeCompare(struct timespec64 *prTs1, struct timespec64 *prTs2)
 int halTimeCompare(struct timeval *prTs1, struct timeval *prTs2)
 #endif
 {
-	printk(KERN_DEBUG "dbg_pdma.c - halTimeCompare");
+	//printk(KERN_DEBUG "dbg_pdma.c - halTimeCompare");
 	if (prTs1->tv_sec > prTs2->tv_sec)
 		return 1;
 	else if (prTs1->tv_sec < prTs2->tv_sec)
@@ -352,7 +352,7 @@ int halTimeCompare(struct timeval *prTs1, struct timeval *prTs2)
 /*----------------------------------------------------------------------------*/
 static bool halIsTxHang(struct ADAPTER *prAdapter)
 {
-	printk(KERN_DEBUG "dbg_pdma.c - halIsTxHang");
+	//printk(KERN_DEBUG "dbg_pdma.c - halIsTxHang");
 	struct MSDU_TOKEN_INFO *prTokenInfo;
 	struct MSDU_TOKEN_ENTRY *prToken;
 	struct MSDU_INFO *prMsduInfo;
