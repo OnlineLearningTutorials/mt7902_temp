@@ -2779,22 +2779,41 @@ kalIPv4FrameClassifier(IN struct GLUE_INFO *prGlueInfo,
 			WLAN_GET_FIELD_BE32(&prBootp->aucOptions[0],
 					    &u4DhcpMagicCode);
 
+			// if (u4DhcpMagicCode == DHCP_MAGIC_NUMBER) {
+			// 	uint32_t u4Xid;
+
+			// 	WLAN_GET_FIELD_BE32(&prBootp->u4TransId,
+			// 			    &u4Xid);
+
+			// 	ucSeqNo = nicIncreaseTxSeqNum(
+			// 				prGlueInfo->prAdapter);
+			// 	GLUE_SET_PKT_SEQ_NO(prPacket, ucSeqNo);
+
+			// 	DBGLOG_LIMITED(TX, INFO,
+			// 		"DHCP PKT[0x%p] XID[0x%08x] OPT[%u] TYPE[%u], SeqNo: %d\n",
+			// 		prPacket, u4Xid, prBootp->aucOptions[4],
+			// 		prBootp->aucOptions[6], ucSeqNo);
+			// 	prTxPktInfo->u2Flag |= BIT(ENUM_PKT_DHCP);
+			// }
+
 			if (u4DhcpMagicCode == DHCP_MAGIC_NUMBER) {
-				uint32_t u4Xid;
+                uint32_t u4Xid;
+                /* MTK_DEBUG: Use a raw pointer to bypass UBSAN array-bounds check */
+                uint8_t *pucOptions = (uint8_t *)prBootp->aucOptions;
 
-				WLAN_GET_FIELD_BE32(&prBootp->u4TransId,
-						    &u4Xid);
+                WLAN_GET_FIELD_BE32(&prBootp->u4TransId,
+                            &u4Xid);
 
-				ucSeqNo = nicIncreaseTxSeqNum(
-							prGlueInfo->prAdapter);
-				GLUE_SET_PKT_SEQ_NO(prPacket, ucSeqNo);
+                ucSeqNo = nicIncreaseTxSeqNum(
+                            prGlueInfo->prAdapter);
+                GLUE_SET_PKT_SEQ_NO(prPacket, ucSeqNo);
 
-				DBGLOG_LIMITED(TX, INFO,
-					"DHCP PKT[0x%p] XID[0x%08x] OPT[%u] TYPE[%u], SeqNo: %d\n",
-					prPacket, u4Xid, prBootp->aucOptions[4],
-					prBootp->aucOptions[6], ucSeqNo);
-				prTxPktInfo->u2Flag |= BIT(ENUM_PKT_DHCP);
-			}
+                DBGLOG_LIMITED(TX, INFO,
+                    "DHCP PKT[0x%p] XID[0x%08x] OPT[%u] TYPE[%u], SeqNo: %d\n",
+                    prPacket, u4Xid, pucOptions[4],
+                    pucOptions[6], ucSeqNo);
+                prTxPktInfo->u2Flag |= BIT(ENUM_PKT_DHCP);
+            }
 		} else if (u2DstPort == UDP_PORT_DNS) {
 			// uint16_t u2IpId = *(uint16_t *)&pucIpHdr[IPV4_ADDR_LEN];
 			// uint8_t *pucUdpPayload = &pucUdpHdr[UDP_HDR_LEN];

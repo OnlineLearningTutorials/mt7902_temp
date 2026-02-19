@@ -1270,6 +1270,8 @@ int mtk_cfg80211_auth(struct wiphy *wiphy,
 	DBGLOG(REQ, INFO, "auth_type:%d\n", req->auth_type);
 
 	prConnSettings = aisGetConnSettings(prGlueInfo->prAdapter, ucBssIndex);
+	printk(KERN_INFO "MTK_DEBUG: Starting Auth for BSSIndex %d, current eOPMode: %d\n", 
+       ucBssIndex, prConnSettings->eOPMode);
 
 	/* <1>Set OP mode */
 	if (prConnSettings->eOPMode > NET_TYPE_AUTO_SWITCH)
@@ -1328,6 +1330,7 @@ int mtk_cfg80211_auth(struct wiphy *wiphy,
 			prConnSettings->ucAuthDataLen);
 		DBGLOG_MEM8(REQ, INFO,
 			prConnSettings->aucAuthData, req->auth_data_len);
+		printk(KERN_INFO "MTK_DEBUG: SAE/Auth data detected. Length: %zu\n", req->auth_data_len);
 	}
 #endif
 
@@ -1445,9 +1448,14 @@ int mtk_cfg80211_auth(struct wiphy *wiphy,
 	}
 
 #if CFG_SUPPORT_802_11V_BSS_TRANSITION_MGT || CFG_SUPPORT_802_11R
-	DBGLOG(REQ, WARN, "SSID len %d, ssid %s, %d\n",
-				req->bss->ies->len, SSID_IE(req->bss->ies->data)->aucSSID,
-				SSID_IE(req->bss->ies->data)->ucLength);
+	// DBGLOG(REQ, WARN, "SSID len %d, ssid %s, %d\n",
+	// 			req->bss->ies->len, SSID_IE(req->bss->ies->data)->aucSSID,
+	// 			SSID_IE(req->bss->ies->data)->ucLength);
+
+	DBGLOG(REQ, INFO, "SSID: %.*s (Len: %d)\n", 
+	    SSID_IE(req->bss->ies->data)->ucLength, 
+	    SSID_IE(req->bss->ies->data)->aucSSID,
+	    SSID_IE(req->bss->ies->data)->ucLength);
 
 	if (req->bss->ies->len != 0 &&
 		IE_ID(req->bss->ies->data) == ELEM_ID_SSID) {
@@ -1460,6 +1468,7 @@ int mtk_cfg80211_auth(struct wiphy *wiphy,
 		rStatus = kalIoctl(prGlueInfo, wlanoidUpdateFtIes,
 			(void *)(uint8_t *)req->ie, req->ie_len,
 			FALSE, FALSE, FALSE, &u4InfoBufLen);
+		printk(KERN_INFO "MTK_DEBUG: wlanoidSetConnect sent. Status: 0x%x (0 is Success)\n", rStatus);
 		if (rStatus != WLAN_STATUS_SUCCESS) {
 			DBGLOG(REQ, WARN, "update FTIE fail:%x\n", rStatus);
 			return -EINVAL;

@@ -6659,11 +6659,11 @@ void rlmDomainParsingChannel(IN struct wiphy *pWiphy)
 						   sizeof(chan_flag_string));
 
 			if (chan->flags & IEEE80211_CHAN_DISABLED) {
-				DBGLOG(RLM, INFO,
-				       "channels[%d][%d]: ch%d (freq = %d) flags=0x%x [ %s]\n",
-				    band_idx, ch_idx, chan->hw_value,
-				    chan->center_freq, chan->flags,
-				    chan_flag_string);
+				// DBGLOG(RLM, INFO,
+				//        "channels[%d][%d]: ch%d (freq = %d) flags=0x%x [ %s]\n",
+				//     band_idx, ch_idx, chan->hw_value,
+				//     chan->center_freq, chan->flags,
+				//     chan_flag_string);
 #if (CFG_SUPPORT_REGD_UPDATE_DISCONNECT_ALLOWED == 1)
 				/* Disconnect AP in the end of this function*/
 				if (chan->hw_value == ucChannelNum)
@@ -6682,11 +6682,11 @@ void rlmDomainParsingChannel(IN struct wiphy *pWiphy)
                   
 			rlmDomainAddActiveChannel(band_idx);
 
-			DBGLOG(RLM, INFO,
-			       "channels[%d][%d]: ch%d (freq = %d) flgs=0x%x [%s]\n",
-				band_idx, ch_idx, chan->hw_value,
-				chan->center_freq, chan->flags,
-				chan_flag_string);
+			// DBGLOG(RLM, INFO,
+			//        "channels[%d][%d]: ch%d (freq = %d) flgs=0x%x [%s]\n",
+			// 	band_idx, ch_idx, chan->hw_value,
+			// 	chan->center_freq, chan->flags,
+			// 	chan_flag_string);
 
 			pCh->u2ChNum = chan->hw_value;
 			pCh->eFlags = chan->flags;
@@ -6724,11 +6724,18 @@ void rlmExtractChannelInfo(u32 max_ch_count,
 #else
 	ch_count = prBuff->u1ActiveChNum2g + prBuff->u1ActiveChNum5g;
 #endif
-	if (ch_count > max_ch_count) {
-		ch_count = max_ch_count;
-		DBGLOG(RLM, WARN,
-		       "%s(); active channel list is not a complete one.\n",
-		       __func__);
+	// if (ch_count > max_ch_count) {
+	// 	ch_count = max_ch_count;
+	// 	DBGLOG(RLM, WARN,
+	// 	       "%s(); active channel list is not a complete one.\n",
+	// 	       __func__);
+	// }
+	// Calculate the true limit of the array to be safe
+	u32 absolute_limit = sizeof(prBuff->arChannels) / sizeof(struct CMD_DOMAIN_CHANNEL);
+
+	if (ch_count > absolute_limit) {
+	    ch_count = absolute_limit;
+	    DBGLOG(RLM, ERROR, "Forcing ch_count to array limit to prevent UBSAN crash!\n");
 	}
 
 	for (idx = 0; idx < ch_count; idx++) {

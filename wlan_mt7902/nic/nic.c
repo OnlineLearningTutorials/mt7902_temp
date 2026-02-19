@@ -1674,6 +1674,10 @@ uint32_t nicUpdateBss(IN struct ADAPTER *prAdapter,
 
 	prBssInfo = prAdapter->aprBssInfo[ucBssIndex];
 
+	/* --- DEBUG: Start of Function --- */
+    DBGLOG(BSS, INFO, "nicUpdateBss: Start for BssIdx %u, SSID %s, State %u\n", 
+           ucBssIndex, prBssInfo->aucSSID, prBssInfo->eConnectionState);
+
 	kalMemZero(&rCmdSetBssInfo,
 		   sizeof(struct CMD_SET_BSS_INFO));
 
@@ -1686,6 +1690,11 @@ uint32_t nicUpdateBss(IN struct ADAPTER *prAdapter,
 	kalMemCopy(rCmdSetBssInfo.aucSSID, prBssInfo->aucSSID,
 		   prBssInfo->ucSSIDLen);
 	COPY_MAC_ADDR(rCmdSetBssInfo.aucBSSID, prBssInfo->aucBSSID);
+
+	/* --- DEBUG: Basic Params --- */
+    DBGLOG(BSS, TRACE, "BSS Config: Mode=%u, SSID_Len=%u, PhyTypeSet=0x%x\n",
+           rCmdSetBssInfo.ucCurrentOPMode, rCmdSetBssInfo.ucSSIDLen, prBssInfo->ucPhyTypeSet);
+
 	rCmdSetBssInfo.ucIsQBSS = (uint8_t) prBssInfo->fgIsQBSS;
 	rCmdSetBssInfo.ucNonHTBasicPhyType =
 		prBssInfo->ucNonHTBasicPhyType;
@@ -1749,6 +1758,10 @@ uint32_t nicUpdateBss(IN struct ADAPTER *prAdapter,
 					     prConnSettings->eEncStatus;
 		rCmdSetBssInfo.ucWapiMode = (uint8_t)
 					    prConnSettings->fgWapiMode;
+
+		/* --- DEBUG: AIS Specifics --- */
+        DBGLOG(RSN, INFO, "AIS BSS: AuthMode=%u, EncStatus=%u\n", 
+               rCmdSetBssInfo.ucAuthMode, rCmdSetBssInfo.ucEncStatus);
 	}
 #if CFG_ENABLE_BT_OVER_WIFI
 	else if (IS_BSS_BOW(prBssInfo)) {
@@ -1818,6 +1831,7 @@ uint32_t nicUpdateBss(IN struct ADAPTER *prAdapter,
 	}
 #endif
 
+
 #if CFG_ENABLE_BT_OVER_WIFI
 /* disabled for BOW to finish ucBssIndex migration */
 	else if (prBssInfo->eNetworkType == NETWORK_TYPE_BOW &&
@@ -1829,6 +1843,13 @@ uint32_t nicUpdateBss(IN struct ADAPTER *prAdapter,
 #endif
 	else
 		rCmdSetBssInfo.ucStaRecIdxOfAP = STA_REC_INDEX_NOT_FOUND;
+
+	/* Final Log before Command to Firmware */
+    DBGLOG(BSS, INFO,
+           "CMD_ID_SET_BSS_INFO: Bss[%u] State[%u] BSSID[" MACSTR "] Auth[%u]\n", 
+           ucBssIndex, prBssInfo->eConnectionState, MAC2STR(prBssInfo->aucBSSID),
+           rCmdSetBssInfo.ucAuthMode);
+
 
 #if (CFG_SUPPORT_802_11AX == 1)
 	memcpy(rCmdSetBssInfo.ucHeOpParams, prBssInfo->ucHeOpParams,
@@ -1859,12 +1880,20 @@ uint32_t nicUpdateBss(IN struct ADAPTER *prAdapter,
 				       NULL, NULL,
 				       sizeof(struct CMD_SET_BSS_INFO),
 				       (uint8_t *)&rCmdSetBssInfo, NULL, 0);
+	/* --- DEBUG: Check if Firmware Accepted the BSS --- */
+    if (u4Status != WLAN_STATUS_SUCCESS) {
+        DBGLOG(BSS, ERROR, "nicUpdateBss: FW Command Failed! Status=0x%x\n", u4Status);
+    } else {
+        DBGLOG(BSS, INFO, "nicUpdateBss: FW sync successful\n");
+    }
+
 
 	/* if BSS-INFO is going to be disconnected state,
 	 * free all correlated station records
 	 */
 	if (prBssInfo->eConnectionState ==
 	    MEDIA_STATE_DISCONNECTED) {
+		DBGLOG(BSS, WARN, "nicUpdateBss: Processing DISCONNECT for BssIdx %u\n", ucBssIndex);
 		/* clear client list */
 		bssInitializeClientList(prAdapter, prBssInfo);
 

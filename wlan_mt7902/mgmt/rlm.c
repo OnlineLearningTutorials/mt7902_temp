@@ -352,17 +352,32 @@ void rlmReqGenerateSupportedChIE(struct ADAPTER *prAdapter,
 	SUP_CH_IE(pucBuffer)->ucLength =
 		(ucNumOf2gChannel + ucNumOf5gChannel) * 2;
 
-	for (ucIdx = 0; ucIdx < ucNumOf2gChannel; ucIdx++, ucChIdx += 2) {
-		SUP_CH_IE(pucBuffer)->ucChannelNum[ucChIdx] =
-			par2gChannelList[ucIdx].ucChannelNum;
-		SUP_CH_IE(pucBuffer)->ucChannelNum[ucChIdx + 1] = 1;
-	}
+	// for (ucIdx = 0; ucIdx < ucNumOf2gChannel; ucIdx++, ucChIdx += 2) {
+	// 	SUP_CH_IE(pucBuffer)->ucChannelNum[ucChIdx] =
+	// 		par2gChannelList[ucIdx].ucChannelNum;
+	// 	SUP_CH_IE(pucBuffer)->ucChannelNum[ucChIdx + 1] = 1;
+	// }
 
-	for (ucIdx = 0; ucIdx < ucNumOf5gChannel; ucIdx++, ucChIdx += 2) {
-		SUP_CH_IE(pucBuffer)->ucChannelNum[ucChIdx] =
-			par5gChannelList[ucIdx].ucChannelNum;
-		SUP_CH_IE(pucBuffer)->ucChannelNum[ucChIdx + 1] = 1;
-	}
+	// for (ucIdx = 0; ucIdx < ucNumOf5gChannel; ucIdx++, ucChIdx += 2) {
+	// 	SUP_CH_IE(pucBuffer)->ucChannelNum[ucChIdx] =
+	// 		par5gChannelList[ucIdx].ucChannelNum;
+	// 	SUP_CH_IE(pucBuffer)->ucChannelNum[ucChIdx + 1] = 1;
+	// }
+
+	/* Patch: Use manual pointer arithmetic to satisfy UBSAN/Flexible Array constraints */
+    
+    uint8_t *pucChanArray = &SUP_CH_IE(pucBuffer)->ucChannelNum[0];
+    
+    for (ucIdx = 0; ucIdx < ucNumOf2gChannel; ucIdx++, ucChIdx += 2) {
+        pucChanArray[ucChIdx] = par2gChannelList[ucIdx].ucChannelNum;
+        pucChanArray[ucChIdx + 1] = 1;
+    }
+
+    for (ucIdx = 0; ucIdx < ucNumOf5gChannel; ucIdx++, ucChIdx += 2) {
+        pucChanArray[ucChIdx] = par5gChannelList[ucIdx].ucChannelNum;
+        pucChanArray[ucChIdx + 1] = 1;
+    }
+    
 
 	prMsduInfo->u2FrameLength += IE_SIZE(pucBuffer);
 
@@ -1218,11 +1233,23 @@ static void rlmFillExtCapIE(struct ADAPTER *prAdapter,
 	}
 #endif
 
+// #if (CFG_SUPPORT_TWT == 1)
+// 	if (IS_FEATURE_ENABLED(prWifiVar->ucTWTRequester))
+// 		prExtCap->
+// 			aucCapabilities[ELEM_EXT_CAP_TWT_REQUESTER_BIT >> 3] |=
+// 			BIT(ELEM_EXT_CAP_TWT_REQUESTER_BIT % 8);
+// #endif
+
 #if (CFG_SUPPORT_TWT == 1)
-	if (IS_FEATURE_ENABLED(prWifiVar->ucTWTRequester))
-		prExtCap->
-			aucCapabilities[ELEM_EXT_CAP_TWT_REQUESTER_BIT >> 3] |=
-			BIT(ELEM_EXT_CAP_TWT_REQUESTER_BIT % 8);
+    if (IS_FEATURE_ENABLED(prWifiVar->ucTWTRequester)) {
+        /* Ensure length covers index 9 (80 bits) */
+        if (prExtCap->ucLength < (ELEM_EXT_CAP_TWT_REQUESTER_BIT / 8 + 1))
+             prExtCap->ucLength = (ELEM_EXT_CAP_TWT_REQUESTER_BIT / 8 + 1);
+
+        /* Use manual pointer access to bypass the [1] array index limit */
+        ((uint8_t *)prExtCap->aucCapabilities)[ELEM_EXT_CAP_TWT_REQUESTER_BIT >> 3] |= 
+            BIT(ELEM_EXT_CAP_TWT_REQUESTER_BIT % 8);
+    }
 #endif
 
 #if CFG_SUPPORT_802_11V_BSS_TRANSITION_MGT

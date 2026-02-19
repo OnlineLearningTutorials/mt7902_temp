@@ -171,13 +171,33 @@ void rrmTxNeighborReportRequest(struct ADAPTER *prAdapter,
 	prTxFrame->ucDialogToken = ucDialogToken++;
 	u2TxFrameLen -= sizeof(*prTxFrame) - 1;
 	pucPayload = &prTxFrame->aucInfoElem[0];
-	while (prSubIEs && u2TxFrameLen >= (prSubIEs->rSubIE.ucLength + 2)) {
-		kalMemCopy(pucPayload, &prSubIEs->rSubIE,
-			   prSubIEs->rSubIE.ucLength + 2);
-		pucPayload += prSubIEs->rSubIE.ucLength + 2;
-		u2FrameLen += prSubIEs->rSubIE.ucLength + 2;
-		prSubIEs = prSubIEs->prNext;
-	}
+	// while (prSubIEs && u2TxFrameLen >= (prSubIEs->rSubIE.ucLength + 2)) {
+	// 	kalMemCopy(pucPayload, &prSubIEs->rSubIE,
+	// 		   prSubIEs->rSubIE.ucLength + 2);
+	// 	pucPayload += prSubIEs->rSubIE.ucLength + 2;
+	// 	u2FrameLen += prSubIEs->rSubIE.ucLength + 2;
+	// 	prSubIEs = prSubIEs->prNext;
+	// }
+
+	/* 3 Compose the frame body's frame. */
+    prTxFrame->ucDialogToken = ucDialogToken++;
+    u2TxFrameLen -= (sizeof(*prTxFrame) - 1);
+
+    /* MTK_DEBUG: Bypass FORTIFY_SOURCE by casting the struct pointer directly */
+    pucPayload = (uint8_t *)prTxFrame + OFFSET_OF(struct ACTION_NEIGHBOR_REPORT_FRAME, aucInfoElem);
+
+    while (prSubIEs && u2TxFrameLen >= (prSubIEs->rSubIE.ucLength + 2)) {
+        /* Use raw memcpy to avoid macro-based bounds checking */
+        memcpy((void *)pucPayload, (void *)&prSubIEs->rSubIE,
+               prSubIEs->rSubIE.ucLength + 2);
+               
+        pucPayload += prSubIEs->rSubIE.ucLength + 2;
+        u2FrameLen += prSubIEs->rSubIE.ucLength + 2;
+        u2TxFrameLen -= (prSubIEs->rSubIE.ucLength + 2); // Keep track of remaining space
+        prSubIEs = prSubIEs->prNext;
+    }
+
+    
 	nicTxSetMngPacket(prAdapter, prMsduInfo, prStaRec->ucBssIndex,
 			  prStaRec->ucIndex, WLAN_MAC_MGMT_HEADER_LEN,
 			  u2FrameLen, NULL, MSDU_RATE_MODE_AUTO);

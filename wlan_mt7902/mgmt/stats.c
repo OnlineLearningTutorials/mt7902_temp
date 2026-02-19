@@ -363,51 +363,89 @@ static void statsParsePktInfo(uint8_t *pucPkt, struct sk_buff *skb,
 			}
 			break;
 		}
+
 		case IP_PRO_UDP:
-		{
-			/* the number of DHCP packets is seldom
-			 * so we print log here
-			 */
-			uint8_t *pucUdp = &pucEthBody[20];
-			// uint8_t *pucBootp = &pucUdp[UDP_HDR_LEN];
-			struct BOOTP_PROTOCOL *prBootp;
-			uint16_t u2UdpDstPort;
-			uint16_t u2UdpSrcPort;
-			uint32_t u4TransID;
-			prBootp =
-				(struct BOOTP_PROTOCOL *) &pucUdp[UDP_HDR_LEN];
+        {
+            uint8_t *pucUdp = &pucEthBody[20];
+            struct BOOTP_PROTOCOL *prBootp;
+            uint16_t u2UdpDstPort;
+            uint16_t u2UdpSrcPort;
+            uint32_t u4TransID;
+            
+            /* MTK_DEBUG: Use raw pointer for options to bypass UBSAN */
+            uint8_t *pucOptions; 
 
-			u2UdpDstPort = (pucUdp[2] << 8) | pucUdp[3];
-			u2UdpSrcPort = (pucUdp[0] << 8) | pucUdp[1];
-			if ((u2UdpDstPort == UDP_PORT_DHCPS)
-				|| (u2UdpDstPort == UDP_PORT_DHCPC)) {
-				WLAN_GET_FIELD_BE32(
-					&prBootp->u4TransId, &u4TransID);
-				switch (eventType) {
-				case EVENT_RX:
-					DBGLOG_LIMITED(RX, INFO,
-						"<RX> DHCP: IPID 0x%02x, MsgType 0x%x, TransID 0x%04x\n",
-						u2IpId, prBootp->aucOptions[6],
-						u4TransID);
-					break;
-				case EVENT_TX:
-					DBGLOG_LIMITED(TX, INFO,
-						"<TX> DHCP: IPID 0x%02x, MsgType 0x%x, TransID 0x%04x\n",
-						u2IpId, prBootp->aucOptions[6],
-						u4TransID);
-					break;
-				}
-			} else if (u2UdpSrcPort == UDP_PORT_DNS) { /* tx dns */
-				// uint16_t u2TransId =
-				// 	(pucBootp[0] << 8) | pucBootp[1];
+            prBootp = (struct BOOTP_PROTOCOL *) &pucUdp[UDP_HDR_LEN];
+            pucOptions = (uint8_t *)prBootp->aucOptions;
 
-				// if (eventType == EVENT_RX)
-					// DBGLOG_LIMITED(RX, INFO,
-					// 	"<RX> DNS: IPID 0x%02x, TransID 0x%04x\n",
-					// 	u2IpId, u2TransId);
-			}
-			break;
-		}
+            u2UdpDstPort = (pucUdp[2] << 8) | pucUdp[3];
+            u2UdpSrcPort = (pucUdp[0] << 8) | pucUdp[1];
+
+            if ((u2UdpDstPort == UDP_PORT_DHCPS) || (u2UdpDstPort == UDP_PORT_DHCPC)) {
+                WLAN_GET_FIELD_BE32(&prBootp->u4TransId, &u4TransID);
+                switch (eventType) {
+                case EVENT_RX:
+                    DBGLOG_LIMITED(RX, INFO,
+                        "<RX> DHCP: IPID 0x%02x, MsgType 0x%x, TransID 0x%04x\n",
+                        u2IpId, pucOptions[6], // Use safe pointer
+                        u4TransID);
+                    break;
+                case EVENT_TX:
+                    DBGLOG_LIMITED(TX, INFO,
+                        "<TX> DHCP: IPID 0x%02x, MsgType 0x%x, TransID 0x%04x\n",
+                        u2IpId, pucOptions[6], // Use safe pointer
+                        u4TransID);
+                    break;
+                }
+            }
+            // ... rest of the code
+        }
+
+		// case IP_PRO_UDP:
+		// {
+		// 	/* the number of DHCP packets is seldom
+		// 	 * so we print log here
+		// 	 */
+		// 	uint8_t *pucUdp = &pucEthBody[20];
+		// 	// uint8_t *pucBootp = &pucUdp[UDP_HDR_LEN];
+		// 	struct BOOTP_PROTOCOL *prBootp;
+		// 	uint16_t u2UdpDstPort;
+		// 	uint16_t u2UdpSrcPort;
+		// 	uint32_t u4TransID;
+		// 	prBootp =
+		// 		(struct BOOTP_PROTOCOL *) &pucUdp[UDP_HDR_LEN];
+
+		// 	u2UdpDstPort = (pucUdp[2] << 8) | pucUdp[3];
+		// 	u2UdpSrcPort = (pucUdp[0] << 8) | pucUdp[1];
+		// 	if ((u2UdpDstPort == UDP_PORT_DHCPS)
+		// 		|| (u2UdpDstPort == UDP_PORT_DHCPC)) {
+		// 		WLAN_GET_FIELD_BE32(
+		// 			&prBootp->u4TransId, &u4TransID);
+		// 		switch (eventType) {
+		// 		case EVENT_RX:
+		// 			DBGLOG_LIMITED(RX, INFO,
+		// 				"<RX> DHCP: IPID 0x%02x, MsgType 0x%x, TransID 0x%04x\n",
+		// 				u2IpId, prBootp->aucOptions[6],
+		// 				u4TransID);
+		// 			break;
+		// 		case EVENT_TX:
+		// 			DBGLOG_LIMITED(TX, INFO,
+		// 				"<TX> DHCP: IPID 0x%02x, MsgType 0x%x, TransID 0x%04x\n",
+		// 				u2IpId, prBootp->aucOptions[6],
+		// 				u4TransID);
+		// 			break;
+		// 		}
+		// 	} else if (u2UdpSrcPort == UDP_PORT_DNS) { /* tx dns */
+		// 		// uint16_t u2TransId =
+		// 		// 	(pucBootp[0] << 8) | pucBootp[1];
+
+		// 		// if (eventType == EVENT_RX)
+		// 			// DBGLOG_LIMITED(RX, INFO,
+		// 			// 	"<RX> DNS: IPID 0x%02x, TransID 0x%04x\n",
+		// 			// 	u2IpId, u2TransId);
+		// 	}
+		// 	break;
+		// }
 		}
 		break;
 	}

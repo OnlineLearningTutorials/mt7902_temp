@@ -1306,6 +1306,11 @@ void saaFsmRunEventRxAuth(IN struct ADAPTER *prAdapter,
 #endif
 
 	ASSERT(prSwRfb);
+
+	/* NEW LOG: Entry point tracking */
+    DBGLOG(SAA, INFO, "saaFsmRunEventRxAuth: Entry. SwRfb StaIdx[%d] WlanIdx[%d]\n", 
+           prSwRfb->ucStaRecIdx, prSwRfb->ucWlanIdx);
+
 	prStaRec = cnmGetStaRecByIndex(prAdapter, prSwRfb->ucStaRecIdx);
 	ucWlanIdx = prSwRfb->ucWlanIdx;
 
@@ -1319,13 +1324,20 @@ void saaFsmRunEventRxAuth(IN struct ADAPTER *prAdapter,
 		return;
 	}
 
-	if (!IS_AP_STA(prStaRec))
+	/* NEW LOG: Current State Check */
+    DBGLOG(SAA, INFO, "SAA RxAuth: StaRec[" MACSTR "] CurrentState[%d] AuthSent[%d]\n",
+           MAC2STR(prStaRec->aucMacAddr), prStaRec->eAuthAssocState, prStaRec->eAuthAssocSent);
+
+	if (!IS_AP_STA(prStaRec)) {
+		DBGLOG(SAA, WARN, "SAA RxAuth: StaRec is NOT an AP/STA role. Ignoring.\n");
 		return;
+	}
 #if (CFG_SUPPORT_SUPPLICANT_SME == 1)
 	/* check received auth frame */
 	if (authCheckRxAuthFrameStatus(prAdapter, prSwRfb,
 		prStaRec->eAuthAssocSent, &u2StatusCode)
 					== WLAN_STATUS_SUCCESS) {
+		DBGLOG(SAA, INFO, "SAA: authCheck success. Stopping Timer. Status: %d\n", u2StatusCode);
 
 		cnmTimerStopTimer(prAdapter,
 			&prStaRec->rTxReqDoneOrRxRespTimer);
@@ -1601,6 +1613,11 @@ uint32_t saaFsmRunEventRxAssoc(IN struct ADAPTER *prAdapter,
 	ASSERT(prSwRfb);
 	prStaRec = cnmGetStaRecByIndex(prAdapter, prSwRfb->ucStaRecIdx);
 	ucWlanIdx = prSwRfb->ucWlanIdx;
+
+	/* NEW LOG: Entry tracking */
+    DBGLOG(SAA, INFO, "saaFsmRunEventRxAssoc: Entry. WlanIdx[%d] StaIdx[%d]\n", 
+           ucWlanIdx, prSwRfb->ucStaRecIdx);
+
 	/* We should have the corresponding Sta Record. */
 	if (!prStaRec) {
 		/* ASSERT(0); */
@@ -1628,6 +1645,8 @@ uint32_t saaFsmRunEventRxAssoc(IN struct ADAPTER *prAdapter,
 	if (assocCheckRxReAssocRspFrameStatus(
 		prAdapter, prSwRfb, &u2StatusCode)
 				== WLAN_STATUS_SUCCESS) {
+		DBGLOG(SAA, INFO, "SAA Assoc: Status %d from [" MACSTR "]. Stopping Timer.\n", 
+               u2StatusCode, MAC2STR(prStaRec->aucMacAddr));
 
 		cnmTimerStopTimer(prAdapter,
 			&prStaRec->rTxReqDoneOrRxRespTimer);
@@ -1642,6 +1661,11 @@ uint32_t saaFsmRunEventRxAssoc(IN struct ADAPTER *prAdapter,
 
 		prBssInfo = GET_BSS_INFO_BY_INDEX(prAdapter,
 						prStaRec->ucBssIndex);
+
+		/* NEW LOG: Network role check */
+        DBGLOG(SAA, INFO, "SAA Assoc: BSS Index[%d] P2P_Reg[%d]\n", 
+               prStaRec->ucBssIndex, prAdapter->fgIsP2PRegistered);
+
 		if (prAdapter->fgIsP2PRegistered &&
 				IS_STA_IN_P2P(prStaRec)) {
 				ucRoleIdx = (uint8_t)prBssInfo->u4PrivateData;
@@ -1665,6 +1689,7 @@ uint32_t saaFsmRunEventRxAssoc(IN struct ADAPTER *prAdapter,
 			"Report RX Assoc to upper layer, %s\n",
 			bss ? "DO IT" : "Oops");
 		if (bss) {
+			DBGLOG(SAA, INFO, "SAA Assoc: Indicating to cfg80211 (bss: %p)\n", bss);
 			kalIndicateRxAssocToUpperLayer(
 					prNetDev,
 					(uint8_t *)prAssocRspFrame,
@@ -1679,8 +1704,7 @@ uint32_t saaFsmRunEventRxAssoc(IN struct ADAPTER *prAdapter,
 				prConnSettings->bss = NULL;
 			}
 		} else
-			DBGLOG(SAA, WARN,
-				"Rx Assoc Resp without specific BSS\n");
+			DBGLOG(SAA, WARN, "SAA Assoc: Rx Assoc Resp without cfg80211_bss ref!\n");
 
 		/* Reset Send Auth/(Re)Assoc Frame Count */
 		prStaRec->ucTxAuthAssocRetryCount = 0;
@@ -1782,6 +1806,7 @@ uint32_t saaFsmRunEventRxAssoc(IN struct ADAPTER *prAdapter,
 			prStaRec->ucRCPI =
 				nicRxGetRcpiValueFromRxv(
 					prAdapter, RCPI_MODE_MAX, prSwRfb);
+			DBGLOG(SAA, INFO, "SAA Assoc: Signal RCPI = %d\n", prStaRec->ucRCPI);
 
 			eNextState = AA_STATE_IDLE;
 

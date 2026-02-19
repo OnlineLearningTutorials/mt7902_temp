@@ -6909,8 +6909,16 @@ void aisSendNeighborRequest(struct ADAPTER *prAdapter,
 	kalMemZero(aucBuffer, sizeof(aucBuffer));
 	prSSIDIE = (struct SUB_ELEMENT_LIST *)&aucBuffer[0];
 	prSSIDIE->rSubIE.ucSubID = ELEM_ID_SSID;
-	COPY_SSID(&prSSIDIE->rSubIE.aucOptInfo[0], prSSIDIE->rSubIE.ucLength,
-		  prBssInfo->aucSSID, prBssInfo->ucSSIDLen);
+	// COPY_SSID(&prSSIDIE->rSubIE.aucOptInfo[0], prSSIDIE->rSubIE.ucLength,
+	// 	  prBssInfo->aucSSID, prBssInfo->ucSSIDLen);
+	
+	/* MTK_DEBUG: Use the BSS info instead of rWifiVar to avoid name mismatch */
+    if (prBssInfo && prSSIDIE->rSubIE.ucLength > 0) {
+        memcpy((void *)prSSIDIE->rSubIE.aucOptInfo, 
+               prBssInfo->aucSSID, 
+               prBssInfo->ucSSIDLen);
+    }
+
 	rrmTxNeighborReportRequest(prAdapter, prBssInfo->prStaRecOfAP,
 				   prSSIDIE);
 }

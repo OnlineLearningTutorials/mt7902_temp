@@ -1916,6 +1916,8 @@ void asicConnac2xRxProcessRxvforMSP(IN struct ADAPTER *prAdapter,
 		DBGLOG(RX, WARN,
 		"prRetSwRfb->ucStaRecIdx(%d) >= CFG_STA_REC_NUM(%d)\n",
 			prRetSwRfb->ucStaRecIdx, CFG_STA_REC_NUM);
+		printk(KERN_INFO "MTK_DEBUG: RX Frame StaIdx=%d, WlanIdx=%d\n", 
+       prRetSwRfb->ucStaRecIdx, prRetSwRfb->ucWlanIdx);
 		return;
 	}
 
