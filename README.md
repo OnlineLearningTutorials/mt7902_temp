@@ -3,6 +3,7 @@ We are trying to develop the driver for the Mediatek mt7902 wifi 6E chip
 
 ## 🔧 Firmwares used
 Firmwares are stored in `mt7902_firmware` folder.
+Recently released firmware are in the `mt7902_firmware/latest` folder.
 
 ## 📁 Cloning the repository
 Clone the repository to your local pc
@@ -41,4 +42,22 @@ Now check your bluetooth is working now.
 > [!IMPORTANT]
 > A working repo with some limitation is [here](https://github.com/hmtheboy154/gen4-mt7902)
 
-We are trying to build the driver for mt7902 wifi card, it is not completed - work in progress.
+WiFi driver for the mt7902, recently released by mediatek is inside the `latest` folder. 
+
+If you are using Ubuntu than just go to the `latest` folder and run the following command in the termianl. 
+```
+make
+```
+
+It will compile all modules, compress it and install it (replace original kernel module with the modified module). If you are some other distro or not want all steps and only wants to compile the code, than run in the termianl 
+```
+make module_compile
+```
+To compress the module you compiled, than run in terminal
+```
+make module_compress
+```
+To install the compressed module to the system's kernel module, run in terminal
+```
+make module_install
+```
