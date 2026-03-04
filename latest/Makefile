@@ -5,11 +5,15 @@ obj-m += mt76-connac-lib.o
 obj-m += mt792x-lib.o
 obj-m += mt7921/
 
-.PHONY: all clean module_compile module_compress module_install
+.PHONY: all clean module_compile module_sign module_compress module_install
 
-all: module_compile module_compress module_install
+all: module_compile module_sign module_compress module_install
 
 MOD_DIR = /lib/modules/$(shell uname -r)/kernel/drivers/net/wireless/mediatek/mt76
+KBUILD_DIR = /lib/modules/$(shell uname -r)/build
+SIGN_FILE = $(KBUILD_DIR)/scripts/sign-file
+MOK_PRIV = /root/.mok/MOK.priv
+MOK_DER = /root/.mok/MOK.der
 ZSTD_BINS = mt76.ko.zst mt76-connac-lib.ko.zst mt792x-lib.ko.zst
 
 CFLAGS_trace.o := -I$(src)
@@ -41,6 +45,28 @@ module_compress: $(ZSTD_BINS)
 %.ko.zst: %.ko
 	zstd $<
 
+
+module_sign:
+	@if [ -f $(MOK_PRIV) ] && [ -f $(MOK_DER) ]; then \
+		echo "-- Signing modules with MOK key"; \
+		for mod in $$(find . -name "*.ko" -not -name "*.ko.zst"); do \
+			sudo $(SIGN_FILE) sha256 $(MOK_PRIV) $(MOK_DER) $$mod; \
+			echo "  Signed $$mod"; \
+		done; \
+	else \
+		echo "-- Skipping module signing (no MOK key found at $(MOK_PRIV))"; \
+		echo "   Run 'make mok_setup' to generate and enroll a signing key"; \
+	fi
+
+mok_setup:
+	@echo "-- Generating MOK signing key"
+	sudo mkdir -p $(dir $(MOK_PRIV))
+	sudo openssl req -new -x509 -newkey rsa:2048 \
+		-keyout $(MOK_PRIV) -outform DER -out $(MOK_DER) \
+		-days 36500 -subj "/CN=MT7902 Module Signing Key/" -nodes
+	@echo "-- Enrolling key with mokutil (you will be asked to set a password)"
+	sudo mokutil --import $(MOK_DER)
+	@echo "-- Reboot and enroll the key in the MOK Manager to complete setup"
 
 module_install: $(MOD_DIR)
 	@echo "-- Installing modules to $(MOD_DIR)"
