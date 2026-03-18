@@ -1,6 +1,15 @@
 # 🎯 mt7902 driver development (✅ Working)
 We are trying to develop the driver for the Mediatek mt7902 wifi 6E chip
 
+## ✅ Tested On (Verified Working)
+This fix has been verified and is confirmed working on:
+
+* **Brand:** ASUS
+* **Model:** Vivobook Go (E1404FA)
+* **Chipset:** MediaTek MT7902 (WiFi 6E)
+* **Kernel Version:** 6.19.0 (Linux)
+* **OS:** Ubuntu 24.04 (or similar Debian-based distros)
+
 ## 🚀 Easy Automatic Fix (Recommended)
 If you want to quickly fix your WiFi and Bluetooth on any modern kernel, follow these steps:
 
