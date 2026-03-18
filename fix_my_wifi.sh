@@ -1,16 +1,43 @@
 #!/bin/bash
 # 🎯 MT7902 WiFi & Bluetooth Automatic Fix for Linux
-# This script compiles and loads the driver for the MediaTek MT7902 chip.
+# =================================================
+# This script automates the process of fixing the MediaTek MT7902 driver
+# issues on modern Linux kernels (like 6.19+).
+#
+# 📖 USER GUIDE:
+# 1. Open your terminal in the directory where this script is located.
+# 2. Make the script executable:
+#    chmod +x fix_my_wifi.sh
+# 3. Run the script with sudo:
+#    sudo ./fix_my_wifi.sh
+#
+# 🛠️ WHAT THIS SCRIPT DOES:
+# - Installs build dependencies (gcc, make, kernel headers).
+# - Compiles the WiFi and Bluetooth drivers for your specific kernel.
+# - Installs the drivers into a safe system directory (/lib/modules/mt7902_custom).
+# - Sets up a systemd service to ensure WiFi works after every reboot.
+#
+# ⚠️ PREREQUISITES:
+# - An active internet connection (via Ethernet or USB tethering) is required 
+#   the first time you run this to download kernel headers.
+# =================================================
 
 set -e
+
+# Usage Check: Ensure script is run with sudo
+if [[ $EUID -ne 0 ]]; then
+   echo "❌ This script must be run as root (use sudo)."
+   echo "Usage: sudo ./fix_my_wifi.sh"
+   exit 1
+fi
 
 echo "🚀 Starting MT7902 Fix..."
 
 # 1. Install prerequisites (for Ubuntu/Debian)
 if [ -f /etc/debian_version ]; then
     echo "📦 Checking prerequisites..."
-    sudo apt-get update
-    sudo apt-get install -y build-essential linux-headers-$(uname -r) bc
+    apt-get update
+    apt-get install -y build-essential linux-headers-$(uname -r) bc
 fi
 
 # 2. Compile WiFi Modules
@@ -32,19 +59,19 @@ fi
 
 # 4. Prepare and Copy Modules
 echo "📂 Installing modules..."
-sudo mkdir -p /lib/modules/mt7902_custom/
+mkdir -p /lib/modules/mt7902_custom/
 cd "$(dirname "$0")/latest"
-sudo cp *.ko /lib/modules/mt7902_custom/
-sudo cp mt7921/*.ko /lib/modules/mt7902_custom/
+cp *.ko /lib/modules/mt7902_custom/
+cp mt7921/*.ko /lib/modules/mt7902_custom/
 
 if [ -d "$BT_DIR" ]; then
     cd "$BT_DIR"
-    sudo cp btmtk.ko btusb.ko /lib/modules/mt7902_custom/
+    cp btmtk.ko btusb.ko /lib/modules/mt7902_custom/
 fi
 
 # 5. Create/Update Setup Script
 echo "📝 Configuring startup service..."
-cat <<EOF | sudo tee /usr/local/bin/mt7902-setup.sh
+cat <<EOF | tee /usr/local/bin/mt7902-setup.sh
 #!/bin/bash
 # Unload conflicting modules
 rmmod btusb btmtk mt7921e mt7921_common mt792x_lib mt76_connac_lib mt76 2>/dev/null
@@ -68,10 +95,10 @@ if [ -f /lib/modules/mt7902_custom/btmtk.ko ]; then
 fi
 EOF
 
-sudo chmod +x /usr/local/bin/mt7902-setup.sh
+chmod +x /usr/local/bin/mt7902-setup.sh
 
 # 6. Create systemd service
-cat <<EOF | sudo tee /etc/systemd/system/mt7902.service
+cat <<EOF | tee /etc/systemd/system/mt7902.service
 [Unit]
 Description=Load custom MT7902 Bluetooth and Wi-Fi drivers
 After=network.target
@@ -85,8 +112,8 @@ RemainAfterExit=yes
 WantedBy=multi-user.target
 EOF
 
-sudo systemctl daemon-reload
-sudo systemctl enable mt7902.service
-sudo systemctl restart mt7902.service
+systemctl daemon-reload
+systemctl enable mt7902.service
+systemctl restart mt7902.service
 
 echo "✅ MT7902 is now active! Your WiFi should be working."
