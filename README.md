@@ -1,5 +1,17 @@
-# 🎯 mt7902 driver development (⚡ in progress)
+# 🎯 mt7902 driver development (✅ Working)
 We are trying to develop the driver for the Mediatek mt7902 wifi 6E chip
+
+## 🚀 Easy Automatic Fix (Recommended)
+If you want to quickly fix your WiFi and Bluetooth on any modern kernel, we have added an automatic script.
+```bash
+# Clone the repository
+git clone --depth 1 https://github.com/OnlineLearningTutorials/mt7902_temp
+cd mt7902_temp
+
+# Run the fix script
+bash fix_my_wifi.sh
+```
+This script will automatically compile the drivers for your current kernel, install them, and set up a system service to keep them active after reboot.
 
 ## 🔧 Firmwares used
 Firmwares are stored in `mt7902_firmware` folder.
@@ -38,7 +50,7 @@ sudo insmod btusb.ko
 ```
 Now check your bluetooth is working now.
 
-## 💻 WiFi (⚡ in progress)
+## 💻 WiFi ✅ (Working)
 > [!IMPORTANT]
 > A working repo with some limitation is [here](https://github.com/hmtheboy154/gen4-mt7902)
 
