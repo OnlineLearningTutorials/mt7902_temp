@@ -110,10 +110,18 @@ insmod /lib/modules/mt7902_custom/mt792x-lib.ko
 insmod /lib/modules/mt7902_custom/mt7921-common.ko
 insmod /lib/modules/mt7902_custom/mt7921e.ko
 
-# Load custom MT7902 modules (Bluetooth)
+
 if [ -f /lib/modules/mt7902_custom/btmtk.ko ]; then
+    # Load Bluetooth stack
+    modprobe bluetooth
+    modprobe btrtl
+    modprobe btintel
+    modprobe btbcm
+
+    # Load custom MT7902 modules (Bluetooth)
     insmod /lib/modules/mt7902_custom/btmtk.ko
     insmod /lib/modules/mt7902_custom/btusb.ko
+
     systemctl restart bluetooth
 fi
 EOF
