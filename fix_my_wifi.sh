@@ -24,43 +24,66 @@
 
 set -e
 
+# Variables declaration
+SCRIPT_DIR=$(pwd)
+BT_DIR="../linux-$(uname -r | cut -d'.' -f1,2)/drivers/bluetooth"
+
+if [[ "$(uname -r)" == *"cachyos"* ]]; then
+    IS_CACHYOS=true
+else
+    IS_CACHYOS=false
+fi
+
 # Usage Check: Ensure script is run with sudo
 if [[ $EUID -ne 0 ]]; then
-   echo "❌ This script must be run as root (use sudo)."
-   echo "Usage: sudo ./fix_my_wifi.sh"
-   exit 1
+    echo "❌ This script must be run as root (use sudo)."
+    echo "Usage: sudo ./fix_my_wifi.sh"
+    exit 1
 fi
 
 echo "🚀 Starting MT7902 Fix..."
 
-# 1. Install prerequisites (for Ubuntu/Debian)
+# 1. Install prerequisites
+# For Ubuntu/Debian
 if [ -f /etc/debian_version ]; then
     echo "📦 Checking prerequisites..."
     apt-get update
     apt-get install -y build-essential linux-headers-$(uname -r) bc
 fi
 
+# For CachyOS
+if $IS_CACHYOS; then
+    pacman -S clang llvm lld
+fi
+
 # 2. Compile WiFi Modules
 echo "🛠️ Compiling WiFi modules..."
-cd "$(dirname "$0")/latest"
+cd "$SCRIPT_DIR/latest"
 make clean
-make module_compile
+if $IS_CACHYOS; then
+    make CC=clang LD=ld.lld module_compile
+else
+    make module_compile
+fi
 
 # 3. Compile Bluetooth Modules
 echo "🛠️ Compiling Bluetooth modules..."
-BT_DIR="../linux-$(uname -r | cut -d'.' -f1,2)/drivers/bluetooth"
 if [ -d "$BT_DIR" ]; then
     cd "$BT_DIR"
     make clean
-    make
+    if $IS_CACHYOS; then
+        make CC=clang LD=ld.lld
+    else
+        make
+    fi
 else
     echo "⚠️ Bluetooth source not found for this kernel version, skipping BT build."
 fi
 
 # 4. Prepare and Copy Modules
 echo "📂 Installing modules..."
+cd "$SCRIPT_DIR/latest"
 mkdir -p /lib/modules/mt7902_custom/
-cd "$(dirname "$0")/latest"
 cp *.ko /lib/modules/mt7902_custom/
 cp mt7921/*.ko /lib/modules/mt7902_custom/
 
@@ -87,10 +110,18 @@ insmod /lib/modules/mt7902_custom/mt792x-lib.ko
 insmod /lib/modules/mt7902_custom/mt7921-common.ko
 insmod /lib/modules/mt7902_custom/mt7921e.ko
 
-# Load custom MT7902 modules (Bluetooth)
+
 if [ -f /lib/modules/mt7902_custom/btmtk.ko ]; then
+    # Load Bluetooth stack
+    modprobe bluetooth
+    modprobe btrtl
+    modprobe btintel
+    modprobe btbcm
+
+    # Load custom MT7902 modules (Bluetooth)
     insmod /lib/modules/mt7902_custom/btmtk.ko
     insmod /lib/modules/mt7902_custom/btusb.ko
+
     systemctl restart bluetooth
 fi
 EOF
