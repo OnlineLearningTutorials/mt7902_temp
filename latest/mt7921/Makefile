@@ -3,6 +3,8 @@
 obj-m += mt7921-common.o
 obj-m += mt7921e.o
 
+ccflags-y += -I$(src)/../include
+
 .PHONY: all clean module_compile module_compress module_install
 
 all: module_compile module_compress module_install

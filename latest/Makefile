@@ -5,6 +5,8 @@ obj-m += mt76-connac-lib.o
 obj-m += mt792x-lib.o
 obj-m += mt7921/
 
+ccflags-y += -I$(src)/include
+
 .PHONY: all clean module_compile module_compress module_install
 
 all: module_compile module_compress module_install
