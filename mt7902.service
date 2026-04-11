@@ -1,0 +1,13 @@
+[Unit]
+Description=Load custom MT7902 Wi-Fi drivers
+After=network-pre.target
+Before=network.target
+Wants=network-pre.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/mt7902-setup.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
