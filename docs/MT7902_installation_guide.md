@@ -35,41 +35,20 @@ sudo apt install -y build-essential linux-headers-$(uname -r) bc
 ## 2. 드라이버 빌드 과정
 
 ### 2.1 저장소 준비
-커뮤니티 패치 버전인 `mt7902_temp` 저장소를 다운로드합니다 (기존에 받아둔 폴더가 있다면 이 단계는 생략 후 폴더로 이동).
+커뮤니티 패치 버전인 `mt7902_temp` 저장소를 다운로드합니다. (현재 가이드는 이 저장소에 포함된 자동화 패치를 기준으로 합니다.)
 ```bash
 cd ~/dev
 git clone --depth 1 https://github.com/OnlineLearningTutorials/mt7902_temp
 cd mt7902_temp/latest
 ```
 
-### 2.2 빌드 에러 조치 (중요)
-Ubuntu 커널 6.17 등의 최신 버전 빌드 시 `airoha_offload.h` 헤더 파일 누락 에러가 종종 발생합니다. 빌드 전에 아래 명령어로 stub(임시) 헤더 파일을 생성해주어야 합니다.
+### 2.2 빌드 준비 (자동화 패치 포함)
+이 저장소에는 최신 커널(6.17+)에서 발생하는 `airoha_offload.h` 누락 에러를 해결하기 위한 **자동화 패치**가 이미 포함되어 있습니다. 별도의 수동 헤더 파일 생성 없이 바로 빌드가 가능합니다.
 
-```bash
-sudo mkdir -p /usr/src/linux-headers-$(uname -r)/include/linux/soc/airoha
-sudo tee /usr/src/linux-headers-$(uname -r)/include/linux/soc/airoha/airoha_offload.h > /dev/null << 'EOF'
-#ifndef __AIROHA_OFFLOAD_H
-#define __AIROHA_OFFLOAD_H
-#include <linux/types.h>
-#include <linux/gfp_types.h>
-
-struct airoha_ppe_dev;
-struct airoha_npu;
-struct airoha_npu_tx_dma_desc { __le32 buf0; __le32 ctrl; __le32 info1; __le32 info2; };
-struct airoha_npu_rx_dma_desc { __le32 buf0; __le32 ctrl; __le32 info1; __le32 info2; };
-enum airoha_npu_wlan_set_cmd { AIROHA_NPU_WLAN_SET_CMD_NONE = 0, };
-enum airoha_npu_wlan_get_cmd { AIROHA_NPU_WLAN_GET_CMD_NONE = 0, };
-
-static inline int airoha_npu_wlan_send_msg(struct airoha_npu *npu, int ifindex,
-	enum airoha_npu_wlan_set_cmd cmd, void *val, int len, gfp_t gfp) { return -EOPNOTSUPP; }
-static inline int airoha_npu_wlan_get_msg(struct airoha_npu *npu, int ifindex,
-	enum airoha_npu_wlan_get_cmd cmd, void *val, int len, gfp_t gfp) { return -EOPNOTSUPP; }
-static inline void airoha_npu_wlan_enable_irq(struct airoha_npu *npu, int q) {}
-#endif
-EOF
-```
+---
 
 ### 2.3 드라이버 모듈 컴파일
+준비가 끝나면 클린 후 빌드를 진행합니다.
 준비가 끝나면 클린 후 빌드를 진행합니다.
 ```bash
 cd ~/dev/mt7902_temp/latest
