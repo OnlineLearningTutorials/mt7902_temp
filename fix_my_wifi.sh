@@ -58,9 +58,9 @@ fi
 if grep -qi "clang" /proc/version; then
     echo "🔍 Clang compiled kernel detected. Using Clang for module."
     COMPILER_ARGS="CC=clang LD=ld.lld"
-else if grep -qi "gcc" /proc/version; then
+elif grep -qi "gcc" /proc/version; then
     echo "🔍 GCC compiled kernel detected. Using GCC for module."
-    COMPILER_ARGS="CC=gcc LD=gcc"
+    COMPILER_ARGS="CC=gcc "
 fi
 
 # 2. Compile WiFi Modules
