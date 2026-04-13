@@ -13,7 +13,8 @@ This fix has been verified and is confirmed working on:
 
 ## Available for:
 * **OS**: Any os that support one of PM`s
-* **Package Managers needs to work**: apt, pacman, dnf, zypper, nix-shell
+* **Preffered package managers**: apt, pacman, dnf, zypper, nix-shell
+* **Kernel versions**: 6.14-6.19
 
 ## 🚀 Easy Automatic Fix (Recommended)
 If you want to quickly fix your WiFi and Bluetooth on any modern kernel, follow these steps:
@@ -30,13 +31,13 @@ If you want to quickly fix your WiFi and Bluetooth on any modern kernel, follow 
    ```
 
 ### 📖 What this script does:
-* **Checks for dependencies:** Ensures you have `gcc`/`clang`, `make`, `bc`, and your current `kernel-headers` installed. If not - installs with ur PM
+* **Checks for dependencies:** Ensures you have `gcc`/`clang`, `make`, `bc`, and your current `kernel-headers` installed. If not - installs with ur preffered package manager
 * **Compiles Drivers:** Automatically builds both WiFi and Bluetooth drivers for your exact kernel version.
 * **Persistent Fix:** Installs a system service that ensures your WiFi stays active even after you restart your computer.
 * **Safety:** Installs modules into a custom directory (`/lib/modules/mt7902_custom`) to avoid messing with your default system files.
 
 > [!NOTE]
-> You will need an internet connection (via Ethernet or USB tethering from your phone) the first time you run this to download the necessary build tools.
+> You will need an internet connection (via Ethernet or USB tethering from your phone) the first time you run this to download the necessary build tools. (Such as compilator, linux-headers, etc)
 
 ## 🔧 Firmwares used
 Firmwares are stored in `mt7902_firmware` folder.

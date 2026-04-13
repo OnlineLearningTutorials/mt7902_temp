@@ -81,6 +81,7 @@ fi
 
 # 4. Prepare and Copy Modules
 echo "📂 Installing modules..."
+
 cd "$SCRIPT_DIR/latest"
 mkdir -p /lib/modules/mt7902_custom/
 cp *.ko /lib/modules/mt7902_custom/
