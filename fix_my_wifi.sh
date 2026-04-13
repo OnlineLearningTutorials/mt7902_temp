@@ -28,12 +28,6 @@ set -e
 SCRIPT_DIR=$(pwd)
 BT_DIR="../linux-$(uname -r | cut -d'.' -f1,2)/drivers/bluetooth"
 
-if [[ "$(uname -r)" == *"cachyos"* ]]; then
-    IS_CACHYOS=true
-else
-    IS_CACHYOS=false
-fi
-
 # Usage Check: Ensure script is run with sudo
 if [[ $EUID -ne 0 ]]; then
     echo "❌ This script must be run as root (use sudo)."
@@ -43,39 +37,44 @@ fi
 
 echo "🚀 Starting MT7902 Fix..."
 
-# 1. Install prerequisites
-# For Ubuntu/Debian
-if [ -f /etc/debian_version ]; then
-    echo "📦 Checking prerequisites..."
+if command -v apt &> /dev/null; then
     apt-get update
-    apt-get install -y build-essential linux-headers-$(uname -r) bc
+    apt-get install -y build-essential linux-headers-$(uname -r) bc clang llvm lld
+elif command -v pacman &> /dev/null; then
+    pacman -Sy --needed --noconfirm base-devel linux-headers bc clang llvm lld
+elif command -v dnf &> /dev/null; then
+    dnf install -y @development-tools kernel-devel-$(uname -r) bc clang llvm lld
+elif command -v zypper &> /dev/null; then
+    zypper install -y -t pattern devel_basis
+    zypper install -y kernel-default-devel bc clang llvm lld
+elif command -v nix-shell &> /dev/null; then
+    nix-shell -p linuxHeaders.$(uname -r) bc clang llvm lld    
+else
+    echo "⚠️ No supported package manager found (apt, pacman, dnf, zypper, nix-shell)."
+    echo "Please install make, gcc/clang, flex, bison, bc and kernel headers manually."
 fi
 
-# For CachyOS
-if $IS_CACHYOS; then
-    pacman -S clang llvm lld
+# Detect kernel compiler
+if grep -qi "clang" /proc/version; then
+    echo "🔍 Clang compiled kernel detected. Using Clang for module."
+    COMPILER_ARGS="CC=clang LD=ld.lld"
+else if grep -qi "gcc" /proc/version; then
+    echo "🔍 GCC compiled kernel detected. Using GCC for module."
+    COMPILER_ARGS="CC=gcc LD=gcc"
 fi
 
 # 2. Compile WiFi Modules
 echo "🛠️ Compiling WiFi modules..."
 cd "$SCRIPT_DIR/latest"
 make clean
-if $IS_CACHYOS; then
-    make CC=clang LD=ld.lld module_compile
-else
-    make module_compile
-fi
+make $COMPILER_ARGS module_compile
 
 # 3. Compile Bluetooth Modules
 echo "🛠️ Compiling Bluetooth modules..."
 if [ -d "$BT_DIR" ]; then
     cd "$BT_DIR"
     make clean
-    if $IS_CACHYOS; then
-        make CC=clang LD=ld.lld
-    else
-        make
-    fi
+    make $COMPILER_ARGS
 else
     echo "⚠️ Bluetooth source not found for this kernel version, skipping BT build."
 fi
@@ -144,7 +143,7 @@ WantedBy=multi-user.target
 EOF
 
 systemctl daemon-reload
-systemctl enable mt7902.service
+systemctl enable --now mt7902.service
 systemctl restart mt7902.service
 
 echo "✅ MT7902 is now active! Your WiFi should be working."

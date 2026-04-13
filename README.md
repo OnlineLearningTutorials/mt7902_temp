@@ -5,10 +5,15 @@ We are trying to develop the driver for the Mediatek mt7902 wifi 6E chip
 This fix has been verified and is confirmed working on:
 
 * **Brand:** ASUS
-* **Model:** Vivobook Go (E1404FA)
+* **Model:** Vivobook Go (E1404FA), Vivobook 14 (X1404ZA)
 * **Chipset:** MediaTek MT7902 (WiFi 6E)
-* **Kernel Version:** 6.19.0 (Linux)
-* **OS:** Ubuntu 24.04 (or similar Debian-based distros)
+* **Kernel Version:** 6.19.0 (Linux), 6.19.11
+* **OSes:** Arch, Ubuntu
+* **Package Manager:** pacman, apt
+
+## Available for:
+* **OS**: Any os that support one of PM`s
+* **Package Managers needs to work**: apt, pacman, dnf, zypper, nix-shell
 
 ## 🚀 Easy Automatic Fix (Recommended)
 If you want to quickly fix your WiFi and Bluetooth on any modern kernel, follow these steps:
@@ -25,7 +30,7 @@ If you want to quickly fix your WiFi and Bluetooth on any modern kernel, follow 
    ```
 
 ### 📖 What this script does:
-* **Checks for dependencies:** Ensures you have `gcc`, `make`, and your current `kernel-headers` installed.
+* **Checks for dependencies:** Ensures you have `gcc`/`clang`, `make`, `bc`, and your current `kernel-headers` installed. If not - installs with ur PM
 * **Compiles Drivers:** Automatically builds both WiFi and Bluetooth drivers for your exact kernel version.
 * **Persistent Fix:** Installs a system service that ensures your WiFi stays active even after you restart your computer.
 * **Safety:** Installs modules into a custom directory (`/lib/modules/mt7902_custom`) to avoid messing with your default system files.
