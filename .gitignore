@@ -14,5 +14,4 @@
 *.symvers
 
 
-firmware/
 .backup/
