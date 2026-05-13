@@ -2005,7 +2005,7 @@ static inline void mt76_put_page_pool_buf(void *buf, bool allow_direct)
 {
 	struct page *page = virt_to_head_page(buf);
 
-	page_pool_put_full_page(pp_page_to_nmdesc(page)->pp, page,
+	page_pool_put_full_page(__netmem_get_pp(page_to_netmem(page)), page,
 				allow_direct);
 }
 
