@@ -26,18 +26,7 @@ set -e
 
 # Variables declaration
 SCRIPT_DIR=$(pwd)
-KERNEL_VER=$(uname -r)
-IS_CACHYOS=false
-IS_ARCH=false
-BT_DIR="$SCRIPT_DIR/linux-$KERNEL_VER/drivers/bluetooth"
-
-if [[ "$KERNEL_VER" == *"cachyos"* ]]; then
-    IS_CACHYOS=true
-fi
-
-if [[ "$KERNEL_VER" == *"arch"* ]]; then
-    IS_ARCH=true
-fi
+BT_DIR="../linux-$(uname -r | cut -d'.' -f1,2)/drivers/bluetooth"
 
 # Usage Check: Ensure script is run with sudo
 if [[ $EUID -ne 0 ]]; then
@@ -48,50 +37,55 @@ fi
 
 echo "🚀 Starting MT7902 Fix..."
 
-# 1. Install prerequisites
-# For Ubuntu/Debian
-if [ -f /etc/debian_version ]; then
-    echo "📦 Checking prerequisites..."
+if command -v apt &> /dev/null; then
     apt-get update
-    apt-get install -y build-essential linux-headers-$KERNEL_VER bc
+    apt-get install -y build-essential linux-headers-$(uname -r) bc clang llvm lld
+elif command -v pacman &> /dev/null; then
+    pacman -Sy --needed --noconfirm base-devel linux-headers bc clang llvm lld
+elif command -v dnf &> /dev/null; then
+    dnf install -y @development-tools kernel-devel-$(uname -r) bc clang llvm lld
+elif command -v zypper &> /dev/null; then
+    zypper install -y -t pattern devel_basis
+    zypper install -y kernel-default-devel bc clang llvm lld
+elif command -v nix-shell &> /dev/null; then
+    nix-shell -p linuxHeaders.$(uname -r) bc clang llvm lld    
+else
+    echo "⚠️ No supported package manager found (apt, pacman, dnf, zypper, nix-shell)."
+    echo "Please install make, gcc/clang, flex, bison, bc and kernel headers manually."
 fi
 
-# For CachyOS and Arch
-if $IS_ARCH || $IS_CACHYOS; then
-  sudo pacman -S --noconfirm clang llvm lld linux-headers base-devel
+# Detect kernel compiler
+if grep -qi "clang" /proc/version; then
+    echo "🔍 Clang compiled kernel detected. Using Clang for module."
+    COMPILER_ARGS="CC=clang LD=ld.lld"
+elif grep -qi "gcc" /proc/version; then
+    echo "🔍 GCC compiled kernel detected. Using GCC for module."
+    COMPILER_ARGS="CC=gcc "
 fi
 
 # 2. Compile WiFi Modules
 echo "🛠️ Compiling WiFi modules..."
 cd "$SCRIPT_DIR/latest"
-make clean || echo "No clean target for WiFi, continuing..."
-if $IS_CACHYOS; then
-    make CC=clang LD=ld.lld module_compile
-else
-    make module_compile
-fi
+make clean
+make $COMPILER_ARGS module_compile
 
 # 3. Compile Bluetooth Modules
 echo "🛠️ Compiling Bluetooth modules..."
 if [ -d "$BT_DIR" ]; then
     cd "$BT_DIR"
-    make clean || echo "No clean target for BT, continuing..."
-    if $IS_CACHYOS; then
-        make CC=clang LD=ld.lld
-    else
-        make
-    fi
+    make clean
+    make $COMPILER_ARGS
 else
     echo "⚠️ Bluetooth source not found for this kernel version, skipping BT build."
 fi
 
 # 4. Prepare and Copy Modules
 echo "📂 Installing modules..."
-MODULE_DIR="/lib/modules/mt7902_custom"
-mkdir -p "$MODULE_DIR"
-cd  "$SCRIPT_DIR/latest"
-cp *.ko "$MODULE_DIR/"
-cp mt7921/*.ko "$MODULE_DIR/"
+
+cd "$SCRIPT_DIR/latest"
+mkdir -p /lib/modules/mt7902_custom/
+cp *.ko /lib/modules/mt7902_custom/
+cp mt7921/*.ko /lib/modules/mt7902_custom/
 
 if [ -d "$BT_DIR" ]; then
     cd "$BT_DIR"
@@ -103,7 +97,7 @@ echo "📝 Configuring startup service..."
 cat <<EOF | tee /usr/local/bin/mt7902-setup.sh
 #!/bin/bash
 # Unload conflicting modules
-rmmod btusb btmtk mt7921e mt7921_common mt792x_lib mt76_connac_lib mt76 2>/dev/null || true
+rmmod btusb btmtk mt7921e mt7921_common mt792x_lib mt76_connac_lib mt76 2>/dev/null
 
 # Load WiFi stack
 modprobe cfg80211
@@ -116,17 +110,19 @@ insmod /lib/modules/mt7902_custom/mt792x-lib.ko
 insmod /lib/modules/mt7902_custom/mt7921-common.ko
 insmod /lib/modules/mt7902_custom/mt7921e.ko
 
-# Load Blutetooth stack if modules exist
+
 if [ -f /lib/modules/mt7902_custom/btmtk.ko ]; then
+    # Load Bluetooth stack
     modprobe bluetooth
     modprobe btrtl
     modprobe btintel
     modprobe btbcm
 
+    # Load custom MT7902 modules (Bluetooth)
     insmod /lib/modules/mt7902_custom/btmtk.ko
     insmod /lib/modules/mt7902_custom/btusb.ko
 
-    systemctl restart bluetooth || true
+    systemctl restart bluetooth
 fi
 EOF
 
@@ -148,7 +144,7 @@ WantedBy=multi-user.target
 EOF
 
 systemctl daemon-reload
-systemctl enable mt7902.service
+systemctl enable --now mt7902.service
 systemctl restart mt7902.service
 
-echo "✅ MT7902 is now active! Your WiFi and Bluetooth should be working."
+echo "✅ MT7902 is now active! Your WiFi should be working."
