@@ -1,4 +1,0 @@
-on boot
-    insmod /vendor/lib/modules/wlan_mt7902_sdio_mt6789.ko
-    insmod /vendor/lib/modules/wlan_drv_gen4_mt7961.ko
-    insmod /vendor/lib/modules/wlan_drv_gen4_mt7902.ko
