@@ -1,0 +1,91 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+jobs:
+  # ------------------------------------------------------------------ #
+  # Job 1: Static checks — no kernel headers needed, fast               #
+  # ------------------------------------------------------------------ #
+  static-checks:
+    name: Static API compatibility checks
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run check_api_compat.sh
+        run: bash tests/check_api_compat.sh
+
+  # ------------------------------------------------------------------ #
+  # Job 2: Build — compile the out-of-tree modules                      #
+  # ------------------------------------------------------------------ #
+  build:
+    name: Build kernel modules (Ubuntu 24.04 HWE)
+    runs-on: ubuntu-24.04
+    needs: static-checks
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install kernel headers and build tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            build-essential \
+            linux-headers-generic-hwe-24.04
+
+      - name: Resolve installed kernel version
+        id: kver
+        run: |
+          KVER=$(ls /lib/modules/ | sort -V | tail -1)
+          echo "kver=$KVER" >> "$GITHUB_OUTPUT"
+          echo "Building against kernel $KVER"
+
+      - name: Verify __netmem_get_pp is available in these headers
+        run: |
+          KVER="${{ steps.kver.outputs.kver }}"
+          if ! grep -rq '__netmem_get_pp\|page_to_netmem' /lib/modules/"$KVER"/build/include/ 2>/dev/null; then
+            echo "WARNING: __netmem_get_pp not found in kernel $KVER headers."
+            echo "These headers pre-date the 6.17 API change — build may fail."
+            echo "This is expected on older runners; the fix still applies to >=6.17."
+          fi
+
+      - name: Build out-of-tree modules
+        run: |
+          KVER="${{ steps.kver.outputs.kver }}"
+          make -C /lib/modules/"$KVER"/build \
+               M="$(pwd)/latest" \
+               modules \
+               -j"$(nproc)"
+
+      - name: Verify .ko files were produced
+        run: |
+          echo "Checking for expected .ko files:"
+          MISSING=0
+          for ko in \
+            latest/mt76.ko \
+            latest/mt76-connac-lib.ko \
+            latest/mt792x-lib.ko \
+            latest/mt7921/mt7921-common.ko \
+            latest/mt7921/mt7921e.ko
+          do
+            if [ -f "$ko" ]; then
+              echo "  FOUND: $ko"
+            else
+              echo "  MISSING: $ko"
+              MISSING=$((MISSING + 1))
+            fi
+          done
+          [ "$MISSING" -eq 0 ]
+
+      - name: Check MT7902 PCI ID is embedded in mt7921e.ko
+        run: |
+          # The PCI device table is baked into the .ko ELF; confirm 7902 is there.
+          if strings latest/mt7921/mt7921e.ko | grep -q "7902"; then
+            echo "PASS: MT7902 reference found in mt7921e.ko"
+          else
+            echo "FAIL: MT7902 reference NOT found in mt7921e.ko"
+            exit 1
+          fi
