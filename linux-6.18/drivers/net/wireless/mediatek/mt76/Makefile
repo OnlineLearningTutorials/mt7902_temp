@@ -1,45 +1,61 @@
 # SPDX-License-Identifier: ISC
 
+obj-m += mt76.o
+obj-m += mt76-connac-lib.o
+obj-m += mt792x-lib.o
+obj-m += mt7921/
 
-obj-m += mt7902e.o
+ccflags-y += -I$(src)/include
+
+.PHONY: all clean module_compile module_compress module_install
+
+all: module_compile module_compress module_install
+
+MOD_DIR = /lib/modules/$(shell uname -r)/kernel/drivers/net/wireless/mediatek/mt76
+ZSTD_BINS = mt76.ko.zst mt76-connac-lib.ko.zst mt792x-lib.ko.zst
 
 CFLAGS_trace.o := -I$(src)
 CFLAGS_usb_trace.o := -I$(src)
 CFLAGS_mt76x02_trace.o := -I$(src)
 CFLAGS_mt792x_trace.o := -I$(src)
 
-mt7902e-y := \
+
+mt76-y := \
 	mmio.o util.o trace.o dma.o mac80211.o debugfs.o eeprom.o \
 	tx.o agg-rx.o mcu.o wed.o scan.o channel.o pci.o
 
-mt7902e-y += mt76_connac_mcu.o mt76_connac_mac.o mt76_connac3_mac.o
+mt76-connac-lib-y := mt76_connac_mcu.o mt76_connac_mac.o mt76_connac3_mac.o
 
-mt7902e-y += mt792x_core.o mt792x_mac.o mt792x_trace.o \
+mt792x-lib-y := mt792x_core.o mt792x_mac.o mt792x_trace.o \
 		mt792x_debugfs.o mt792x_dma.o mt792x_acpi_sar.o
-		
-		
-mt7902e-y += mt7902/pci.o mt7902/pci_mac.o mt7902/pci_mcu.o mt7902/init.o mt7902/main.o mt7902/mcu.o mt7902/mac.o \
- mt7902/debugfs.o 
-
-# mt7902e-y += mt7902_orig/pci.o mt7902_orig/pci_mac.o mt7902_orig/pci_mcu.o mt7902_orig/init.o mt7902_orig/main.o mt7902_orig/mcu.o mt7902_orig/mac.o \
-#  mt7902_orig/debugfs.o 
-
-# mt7902e-y += mt7902_7915/pci.o mt7902_7915/init.o mt7902_7915/dma.o mt7902_7915/eeprom.o mt7902_7915/main.o mt7902_7915/mcu.o mt7902_7915/mac.o \
-# 	     mt7902_7915/debugfs.o mt7902_7915/mmio.o mt7902_7915/coredump.o
- 
-
-#  mt7902-common-y := mac.o mcu.o main.o init.o debugfs.o
-# mt7902-common-$(CONFIG_NL80211_TESTMODE) += testmode.o
-# mt7902e-y := pci.o pci_mac.o pci_mcu.o
-# mt7902s-y := sdio.o sdio_mac.o sdio_mcu.o
-# mt7902u-y := usb.o
 
 
-all:
+module_compile: 
+	@echo "-- Module compilation"
 	$(MAKE) -C /lib/modules/`uname -r`/build/ M=`pwd` modules
+	
+	
+module_compress: $(ZSTD_BINS)
+	@echo "-- Module Compression"
+	@find . -name "*.ko" -exec zstd -f {} \;
+	
 
-clean:
+%.ko.zst: %.ko
+	zstd $<
+
+
+module_install: $(MOD_DIR)
+	@echo "-- Installing modules to $(MOD_DIR)"
+	# Install the base libs
+	sudo install -v -m 644 *.ko.zst $(MOD_DIR)
+	# Install the specific chip drivers from subfolders
+	sudo install -v -m 644 mt7921/*.ko.zst $(MOD_DIR)/mt7921/ 2>/dev/null || true
+	# Refresh module dependencies
+	sudo depmod -a
+
+
+clean: 
 	$(MAKE) -C /lib/modules/`uname -r`/build/ M=`pwd` clean
-
-
-
+	rm -f $(ZSTD_BINS)
+	
+	

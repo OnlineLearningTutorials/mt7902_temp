@@ -26,6 +26,8 @@ static const struct pci_device_id mt7921_pci_device_table[] = {
 		.driver_data = (kernel_ulong_t)MT7922_FIRMWARE_WM },
 	{ PCI_DEVICE(PCI_VENDOR_ID_MEDIATEK, 0x7920),
 		.driver_data = (kernel_ulong_t)MT7920_FIRMWARE_WM },
+	{ PCI_DEVICE(PCI_VENDOR_ID_MEDIATEK, 0x7902),
+		.driver_data = (kernel_ulong_t)MT7902_FIRMWARE_WM },
 	{ },
 };
 
@@ -35,11 +37,13 @@ MODULE_PARM_DESC(disable_aspm, "disable PCI ASPM support");
 
 static int mt7921e_init_reset(struct mt792x_dev *dev)
 {
+	printk(KERN_DEBUG "pci.c - mt7921e_init_reset");
 	return mt792x_wpdma_reset(dev, true);
 }
 
 static void mt7921e_unregister_device(struct mt792x_dev *dev)
 {
+	printk(KERN_DEBUG "pci.c - mt7921e_unregister_device");
 	int i;
 	struct mt76_connac_pm *pm = &dev->pm;
 	struct ieee80211_hw *hw = mt76_hw(dev);
@@ -66,6 +70,7 @@ static void mt7921e_unregister_device(struct mt792x_dev *dev)
 
 static u32 __mt7921_reg_addr(struct mt792x_dev *dev, u32 addr)
 {
+	//printk(KERN_DEBUG "pci.c - __mt7921_reg_addr");
 	static const struct mt76_connac_reg_map fixed_map[] = {
 		{ 0x820d0000, 0x30000, 0x10000 }, /* WF_LMAC_TOP (WF_WTBLON) */
 		{ 0x820ed000, 0x24800, 0x00800 }, /* WF_LMAC_TOP BN0 (WF_MIB) */
@@ -143,6 +148,7 @@ static u32 __mt7921_reg_addr(struct mt792x_dev *dev, u32 addr)
 
 static u32 mt7921_rr(struct mt76_dev *mdev, u32 offset)
 {
+	//printk(KERN_DEBUG "pci.c - mt7921_rr");
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
 	u32 addr = __mt7921_reg_addr(dev, offset);
 
@@ -151,6 +157,7 @@ static u32 mt7921_rr(struct mt76_dev *mdev, u32 offset)
 
 static void mt7921_wr(struct mt76_dev *mdev, u32 offset, u32 val)
 {
+	//printk(KERN_DEBUG "pci.c - mt7921_wr");
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
 	u32 addr = __mt7921_reg_addr(dev, offset);
 
@@ -159,6 +166,7 @@ static void mt7921_wr(struct mt76_dev *mdev, u32 offset, u32 val)
 
 static u32 mt7921_rmw(struct mt76_dev *mdev, u32 offset, u32 mask, u32 val)
 {
+	//printk(KERN_DEBUG "pci.c - mt7921_rmw");
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
 	u32 addr = __mt7921_reg_addr(dev, offset);
 
@@ -167,25 +175,57 @@ static u32 mt7921_rmw(struct mt76_dev *mdev, u32 offset, u32 mask, u32 val)
 
 static int mt7921_dma_init(struct mt792x_dev *dev)
 {
+	printk(KERN_DEBUG "pci.c - mt7921_dma_init(dev)");
+	struct mt7921_dma_layout layout = {
+		/* General case: MT7921 / MT7922 /MT7920 */
+		.mcu_wm_txq            = MT7921_TXQ_MCU_WM,
+		.mcu_rxdone_ring_size  = MT7921_RX_MCU_RING_SIZE,
+		.has_mcu_wa            = true,
+	};
+	bool is_mt7902;
+	int ret;
+
+	is_mt7902 = mt7921_l1_rr(dev, MT_HW_CHIPID) == 0x7902;
+
+	/*
+	 * MT7902 special case:
+	 *   - MCU-WM TXQ uses index 15
+	 *   - RX Ring0 is larger and shared for event/TX-done
+	 *   - MT7902 does not use the MCU_WA ring
+	 */
+	if (is_mt7902) {
+		layout.mcu_wm_txq           = MT7902_TXQ_MCU_WM;
+		layout.mcu_rxdone_ring_size = MT7902_RX_MCU_RING_SIZE;
+		layout.has_mcu_wa           = false;
+	}
+
+	// 1. Trace entry and start attachment
+	dev_info(dev->mt76.dev, "Initializing DMA for MT7902\n");
 	int ret;
 
 	mt76_dma_attach(&dev->mt76);
 
+	// 2. Log if disabling existing DMA fails (Hardware state check)
 	ret = mt792x_dma_disable(dev, true);
-	if (ret)
+	if (ret) {
+		dev_err(dev->mt76.dev, "Failed to disable DMA: %d\n", ret);
 		return ret;
+	}
 
 	/* init tx queue */
 	ret = mt76_connac_init_tx_queues(dev->phy.mt76, MT7921_TXQ_BAND0,
 					 MT7921_TX_RING_SIZE,
 					 MT_TX_RING_BASE, NULL, 0);
-	if (ret)
+	if (ret) {
+		dev_err(dev->mt76.dev, "Failed to init TX queues: %d\n", ret);
 		return ret;
+	}
 
 	mt76_wr(dev, MT_WFDMA0_TX_RING0_EXT_CTRL, 0x4);
+	dev_info(dev->mt76.dev, "WFDMA0 TX Ring Ext Ctrl set to 0x4\n");
 
 	/* command to WM */
-	ret = mt76_init_mcu_queue(&dev->mt76, MT_MCUQ_WM, MT7921_TXQ_MCU_WM,
+	ret = mt76_init_mcu_queue(&dev->mt76, MT_MCUQ_WM, layout.mcu_wm_txq,
 				  MT7921_TX_MCU_RING_SIZE, MT_TX_RING_BASE);
 	if (ret)
 		return ret;
@@ -199,18 +239,20 @@ static int mt7921_dma_init(struct mt792x_dev *dev)
 	/* event from WM before firmware download */
 	ret = mt76_queue_alloc(dev, &dev->mt76.q_rx[MT_RXQ_MCU],
 			       MT7921_RXQ_MCU_WM,
-			       MT7921_RX_MCU_RING_SIZE,
+			       layout.mcu_rxdone_ring_size,
 			       MT_RX_BUF_SIZE, MT_RX_EVENT_RING_BASE);
 	if (ret)
 		return ret;
 
-	/* Change mcu queue after firmware download */
-	ret = mt76_queue_alloc(dev, &dev->mt76.q_rx[MT_RXQ_MCU_WA],
-			       MT7921_RXQ_MCU_WM,
-			       MT7921_RX_MCU_WA_RING_SIZE,
-			       MT_RX_BUF_SIZE, MT_WFDMA0(0x540));
-	if (ret)
-		return ret;
+	if (layout.has_mcu_wa) {
+		/* Change mcu queue after firmware download */
+		ret = mt76_queue_alloc(dev, &dev->mt76.q_rx[MT_RXQ_MCU_WA],
+				       MT7921_RXQ_MCU_WM,
+				       MT7921_RX_MCU_WA_RING_SIZE,
+				       MT_RX_BUF_SIZE, MT_WFDMA0(0x540));
+		if (ret)
+			return ret;
+	}
 
 	/* rx data */
 	ret = mt76_queue_alloc(dev, &dev->mt76.q_rx[MT_RXQ_MAIN],
@@ -226,6 +268,7 @@ static int mt7921_dma_init(struct mt792x_dev *dev)
 	netif_napi_add_tx(dev->mt76.tx_napi_dev, &dev->mt76.tx_napi,
 			  mt792x_poll_tx);
 	napi_enable(&dev->mt76.tx_napi);
+	dev_info(dev->mt76.dev, "TX NAPI enabled\n");
 
 	return mt792x_dma_enable(dev);
 }
@@ -233,6 +276,7 @@ static int mt7921_dma_init(struct mt792x_dev *dev)
 static int mt7921_pci_probe(struct pci_dev *pdev,
 			    const struct pci_device_id *id)
 {
+	printk(KERN_DEBUG "pci.c - mt7921_pci_probe  =============================================================================================================================================================================================================================");
 	static const struct mt76_driver_ops drv_ops = {
 		/* txwi_size = txd size + txp size */
 		.txwi_size = MT_TXD_SIZE + sizeof(struct mt76_connac_hw_txp),
@@ -326,6 +370,20 @@ static int mt7921_pci_probe(struct pci_dev *pdev,
 	dev->hif_ops = &mt7921_pcie_ops;
 	dev->irq_map = &irq_map;
 	mt76_mmio_init(&dev->mt76, pcim_iomap_table(pdev)[0]);
+	if (id->device == 0x7902) {
+		struct mt792x_irq_map *map;
+
+		/* MT7902 needs a mutable copy because wm2_complete_mask differs */
+		map = devm_kmemdup(&pdev->dev, &irq_map,
+				   sizeof(irq_map), GFP_KERNEL);
+		if (!map)
+			return -ENOMEM;
+
+		map->rx.wm2_complete_mask = 0;
+		dev->irq_map = map;
+	}
+
+
 	tasklet_init(&mdev->irq_tasklet, mt792x_irq_tasklet, (unsigned long)dev);
 
 	dev->phy.dev = dev;
@@ -400,6 +458,7 @@ err_free_pci_vec:
 
 static void mt7921_pci_remove(struct pci_dev *pdev)
 {
+	printk(KERN_DEBUG "pci.c - mt7921_pci_remove");
 	struct mt76_dev *mdev = pci_get_drvdata(pdev);
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
 
@@ -415,6 +474,7 @@ static void mt7921_pci_remove(struct pci_dev *pdev)
 
 static int mt7921_pci_suspend(struct device *device)
 {
+	printk(KERN_DEBUG "pci.c - mt7921_pci_suspend");
 	struct pci_dev *pdev = to_pci_dev(device);
 	struct mt76_dev *mdev = pci_get_drvdata(pdev);
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
@@ -498,6 +558,7 @@ restore_suspend:
 
 static int mt7921_pci_resume(struct device *device)
 {
+	printk(KERN_DEBUG "pci.c - mt7921_pci_resume");
 	struct pci_dev *pdev = to_pci_dev(device);
 	struct mt76_dev *mdev = pci_get_drvdata(pdev);
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
@@ -556,6 +617,7 @@ failed:
 
 static void mt7921_pci_shutdown(struct pci_dev *pdev)
 {
+	printk(KERN_DEBUG "pci.c - mt7921_pci_shutdown");
 	mt7921_pci_remove(pdev);
 }
 
@@ -579,6 +641,8 @@ MODULE_FIRMWARE(MT7921_FIRMWARE_WM);
 MODULE_FIRMWARE(MT7921_ROM_PATCH);
 MODULE_FIRMWARE(MT7922_FIRMWARE_WM);
 MODULE_FIRMWARE(MT7922_ROM_PATCH);
+MODULE_FIRMWARE(MT7902_FIRMWARE_WM);
+MODULE_FIRMWARE(MT7902_ROM_PATCH);
 MODULE_AUTHOR("Sean Wang <sean.wang@mediatek.com>");
 MODULE_AUTHOR("Lorenzo Bianconi <lorenzo@kernel.org>");
 MODULE_DESCRIPTION("MediaTek MT7921E (PCIe) wireless driver");

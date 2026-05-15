@@ -1,4 +1,4 @@
-/* SPDX-License-Identifier: ISC */
+/* SPDX-License-Identifier: BSD-3-Clause-Clear */
 /* Copyright (C) 2020 MediaTek Inc. */
 
 #ifndef __MT76_CONNAC_H
@@ -177,14 +177,19 @@ static inline bool is_mt7925(struct mt76_dev *dev)
 	return mt76_chip(dev) == 0x7925;
 }
 
+static inline bool is_mt7920(struct mt76_dev *dev)
+{
+	return mt76_chip(dev) == 0x7920;
+}
+
 static inline bool is_mt7902(struct mt76_dev *dev)
 {
 	return mt76_chip(dev) == 0x7902;
 }
 
-static inline bool is_mt7920(struct mt76_dev *dev)
+static inline bool is_mt7921(struct mt76_dev *dev)
 {
-	return mt76_chip(dev) == 0x7920;
+	return mt76_chip(dev) == 0x7902;
 }
 
 static inline bool is_mt7922(struct mt76_dev *dev)
@@ -192,9 +197,10 @@ static inline bool is_mt7922(struct mt76_dev *dev)
 	return mt76_chip(dev) == 0x7922;
 }
 
-static inline bool is_mt7921(struct mt76_dev *dev)
+static inline bool is_connac2(struct mt76_dev *dev)
 {
-	return mt76_chip(dev) == 0x7961 || is_mt7922(dev) || is_mt7920(dev);
+	return mt76_chip(dev) == 0x7961 || is_mt7922(dev) || is_mt7920(dev) ||
+				is_mt7902(dev);
 }
 
 static inline bool is_mt7663(struct mt76_dev *dev)
@@ -276,6 +282,7 @@ static inline bool is_mt76_fw_txp(struct mt76_dev *dev)
 	case 0x7961:
 	case 0x7920:
 	case 0x7922:
+	case 0x7902:
 	case 0x7925:
 	case 0x7663:
 	case 0x7622:

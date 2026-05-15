@@ -1,4 +1,4 @@
-/* SPDX-License-Identifier: ISC */
+/* SPDX-License-Identifier: BSD-3-Clause-Clear */
 /* Copyright (C) 2023 MediaTek Inc. */
 
 #ifndef __MT792X_REGS_H
@@ -24,6 +24,8 @@
 
 #define MT_PLE_AC_QEMPTY(_n)		MT_PLE(0x500 + 0x40 * (_n))
 #define MT_PLE_AMSDU_PACK_MSDU_CNT(n)	MT_PLE(0x10e0 + ((n) << 2))
+
+#define MT_PSE_BASE			0x820c8000
 
 /* TMAC: band 0(0x21000), band 1(0xa1000) */
 #define MT_WF_TMAC_BASE(_band)		((_band) ? 0x820f4000 : 0x820e4000)

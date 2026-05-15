@@ -10,6 +10,7 @@ int mt7921e_tx_prepare_skb(struct mt76_dev *mdev, void *txwi_ptr,
 			   struct ieee80211_sta *sta,
 			   struct mt76_tx_info *tx_info)
 {
+	printk(KERN_DEBUG "pci_mac.c - mt7921e_tx_prepare_skb(mdev, txwi_ptr, qid, wcid, sta, tx_info)");
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
 	struct ieee80211_tx_info *info = IEEE80211_SKB_CB(tx_info->skb);
 	struct ieee80211_key_conf *key = info->control.hw_key;
@@ -55,6 +56,7 @@ int mt7921e_tx_prepare_skb(struct mt76_dev *mdev, void *txwi_ptr,
 
 int mt7921e_mac_reset(struct mt792x_dev *dev)
 {
+	printk(KERN_DEBUG "pci_mac.c - mt7921e_mac_reset");
 	int i, err;
 
 	mt792xe_mcu_drv_pmctrl(dev);
@@ -71,9 +73,9 @@ int mt7921e_mac_reset(struct mt792x_dev *dev)
 	mt76_txq_schedule_all(&dev->mphy);
 
 	mt76_worker_disable(&dev->mt76.tx_worker);
-	napi_disable(&dev->mt76.napi[MT_RXQ_MAIN]);
-	napi_disable(&dev->mt76.napi[MT_RXQ_MCU]);
-	napi_disable(&dev->mt76.napi[MT_RXQ_MCU_WA]);
+	mt76_for_each_q_rx(&dev->mt76, i) {
+		napi_disable(&dev->mt76.napi[i]);
+	}
 	napi_disable(&dev->mt76.tx_napi);
 
 	mt76_connac2_tx_token_put(&dev->mt76);
