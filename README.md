@@ -60,14 +60,14 @@ This fix has been verified and is confirmed working on:
 * **Brand:** ASUS
 * **Model:** Vivobook Go (E1404FA), Vivobook 14 (X1404ZA)
 * **Chipset:** MediaTek MT7902 (WiFi 6E)
-* **Kernel Version:** 6.19.0 (Linux), 6.19.11
+* **Kernel Version:** 6.19.0 (Linux), 6.19.11, 7.0.7
 * **OSes:** Arch, Ubuntu
 * **Package Manager:** pacman, apt
 
 ## Available for:
 * **OS**: Any os that support one of PM`s
 * **Preffered package managers**: apt, pacman, dnf, zypper, nix-shell
-* **Kernel versions**: 6.14-6.19
+* **Kernel versions**: 6.14-7.0.7
 
 
 ## 🔧 Firmwares used

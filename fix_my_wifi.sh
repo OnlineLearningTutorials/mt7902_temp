@@ -26,7 +26,9 @@ set -e
 
 # Variables declaration
 SCRIPT_DIR=$(pwd)
-BT_DIR="../linux-$(uname -r | cut -d'.' -f1,2)/drivers/bluetooth"
+LINUX_DIR="$(SCRIPT_DIR)/linux-$(uname -r | cut -d'.' -f1,2)"
+BT_DIR="$LINUX_DIR/drivers/bluetooth"
+WIFI_DIR="$LINUX_DIR/drivers/net/wireless/mediatek/mt76" # SIXSEVENNN (cringe)
 
 # Usage Check: Ensure script is run with sudo
 if [[ $EUID -ne 0 ]]; then
@@ -36,6 +38,7 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 echo "🚀 Starting MT7902 Fix..."
+
 
 if command -v apt &> /dev/null; then
     apt-get update
@@ -50,8 +53,9 @@ elif command -v zypper &> /dev/null; then
 elif command -v nix-shell &> /dev/null; then
     nix-shell -p linuxHeaders.$(uname -r) bc clang llvm lld    
 else
-    echo "⚠️ No supported package manager found (apt, pacman, dnf, zypper, nix-shell)."
-    echo "Please install make, gcc/clang, flex, bison, bc and kernel headers manually."
+    echo "⚠️ No supported package manager found (apt, pacman, dnf, zypper, nix-shell)." >&2
+    echo "Please install make, gcc/clang, flex, bison, bc and kernel headers manually." >&2
+    
 fi
 
 # Detect kernel compiler
@@ -65,9 +69,14 @@ fi
 
 # 2. Compile WiFi Modules
 echo "🛠️ Compiling WiFi modules..."
-cd "$SCRIPT_DIR/latest"
-make clean
-make $COMPILER_ARGS module_compile
+if [ -d "$WIFI_DIR" ]; then
+	cd $WIFI_DIR
+	make clean
+	make $COMPILER_ARGS module_compile
+else 
+	echo "WIFI driver source not found for this kernel version, stopping..."
+	exit 0
+fi
 
 # 3. Compile Bluetooth Modules
 echo "🛠️ Compiling Bluetooth modules..."
@@ -76,21 +85,21 @@ if [ -d "$BT_DIR" ]; then
     make clean
     make $COMPILER_ARGS
 else
-    echo "⚠️ Bluetooth source not found for this kernel version, skipping BT build."
+    echo "⚠️ Bluetooth source not found for this kernel version, stopping..."
+    exit 0
 fi
 
 # 4. Prepare and Copy Modules
 echo "📂 Installing modules..."
 
-cd "$SCRIPT_DIR/latest"
+cd $WIFI_DIR
 mkdir -p /lib/modules/mt7902_custom/
 cp *.ko /lib/modules/mt7902_custom/
 cp mt7921/*.ko /lib/modules/mt7902_custom/
+cd "$BT_DIR"
+cp btmtk.ko btusb.ko /lib/modules/mt7902_custom/
 
-if [ -d "$BT_DIR" ]; then
-    cd "$BT_DIR"
-    cp btmtk.ko btusb.ko /lib/modules/mt7902_custom/
-fi
+
 
 # 5. Create/Update Setup Script
 echo "📝 Configuring startup service..."
