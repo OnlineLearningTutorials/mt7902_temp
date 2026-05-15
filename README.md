@@ -20,13 +20,13 @@ If you don't want to clone past history than
 
 ### 🚀 Installation Guide Script (Recommended for Ubuntu Based System)
 Make the script executable if not already
-    ```
-    chmod +x ./install_guide.sh
-    ```
+```
+chmod +x ./install_guide.sh
+```
 Now run this script
-    ```
-    ./install_guide.sh
-    ```
+```
+./install_guide.sh
+```
 It will automatically prompt for password when necessary
 * This script will ask you to install firmware, bluetooth and wifi driver one by one
 * Tested on Ubuntu with linux 7.0 kernel
@@ -35,14 +35,14 @@ It will automatically prompt for password when necessary
 If you want to quickly fix your WiFi and Bluetooth on any modern kernel, follow these steps:
 
 Make the script executable if not already
-    ```
-    chmod +x ./fix_my_wifi.sh
-    ```
+```
+chmod +x ./fix_my_wifi.sh
+```
 
 **Run the automatic fix script** with sudo:
-   ```bash
-   sudo bash fix_my_wifi.sh
-   ```
+```bash
+sudo bash fix_my_wifi.sh
+```
 
 #### 📖 What this script does:
 * **Checks for dependencies:** Ensures you have `gcc`/`clang`, `make`, `bc`, and your current `kernel-headers` installed. If not - installs with ur preffered package manager
