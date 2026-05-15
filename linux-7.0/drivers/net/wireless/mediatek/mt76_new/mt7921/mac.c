@@ -17,20 +17,44 @@
 
 bool mt7921_mac_wtbl_update(struct mt792x_dev *dev, int idx, u32 mask)
 {
+	printk(KERN_DEBUG "mac.c - mt7921_mac_wtbl_update(dev, idx: %d, mask: 0x%08x)", idx, mask);
+	u32 val;
+	bool success;
+
+	// 1. Log the update request (Idx = Station ID, Mask = Operation type)
+	dev_info(dev->mt76.dev, "WTBL Update: idx=%d mask=0x%08x\n", idx, mask);
+
 	mt76_rmw(dev, MT_WTBL_UPDATE, MT_WTBL_UPDATE_WLAN_IDX,
 		 FIELD_PREP(MT_WTBL_UPDATE_WLAN_IDX, idx) | mask);
 
-	return mt76_poll(dev, MT_WTBL_UPDATE, MT_WTBL_UPDATE_BUSY,
-			 0, 5000);
+	success = mt76_poll(dev, MT_WTBL_UPDATE, MT_WTBL_UPDATE_BUSY, 0, 5000);
+	
+	if (!success) {
+		val = mt76_rr(dev, MT_WTBL_UPDATE);
+		dev_err(dev->mt76.dev, 
+			"WTBL Update Timeout! idx=%d, Reg(0x%x)=0x%08x (Busy bit stuck)\n", 
+			idx, MT_WTBL_UPDATE, val);
+		
+		/* 0xFFFFFFFF check to see if PCIe link is dead */
+		if (val == 0xffffffff)
+			dev_err(dev->mt76.dev, "PCIe bus disconnected during WTBL update\n");
+	}
+
+	return success;
+
+	//return mt76_poll(dev, MT_WTBL_UPDATE, MT_WTBL_UPDATE_BUSY,
+	//		 0, 5000);
 }
 
 static u32 mt7921_mac_wtbl_lmac_addr(int idx, u8 offset)
 {
+	printk(KERN_DEBUG "mac.c - mt7921_mac_wtbl_lmac_addr");
 	return MT_WTBL_LMAC_OFFS(idx, 0) + offset * 4;
 }
 
 static void mt7921_mac_sta_poll(struct mt792x_dev *dev)
 {
+	printk(KERN_DEBUG "mac.c - mt7921_mac_sta_poll");
 	static const u8 ac_to_tid[] = {
 		[IEEE80211_AC_BE] = 0,
 		[IEEE80211_AC_BK] = 1,
@@ -167,6 +191,7 @@ static void mt7921_mac_sta_poll(struct mt792x_dev *dev)
 static int
 mt7921_mac_fill_rx(struct mt792x_dev *dev, struct sk_buff *skb)
 {
+	printk(KERN_DEBUG "mac.c - mt7921_mac_fill_rx(dev, skb)");
 	u32 csum_mask = MT_RXD0_NORMAL_IP_SUM | MT_RXD0_NORMAL_UDP_TCP_SUM;
 	struct mt76_rx_status *status = (struct mt76_rx_status *)skb->cb;
 	bool hdr_trans, unicast, insert_ccmp_hdr = false;
@@ -445,6 +470,7 @@ mt7921_mac_fill_rx(struct mt792x_dev *dev, struct sk_buff *skb)
 
 void mt7921_mac_add_txs(struct mt792x_dev *dev, void *data)
 {
+	printk(KERN_DEBUG "mac.c - mt7921_mac_add_txs");
 	struct mt792x_link_sta *mlink;
 	struct mt76_wcid *wcid;
 	__le32 *txs_data = data;
@@ -483,6 +509,7 @@ out:
 
 static void mt7921_mac_tx_free(struct mt792x_dev *dev, void *data, int len)
 {
+	printk(KERN_DEBUG "mac.c - mt7921_mac_tx_free");
 	struct mt76_connac_tx_free *free = data;
 	__le32 *tx_info = (__le32 *)(data + sizeof(*free));
 	struct mt76_dev *mdev = &dev->mt76;
@@ -559,6 +586,7 @@ static void mt7921_mac_tx_free(struct mt792x_dev *dev, void *data, int len)
 
 bool mt7921_rx_check(struct mt76_dev *mdev, void *data, int len)
 {
+	//printk(KERN_DEBUG "mac.c - mt7921_rx_check(mdev, data, len: %d)", len);
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
 	__le32 *rxd = (__le32 *)data;
 	__le32 *end = (__le32 *)&rxd[len / 4];
@@ -584,6 +612,7 @@ EXPORT_SYMBOL_GPL(mt7921_rx_check);
 void mt7921_queue_rx_skb(struct mt76_dev *mdev, enum mt76_rxq_id q,
 			 struct sk_buff *skb, u32 *info)
 {
+	//printk(KERN_DEBUG "mac.c - mt7921_queue_rx_skb(mdev, q: %d, skb, info: 0x%x)", q, info);
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
 	__le32 *rxd = (__le32 *)skb->data;
 	__le32 *end = (__le32 *)&skb->data[skb->len];
@@ -628,6 +657,7 @@ static void
 mt7921_vif_connect_iter(void *priv, u8 *mac,
 			struct ieee80211_vif *vif)
 {
+	printk(KERN_DEBUG "mac.c - mt792x_vif_connect_iter");
 	struct mt792x_vif *mvif = (struct mt792x_vif *)vif->drv_priv;
 	struct mt792x_dev *dev = mvif->phy->dev;
 	struct ieee80211_hw *hw = mt76_hw(dev);
@@ -638,6 +668,8 @@ mt7921_vif_connect_iter(void *priv, u8 *mac,
 	mt76_connac_mcu_uni_add_dev(&dev->mphy, &vif->bss_conf,
 				    &mvif->bss_conf.mt76,
 				    &mvif->sta.deflink.wcid, true);
+
+	printk(KERN_DEBUG "vif_connect_iter: add dev info ret = %d\n", ret);
 	mt7921_mcu_set_tx(dev, vif);
 
 	if (vif->type == NL80211_IFTYPE_AP) {
@@ -652,13 +684,14 @@ mt7921_vif_connect_iter(void *priv, u8 *mac,
 /* system error recovery */
 void mt7921_mac_reset_work(struct work_struct *work)
 {
+	printk(KERN_DEBUG "mac.c - mt7921_mac_reset_work");
 	struct mt792x_dev *dev = container_of(work, struct mt792x_dev,
 					      reset_work);
 	struct ieee80211_hw *hw = mt76_hw(dev);
 	struct mt76_connac_pm *pm = &dev->pm;
 	int i, ret;
 
-	dev_dbg(dev->mt76.dev, "chip reset\n");
+	dev_info(dev->mt76.dev, "chip reset\n");
 	set_bit(MT76_RESET, &dev->mphy.state);
 	dev->hw_full_reset = true;
 	ieee80211_stop_queues(hw);
@@ -753,6 +786,7 @@ mt7921_usb_sdio_write_txwi(struct mt792x_dev *dev, struct mt76_wcid *wcid,
 			   struct ieee80211_key_conf *key, int pid,
 			   struct sk_buff *skb)
 {
+	printk(KERN_DEBUG "mac.c - mt7921_usb_sdio_write_txwi");
 	__le32 *txwi = (__le32 *)(skb->data - MT_SDIO_TXD_SIZE);
 
 	memset(txwi, 0, MT_SDIO_TXD_SIZE);
@@ -765,6 +799,7 @@ int mt7921_usb_sdio_tx_prepare_skb(struct mt76_dev *mdev, void *txwi_ptr,
 				   struct ieee80211_sta *sta,
 				   struct mt76_tx_info *tx_info)
 {
+	printk(KERN_DEBUG "mac.c - mt7921_usb_sdio_tx_prepare_skb");
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
 	struct ieee80211_tx_info *info = IEEE80211_SKB_CB(tx_info->skb);
 	struct ieee80211_key_conf *key = info->control.hw_key;
@@ -811,6 +846,7 @@ EXPORT_SYMBOL_GPL(mt7921_usb_sdio_tx_prepare_skb);
 void mt7921_usb_sdio_tx_complete_skb(struct mt76_dev *mdev,
 				     struct mt76_queue_entry *e)
 {
+	printk(KERN_DEBUG "mac.c - mt7921_usb_sdio_tx_complete_skb");
 	__le32 *txwi = (__le32 *)(e->skb->data + MT_SDIO_HDR_SIZE);
 	unsigned int headroom = MT_SDIO_TXD_SIZE + MT_SDIO_HDR_SIZE;
 	struct ieee80211_sta *sta;
@@ -831,6 +867,7 @@ EXPORT_SYMBOL_GPL(mt7921_usb_sdio_tx_complete_skb);
 
 bool mt7921_usb_sdio_tx_status_data(struct mt76_dev *mdev, u8 *update)
 {
+	printk(KERN_DEBUG "mac.c - mt7921_usb_sdio_tx_status_data");
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
 
 	mt792x_mutex_acquire(dev);
