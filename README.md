@@ -15,10 +15,11 @@ If you don't want to clone past history than
   git clone --depth 1 https://github.com/OnlineLearningTutorials/mt7902_temp
   ```
 
-## Installation 
+## Installation
+
 
 ### 🚀 Installation Guide Script (Recommended for Ubuntu Based System)
-    Make the script executable if not already
+Make the script executable if not already
     ```
     chmod +x ./install_guide.sh
     ```
@@ -27,16 +28,18 @@ If you don't want to clone past history than
     ./install_guide.sh
     ```
     It will automatically prompt for password when necessary
-    - This script will ask you to install firmware, bluetooth and wifi driver one by one
-    - Tested on Ubuntu with linux 7.0 kernel
+    * This script will ask you to install firmware, bluetooth and wifi driver one by one
+    * Tested on Ubuntu with linux 7.0 kernel
 
 ### 🚀 Easy Automatic Fix (Recommended for Arch Based System)
 If you want to quickly fix your WiFi and Bluetooth on any modern kernel, follow these steps:
-    Make the script executable if not already
+
+Make the script executable if not already
     ```
     chmod +x ./fix_my_wifi.sh
     ```
-    **Run the automatic fix script** with sudo:
+
+ **Run the automatic fix script** with sudo:
    ```bash
    sudo bash fix_my_wifi.sh
    ```
