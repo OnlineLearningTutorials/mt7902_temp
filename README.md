@@ -1,5 +1,55 @@
-# 🎯 mt7902 driver development (✅ Working)
-We are trying to develop the driver for the Mediatek mt7902 wifi 6E chip
+# 🎯 MT7902 Driver as Sub-Part of MT7921 Driver (✅ Working)
+Mediatek mt7902 wifi 6E chip Bluetooth and WiFi Support
+
+> [!IMPORTANT]
+> Linux 7.1 Kernel Officially Supports the MT7902 WIFI 6E chip
+
+
+## 📁 Cloning the repository
+Clone the repository to your local pc
+  ```
+  git clone https://github.com/OnlineLearningTutorials/mt7902_temp
+  ```
+If you don't want to clone past history than 
+  ```
+  git clone --depth 1 https://github.com/OnlineLearningTutorials/mt7902_temp
+  ```
+
+## Installation 
+
+### 🚀 Installation Guide Script (Recommended for Ubuntu Based System)
+    Make the script executable if not already
+    ```
+    chmod +x ./install_guide.sh
+    ```
+    Now run this script
+    ```
+    ./install_guide.sh
+    ```
+    It will automatically prompt for password when necessary
+    - This script will ask you to install firmware, bluetooth and wifi driver one by one
+    - Tested on Ubuntu with linux 7.0 kernel
+
+### 🚀 Easy Automatic Fix (Recommended for Arch Based System)
+If you want to quickly fix your WiFi and Bluetooth on any modern kernel, follow these steps:
+    Make the script executable if not already
+    ```
+    chmod +x ./fix_my_wifi.sh
+    ```
+    **Run the automatic fix script** with sudo:
+   ```bash
+   sudo bash fix_my_wifi.sh
+   ```
+
+#### 📖 What this script does:
+* **Checks for dependencies:** Ensures you have `gcc`/`clang`, `make`, `bc`, and your current `kernel-headers` installed. If not - installs with ur preffered package manager
+* **Compiles Drivers:** Automatically builds both WiFi and Bluetooth drivers for your exact kernel version.
+* **Persistent Fix:** Installs a system service that ensures your WiFi stays active even after you restart your computer.
+* **Safety:** Installs modules into a custom directory (`/lib/modules/mt7902_custom`) to avoid messing with your default system files.
+
+> [!NOTE]
+> You will need an internet connection (via Ethernet or USB tethering from your phone) the first time you run this to download the necessary build tools. (Such as compilator, linux-headers, etc)
+
 
 ## ✅ Tested On (Verified Working)
 This fix has been verified and is confirmed working on:
@@ -16,42 +66,9 @@ This fix has been verified and is confirmed working on:
 * **Preffered package managers**: apt, pacman, dnf, zypper, nix-shell
 * **Kernel versions**: 6.14-6.19
 
-## 🚀 Easy Automatic Fix (Recommended)
-If you want to quickly fix your WiFi and Bluetooth on any modern kernel, follow these steps:
-
-1. **Open your terminal** and clone the repository:
-   ```bash
-   git clone --depth 1 https://github.com/OnlineLearningTutorials/mt7902_temp
-   cd mt7902_temp
-   ```
-
-2. **Run the automatic fix script** with sudo:
-   ```bash
-   sudo bash fix_my_wifi.sh
-   ```
-
-### 📖 What this script does:
-* **Checks for dependencies:** Ensures you have `gcc`/`clang`, `make`, `bc`, and your current `kernel-headers` installed. If not - installs with ur preffered package manager
-* **Compiles Drivers:** Automatically builds both WiFi and Bluetooth drivers for your exact kernel version.
-* **Persistent Fix:** Installs a system service that ensures your WiFi stays active even after you restart your computer.
-* **Safety:** Installs modules into a custom directory (`/lib/modules/mt7902_custom`) to avoid messing with your default system files.
-
-> [!NOTE]
-> You will need an internet connection (via Ethernet or USB tethering from your phone) the first time you run this to download the necessary build tools. (Such as compilator, linux-headers, etc)
 
 ## 🔧 Firmwares used
-Firmwares are stored in `mt7902_firmware` folder.
-Recently released firmware are in the `mt7902_firmware/latest` folder.
-
-## 📁 Cloning the repository
-Clone the repository to your local pc
-  ```
-  git clone https://github.com/OnlineLearningTutorials/mt7902_temp
-  ```
-If you don't want to clone past history than 
-  ```
-  git clone --depth 1 https://github.com/OnlineLearningTutorials/mt7902_temp
-  ```
+Firmwares are stored in `firmware` folder.
 
 
 ## 📱 Bluetooth ✅ (Working)
