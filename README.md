@@ -90,11 +90,19 @@ sudo bash fix_my_wifi.sh
 This fix has been verified and is confirmed working on:
 
 * **Brand:** ASUS
-* **Model:** Vivobook Go (E1404FA), Vivobook 14 (X1404ZA)
+* **Model:** Vivobook Go (E1404FA), Vivobook 14 (X1404ZA), Vivobook (M1502YA)
 * **Chipset:** MediaTek MT7902 (WiFi 6E)
-* **Kernel Version:** 6.19.0 (Linux), 6.19.11, 7.0.7
-* **OSes:** Arch, Ubuntu
-* **Package Manager:** pacman, apt
+* **Kernel Version:** 6.19.0 (Linux), 6.19.11, 6.19.14, 7.0.7
+* **OSes:** Arch, Ubuntu, Bazzite (Fedora Silverblue-based, immutable/ostree)
+* **Package Manager:** pacman, apt, rpm-ostree (build-only, see note below)
+
+> [!NOTE]
+> **Immutable/ostree distros (Bazzite, Silverblue, uCore, etc.):** `/lib/modules` is read-only, so
+> `fix_my_wifi.sh`'s `/lib/modules/mt7902_custom` target isn't writable — install to `/var/lib/mt7902_modules`
+> instead (persists across `rpm-ostree` updates). With SELinux enforcing, loading a module from that path
+> is denied (`avc: denied { module_load } ... tcontext=var_lib_t`) unless you relabel it first:
+> `sudo semanage fcontext -a -t modules_object_t '/var/lib/mt7902_modules(/.*)?' && sudo restorecon -R /var/lib/mt7902_modules`.
+> Everything else (build against matched `kernel-devel`, firmware, systemd service) works as documented.
 
 ## Available for:
 * **OS**: Any os that support one of PM`s
