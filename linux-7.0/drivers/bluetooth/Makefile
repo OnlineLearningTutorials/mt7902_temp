@@ -19,7 +19,7 @@ module_compress: $(ZSTD_BINS)
 	
 
 %.ko.zst: %.ko
-	zstd $<
+	zstd -f -o $@ $<
 
 
 module_install: $(MOD_DIR)
