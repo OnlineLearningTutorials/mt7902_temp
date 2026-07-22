@@ -12,6 +12,6 @@
 *.rej
 *.order
 *.symvers
-
+*.ko.zst
 
 .backup/

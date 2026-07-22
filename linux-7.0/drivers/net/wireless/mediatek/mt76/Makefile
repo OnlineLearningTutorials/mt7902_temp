@@ -35,13 +35,13 @@ module_compile:
 	$(MAKE) -C /lib/modules/`uname -r`/build/ M=`pwd` modules
 	
 	
-module_compress: $(ZSTD_BINS)
+module_compress:
 	@echo "-- Module Compression"
-	@find . -name "*.ko" -exec zstd -f {} \;
-	
-
-%.ko.zst: %.ko
-	zstd $<
+	zstd -f mt76.ko
+	zstd -f mt76-connac-lib.ko
+	zstd -f mt792x-lib.ko
+	zstd -f mt7921/mt7921-common.ko
+	zstd -f mt7921/mt7921e.ko
 
 
 module_install: $(MOD_DIR)
