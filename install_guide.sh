@@ -50,9 +50,16 @@ echo "------------------------------------------------"
 
 # Check if the kernel folder actually exists before proceeding to drivers
 if [ ! -d "./$KERNEL_DIR" ]; then
-    echo "Error: Directory './$KERNEL_DIR' matching your kernel version ($KERNEL_VERSION) does not exist!"
-    echo "Aborting script execution to avoid compilation failures."
-    exit 1
+    LATEST_DIR=$(ls -d ./linux-[0-9]* 2>/dev/null | sort -V | tail -n 1)
+    if [ -n "$LATEST_DIR" ]; then
+        echo "⚠️ Directory './$KERNEL_DIR' matching your kernel version ($KERNEL_VERSION) does not exist!"
+        echo "Falling back to '$(basename "$LATEST_DIR")'..."
+        KERNEL_DIR=$(basename "$LATEST_DIR")
+    else
+        echo "Error: Directory './$KERNEL_DIR' matching your kernel version ($KERNEL_VERSION) does not exist!"
+        echo "Aborting script execution to avoid compilation failures."
+        exit 1
+    fi
 fi
 
 # 3. Prompt for Bluetooth Driver

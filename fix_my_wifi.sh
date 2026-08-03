@@ -26,9 +26,17 @@ set -e
 
 # Variables declaration
 SCRIPT_DIR=$(pwd)
-LINUX_DIR="$SCRIPT_DIR/linux-$(uname -r | cut -d'.' -f1,2)"
+KERNEL_VER=$(uname -r | cut -d'.' -f1,2)
+LINUX_DIR="$SCRIPT_DIR/linux-$KERNEL_VER"
+if [ ! -d "$LINUX_DIR" ]; then
+    LATEST_DIR=$(ls -d "$SCRIPT_DIR"/linux-[0-9]* 2>/dev/null | sort -V | tail -n 1)
+    if [ -n "$LATEST_DIR" ]; then
+        echo "⚠️ Target kernel directory $LINUX_DIR not found, falling back to $(basename "$LATEST_DIR")..."
+        LINUX_DIR="$LATEST_DIR"
+    fi
+fi
 BT_DIR="$LINUX_DIR/drivers/bluetooth"
-WIFI_DIR="$LINUX_DIR/drivers/net/wireless/mediatek/mt76" # SIXSEVENNN (cringe)
+WIFI_DIR="$LINUX_DIR/drivers/net/wireless/mediatek/mt76"
 
 # Usage Check: Ensure script is run with sudo
 if [[ $EUID -ne 0 ]]; then

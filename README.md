@@ -92,7 +92,7 @@ This fix has been verified and is confirmed working on:
 * **Brand:** ASUS
 * **Model:** Vivobook Go (E1404FA), Vivobook 14 (X1404ZA), Vivobook (M1502YA)
 * **Chipset:** MediaTek MT7902 (WiFi 6E)
-* **Kernel Version:** 6.19.0 (Linux), 6.19.11, 6.19.14, 7.0.7
+* **Kernel Version:** 6.19.0 (Linux), 6.19.11, 6.19.14, 7.0.7, 7.1.x
 * **OSes:** Arch, Ubuntu, Bazzite (Fedora Silverblue-based, immutable/ostree)
 * **Package Manager:** pacman, apt, rpm-ostree (build-only, see note below)
 
@@ -107,7 +107,7 @@ This fix has been verified and is confirmed working on:
 ## Available for:
 * **OS**: Any os that support one of PM`s
 * **Preffered package managers**: apt, pacman, dnf, zypper, nix-shell
-* **Kernel versions**: 6.14-7.0.7
+* **Kernel versions**: 6.14-7.1.x
 
 
 ## 🔧 Firmwares used
